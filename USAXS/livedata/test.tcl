@@ -3,6 +3,14 @@
 # the next line restarts using OAG Tcl shell oagtclsh \
    exec oagtclsh "$0" ${1+"$@"}
 
+########### SVN repository information ###################
+# $Date$
+# $Author$
+# $Revision$
+# $URL$
+# $Id$
+########### SVN repository information ###################
+
 # update a file with new EPICS data for 32ID-B USAXS experiment
 
 #####################################################################

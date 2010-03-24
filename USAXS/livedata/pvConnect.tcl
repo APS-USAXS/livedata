@@ -3,6 +3,14 @@
 # the next line restarts using OAG Tcl shell oagtclsh \
    exec oagtclsh "$0" ${1+"$@"}
 
+########### SVN repository information ###################
+# $Date$
+# $Author$
+# $Revision$
+# $URL$
+# $Id$
+########### SVN repository information ###################
+
 # 2009-03-19,PRJ:  On APS Linux systems, 
 #  the OAG TCL toolkit is installed under /usr/local/oag
 lappend auto_path /usr/local/oag/apps/lib/Linux

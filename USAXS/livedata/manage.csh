@@ -1,4 +1,11 @@
 #!/bin/tcsh
+########### SVN repository information ###################
+# $Date$
+# $Author$
+# $Revision$
+# $URL$
+# $Id$
+########### SVN repository information ###################
 #
 # chkconfig: - 98 98
 # description: 32ID USAXS WWW page update script

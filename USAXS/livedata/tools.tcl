@@ -1,4 +1,11 @@
 #!/usr/bin/tclsh
+########### SVN repository information ###################
+# $Date$
+# $Author$
+# $Revision$
+# $URL$
+# $Id$
+########### SVN repository information ###################
 #
 # tools
 
