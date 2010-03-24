@@ -25,6 +25,7 @@ REPORT_INTERVAL_S = 30
 SLEEP_INTERVAL_S = 0.2
 REPORT_FILE = "./www/report.xml"
 SVN_ID = "$Id$"
+XSL_STYLESHEET = "livedata.xsl"
 
 
 pvdb = {}   # EPICS data will go here
@@ -73,9 +74,15 @@ def makeSimpleTag(tag, value):
 
 def report():
     '''write the values out in XML'''
+    #---
+    # the detector currents are calculated not read 
+    # directly from EPICS but rather calculated from 
+    # the voltage and gain
+    # Also, what about motor DMOV fields?
+    #---
     f = open(REPORT_FILE, 'w')
     f.write('<?xml version="1.0" encoding="UTF-8"?>\n')
-    f.write('<?xml-stylesheet type="text/xsl" href="raw-table.xsl" ?>\n')
+    f.write('<?xml-stylesheet type="text/xsl" href="%s" ?>\n' % XSL_STYLESHEET)
     f.write('<usaxs_pvs version="1">\n')
     f.write("  " + makeSimpleTag('writer', SVN_ID) + "\n")
     f.write("  " + makeSimpleTag('datetime', getTime()) + "\n")
@@ -94,8 +101,9 @@ def report():
 
 def getTime():
     '''return a datetime value'''
-    t = time.mktime(time.gmtime())
-    dt = datetime.datetime.utcfromtimestamp(t)
+    #t = time.mktime(time.gmtime())
+    #dt = datetime.datetime.utcfromtimestamp(t)
+    dt = datetime.datetime.now()
     return dt
 
 
