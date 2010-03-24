@@ -1,4 +1,11 @@
 #!/usr/bin/tclsh
+########### SVN repository information ###################
+# $Date$
+# $Author$
+# $Revision$
+# $URL$
+# $Id$
+########### SVN repository information ###################
 #
 # file: usaxs_plot.tcl
 # create a plot from current USAXS experiments to a PNG file
