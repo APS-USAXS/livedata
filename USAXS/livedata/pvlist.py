@@ -1,3 +1,11 @@
+########### SVN repository information ###################
+# $Date$
+# $Author$
+# $Revision$
+# $URL$
+# $Id$
+########### SVN repository information ###################
+
 pvconfig = [
   ["SR_current", "S:SRcurrentAI", "APS storage ring current, mA"],
   ["Und_E", "ID32:Energy", "ID E, keV"],
