@@ -32,7 +32,8 @@
                     <xsl:apply-templates select="usaxs_pvs/pv"/>
                 </table>
 
-                <p>
+                <hr />
+		<p>
                     <small>
                         report page: $Id$
                     </small>
