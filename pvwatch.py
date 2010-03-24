@@ -9,10 +9,10 @@
 
 '''watch the USAXS EPICS process variables and write them to a file periodically'''
 
-import pvConnect
-import time
-import datetime
-from pvlist import *
+import time		# provides sleep()
+import datetime		# date/time stamps
+import pvConnect	# manages EPICS connections
+from pvlist import *	# the list of PVs to be watched
 
 
 REPORT_INTERVAL_S = 30
