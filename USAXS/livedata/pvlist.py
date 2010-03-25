@@ -52,7 +52,6 @@ pvconfig = [
   ["scaler_tp", "32idbUSX:scaler1.TP", "scaler counting time preset, s"],
   ["scaler_t", "32idbUSX:scaler1.T", "scaler counting time elasped, s"],
   ["lax_alldone", "32idbLAX:alldone", "LAX motors moving"],
-  ["ar_enc", "32idbLAX:ar:encoder", "motor AR encoder, degrees"],
   ["mr_enc", "32idbLAX:mr:encoder", "motor MR encoder, degrees"],
   ["m1y", "32idbLAX:m58:c0:m1.RBV", "motor M1Y, mm"],
   ["msx", "32idbLAX:m58:c0:m4.RBV", "motor MSX, mm"],
