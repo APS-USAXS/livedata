@@ -15,6 +15,7 @@
    /APSshare/bin/python ./pvwatch.py >>& log.txt
 '''
 
+import sys
 import time		# provides sleep()
 import datetime		# date/time stamps
 import shutil		# file copies
@@ -177,6 +178,7 @@ if __name__ == '__main__':
         test_pv = 'S:SRcurrentAI'
         if pvConnect.testConnect(test_pv):
 	    print getTime(), ": starting pvwatch.py"
+	    sys.stdout.flush()
 
 	    ch = pvConnect.EpicsPv(test_pv)
 	    ch.connectw()
