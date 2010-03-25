@@ -177,7 +177,7 @@ if __name__ == '__main__':
     if pvConnect.IMPORTED_CACHANNEL:
         test_pv = 'S:SRcurrentAI'
         if pvConnect.testConnect(test_pv):
-	    print getTime(), ": starting pvwatch.py"
+	    print "%s: starting pvwatch.py [pid=%d]" % (getTime(), os.getpid())
 	    sys.stdout.flush()
 
 	    ch = pvConnect.EpicsPv(test_pv)
