@@ -228,7 +228,7 @@ def ploticus_data(usaxs):
 	    result.append("%-10s %15s %s" % (label, USAXS_Q, USAXS_I))
 	# strange ploticus bug that will not plot any data when Qmax/Qmin < 2.9
 	if qMax < 3*qMin:
-	    print "moving limits!"
+	    #print "moving limits!"
 	    # move limits symmetrically
 	    qMax = qMin * 1.5
 	    qMin = qMin / 1.5
@@ -265,6 +265,6 @@ def calc_usaxs_data(specScan):
 
 
 if __name__ == '__main__':
-    specFile = '/share1/USAXS_data/2010-03/03_24.dat'
+    specFile = '/share1/USAXS_data/2010-03/03_25.dat'
     numScans = 5
     updatePlotImage(specFile, numScans)
