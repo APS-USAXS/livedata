@@ -44,6 +44,9 @@
 
     <xsl:template match="pv">
         <tr>
+ 	    <xsl:if test="position() mod 2=0">
+ 	      <xsl:attribute name="bgcolor">Azure</xsl:attribute>
+ 	    </xsl:if>
             <td><xsl:value-of select="name"/></td>
             <td><xsl:value-of select="id"/></td>
             <td><xsl:value-of select="description"/></td>
