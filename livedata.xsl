@@ -14,10 +14,10 @@
 
         <html>
             <head>
-                <meta HTTP-EQUIV="Pragma" CONTENT="no-cache"/>
-                <meta HTTP-EQUIV="Refresh" CONTENT="300"/>
+                <meta http-equiv="Pragma" content="no-cache"/>
+                <meta http-equiv="Refresh" content="300"/>
                 <title>USAXS status</title>
-                <style TYPE="text/css">
+                <style type="text/css">
                     
                     body {
                         font: x-small Verdana, Arial, Helvetica, sans-serif; 
@@ -86,9 +86,9 @@
             <body>
                 
                 <table border="0" width="96%" rules="none" bgcolor="darkblue">
-                    <tr><td align="center" CLASS="description">
-                        <font COLOR="white">32ID-B USAXS status</font></td></tr>
-                    <tr><td align="center"><font COLOR="white">HTML page refresh interval 0:05:00 (h:mm:ss)</font></td></tr>
+                    <tr><td align="center" class="description">
+                        <font color="white">USAXS status</font></td></tr>
+                    <tr><td align="center"><font color="white">HTML page refresh interval 0:05:00 (h:mm:ss)</font></td></tr>
                     <tr bgcolor="lightblue">
                         <td align="center">
                             Webcam: <a href="http://usaxsqvs1.xor.aps.anl.gov">http://usaxsqvs1.xor.aps.anl.gov</a>
@@ -117,36 +117,36 @@
                                 <tr>
                                     <td>shutters:</td>
                                     <xsl:choose>
-                                        <xsl:when test="//pv[@name='32idbUSX:pmm01:reg01:bo01']/value=0">
+                                        <xsl:when test="//pv[@name='32idbUSX:pmm01:reg01:bo01']/value=1">
                                             <td bgcolor="#22ff22">USAXS CCD: open</td>
                                         </xsl:when>
-                                        <xsl:when test="//pv[@name='32idbUSX:pmm01:reg01:bo01']/value=1">
+                                        <xsl:otherwise>
                                             <td bgcolor="#ff2222">USAXS CCD: closed</td>
-                                        </xsl:when>
+                                        </xsl:otherwise>
                                     </xsl:choose>
                                     <xsl:choose>
                                         <xsl:when test="//pv[@name='32idbUSX:rmm02:reg01:bo08']/value=1">
                                             <td bgcolor="#22ff22">USAXS Ti filter: open</td>
                                         </xsl:when>
-                                        <xsl:when test="//pv[@name='32idbUSX:rmm02:reg01:bo08']/value=0">
+                                        <xsl:otherwise>
                                             <td bgcolor="#ff2222">USAXS Ti filter: closed</td>
-                                        </xsl:when>
+                                        </xsl:otherwise>
                                     </xsl:choose>
                                     <xsl:choose>
                                         <xsl:when test="//pv[@name='PA:32ID:A_SHTRS_CLOSED.VAL']/value=0">
                                             <td bgcolor="#22ff22">mono: open</td>
                                         </xsl:when>
-                                        <xsl:when test="//pv[@name='PA:32ID:A_SHTRS_CLOSED.VAL']/value=1">
+                                        <xsl:otherwise>
                                             <td bgcolor="#ff2222">mono: closed</td>
-                                        </xsl:when>
+                                        </xsl:otherwise>
                                     </xsl:choose>
                                     <xsl:choose>
                                         <xsl:when test="//pv[@name='PA:32ID:B_SHTRS_CLOSED.VAL']/value=0">
                                             <td bgcolor="#22ff22">white: open</td>
                                         </xsl:when>
-                                        <xsl:when test="//pv[@name='PA:32ID:B_SHTRS_CLOSED.VAL']/value=1">
+                                        <xsl:otherwise>
                                             <td bgcolor="#ff2222">white: closed</td>
-                                        </xsl:when>
+                                        </xsl:otherwise>
                                     </xsl:choose>
                                 </tr>
                             </table>
