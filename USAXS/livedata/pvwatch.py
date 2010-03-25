@@ -28,24 +28,38 @@ import prjPySpec	# read SPEC data files
 import plot
 
 
-REPORT_INTERVAL_S = 10
-SLEEP_INTERVAL_S = 0.2
+global GLOBAL_MONITOR_COUNTER
+
+BASE_NFS = "/home/joule/USAXS/www/livedata"
+GLOBAL_MONITOR_COUNTER = 0
+LOG_INTERVAL_S = 60*5
+NUM_SCANS_PLOTTED = 5
 REPORT_FILE = "./www/report.xml"
+REPORT_INTERVAL_S = 10
+SLEEP_INTERVAL_S = 0.1
 SVN_ID = "$Id$"
 XSL_STYLESHEET = "raw-table.xsl"
-NUM_SCANS_PLOTTED = 5
-BASE_NFS = "/home/joule/USAXS/www/livedata"
+
 
 pvdb = {}   # EPICS data will go here
+
+
+def logMessage(msg):
+    '''write a message with a timestamp and pid to the log file'''
+    print "[%d %s] %s" % (os.getpid(), getTime(), msg)
+    sys.stdout.flush()
 
 
 def monitor_receiver(epics_args, user_args):
     '''Response to an EPICS monitor on the channel
        @param value: str(epics_args['pv_value'])'''
+    global GLOBAL_MONITOR_COUNTER
     ch = user_args[0]
     pv = ch.GetPv()
     value = ch.GetValue()
     pvdb[pv]['timestamp'] = getTime()
+    pvdb[pv]['counter'] += 1
+    GLOBAL_MONITOR_COUNTER += 1
     try:
         # update the units, if possible
 	if pvdb[pv]['units'] != epics_args['pv_units']:
@@ -70,6 +84,7 @@ def add_pv(item):
     entry['id'] = id
     entry['description'] = desc
     entry['timestamp'] = None
+    entry['counter'] = 0
     entry['units'] = ""
     entry['ch'] = ch
     pvdb[pv] = entry
@@ -115,6 +130,17 @@ def updatePlotImage():
         plot.updatePlotImage(specFile, numScans)
 
 
+def shellCommandToFile(command, outFile):
+    '''execute a shell comannd and write its output to a file'''
+    p = subprocess.Popen(shlex.split(command), stdout=subprocess.PIPE)
+    f = p.stdout
+    buf = f.read()
+    f.close()
+    f = open(outFile, 'w')
+    f.write(buf)
+    f.close()
+
+
 def report():
     '''write the values out in XML'''
     #---
@@ -143,20 +169,14 @@ def report():
     f.write("\n".join(xml))
     f.close()
     #--- xslt transforms
-    p = subprocess.Popen(shlex.split("/usr/bin/xsltproc --novalid livedata.xsl " + REPORT_FILE ), stdout=subprocess.PIPE)
-    f = p.stdout
-    buf = f.read()
-    f.close()
-    f = open("./www/index.html", 'w')
-    f.write(buf)
-    f.close()
-    p = subprocess.Popen(shlex.split("/usr/bin/xsltproc --novalid raw-table.xsl " + REPORT_FILE), stdout=subprocess.PIPE)
-    f = p.stdout
-    buf = f.read()
-    f.close()
-    f = open("./www/raw-report.html", 'w')
-    f.write(buf)
-    f.close()
+    shellCommandToFile(
+        "/usr/bin/xsltproc --novalid livedata.xsl " + REPORT_FILE, 
+	"./www/index.html"
+    )
+    shellCommandToFile(
+        "/usr/bin/xsltproc --novalid raw-table.xsl " + REPORT_FILE, 
+	"./www/raw-report.html"
+    )
     #---
     #
     # copy the spec macro file
@@ -174,11 +194,11 @@ def getTime():
 
 
 if __name__ == '__main__':
+    GLOBAL_MONITOR_COUNTER
     if pvConnect.IMPORTED_CACHANNEL:
         test_pv = 'S:SRcurrentAI'
         if pvConnect.testConnect(test_pv):
-	    print "%s: starting pvwatch.py [pid=%d]" % (getTime(), os.getpid())
-	    sys.stdout.flush()
+	    logMessage("starting pvwatch.py")
 
 	    ch = pvConnect.EpicsPv(test_pv)
 	    ch.connectw()
@@ -188,17 +208,26 @@ if __name__ == '__main__':
 		try:
 	    	    add_pv(row)
 		except:
-		    pass
+		    logMessage("Could not add this information: %s" % row)
 	    pvConnect.CaPoll()
+	    logMessage("Connected %d EPICS PVs" % len(pvdb))
 
 	    nextReport = getTime()
-	    delta = datetime.timedelta(seconds=REPORT_INTERVAL_S)
+	    nextLog = nextReport
+	    delta_report = datetime.timedelta(seconds=REPORT_INTERVAL_S)
+	    delta_log = datetime.timedelta(seconds=LOG_INTERVAL_S)
 	    while True:
 		dt = getTime()
 		ch.chan.pend_event()
 		if dt >= nextReport:
-		    nextReport = dt + delta
+		    nextReport = dt + delta_report
                     report()
+		if dt >= nextLog:
+		    nextLog = dt + delta_log
+                    logMessage(
+		        "checkpoint, %d EPICS monitor events received" 
+			% GLOBAL_MONITOR_COUNTER
+		    )
 		#print dt
 		time.sleep(SLEEP_INTERVAL_S)
 
