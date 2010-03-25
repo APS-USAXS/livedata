@@ -453,7 +453,7 @@
                 
                 <hr/>
                 
-                <p><small>svn id: $ Id: $</small></p>
+                <p><small>svn id: $Id$</small></p>
                 
             </body>
             
