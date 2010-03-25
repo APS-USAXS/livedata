@@ -32,7 +32,7 @@ REPORT_INTERVAL_S = 10
 SLEEP_INTERVAL_S = 0.2
 REPORT_FILE = "./www/report.xml"
 SVN_ID = "$Id$"
-XSL_STYLESHEET = "livedata.xsl"
+XSL_STYLESHEET = "raw-table.xsl"
 NUM_SCANS_PLOTTED = 5
 BASE_NFS = "/home/joule/USAXS/www/livedata"
 
