@@ -11,14 +11,12 @@ DATE_STRING   = `date '+%Y%m%d-%H%M%S'`
 
 TARLIST  = Makefile
 TARLIST += *.csh
-TARLIST += *.tcl
+TARLIST += *.py
 TARLIST += *.txt
+TARLIST += *.xsl
 
 archive backup tar ::
 	tar czf archive/${DATE_STRING}.tar.gz $(TARLIST)
-
-burt ::
-	burtrb -sdds -f burt.req -l burt.log -o burt.sdds
 
 clean :: $(TARLIST)
 	./manage.csh stop

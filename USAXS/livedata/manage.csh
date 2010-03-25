@@ -13,14 +13,15 @@
 # processname: usaxs_update
 
 setenv SCRIPT_DIR /home/joule/USAXS/code/livedata
-setenv SCRIPT  ${SCRIPT_DIR}/main.tcl
+setenv SCRIPT  ${SCRIPT_DIR}/pvwatch.py
 setenv LOGFILE ${SCRIPT_DIR}/log.txt
 setenv PIDFILE ${SCRIPT_DIR}/pid.txt
+setenv PYTHON  /APSshare/bin/python
 
 switch ($1)
   case "start":
         cd ${SCRIPT_DIR}
-        ${SCRIPT} >>& ${LOGFILE} &
+        ${PYTHON} ${SCRIPT} >>& ${LOGFILE} &
         setenv PID $!
         /bin/echo ${PID} >! ${PIDFILE}
         /bin/echo "started ${PID}: ${SCRIPT}"
