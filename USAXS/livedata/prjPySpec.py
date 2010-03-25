@@ -168,7 +168,9 @@ class specDataFileScan:
         i = 0
         for line in lines:
             i += 1
+	    #print "[%s] %s" % (i, line)
             key = line[0:2]
+	    #print i, key
             if (key[0] == "#"):
                 if (key == "#C"):
                     self.comments.append(specScanLine_stripKey(line))
@@ -200,7 +202,9 @@ class specDataFileScan:
                     self.V.append(specScanLine_stripKey(line))
                 else:
                     self.errMsg = "line %d: unknown key (%s) detected" % (i, key)
-            elif (key[1] == "@"):
+            elif len(line) < 2:
+                self.errMsg = "problem with  key " + key + " at scan header line " + str(i)
+            elif key[1] == "@":
                 self.errMsg = "cannot handle @ data yet."
             else:
                 self.data_lines.append(line)
