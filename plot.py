@@ -232,7 +232,7 @@ def ploticus_data(usaxs):
 	    # move limits symmetrically
 	    qMax = qMin * 1.5
 	    qMin = qMin / 1.5
-	    print qMin, qMax, iMin, iMax
+	    #print qMin, qMax, iMin, iMax
     return result, qMin, qMax, iMin, iMax
 
 
