@@ -138,5 +138,11 @@ pvconfig = [
   ["ast_dmov", "32idbLAX:m58:c5:m4.DMOV", "motor done moving AST, degrees"],
   ["mirr_x_dmov", "32idbMIR:m1.DMOV", "motor done moving mirror X, mm"],
   ["mirr_vs_dmov", "32idbMIR:m2.DMOV", "motor done moving mirror vertical steering, mm"],
-  ["tcam_dmov", "32idbLAX:m58:c0:m3.DMOV", "motor done moving tcam position, degrees"]
+  ["tcam_dmov", "32idbLAX:m58:c0:m3.DMOV", "motor done moving tcam position, degrees"],
+
+  ["pd_current",  "32idbUSX:pd01:seq01:lucurrent", "photodiode last-update current, A"],
+  ["pd_amp_current",  "32idbLAX:userCalc7", "photodiode computed current, A"],
+  ["I0_amp_current", "32idbLAX:userCalc8", "I0 computed current, A"],
+  ["I00_amp_current", "32idbLAX:userCalc9", "I00 computed current, A"],
+  ["I000_amp_current", "32idbLAX:userCalc10", "I000 computed current, A"]
 ]
