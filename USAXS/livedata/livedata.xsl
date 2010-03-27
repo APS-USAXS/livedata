@@ -363,7 +363,7 @@
                         
                         <td>
                             <h4>USAXS plot</h4>
-                            <a href="showplot.html"><img SRC="livedata.png" ALT="plot of USAXS data" WIDTH="200"/></a>
+                            <a href="showplot.html"><img SRC="livedata.png" alt="plot of USAXS data" WIDTH="200"/></a>
                         </td>
                     </tr>
                 </table>
