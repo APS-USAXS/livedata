@@ -21,7 +21,7 @@
                 <p>date/time stamp: <xsl:value-of select="/usaxs_pvs/datetime"/></p>
                 
                 <table border="2">
-                    <tr>
+                    <tr style="background-color: grey; color: white;">
                         <th>name</th>
                         <th>id</th>
                         <th>description</th>
