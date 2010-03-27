@@ -118,7 +118,10 @@ def add_pv(item):
 
 def makeSimpleTag(tag, value):
     '''create a simple XML tag/value string'''
-    s = "<%s>%s</%s>" % (tag, value, tag)
+    if len(str(value))>0:
+        s = "<%s>%s</%s>" % (tag, value, tag)
+    else:
+        s = "<%s/>" % tag
     return s
 
 
@@ -186,14 +189,23 @@ def report():
     xml.append("  " + makeSimpleTag('writer', SVN_ID))
     xml.append("  " + makeSimpleTag('datetime', getTime()))
     sorted_id_list = sorted(xref)
+    field_list = []
+    field_list.append("name")
+    field_list.append("id")
+    field_list.append("description")
+    field_list.append("timestamp")
+    field_list.append("counter")
+    field_list.append("units")
+    field_list.append("value")
+    field_list.append("raw_value")
+    field_list.append("format")
     for my_id in sorted_id_list:
 	pv = xref[my_id]
 	entry = pvdb[pv]
 	ch = entry['ch']
-	xml.append('  <pv id="%s" name="%s">' % (entry['id'], pv))
-	for item in ("name", "id", "description", "timestamp", "units"):
+	xml.append('  <pv id="%s" name="%s">' % (my_id, pv))
+	for item in field_list:
 	    xml.append("    " + makeSimpleTag(item, entry[item]))
-	xml.append("    " + makeSimpleTag("value", entry['value']))
 	xml.append('  </pv>')
     xml.append('</usaxs_pvs>')
     #---
