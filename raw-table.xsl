@@ -13,10 +13,10 @@
     <xsl:template match="/">
         <html>
             <head>
-                <title>USAXS status</title>
+                <title>USAXS: EPICS process variables</title>
             </head>
             <body>
-                <h1>USAXS status</h1>
+                <h1>USAXS: EPICS process variables</h1>
                 <p>written by: <xsl:value-of select="/usaxs_pvs/writer"/></p>
                 <p>date/time stamp: <xsl:value-of select="/usaxs_pvs/datetime"/></p>
                 

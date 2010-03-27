@@ -8,7 +8,7 @@
 ########### SVN repository information ###################
 
 '''
-   read a SPEC data file with USAXS scans and plot the last n
+   read a SPEC data file and plot the last n USAXS scans
 '''
 
 import os
