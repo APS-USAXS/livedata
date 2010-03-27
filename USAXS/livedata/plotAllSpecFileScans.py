@@ -12,13 +12,15 @@
 '''
 
 import specplot
+
+
 PLOT_DIR = "./www/scanplots"
 HTML_FILE = PLOT_DIR + "/index.html"
 SPEC_FILE = '/share1/USAXS_data/2010-03/03_27.dat'
 HREF_FORMAT = "<a href=\"%s\"><img src=\"%s\" width=\"%s\" height=\"%s\" alt=\"%s\"/></a>"
 
 
-def plotAllScans(specFile, plotDir="", htmlFile="index.html"):
+def plotAllSpecFileScans(specFile, plotDir="", htmlFile="index.html"):
     '''plot all the scans found'''
     sd = specplot.openSpecFile(specFile)
     html = []
@@ -46,4 +48,4 @@ def plotAllScans(specFile, plotDir="", htmlFile="index.html"):
 
 
 if __name__ == '__main__':
-    plotAllScans(SPEC_FILE, PLOT_DIR, HTML_FILE)
+    plotAllSpecFileScans(SPEC_FILE, PLOT_DIR, HTML_FILE)
