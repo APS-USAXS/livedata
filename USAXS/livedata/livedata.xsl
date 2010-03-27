@@ -16,7 +16,7 @@
             <head>
                 <meta http-equiv="Pragma" content="no-cache"/>
                 <meta http-equiv="Refresh" content="300"/>
-                <title>USAXS status</title>
+                <title>USAXS: status</title>
                 <style type="text/css">
                     
                     body {
@@ -352,10 +352,10 @@
                                     <td><xsl:value-of select="//pv[@id='diode_amp_gain']/value"/></td>
                                     <td>
 				        <!--
-					<xsl:value-of select="//pv[@id='pd_amp_current']/value"/>
+					<xsl:value-of select="//pv[@id='diode_amp_current']/value"/>
 					<br />
 					-->
-				        <xsl:value-of select="//pv[@id='pd_current']/value"/>
+				        <xsl:value-of select="//pv[@id='diode_current']/value"/>
 				    </td>
                                 </tr>
                             </table>

@@ -13,7 +13,6 @@ pvconfig = [
   ["mono_shtr_closed", "PA:32ID:B_SHTRS_CLOSED.VAL", "32ID mono shutter closed"],
   ["white_shtr_auto", "32idb:AShtr:Enable.RVAL", "32ID white shutter autoOpen"],
   ["mir_alldone", "32idbMIR:alldone", "Mirror eBrick motors moving"],
-  ["mirr_X_rbv", "32idbMIR:m1.RBV", "motor mirror_X, mm", "%.3f"],
   ["DCM_E", "32ida:BraggEAO", "DCM E, keV", "%.4f"],
   ["DCM_theta", "32ida:m1.RBV", "motor DCM_theta, degrees", "%.6f"],
   ["DCM_chi2", "32ida:m3.RBV", "motor DCM_chi2, degrees", "%.6f"],
@@ -30,7 +29,7 @@ pvconfig = [
   ["I0_amp_gain", "32idbUSX:fem02:seq01:gain", "I0 amplifier gain V/A", "%.2e"],
   ["I00_amp_gain", "32idbUSX:fem03:seq01:gain", "I00 amplifier gain, V/A", "%.2e"],
   ["I000_amp_gain", "32idbMIR:fem01:seq01:gain", "I000 amplifier gain, V/A", "%.2e"],
-  ["PD_amp_gain", "32idbUSX:pd01:seq01:gain", "PD amplifier diode gain, V/A", "%.2e"],
+  ["diode_amp_gain", "32idbUSX:pd01:seq01:gain", "PD amplifier diode gain, V/A", "%.2e"],
   ["diode_count_rate", "32idbUSX:pd01:seq01:lurate", "diode count rate (at last update), c/s"],
   ["pf4_thickness_Al", "32idbUSX:pf4:filterAl", "filter Al thickness in beam, mm", "%.3f"],
   ["pf4_thickness_Ti", "32idbUSX:pf4:filterTi", "filter Ti thickness in beam, mm", "%.3f"],
@@ -102,7 +101,6 @@ pvconfig = [
   ["mirr_vs", "32idbMIR:m2.RBV", "motor mirror vertical steering, mm", "%.3f"],
   ["tcam", "32idbLAX:m58:c0:m3.RBV", "motor tcam position, degrees", "%.1f"],
 
-  ["mirr_X_dmov", "32idbMIR:m1.DMOV", "motor done moving mirror_X"],
   ["DCM_theta_dmov", "32ida:m1.DMOV", "motor done moving DCM_theta"],
   ["DCM_chi2_dmov", "32ida:m3.DMOV", "motor done moving DCM_chi2"],
   ["A2Rp_dmov", "32idbUSX:pzt:m1.DMOV", "motor done moving A2RP"],
@@ -140,8 +138,8 @@ pvconfig = [
   ["mirr_vs_dmov", "32idbMIR:m2.DMOV", "motor done moving mirror vertical steering"],
   ["tcam_dmov", "32idbLAX:m58:c0:m3.DMOV", "motor done moving tcam position"],
 
-  ["pd_current",  "32idbUSX:pd01:seq01:lucurrent", "photodiode last-update current, A", "%.3e"],
-  ["pd_amp_current",  "32idbLAX:userCalc7", "photodiode computed current, A", "%.3e"],
+  ["diode_current",  "32idbUSX:pd01:seq01:lucurrent", "photodiode last-update current, A", "%.3e"],
+  ["diode_amp_current",  "32idbLAX:userCalc7", "photodiode computed current, A", "%.3e"],
   ["I0_amp_current", "32idbLAX:userCalc8", "I0 computed current, A", "%.3e"],
   ["I00_amp_current", "32idbLAX:userCalc9", "I00 computed current, A", "%.3e"],
   ["I000_amp_current", "32idbLAX:userCalc10", "I000 computed current, A", "%.3e"]

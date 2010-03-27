@@ -30,6 +30,7 @@ import plot		# makes PNG files of recent USAXS scans
 
 global GLOBAL_MONITOR_COUNTER
 global pvdb
+global xref
 global EXC_FMT
 
 BASE_NFS = "/home/joule/USAXS/www/livedata"
@@ -44,7 +45,7 @@ XSL_STYLESHEET = "raw-table.xsl"
 
 
 pvdb = {}   # EPICS data will go here
-
+xref = {}   # cross-reference id with PV
 
 def logMessage(msg):
     '''write a message with a timestamp and pid to the log file'''
@@ -54,11 +55,12 @@ def logMessage(msg):
 
 def logException(troublemaker):
     '''write an exception report to the log file'''
-    fmt = "problem with %s:" % troublemaker
-    fmt += "\n  type=%s"
+    msg = "problem with %s:" % troublemaker
+    fmt = "\n  type=%s"
     fmt += "\n  value=%s"
     #fmt += "\n  stacktrace=%s"
-    logMessage(fmt % sys.exc_info()[:2])
+    msg += fmt % sys.exc_info()[:2]
+    logMessage(msg)
 
 
 def monitor_receiver(epics_args, user_args):
@@ -92,6 +94,8 @@ def add_pv(item):
         fmt = item[3]	# specified display format
     else:
         fmt = "%s"	# default display format
+    if pv in pvdb:
+        raise Exception("%s already defined by id=%s" % (pv, pvdb[pv]['id']))
     ch = pvConnect.EpicsPv(pv)
     ch.SetUserArgs(ch)
     ch.connectw()
@@ -109,6 +113,7 @@ def add_pv(item):
     entry['value'] = None	# formatted value
     entry['raw_value'] = None	# unformatted value
     pvdb[pv] = entry
+    xref[my_id] = pv		# allows this code to call by "id" (can change PV only in pvlist.xml then)
 
 
 def makeSimpleTag(tag, value):
@@ -119,7 +124,7 @@ def makeSimpleTag(tag, value):
 
 def getSpecDataFileName(pv):
     '''construct the name of the file, based on a PV'''
-    userDir = pvdb['32idbLAX:USAXS:userDir']['value']
+    userDir = pvdb[xref['spec_dir']]['value']
     macro = pvdb[pv]['value']
     specFile = userDir + "/" + macro
     return specFile
@@ -127,7 +132,7 @@ def getSpecDataFileName(pv):
 
 def updateSpecMacroFile():
     '''copy the current SPEC macro file to the WWW page space'''
-    specFile = getSpecDataFileName('32idbLAX:string19')
+    specFile = getSpecDataFileName(xref['spec_macro_file'])
     if not os.path.exists(specFile):
     	return
     wwwFile = BASE_NFS + "/" + "specmacro.txt"
@@ -180,8 +185,9 @@ def report():
     xml.append('<usaxs_pvs version="1">')
     xml.append("  " + makeSimpleTag('writer', SVN_ID))
     xml.append("  " + makeSimpleTag('datetime', getTime()))
-    sorted_pv_list = sorted(pvdb)
-    for pv in sorted_pv_list:
+    sorted_id_list = sorted(xref)
+    for my_id in sorted_id_list:
+	pv = xref[my_id]
 	entry = pvdb[pv]
 	ch = entry['ch']
 	xml.append('  <pv id="%s" name="%s">' % (entry['id'], pv))
@@ -226,7 +232,7 @@ if __name__ == '__main__':
 		try:
 	    	    add_pv(row)
 		except:
-		    logMessage("Could not add this information: %s" % row)
+		    logException("pvlist.xml row: %s" % row)
 	    pvConnect.CaPoll()
 	    logMessage("Connected %d EPICS PVs" % len(pvdb))
 
