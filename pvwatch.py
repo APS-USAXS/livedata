@@ -85,7 +85,7 @@ def monitor_receiver(epics_args, user_args):
 
 def add_pv(item):
     '''Connect to another EPICS process variable, uses pvConnect module'''
-    id = item[0]
+    my_id = item[0]
     pv = item[1]
     desc = item[2]
     if len(item) > 3:
@@ -99,7 +99,7 @@ def add_pv(item):
     ch.monitor()
     entry = {}
     entry['name'] = pv
-    entry['id'] = id
+    entry['id'] = my_id
     entry['description'] = desc
     entry['timestamp'] = None
     entry['counter'] = 0
