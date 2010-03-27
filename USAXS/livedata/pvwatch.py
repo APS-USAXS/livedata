@@ -67,14 +67,17 @@ def monitor_receiver(epics_args, user_args):
     global GLOBAL_MONITOR_COUNTER
     ch = user_args[0]
     pv = ch.GetPv()
+    entry = pvdb[pv]
     value = ch.GetValue()
-    pvdb[pv]['timestamp'] = getTime()
-    pvdb[pv]['counter'] += 1
+    entry['timestamp'] = getTime()
+    entry['counter'] += 1
+    entry['raw_value'] = value
+    entry['value'] = entry['format'] % value
     GLOBAL_MONITOR_COUNTER += 1
     try:
         # update the units, if possible
-	if pvdb[pv]['units'] != epics_args['pv_units']:
-            pvdb[pv]['units'] = epics_args['pv_units']
+	if entry['units'] != epics_args['pv_units']:
+            entry['units'] = epics_args['pv_units']
     except:
         pass	# some PVs have no "units", ignore these transgressions
     #print 'monitor_receiver: ', pv, ' = ', value, epics_args
@@ -85,6 +88,10 @@ def add_pv(item):
     id = item[0]
     pv = item[1]
     desc = item[2]
+    if len(item) > 3:
+        fmt = item[3]	# specified display format
+    else:
+        fmt = "%s"	# default display format
     ch = pvConnect.EpicsPv(pv)
     ch.SetUserArgs(ch)
     ch.connectw()
@@ -98,6 +105,9 @@ def add_pv(item):
     entry['counter'] = 0
     entry['units'] = ""
     entry['ch'] = ch
+    entry['format'] = fmt	# format for display
+    entry['value'] = None	# formatted value
+    entry['raw_value'] = None	# unformatted value
     pvdb[pv] = entry
 
 
@@ -107,10 +117,17 @@ def makeSimpleTag(tag, value):
     return s
 
 
-def updateSpecMacroFile():
-    userDir = pvdb['32idbLAX:USAXS:userDir']['ch'].GetValue()
-    macro = pvdb['32idbLAX:string19']['ch'].GetValue()
+def getSpecDataFileName(pv):
+    '''construct the name of the file, based on a PV'''
+    userDir = pvdb['32idbLAX:USAXS:userDir']['value']
+    macro = pvdb[pv]['value']
     specFile = userDir + "/" + macro
+    return specFile
+
+
+def updateSpecMacroFile():
+    '''copy the current SPEC macro file to the WWW page space'''
+    specFile = getSpecDataFileName('32idbLAX:string19')
     if not os.path.exists(specFile):
     	return
     wwwFile = BASE_NFS + "/" + "specmacro.txt"
@@ -124,9 +141,8 @@ def updateSpecMacroFile():
 
 
 def updatePlotImage():
-    userDir = pvdb['32idbLAX:USAXS:userDir']['ch'].GetValue()
-    userFile = pvdb['32idbLAX:USAXS:specFile']['ch'].GetValue()
-    specFile = userDir + "/" + userFile
+    '''make a new PNG file with the most recent USAXS scans'''
+    specFile = getSpecDataFileName('32idbLAX:USAXS:specFile')
     if not os.path.exists(specFile):
     	return
     spec_mtime = os.stat(specFile).st_mtime
@@ -171,7 +187,7 @@ def report():
 	xml.append('  <pv id="%s" name="%s">' % (entry['id'], pv))
 	for item in ("name", "id", "description", "timestamp", "units"):
 	    xml.append("    " + makeSimpleTag(item, entry[item]))
-	xml.append("    " + makeSimpleTag("value", ch.GetValue()))
+	xml.append("    " + makeSimpleTag("value", entry['value']))
 	xml.append('  </pv>')
     xml.append('</usaxs_pvs>')
     #---
