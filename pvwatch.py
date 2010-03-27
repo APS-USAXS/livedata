@@ -15,20 +15,22 @@
    /APSshare/bin/python ./pvwatch.py >>& log.txt
 '''
 
-import sys
+import sys		# for flushing log output
 import time		# provides sleep()
 import datetime		# date/time stamps
 import shutil		# file copies
-import subprocess
-import shlex
-import os.path
+import subprocess	# calling other software (xsltproc)
+import shlex		# parsing command lines (for xsltproc)
+import os.path		# testing if a file exists
 import pvConnect	# manages EPICS connections
 from pvlist import *	# the list of PVs to be watched
 import prjPySpec	# read SPEC data files
-import plot
+import plot		# makes PNG files of recent USAXS scans
 
 
 global GLOBAL_MONITOR_COUNTER
+global pvdb
+global EXC_FMT
 
 BASE_NFS = "/home/joule/USAXS/www/livedata"
 GLOBAL_MONITOR_COUNTER = 0
@@ -50,8 +52,17 @@ def logMessage(msg):
     sys.stdout.flush()
 
 
+def logException(troublemaker):
+    '''write an exception report to the log file'''
+    fmt = "problem with %s:" % troublemaker
+    fmt += "\n  type=%s"
+    fmt += "\n  value=%s"
+    #fmt += "\n  stacktrace=%s"
+    logMessage(fmt % sys.exc_info()[:2])
+
+
 def monitor_receiver(epics_args, user_args):
-    '''Response to an EPICS monitor on the channel
+    '''Response to an EPICS monitor on the channel, uses pvConnect module
        @param value: str(epics_args['pv_value'])'''
     global GLOBAL_MONITOR_COUNTER
     ch = user_args[0]
@@ -65,12 +76,12 @@ def monitor_receiver(epics_args, user_args):
 	if pvdb[pv]['units'] != epics_args['pv_units']:
             pvdb[pv]['units'] = epics_args['pv_units']
     except:
-        pass
+        pass	# some PVs have no "units", ignore these transgressions
     #print 'monitor_receiver: ', pv, ' = ', value, epics_args
 
 
 def add_pv(item):
-    '''Connect to another EPICS process variable'''
+    '''Connect to another EPICS process variable, uses pvConnect module'''
     id = item[0]
     pv = item[1]
     desc = item[2]
@@ -121,13 +132,12 @@ def updatePlotImage():
     spec_mtime = os.stat(specFile).st_mtime
     if not os.path.exists(plot.PLOTFILE):
         # no plot yet, let's make one!
-	plot.updatePlotImage(specFile, numScans)
+	plot.updatePlotImage(specFile, NUM_SCANS_PLOTTED)
     	return
     plot_mtime = os.stat(plot.PLOTFILE).st_mtime
-    numScans = NUM_SCANS_PLOTTED
     if spec_mtime > plot_mtime:
         #  plot only if new data
-        plot.updatePlotImage(specFile, numScans)
+        plot.updatePlotImage(specFile, NUM_SCANS_PLOTTED)
 
 
 def shellCommandToFile(command, outFile):
@@ -177,18 +187,10 @@ def report():
         "/usr/bin/xsltproc --novalid raw-table.xsl " + REPORT_FILE, 
 	"./www/raw-report.html"
     )
-    #---
-    #
-    # copy the spec macro file
-    updateSpecMacroFile()
-    # update the plot 
-    updatePlotImage()
 
 
 def getTime():
     '''return a datetime value'''
-    #t = time.mktime(time.gmtime())
-    #dt = datetime.datetime.utcfromtimestamp(t)
     dt = datetime.datetime.now()
     return dt
 
@@ -221,7 +223,20 @@ if __name__ == '__main__':
 		ch.chan.pend_event()
 		if dt >= nextReport:
 		    nextReport = dt + delta_report
-                    report()
+		    try:
+                        report()    		# write contents of pvdb to a file
+		    except:
+		    	# report the exception
+			logException("report()")
+		    try:
+                        updateSpecMacroFile()	# copy the spec macro file
+		    except:
+		    	# report the exception
+			logException("updateSpecMacroFile()")
+		    try:
+                        updatePlotImage()	# update the plot
+		    except:
+			logException("updatePlotImage()")
 		if dt >= nextLog:
 		    nextLog = dt + delta_log
                     logMessage(

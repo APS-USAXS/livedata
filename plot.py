@@ -168,7 +168,11 @@ def ploticus_commands(db, usaxs):
     colorList = ("green", "purple", "blue", "black", "red")
     i = 0
     for scan in usaxs:
-        color = colorList[i % len(colorList)]
+        if i+1 == len(usaxs):
+	    # this is the most recent scan, make it the last color ("red")
+	    color = colorList[-1]
+	else:
+	    color = colorList[i % len(colorList)]
 	symbol = symbolList[i % len(symbolList)]
  	output.append("#proc lineplot ")
  	output.append("  xfield: 2")

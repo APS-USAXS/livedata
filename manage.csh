@@ -35,9 +35,10 @@ switch ($1)
         /bin/ps ${PID} >! /dev/null
         setenv NOT_EXISTS $?
         if (${NOT_EXISTS}) then
-             /bin/echo "not running ${PID}: ${SCRIPT}"
+             /bin/echo "not running ${PID}: ${SCRIPT}" >>& ${LOGFILE} &
         else
              kill ${PID}
+             /bin/echo "stopped ${PID}: ${SCRIPT}" >>& ${LOGFILE} &
              /bin/echo "stopped ${PID}: ${SCRIPT}"
         endif
 	# the python code starts a 2nd PID which also needs to be stopped
@@ -45,9 +46,10 @@ switch ($1)
         /bin/ps ${PID} >! /dev/null
         setenv NOT_EXISTS $?
         if (${NOT_EXISTS}) then
-             /bin/echo "not running ${PID}: ${SCRIPT}"
+             /bin/echo "not running ${PID}: ${SCRIPT}" >>& ${LOGFILE} &
         else
              kill ${PID}
+             /bin/echo "stopped ${PID}: ${SCRIPT}" >>& ${LOGFILE} &
              /bin/echo "stopped ${PID}: ${SCRIPT}"
         endif
         breaksw
