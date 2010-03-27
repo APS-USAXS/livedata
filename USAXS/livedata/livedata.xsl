@@ -124,7 +124,7 @@
                 <table border="1" width="96%" rules="all">
                     <tr>
                         <td>
-                            <table border="1" width="100%" rules="all">
+                            <table border="1" width="100%" rules="all" bgcolor="mintcream">
                                 <tr>
                                     <td>shutters:</td>
                                     <xsl:choose>
@@ -236,7 +236,7 @@
                     </tr>
                     <tr>
                         <td align="center" bgcolor="lightblue">
-                            <font SIZE="4">
+                            <font size="4">
                                 <xsl:value-of select="//pv[@id='state']/value"/> 
                             </font>
                         </td>
@@ -283,7 +283,7 @@
                     </tr>
                 </table>
                 
-                <BR/>
+                <br/>
                 <h4>slits</h4>
                 
                 <table border="2">
