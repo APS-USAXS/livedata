@@ -122,17 +122,17 @@ def makeSimpleTag(tag, value):
     return s
 
 
-def getSpecDataFileName(pv):
+def getSpecFileName(pv):
     '''construct the name of the file, based on a PV'''
     userDir = pvdb[xref['spec_dir']]['value']
-    macro = pvdb[pv]['value']
-    specFile = userDir + "/" + macro
+    rawName = pvdb[pv]['value']
+    specFile = userDir + "/" + rawName
     return specFile
 
 
 def updateSpecMacroFile():
     '''copy the current SPEC macro file to the WWW page space'''
-    specFile = getSpecDataFileName(xref['spec_macro_file'])
+    specFile = getSpecFileName(xref['spec_macro_file'])
     if not os.path.exists(specFile):
     	return
     wwwFile = BASE_NFS + "/" + "specmacro.txt"
@@ -147,7 +147,7 @@ def updateSpecMacroFile():
 
 def updatePlotImage():
     '''make a new PNG file with the most recent USAXS scans'''
-    specFile = getSpecDataFileName('32idbLAX:USAXS:specFile')
+    specFile = getSpecFileName(xref['spec_data_file'])
     if not os.path.exists(specFile):
     	return
     spec_mtime = os.stat(specFile).st_mtime
@@ -162,7 +162,7 @@ def updatePlotImage():
 
 
 def shellCommandToFile(command, outFile):
-    '''execute a shell comannd and write its output to a file'''
+    '''execute a shell command and write its output to a file'''
     p = subprocess.Popen(shlex.split(command), stdout=subprocess.PIPE)
     f = p.stdout
     buf = f.read()

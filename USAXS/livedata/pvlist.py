@@ -6,6 +6,22 @@
 # $Id$
 ########### SVN repository information ###################
 
+'''
+    Define the EPICS process variables (PVs) to be monitored and recorded.
+
+    This file contains one definition: pvconfig
+    pvconfig is a list of sublists.  Each sublist has three or four strings:
+    my_id		: one-word mnemonic reference used in python and xslt code
+    pv			: EPICS process variable name (must be used only once)
+    description		: useful text informative to others
+    display_format	: (optional, default="%s") PVs will be formatted with this string
+    
+    The point of "my_id" is to confine the use of actual EPICS PVs to this file.
+    This allows the EPICS PV to be changed without need to edit other parts of this support.
+    If the "my_id" needs to be changed, that implies some real change in functionality
+    which would always require additional changes in this support.
+'''
+
 pvconfig = [
   ["SR_current", "S:SRcurrentAI", "APS storage ring current, mA", "%.2f"],
   ["Und_E", "ID32:Energy", "ID E, keV", "%.4f"],
