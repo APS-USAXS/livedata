@@ -67,7 +67,7 @@ class specDataFile:
             self.readOK = 1
             return
         if (buf.count('#F ') <= 0):
-            self.errMsg = '\n' + self.fileName + ' id not a spec data file.\n'
+            self.errMsg = '\n' + self.fileName + ' is not a spec data file.\n'
             self.readOK = 2
             return
         #------------------------------------------------------
@@ -82,6 +82,7 @@ class specDataFile:
             key = part[0:2]
             if (key == "#F"):
                 self.headers.append(specDataFileHeader(part))
+                self.specFile = self.headers[-1].file
             elif (key == "#S"):
                 self.scans.append(specDataFileScan(self.headers[-1], part))
             else:
@@ -155,6 +156,7 @@ class specDataFileScan:
         self.S = ''
         self.scanNum = -1
         self.scanCmd = ''
+        self.specFile = ''
         self.T = ''
         self.V = []
         self.column_first = ''
@@ -166,6 +168,7 @@ class specDataFileScan:
         """interpret the supplied buffer with the spec scan data"""
         lines = self.raw.splitlines()
         i = 0
+        self.specFile = self.header.file    # this is the short name, does not have the file system path
         for line in lines:
             i += 1
 	    #print "[%s] %s" % (i, line)
@@ -244,8 +247,10 @@ def _test(mode):
         TEST_FILE = sys.argv[-1]
     else:
         print sys.argv
-        TEST_DIR = '../../specdata'
-        TEST_FILE = '0221c.dat'
+        TEST_DIR = '/share1/USAXS_data/2010-03'
+        TEST_FILE = '03_25.dat'
+        # SPEC_FILE = '/share1/USAXS_data/2010-03/03_25.dat'
+        # SPEC_FILE = '/share1/USAXS_data/2010-03/03_27.dat'
         os.chdir(TEST_DIR)
     print '-------------------------------------------------------------------'
     # now open the file and read it
@@ -257,7 +262,7 @@ def _test(mode):
     print 'scans', len(test.scans)
     #print 'positioners in first scan:'; print test.scans[0].positioner
     for stuff in test.scans:
-        print stuff.scanNum, stuff.date, 'V slit', stuff.positioner['uslitt']+stuff.positioner['uslitb'], 'eV', 1e3*stuff.float['DCM_energy']
+        print stuff.scanNum, stuff.date, 'AR', stuff.positioner['ar'], 'eV', 1e3*stuff.float['DCM_energy']
     print 'positioners in last scan:'
     print test.scans[0].positioner
     pLabel = test.scans[-1].column_first

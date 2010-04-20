@@ -8,7 +8,7 @@
 ########### SVN repository information ###################
 
 '''
-   read a SPEC data file and plot the last n USAXS scans
+   read a SPEC data file and plot the last n USAXS scans for the livedata WWW page
 '''
 
 import os

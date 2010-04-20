@@ -24,9 +24,10 @@ PLOT_FORMAT = "png"
 PLOTICUS = "/home/joule/USAXS/bin/pl"
 PLOTFILE = "pete.png"
 PLOTICUS_COMMAND_FILE = "pete.pl"
+NO_POINTS_THRESHOLD = 400
 
 
-def makePloticusPlot(specFile, scan, plotFile):
+def makePloticusPlot(scan, plotFile):
     '''plot scan n from the SPEC scan object'''
     xVec = scan.data[scan.column_first]
     yVec = scan.data[scan.column_last]
@@ -52,16 +53,17 @@ def makePloticusPlot(specFile, scan, plotFile):
     f.write("\n".join(pl))
     f.close()
     #---- execute the ploticus command file
-    fmt = "%s %s -%s %s"
-    fmt = "%s -prefab lines data=%s x=1 y=2 pointsym=none -%s %s"
     name = "#%d: %s" % (scan.scanNum, scan.scanCmd)
+    specFile = scan.specFile
+    print "specFile: ", specFile
     title = "%s, %s" % (specFile, scan.date)
     command = PLOTICUS
     command += " -prefab lines"
     command += " data=%s x=1 y=2" % commandFile
-    #command += " pointsym=none"
     command += " xlbl=\"%s\"" % scan.column_first
     command += " ylbl=\"%s\"" % scan.column_last
+    if len(xVec) >= NO_POINTS_THRESHOLD:
+        command += " pointsym=\"none\""
     command += " name=\"%s\"" % name
     command += " title=\"%s\"" % title
     command += " -" + PLOT_FORMAT
@@ -79,7 +81,7 @@ def openSpecFile(specFile):
 
 
 def findScan(sd, n):
-    '''return the scan with scan number "n" from the open spec file object or None'''
+    '''return the first scan with scan number "n" from the spec data file object or None'''
     scan = None
     n = int(n)
     for t in sd.scans:
@@ -95,8 +97,8 @@ if __name__ == '__main__':
     if len(sys.argv) == 4:
         (specFile, scan_number, plotFile) = sys.argv[1:4]
     else:
-	print "usage: %s specFile scan_number plotFile" % sys.argv[0]
-	sys.exit()
+        print "usage: %s specFile scan_number plotFile" % sys.argv[0]
+        sys.exit()
     specData = openSpecFile(specFile)
     scan = findScan(specData, scan_number)
-    makePloticusPlot(specFile, scan, plotFile)
+    makePloticusPlot(scan, plotFile)
