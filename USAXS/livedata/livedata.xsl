@@ -108,13 +108,10 @@
                         <td align="center">
                             <font>
                                 <em>
-                                    <a href="raw-report.html">raw</a> | 
-				    <!--
-                                    / 
-                                    <a href="status.txt">descriptive</a>
-                                    / -->
-                                    <a href="http://usaxs.xor.aps.anl.gov/livedata/scanLog/scanlog.xml">scan log</a>
-                                    content updated:
+                                    <a href="raw-report.html">raw</a> 
+                                    | <a href="scanLog/scanlog.xml">scan log</a>
+				    | <a href="scanplots">SPEC plots</a>
+                                    | content updated:
                                     <xsl:value-of select="/usaxs_pvs/datetime"/>
                                 </em>
                             </font>
