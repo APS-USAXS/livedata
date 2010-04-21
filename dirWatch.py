@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 ########### SVN repository information ###################
-# $Date: 2010-04-20 17:34:31 -0500 (Tue, 20 Apr 2010) $
-# $Author: jemian $
-# $Revision: 272 $
-# $URL: https://subversion.xor.aps.anl.gov/small_angle/USAXS/livedata/plot.py $
-# $Id: plot.py 272 2010-04-20 22:34:31Z jemian $
+# $Date$
+# $Author$
+# $Revision$
+# $URL$
+# $Id$
 ########### SVN repository information ###################
 
 '''
