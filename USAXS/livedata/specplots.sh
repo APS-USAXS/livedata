@@ -1,10 +1,10 @@
 #!/bin/bash
 ########### SVN repository information ###################
-# $Date: 2010-03-27 11:00:35 -0500 (Sat, 27 Mar 2010) $
-# $Author: jemian $
-# $Revision: 259 $
-# $URL: https://subversion.xor.aps.anl.gov/small_angle/USAXS/livedata/manage.csh $
-# $Id: manage.csh 259 2010-03-27 16:00:35Z jemian $
+# $Date$
+# $Author$
+# $Revision$
+# $URL$
+# $Id$
 ########### SVN repository information ###################
 
 WORKING_DIR=/home/joule/USAXS/code/livedata
