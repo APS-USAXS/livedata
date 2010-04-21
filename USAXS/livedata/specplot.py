@@ -40,7 +40,7 @@ def makePloticusPlot(scan, plotFile):
     xMin = xMax = xVec[0]
     yMin = yMax = yVec[0]
     for i in range(len(xVec)):
-        pl.append("   %s  %s" % (xVec[i], yVec[i]))
+	pl.append("   %s  %s" % (xVec[i], yVec[i]))
 	if xVec[i]<xMin: xMin = xVec[i]
 	if yVec[i]<yMin: yMin = yVec[i]
 	if xVec[i]>xMax: xMax = xVec[i]
@@ -55,7 +55,6 @@ def makePloticusPlot(scan, plotFile):
     #---- execute the ploticus command file
     name = "#%d: %s" % (scan.scanNum, scan.scanCmd)
     specFile = scan.specFile
-    print "specFile: ", specFile
     title = "%s, %s" % (specFile, scan.date)
     command = PLOTICUS
     command += " -prefab lines"
