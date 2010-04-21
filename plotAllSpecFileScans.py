@@ -14,11 +14,11 @@
 import os
 import sys
 import time
+import shutil
 import specplot
 
 
 PLOT_DIR = os.path.join(".", "www", "scanplots")
-HTML_FILE = os.path.join(PLOT_DIR, "index.html")
 # /share1/USAXS_data/2010-03/03_27.dat
 SPEC_FILE = os.path.join("/", "share1", "USAXS_data", "2010-03", "03_27.dat")
 HREF_FORMAT = "<a href=\"%s\"><img src=\"%s\" width=\"%s\" height=\"%s\" alt=\"%s\"/></a>"
@@ -29,7 +29,10 @@ HTML_FORMAT = """<html>
   <body>
     <h1>SPEC scans from: %s</h1>
 
-    %s
+      spec file: <a href='%s'>%s</a>
+      <br />
+
+%s
 
   </body>
 </html>"""
@@ -77,7 +80,19 @@ def plotAllSpecFileScans(specFile):
                 plotList.append("<!-- " + msg + " -->")
                 altText = "%s: #%d %s" % (sys.exc_value, scan.scanNum, scan.scanCmd)
                 plotList.append(HREF_FORMAT % (basePlotFile, basePlotFile, "150", "75", altText))
-    html = HTML_FORMAT % (specFile, specFile, '\n'.join(plotList))
+    baseSpecFile = os.path.basename(specFile)
+    html = HTML_FORMAT % (specFile, specFile, baseSpecFile, specFile, '\n'.join(plotList))
+    #------------------
+    # copy the SPEC data file to the WWW site, only if file has newer mtime
+    wwwSpecFile = os.path.join(basedir, baseSpecFile)
+    if os.path.exists(wwwSpecFile):
+        wwwSpecFile_mtime = os.path.getmtime(wwwSpecFile)
+	if specFile_mtime > wwwSpecFile_mtime:
+	    # specFile is newer, copy to WWW site
+	    shutil.copy2(specFile,wwwSpecFile)
+    else:
+        # copy specFile to WWW site
+	shutil.copy2(specFile,wwwSpecFile)
     #------------------
     htmlFile = os.path.join(basedir, "index.html")
     f = open(htmlFile, "w")
