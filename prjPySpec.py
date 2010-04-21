@@ -1,4 +1,4 @@
-# file: PRJ_specDataFile.py
+#!/usr/bin/python
 """
 
   Purpose:
@@ -225,7 +225,12 @@ class specDataFileScan:
                 self.float[label] = float(val)
         # interpret the data lines from the body of the scan
         self.data = {}
-        for label in self.L:
+	for col in range(len(self.L)):
+	    label = self.L[col]
+	    # need to guard when same column label is used more than once
+	    if label in self.data.keys():
+	        label += "(duplicate)"
+		self.L[col] = label    # rename this column's label
             self.data[label] = []
         for row, values in enumerate(self.data_lines):
             for col, val in enumerate(values.split()):
@@ -273,6 +278,7 @@ def _test(mode):
     for i in range(len(test.scans[-1].data[pLabel])):
         print test.scans[-1].data[pLabel][i], test.scans[-1].data[dLabel][i]
     # test = specDataFile('07_02_sn281_8950.dat')
+    print test.scans[0].L
 
 if __name__ == "__main__":
     _test(0)
