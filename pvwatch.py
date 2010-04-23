@@ -161,13 +161,14 @@ def updatePlotImage():
     plot_mtime = os.stat(plot.PLOTFILE).st_mtime
     if spec_mtime > plot_mtime:
         #  plot only if new data
-        plot.updatePlotImage(specFile, NUM_SCANS_PLOTTED)
+        plot.update_n_plots(specFile, NUM_SCANS_PLOTTED)
 
 
 def shellCommandToFile(command, outFile):
     '''execute a shell command and write its output to a file'''
     p = subprocess.Popen(shlex.split(command), stdout=subprocess.PIPE)
     f = p.stdout
+    p.wait()
     buf = f.read()
     f.close()
     f = open(outFile, 'w')

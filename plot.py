@@ -16,6 +16,7 @@ import math
 import time
 import subprocess
 import shlex
+import shutil
 import datetime		# date/time stamps
 import prjPySpec	# read SPEC data files
 
@@ -26,7 +27,7 @@ PLOTFILE = "www/livedata.png"
 SHELL_SCRIPT = "/tmp/plot-ploticus-usaxs.sh"
 
 
-def updatePlotImage(specFile, numScans):
+def update_n_plots(specFile, numScans):
     '''read the SPEC file and grab n scans'''
     sd = prjPySpec.specDataFile(specFile)
     scanList = []
@@ -75,28 +76,41 @@ def updatePlotImage(specFile, numScans):
 	label = "S" + str(int(scan['scan'])) + scan['title']
 	ploticus[label] = "#%d: %s" % (scan['scan'], scan['title'])
     command_script = ploticus_commands(ploticus, usaxs)
+    #---- make the plot
+    run_ploticus(command_script, data_rows, PLOTFILE)
+    # perhaps copy the SPEC macro here, as well
+
+
+def run_ploticus(script, data, plot):
+    '''use ploticus to generate the plot image file'''
     #---- write the ploticus command script
-    f = open(tempPloticusFile, "w")
-    f.write("\n".join(command_script))
+    ext = os.extsep + "pl"
+    (f, tmpScript) = tempfile.mkstemp(dir="/tmp", text=True, suffix=ext)
+    f = open(tmpScript, "w")
+    f.write("\n".join(script))
     f.close()
     #---- write the plot data file
-    f = open(tempDataFile, "w")
-    f.write("\n".join(data_rows))
+    ext = os.extsep + "dat"
+    (f, tmpData) = tempfile.mkstemp(dir="/tmp", text=True, suffix=ext)
+    f = open(tmpData, "w")
+    f.write("\n".join(data))
     f.close()
-    #---- build a script to run ploticus, then clean up
-    shell = []
-    shell.append(PLOTICUS + " " + tempPloticusFile + " -" + PLOT_FORMAT + " -o " + tempPltFile)
-    shell.append("/bin/cp -f " + tempPltFile + " " + PLOTFILE)
-    shell.append("/bin/rm -f " + tempPltFile + " " + tempDataFile + " " + tempPloticusFile)
-    # perhaps copy the SPEC macro here, as well
-    f = open(SHELL_SCRIPT, "w")
-    f.write("\n".join(shell))
-    f.close()
-    p = subprocess.Popen(shlex.split("/bin/sh "+SHELL_SCRIPT))
+    #---- run ploticus
+    ext = os.extsep + PLOT_FORMAT
+    (f, tmpPlot) = tempfile.mkstemp(dir="/tmp", text=False, suffix=ext)
+    command = "%s %s -%s -o %s" % (PLOTICUS, tmpScript, PLOT_FORMAT, tmpPlot)
+    lex = shlex.split(command)
+    p = subprocess.Popen(lex)
+    p.wait()
+    #---- copy and cleanup
+    shutil.copy2(tmpFile, plot)
+    os.remove(tmpScript)
+    os.remove(tmpData)
+    os.remove(tmpPlot)
 
 
 def ploticus_commands(db, usaxs):
-    '''plot the USAXS data using ploticus'''
+    '''plot USAXS data using ploticus'''
     output = []
     output.append("#proc page")
     output.append("  backgroundcolor: rgb(1.0,0.94,0.85)")
@@ -206,14 +220,16 @@ def ploticus_data(usaxs):
     format = "%-10s %s %s"
     result.append("%-10s %15s %s" % ("dataset", "qVec", "rVec"))
     for scan in usaxs:
-	for row in range(len(scan['qVec'])):
-	    USAXS_Q = math.fabs(float(scan['qVec'][row]))
-	    USAXS_I = float(scan['rVec'][row])
-	    label = "S" + str(int(scan['scan']))
+	# convert data columns to ordered-pairs
+	pairs = zip(scan['qVec'], scan['rVec'])
+	sLabel = "S" + str(int(scan['scan']))
+	for (qStr, iStr) in pairs:
+	    USAXS_Q = math.fabs(float(qStr))
+	    USAXS_I = float(iStr)
 	    if (USAXS_Q == 0) or (USAXS_I <= 0):
 	        label = "ignore"
 	    else:
-	        label = "S" + str(int(scan['scan']))
+	        label = S
 		#--- initialize, if necessary
 		if qMin == None:
 		    qMin = USAXS_Q
@@ -271,4 +287,4 @@ def calc_usaxs_data(specScan):
 if __name__ == '__main__':
     specFile = '/share1/USAXS_data/2010-03/03_25.dat'
     numScans = 5
-    updatePlotImage(specFile, numScans)
+    update_n_plots(specFile, numScans)
