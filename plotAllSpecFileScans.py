@@ -22,6 +22,7 @@ PLOT_DIR = os.path.join(".", "www", "scanplots")
 # /share1/USAXS_data/2010-03/03_27.dat
 SPEC_FILE = os.path.join("/", "share1", "USAXS_data", "2010-03", "03_27.dat")
 TIMESTAMP_FORMAT = "%Y-%m-%d %H:%M:%S"
+SVN_ID = "$Id$"
 HREF_FORMAT = "<a href=\"%s\"><img src=\"%s\" width=\"%s\" height=\"%s\" alt=\"%s\"/></a>"
 HTML_FORMAT = """<html>
   <head>
@@ -84,7 +85,12 @@ def plotAllSpecFileScans(specFile):
                 plotList.append(HREF_FORMAT % (basePlotFile, basePlotFile, "150", "75", altText))
     baseSpecFile = os.path.basename(specFile)
     datestamp = time.strftime(TIMESTAMP_FORMAT, time.localtime(time.time()))
-    comment = "written by: %s on %s" % (sys.argv[0], datestamp)
+    commentFormat = """
+       written by: %s
+       SVN: %s
+       date: %s
+    """
+    comment = commentFormat % (sys.argv[0], SVN_ID, datestamp)
     html = HTML_FORMAT % (specFile, comment, specFile, baseSpecFile, specFile, '\n'.join(plotList))
     #------------------
     # copy the SPEC data file to the WWW site, only if file has newer mtime
