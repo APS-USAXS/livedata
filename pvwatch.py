@@ -60,6 +60,7 @@ def logException(troublemaker):
     fmt += "\n  value=%s"
     #fmt += "\n  stacktrace=%s"
     msg += fmt % sys.exc_info()[:2]
+    #msg += "\n  type: %s\n  value: %s\n  traceback: %s" % sys.exc_info()
     logMessage(msg)
 
 
@@ -156,7 +157,7 @@ def updatePlotImage():
     spec_mtime = os.stat(specFile).st_mtime
     if not os.path.exists(plot.PLOTFILE):
         # no plot yet, let's make one!
-	plot.updatePlotImage(specFile, NUM_SCANS_PLOTTED)
+	plot.update_n_plots(specFile, NUM_SCANS_PLOTTED)
     	return
     plot_mtime = os.stat(plot.PLOTFILE).st_mtime
     if spec_mtime > plot_mtime:
