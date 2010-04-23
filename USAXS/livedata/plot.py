@@ -89,13 +89,14 @@ def run_ploticus(script, plot):
     '''use ploticus to generate the plot image file'''
     #---- write the ploticus command script
     ext = os.extsep + "pl"
+    # note: mkstemp opens the file as if f=os.open()
     (f, tmpScript) = tempfile.mkstemp(dir="/tmp", text=True, suffix=ext)
-    f = open(tmpScript, "w")
-    f.write("\n".join(script))
-    f.close()
+    os.write(f, "\n".join(script))
+    os.close(f)
     #---- run ploticus
     ext = os.extsep + PLOT_FORMAT
     (f, tmpPlot) = tempfile.mkstemp(dir="/tmp", text=False, suffix=ext)
+    os.close(f)  # close f since ploticus will write the file
     command = "%s %s -%s -o %s" % (PLOTICUS, tmpScript, PLOT_FORMAT, tmpPlot)
     lex = shlex.split(command)
     p = subprocess.Popen(lex)
