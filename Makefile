@@ -11,6 +11,7 @@ DATE_STRING   = `date '+%Y%m%d-%H%M%S'`
 
 TARLIST  = Makefile
 TARLIST += *.csh
+TARLIST += *.sh
 TARLIST += *.py
 TARLIST += *.txt
 TARLIST += *.xsl
