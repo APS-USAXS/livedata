@@ -11,13 +11,14 @@
    read a SPEC data file and plot the last n USAXS scans for the livedata WWW page
 '''
 
-import os
+import datetime		# date/time stamps
 import math
-import time
+import os
 import subprocess
 import shlex
 import shutil
-import datetime		# date/time stamps
+import tempfile
+import time
 import prjPySpec	# read SPEC data files
 
 
@@ -57,8 +58,10 @@ def update_n_plots(specFile, numScans):
     epoch = int(time.mktime(time.gmtime()))
     root = "%s-%d-%08x" % ("/tmp/ploticus", os.getpid(), epoch)
     tempDataFile = root + ".dat"
-    tempPloticusFile = root + ".pl"
-    tempPltFile = root + "." + PLOT_FORMAT
+    #---- write the plot data file
+    f = open(tempDataFile, "w")
+    f.write("\n".join(data_rows))
+    f.close()
     #---- make the ploticus command script
     ploticus = {}
     ploticus['specFile'] = specFile
@@ -77,23 +80,18 @@ def update_n_plots(specFile, numScans):
 	ploticus[label] = "#%d: %s" % (scan['scan'], scan['title'])
     command_script = ploticus_commands(ploticus, usaxs)
     #---- make the plot
-    run_ploticus(command_script, data_rows, PLOTFILE)
+    run_ploticus(command_script, PLOTFILE)
+    os.remove(tempDataFile)
     # perhaps copy the SPEC macro here, as well
 
 
-def run_ploticus(script, data, plot):
+def run_ploticus(script, plot):
     '''use ploticus to generate the plot image file'''
     #---- write the ploticus command script
     ext = os.extsep + "pl"
     (f, tmpScript) = tempfile.mkstemp(dir="/tmp", text=True, suffix=ext)
     f = open(tmpScript, "w")
     f.write("\n".join(script))
-    f.close()
-    #---- write the plot data file
-    ext = os.extsep + "dat"
-    (f, tmpData) = tempfile.mkstemp(dir="/tmp", text=True, suffix=ext)
-    f = open(tmpData, "w")
-    f.write("\n".join(data))
     f.close()
     #---- run ploticus
     ext = os.extsep + PLOT_FORMAT
@@ -103,9 +101,8 @@ def run_ploticus(script, data, plot):
     p = subprocess.Popen(lex)
     p.wait()
     #---- copy and cleanup
-    shutil.copy2(tmpFile, plot)
+    shutil.copy2(tmpPlot, plot)
     os.remove(tmpScript)
-    os.remove(tmpData)
     os.remove(tmpPlot)
 
 
@@ -229,7 +226,7 @@ def ploticus_data(usaxs):
 	    if (USAXS_Q == 0) or (USAXS_I <= 0):
 	        label = "ignore"
 	    else:
-	        label = S
+	        label = sLabel
 		#--- initialize, if necessary
 		if qMin == None:
 		    qMin = USAXS_Q
