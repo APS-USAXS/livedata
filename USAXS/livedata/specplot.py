@@ -8,7 +8,7 @@
 ########### SVN repository information ###################
 
 '''
-   read a SPEC data file and plot scan n
+   read a SPEC data file and plot scan n using ploticus
 '''
 
 import os
@@ -29,48 +29,49 @@ NO_POINTS_THRESHOLD = 400
 
 def makePloticusPlot(scan, plotFile):
     '''plot scan n from the SPEC scan object'''
-    xVec = scan.data[scan.column_first]
-    yVec = scan.data[scan.column_last]
-    if len(xVec) == 0:
+    plotData = zip(scan.data[scan.column_first], scan.data[scan.column_last])
+    if len(plotData) == 0:
 	raise Exception("No data to plot")
     #------------
     # http://ploticus.sourceforge.net/doc/prefab_lines_ex.html
     #------------
     pl = []
-    xMin = xMax = xVec[0]
-    yMin = yMax = yVec[0]
-    for i in range(len(xVec)):
-	pl.append("   %s  %s" % (xVec[i], yVec[i]))
-	if xVec[i]<xMin: xMin = xVec[i]
-	if yVec[i]<yMin: yMin = yVec[i]
-	if xVec[i]>xMax: xMax = xVec[i]
-	if yVec[i]>yMax: yMax = yVec[i]
-    #---- write the ploticus command file
-    commandFile = PLOTICUS_COMMAND_FILE
-    (os_level_handle, commandFile) = tempfile.mkstemp(dir="/tmp", text=True)
-    #print commandFile
-    f = open(commandFile, "w")
+    xMin = xMax = yMin = yMax = None
+    for (x, y) in plotData:
+	pl.append("   %s  %s" % (x, y))
+	if xMin == None:
+	    xMin = xMax = x
+	    yMin = yMax = y
+	else:
+	    if x < xMin: xMin = x
+	    if y < yMin: yMin = y
+	    if x > xMax: xMax = x
+	    if y > yMax: yMax = y
+    #---- write the ploticus data file
+    ext = os.extsep + "pl"
+    (f, dataFile) = tempfile.mkstemp(dir="/tmp", text=True, suffix=ext)
+    f = open(dataFile, "w")
     f.write("\n".join(pl))
     f.close()
-    #---- execute the ploticus command file
+    #---- execute the ploticus command file using a "prefab" plot style
     name = "#%d: %s" % (scan.scanNum, scan.scanCmd)
-    specFile = scan.specFile
-    title = "%s, %s" % (specFile, scan.date)
+    title = "%s, %s" % (scan.specFile, scan.date)
     command = PLOTICUS
     command += " -prefab lines"
-    command += " data=%s x=1 y=2" % commandFile
+    command += " data=%s x=1 y=2" % dataFile
     command += " xlbl=\"%s\"" % scan.column_first
     command += " ylbl=\"%s\"" % scan.column_last
-    if len(xVec) >= NO_POINTS_THRESHOLD:
+    if len(plotData) >= NO_POINTS_THRESHOLD:
         command += " pointsym=\"none\""
     command += " name=\"%s\"" % name
     command += " title=\"%s\"" % title
     command += " -" + PLOT_FORMAT
     command += " -o " + plotFile
     lex = shlex.split(command)
-    p = subprocess.Popen(lex)
+    # run the command but gobble up stdout (make it less noisy)
+    p = subprocess.Popen(lex, stdout=subprocess.PIPE)
     p.wait()
-    os.remove(commandFile)
+    os.remove(dataFile)
 
 
 def openSpecFile(specFile):
