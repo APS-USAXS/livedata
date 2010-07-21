@@ -11,7 +11,7 @@
    read a SPEC data file and plot the last n USAXS scans for the livedata WWW page
 '''
 
-import datetime		# date/time stamps
+import datetime         # date/time stamps
 import math
 import os
 import subprocess
@@ -19,7 +19,11 @@ import shlex
 import shutil
 import tempfile
 import time
-import prjPySpec	# read SPEC data files
+import prjPySpec        # read SPEC data files
+
+
+#@TODO: needs to be converted to 15ID-D
+#@TODO: needs ploticus
 
 
 PLOT_FORMAT = "png"
@@ -34,22 +38,22 @@ def update_n_plots(specFile, numScans):
     scanList = []
     for scan in sd.scans:
         cmd = scan.scanCmd.split()[0]
-	if (cmd == "uascan") or (cmd == "sbuascan"):
-	    scanList.append(scan.scanNum)
-	    if len(scanList) > numScans:
-	        scanList.pop(0)
+        if (cmd == "uascan") or (cmd == "sbuascan"):
+            scanList.append(scan.scanNum)
+            if len(scanList) > numScans:
+                scanList.pop(0)
     if len(scanList) == 0:
-    	return
+        return
     # extract the USAXS R(Q) profiles (ignoring error estimates)
     usaxs = []
     for scan in scanList:
         (title, qVec, rVec) = calc_usaxs_data(sd.scans[scan-1])
-	entry = {}
-	entry['scan'] = scan
-	entry['title'] = title
-	entry['qVec'] = qVec
-	entry['rVec'] = rVec
-	usaxs.append( entry )
+        entry = {}
+        entry['scan'] = scan
+        entry['title'] = title
+        entry['qVec'] = qVec
+        entry['rVec'] = rVec
+        usaxs.append( entry )
     #---- format the data in the ploticus way
     (data_rows, qMin, qMax, iMin, iMax) = ploticus_data(usaxs)
     if len(data_rows) == 0:
@@ -76,8 +80,8 @@ def update_n_plots(specFile, numScans):
     ploticus['scanList'] = ""
     for scan in usaxs:
         ploticus['scanList'] += "S" + str(int(scan['scan']))
-	label = "S" + str(int(scan['scan'])) + scan['title']
-	ploticus[label] = "#%d: %s" % (scan['scan'], scan['title'])
+        label = "S" + str(int(scan['scan'])) + scan['title']
+        ploticus[label] = "#%d: %s" % (scan['scan'], scan['title'])
     command_script = ploticus_commands(ploticus, usaxs)
     #---- make the plot
     run_ploticus(command_script, PLOTFILE)
@@ -148,11 +152,11 @@ def ploticus_commands(db, usaxs):
     start = int(math.floor(math.log10(db['Qmin'])))
     finish = int(math.ceil(math.log10(db['Qmax'])))
     for y in range(start, finish+1):
-	# major tick marks
-	output.append("  1e%d 1e%d" % (y, y))
-	for x in range(2, 10):
-	    # minor tick marks
-	    output.append("  %de%d" % (x, y))
+        # major tick marks
+        output.append("  1e%d 1e%d" % (y, y))
+        for x in range(2, 10):
+            # minor tick marks
+            output.append("  %de%d" % (x, y))
     output.append("  #include $chunk_logtics")
     output.append("  stubrange:  %s %s" % (db['Qmin'], db['Qmax']))
     output.append("  grid: yes ")
@@ -165,36 +169,38 @@ def ploticus_commands(db, usaxs):
     start = int(math.floor(math.log10(db['Imin'])))
     finish = int(math.ceil(math.log10(db['Imax'])))
     for y in range(start, finish+1):
-	# major tick marks
-	output.append("  1e%d 1e%d" % (y, y))
-	for x in range(2, 10):
-	    # minor tick marks
-	    output.append("  %de%d" % (x, y))
+        # major tick marks
+        output.append("  1e%d 1e%d" % (y, y))
+        for x in range(2, 10):
+            # minor tick marks
+            output.append("  %de%d" % (x, y))
     output.append("  #include $chunk_logtics")
     output.append("  stubrange:  %s %s" % (db['Imin'], db['Imax']))
     output.append("  grid: yes")
     output.append("  grid color=grey(0.8)")
     output.append("")
     # ---
-    symbolList = ("triangle", "diamond", "square", "downtriangle", "lefttriangle", "righttriangle")
+    symbolList = ("triangle", "diamond", "square", "downtriangle",
+                  "lefttriangle", "righttriangle")
     colorList = ("green", "purple", "blue", "black", "red")
     i = 0
     for scan in usaxs:
         if i+1 == len(usaxs):
-	    # this is the most recent scan, make it the last color ("red")
-	    color = colorList[-1]
-	else:
-	    color = colorList[i % len(colorList)]
-	symbol = symbolList[i % len(symbolList)]
- 	output.append("#proc lineplot ")
- 	output.append("  xfield: 2")
- 	output.append("  yfield: 3")
- 	output.append("  linedetails: color=%s width=0.5" % color)
- 	output.append("  pointsymbol: shape=%s radius=0.025 linecolor=%s fillcolor=white" % (symbol, color))
- 	output.append("  legendlabel: %s" % scan['title'])
- 	output.append("  select: @@dataset == S%d" % scan['scan'])
-        output.append("")
-	i += 1
+            # this is the most recent scan, make it the last color ("red")
+            color = colorList[-1]
+        else:
+            color = colorList[i % len(colorList)]
+        symbol = symbolList[i % len(symbolList)]
+    output.append("#proc lineplot ")
+    output.append("  xfield: 2")
+    output.append("  yfield: 3")
+    output.append("  linedetails: color=%s width=0.5" % color)
+    output.append("  pointsymbol: shape=%s radius=0.025" % symbol)
+    output.append("    linecolor=%s fillcolor=white" % color)
+    output.append("  legendlabel: %s" % scan['title'])
+    output.append("  select: @@dataset == S%d" % scan['scan'])
+    output.append("")
+    i += 1
     output.append("#proc rect")
     output.append("  rectangle: 4.2 5.7   6.8 6.8")
     output.append("  color: white")
@@ -218,39 +224,39 @@ def ploticus_data(usaxs):
     format = "%-10s %s %s"
     result.append("%-10s %15s %s" % ("dataset", "qVec", "rVec"))
     for scan in usaxs:
-	# convert data columns to ordered-pairs
-	pairs = zip(scan['qVec'], scan['rVec'])
-	sLabel = "S" + str(int(scan['scan']))
-	for (qStr, iStr) in pairs:
-	    USAXS_Q = math.fabs(float(qStr))
-	    USAXS_I = float(iStr)
-	    if (USAXS_Q == 0) or (USAXS_I <= 0):
-	        label = "ignore"
-	    else:
-	        label = sLabel
-		#--- initialize, if necessary
-		if qMin == None:
-		    qMin = USAXS_Q
-		    qMax = USAXS_Q
-		    iMin = USAXS_I
-		    iMax = USAXS_I
-		#--- update, if necessary
-		if USAXS_Q < qMin:
-		    qMin = USAXS_Q
-		if USAXS_Q > qMax:
-		    qMax = USAXS_Q
-		if USAXS_I < iMin:
-		    iMin = USAXS_I
-		if USAXS_I > iMax:
-		    iMax = USAXS_I
-	    result.append("%-10s %15s %s" % (label, USAXS_Q, USAXS_I))
-	# strange ploticus bug that will not plot any data when Qmax/Qmin < 2.9
-	if qMax < 3*qMin:
-	    #print "moving limits!"
-	    # move limits symmetrically
-	    qMax = qMin * 1.5
-	    qMin = qMin / 1.5
-	    #print qMin, qMax, iMin, iMax
+        # convert data columns to ordered-pairs
+        pairs = zip(scan['qVec'], scan['rVec'])
+        sLabel = "S" + str(int(scan['scan']))
+        for (qStr, iStr) in pairs:
+            USAXS_Q = math.fabs(float(qStr))
+            USAXS_I = float(iStr)
+            if (USAXS_Q == 0) or (USAXS_I <= 0):
+                label = "ignore"
+            else:
+                label = sLabel
+                #--- initialize, if necessary
+                if qMin == None:
+                    qMin = USAXS_Q
+                    qMax = USAXS_Q
+                    iMin = USAXS_I
+                    iMax = USAXS_I
+                #--- update, if necessary
+                if USAXS_Q < qMin:
+                    qMin = USAXS_Q
+                if USAXS_Q > qMax:
+                    qMax = USAXS_Q
+                if USAXS_I < iMin:
+                    iMin = USAXS_I
+                if USAXS_I > iMax:
+                    iMax = USAXS_I
+            result.append("%-10s %15s %s" % (label, USAXS_Q, USAXS_I))
+        # strange ploticus bug that will not plot any data when Qmax/Qmin < 2.9
+        if qMax < 3*qMin:
+            #print "moving limits!"
+            # move limits symmetrically
+            qMax = qMin * 1.5
+            qMin = qMin / 1.5
+            #print qMin, qMax, iMin, iMax
     return result, qMin, qMax, iMin, iMax
 
 
@@ -264,25 +270,25 @@ def calc_usaxs_data(specScan):
     USAXS_Q = []
     USAXS_I = []
     for i in range(numData):
-	pd_counts = specScan.data['pd_counts'][i]
-	pd_range = specScan.data['pd_range'][i]
-	ar_enc = specScan.data['ar_enc'][i]
-	seconds = specScan.data['seconds'][i]
-	I0 = specScan.data['I0'][i]
-	index = str(int(pd_range))
-	diode_gain = specScan.float["UPD2gain" + index]
-	dark_curr = specScan.float["UPD2bkg" + index]
-	V_f_gain = 1e5
-	#----
-	qVec = (4 * math.pi / wavelength) * math.sin(d2r*(arCenter - ar_enc)/2)
-	rVec = (pd_counts - seconds*dark_curr) / diode_gain / I0 / V_f_gain
-	#----
-	USAXS_Q.append( str(qVec) )
+        pd_counts = specScan.data['pd_counts'][i]
+        pd_range = specScan.data['pd_range'][i]
+        ar_enc = specScan.data['ar_enc'][i]
+        seconds = specScan.data['seconds'][i]
+        I0 = specScan.data['I0'][i]
+        index = str(int(pd_range))
+        diode_gain = specScan.float["UPD2gain" + index]
+        dark_curr = specScan.float["UPD2bkg" + index]
+        V_f_gain = 1e5
+        #----
+        qVec = (4 * math.pi / wavelength) * math.sin(d2r*(arCenter - ar_enc)/2)
+        rVec = (pd_counts - seconds*dark_curr) / diode_gain / I0 / V_f_gain
+        #----
+        USAXS_Q.append( str(qVec) )
         USAXS_I.append( str(rVec) )
     return sampleTitle, USAXS_Q, USAXS_I
 
 
 if __name__ == '__main__':
-    specFile = '/share1/USAXS_data/2010-03/03_25.dat'
+    specFile = '/data/USAXS_data/2010-03/03_25.dat'
     numScans = 5
     update_n_plots(specFile, numScans)

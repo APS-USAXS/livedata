@@ -7,10 +7,14 @@
 # $Id$
 ########### SVN repository information ###################
 
+#@TODO: needs to be converted to 15ID-D
+
 WORKING_DIR=/home/joule/USAXS/code/livedata
 LOGFILE=$WORKING_DIR/specplots.log
 #SPEC_DATA_PATTERN=/share1/USAXS_data/20*-*/*.dat
 SPEC_DATA_PATTERN=/share1/USAXS_data/2010-04/*.dat
+
+#@TODO: needs ploticus
 
 export PLOTICUS_BASE=/home/joule/USAXS/code/pl233src
 export PLOTICUS_PREFABS=/home/joule/USAXS/code/pl233src/prefabs

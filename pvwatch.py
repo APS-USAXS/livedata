@@ -8,24 +8,24 @@
 ########### SVN repository information ###################
 
 '''
-   watch the USAXS EPICS process variables and 
+   watch the USAXS EPICS process variables and
    write them to a file periodically
-   
+
    Start this with the shell command
    /APSshare/bin/python ./pvwatch.py >>& log.txt
 '''
 
-import sys		# for flushing log output
-import time		# provides sleep()
-import datetime		# date/time stamps
-import shutil		# file copies
-import subprocess	# calling other software (xsltproc)
-import shlex		# parsing command lines (for xsltproc)
-import os.path		# testing if a file exists
-import pvConnect	# manages EPICS connections
-from pvlist import *	# the list of PVs to be watched
-import prjPySpec	# read SPEC data files
-import plot		# makes PNG files of recent USAXS scans
+import sys              # for flushing log output
+import time             # provides sleep()
+import datetime         # date/time stamps
+import shutil           # file copies
+import subprocess       # calling other software (xsltproc)
+import shlex            # parsing command lines (for xsltproc)
+import os.path          # testing if a file exists
+import pvConnect        # manages EPICS connections
+import pvlist   # the list of PVs to be watched
+import prjPySpec        # read SPEC data files
+import plot             # makes PNG files of recent USAXS scans
 
 
 global GLOBAL_MONITOR_COUNTER
@@ -33,7 +33,8 @@ global pvdb
 global xref
 global EXC_FMT
 
-BASE_NFS = "/home/joule/USAXS/www/livedata"
+   #@TODO: check for 15ID-D readiness
+BASE_NFS = "/home/beams/S15USAXS/Documents/eclipse/USAXS/livedata"
 GLOBAL_MONITOR_COUNTER = 0
 LOG_INTERVAL_S = 60*5
 NUM_SCANS_PLOTTED = 5
@@ -79,10 +80,10 @@ def monitor_receiver(epics_args, user_args):
     GLOBAL_MONITOR_COUNTER += 1
     try:
         # update the units, if possible
-	if entry['units'] != epics_args['pv_units']:
+        if entry['units'] != epics_args['pv_units']:
             entry['units'] = epics_args['pv_units']
     except:
-        pass	# some PVs have no "units", ignore these transgressions
+        pass    # some PVs have no "units", ignore these transgressions
     #print 'monitor_receiver: ', pv, ' = ', value, epics_args
 
 
@@ -92,9 +93,9 @@ def add_pv(item):
     pv = item[1]
     desc = item[2]
     if len(item) > 3:
-        fmt = item[3]	# specified display format
+        fmt = item[3]   # specified display format
     else:
-        fmt = "%s"	# default display format
+        fmt = "%s"      # default display format
     if pv in pvdb:
         raise Exception("%s already defined by id=%s" % (pv, pvdb[pv]['id']))
     ch = pvConnect.EpicsPv(pv)
@@ -110,11 +111,11 @@ def add_pv(item):
     entry['counter'] = 0
     entry['units'] = ""
     entry['ch'] = ch
-    entry['format'] = fmt	# format for display
-    entry['value'] = None	# formatted value
-    entry['raw_value'] = None	# unformatted value
+    entry['format'] = fmt       # format for display
+    entry['value'] = None       # formatted value
+    entry['raw_value'] = None   # unformatted value
     pvdb[pv] = entry
-    xref[my_id] = pv		# allows this code to call by "id" (can change PV only in pvlist.xml then)
+    xref[my_id] = pv            # allows this code to call by "id" (can change PV only in pvlist.xml then)
 
 
 def makeSimpleTag(tag, value):
@@ -138,27 +139,27 @@ def updateSpecMacroFile():
     '''copy the current SPEC macro file to the WWW page space'''
     specFile = getSpecFileName(xref['spec_macro_file'])
     if not os.path.exists(specFile):
-    	return
+        return
     wwwFile = BASE_NFS + "/" + "specmacro.txt"
     if not os.path.exists(wwwFile):
-    	return
+        return
     spec_mtime = os.stat(specFile).st_mtime
     www_mtime = os.stat(wwwFile).st_mtime
     if spec_mtime > www_mtime:
         #  copy only if it is newer
-	shutil.copy2(specFile, wwwFile)
+        shutil.copy2(specFile, wwwFile)
 
 
 def updatePlotImage():
     '''make a new PNG file with the most recent USAXS scans'''
     specFile = getSpecFileName(xref['spec_data_file'])
     if not os.path.exists(specFile):
-    	return
+        return
     spec_mtime = os.stat(specFile).st_mtime
     if not os.path.exists(plot.PLOTFILE):
         # no plot yet, let's make one!
-	plot.update_n_plots(specFile, NUM_SCANS_PLOTTED)
-    	return
+        plot.update_n_plots(specFile, NUM_SCANS_PLOTTED)
+        return
     plot_mtime = os.stat(plot.PLOTFILE).st_mtime
     if spec_mtime > plot_mtime:
         #  plot only if new data
@@ -180,8 +181,8 @@ def shellCommandToFile(command, outFile):
 def report():
     '''write the values out in XML'''
     #---
-    # the detector currents are calculated not read 
-    # directly from EPICS but rather calculated from 
+    # the detector currents are calculated not read
+    # directly from EPICS but rather calculated from
     # the voltage and gain
     #---
     xml = []
@@ -202,13 +203,13 @@ def report():
     field_list.append("raw_value")
     field_list.append("format")
     for my_id in sorted_id_list:
-	pv = xref[my_id]
-	entry = pvdb[pv]
-	ch = entry['ch']
-	xml.append('  <pv id="%s" name="%s">' % (my_id, pv))
-	for item in field_list:
-	    xml.append("    " + makeSimpleTag(item, entry[item]))
-	xml.append('  </pv>')
+        pv = xref[my_id]
+        entry = pvdb[pv]
+        ch = entry['ch']
+        xml.append('  <pv id="%s" name="%s">' % (my_id, pv))
+        for item in field_list:
+            xml.append("    " + makeSimpleTag(item, entry[item]))
+        xml.append('  </pv>')
     xml.append('</usaxs_pvs>')
     #---
     f = open(REPORT_FILE, 'w')
@@ -216,12 +217,12 @@ def report():
     f.close()
     #--- xslt transforms
     shellCommandToFile(
-        "/usr/bin/xsltproc --novalid livedata.xsl " + REPORT_FILE, 
-	"./www/index.html"
+        "/usr/bin/xsltproc --novalid livedata.xsl " + REPORT_FILE,
+        "./www/index.html"
     )
     shellCommandToFile(
-        "/usr/bin/xsltproc --novalid raw-table.xsl " + REPORT_FILE, 
-	"./www/raw-report.html"
+        "/usr/bin/xsltproc --novalid raw-table.xsl " + REPORT_FILE,
+        "./www/raw-report.html"
     )
 
 
@@ -236,58 +237,58 @@ if __name__ == '__main__':
     if pvConnect.IMPORTED_CACHANNEL:
         test_pv = 'S:SRcurrentAI'
         if pvConnect.testConnect(test_pv):
-	    logMessage("starting pvwatch.py")
+            logMessage("starting pvwatch.py")
 
-	    ch = pvConnect.EpicsPv(test_pv)
-	    ch.connectw()
-	    ch.monitor()
-	    for row in pvconfig:
-	    	#print "ROW: ", row
-		try:
-	    	    add_pv(row)
-		except:
-		    logException("pvlist.xml row: %s" % row)
-	    pvConnect.CaPoll()
-	    logMessage("Connected %d EPICS PVs" % len(pvdb))
+            ch = pvConnect.EpicsPv(test_pv)
+            ch.connectw()
+            ch.monitor()
+            for row in pvlist.pvconfig:
+                #print "ROW: ", row
+                try:
+                    add_pv(row)
+                except:
+                    logException("pvlist.xml row: %s" % row)
+            pvConnect.CaPoll()
+            logMessage("Connected %d EPICS PVs" % len(pvdb))
 
-	    nextReport = getTime()
-	    nextLog = nextReport
-	    delta_report = datetime.timedelta(seconds=REPORT_INTERVAL_S)
-	    delta_log = datetime.timedelta(seconds=LOG_INTERVAL_S)
-	    while True:
-		dt = getTime()
-		ch.chan.pend_event()
-		if dt >= nextReport:
-		    nextReport = dt + delta_report
-		    try:
-                        report()    		# write contents of pvdb to a file
-		    except:
-		    	# report the exception
-			logException("report()")
-		    try:
-                        updateSpecMacroFile()	# copy the spec macro file
-		    except:
-		    	# report the exception
-			logException("updateSpecMacroFile()")
-		    try:
-                        updatePlotImage()	# update the plot
-		    except:
-			logException("updatePlotImage()")
-		if dt >= nextLog:
-		    nextLog = dt + delta_log
+            nextReport = getTime()
+            nextLog = nextReport
+            delta_report = datetime.timedelta(seconds=REPORT_INTERVAL_S)
+            delta_log = datetime.timedelta(seconds=LOG_INTERVAL_S)
+            while True:
+                dt = getTime()
+                ch.chan.pend_event()
+                if dt >= nextReport:
+                    nextReport = dt + delta_report
+                    try:
+                        report()                # write contents of pvdb to a file
+                    except:
+                        # report the exception
+                        logException("report()")
+                    try:
+                        updateSpecMacroFile()   # copy the spec macro file
+                    except:
+                        # report the exception
+                        logException("updateSpecMacroFile()")
+                    try:
+                        updatePlotImage()       # update the plot
+                    except:
+                        logException("updatePlotImage()")
+                if dt >= nextLog:
+                    nextLog = dt + delta_log
                     logMessage(
-		        "checkpoint, %d EPICS monitor events received" 
-			% GLOBAL_MONITOR_COUNTER
-		    )
-		#print dt
-		time.sleep(SLEEP_INTERVAL_S)
+                        "checkpoint, %d EPICS monitor events received"
+                        % GLOBAL_MONITOR_COUNTER
+                    )
+                #print dt
+                time.sleep(SLEEP_INTERVAL_S)
 
-	    # this exit handling will never be called
-	    for pv in pvdb:
-	        ch = pvdb[pv]['ch']
-		if ch != None:
-		    pvdb[pv]['ch'].release()
+            # this exit handling will never be called
+            for pv in pvdb:
+                ch = pvdb[pv]['ch']
+                if ch != None:
+                    pvdb[pv]['ch'].release()
             pvConnect.on_exit()
-	    print "script is done"
+            print "script is done"
     else:
         print "CaChannel is missing, cannot run"

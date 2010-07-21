@@ -99,6 +99,7 @@
                     <tr bgcolor="lightblue">
                         <td align="center">
                             Webcam: 
+			    <!-- @TODO: IP address of AXIS camera server -->
 			    <a href="http://usaxsqvs1.xor.aps.anl.gov">
 			        http://usaxsqvs1.xor.aps.anl.gov
 			    </a>

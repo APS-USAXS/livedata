@@ -17,7 +17,7 @@ import string
 import time
 
 
-BASE_DIR = "/share1/USAXS_data/"
+BASE_DIR = "/data/USAXS_data/"
 SKIP_DIRS = ['.AppleFileInfo']
 KEEP_EXTS = ['.dat']
 TIME_WINDOWS_SECS = 60*60*24*180
@@ -36,7 +36,11 @@ class dirWatch:
         self.discover()
         
     def discover(self):
-        '''walk the directory tree looking for treasures'''
+        '''
+        walk the directory tree looking for new treasures
+        @TODO: this algorithm is not very efficient
+            It keeps regenerating files even when the source has nto changed.
+        '''
         if not os.path.exists(self.baseDir):
             return      # cannot find this item
         now = time.time()
