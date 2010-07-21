@@ -20,6 +20,10 @@ import tempfile
 import prjPySpec	# read SPEC data files
 
 
+#@TODO: needs to be converted to 15ID-D
+#@TODO: needs ploticus
+
+
 PLOT_FORMAT = "png"
 PLOTICUS = "/home/joule/USAXS/bin/pl"
 PLOTFILE = "pete.png"
@@ -75,13 +79,19 @@ def makePloticusPlot(scan, plotFile):
 
 
 def openSpecFile(specFile):
-    '''convenience routine so that others do not have to import prjPySpec'''
+    '''
+    convenience routine so that others 
+    do not have to import prjPySpec
+    '''
     sd = prjPySpec.specDataFile(specFile)
     return sd
 
 
 def findScan(sd, n):
-    '''return the first scan with scan number "n" from the spec data file object or None'''
+    '''
+    return the first scan with scan number "n" 
+    from the spec data file object or None
+    '''
     scan = None
     n = int(n)
     for t in sd.scans:

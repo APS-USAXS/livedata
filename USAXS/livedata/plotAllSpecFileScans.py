@@ -9,6 +9,7 @@
 
 '''
    read a SPEC data file and plot all the scans
+   @TODO: check for 15ID-D readiness
 '''
 
 import os
@@ -17,10 +18,9 @@ import time
 import shutil
 import specplot
 
-
+TEST_FILE = "/data/USAXS_data/2010-03/03_27.dat"
 PLOT_DIR = os.path.join(".", "www", "scanplots")
-# /share1/USAXS_data/2010-03/03_27.dat
-SPEC_FILE = os.path.join("/", "share1", "USAXS_data", "2010-03", "03_27.dat")
+SPEC_FILE = os.path.join(TEST_FILE.split("/"))
 TIMESTAMP_FORMAT = "%Y-%m-%d %H:%M:%S"
 SVN_ID = "$Id$"
 HREF_FORMAT = "<a href=\"%s\"><img src=\"%s\" width=\"%s\" height=\"%s\" alt=\"%s\"/></a>"
