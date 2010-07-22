@@ -33,7 +33,7 @@ global pvdb
 global xref
 global EXC_FMT
 
-   #@TODO: check for 15ID-D readiness
+
 BASE_NFS = "/home/beams/S15USAXS/Documents/eclipse/USAXS/livedata"
 GLOBAL_MONITOR_COUNTER = 0
 LOG_INTERVAL_S = 60*5
@@ -48,9 +48,10 @@ XSL_STYLESHEET = "raw-table.xsl"
 pvdb = {}   # EPICS data will go here
 xref = {}   # cross-reference id with PV
 
+
 def logMessage(msg):
     '''write a message with a timestamp and pid to the log file'''
-    print "[%d %s] %s" % (os.getpid(), getTime(), msg)
+    print "[%s %d %s] %s" % (sys.argv[0], os.getpid(), getTime(), msg)
     sys.stdout.flush()
 
 
@@ -181,9 +182,8 @@ def shellCommandToFile(command, outFile):
 def report():
     '''write the values out in XML'''
     #---
-    # the detector currents are calculated not read
-    # directly from EPICS but rather calculated from
-    # the voltage and gain
+    # the detector currents are not read directly from EPICS 
+    # but rather calculated from the voltage and gain
     #---
     xml = []
     xml.append('<?xml version="1.0" encoding="UTF-8"?>')
@@ -211,19 +211,14 @@ def report():
             xml.append("    " + makeSimpleTag(item, entry[item]))
         xml.append('  </pv>')
     xml.append('</usaxs_pvs>')
-    #---
+    #--- write the XML with the raw data from EPICS
     f = open(REPORT_FILE, 'w')
     f.write("\n".join(xml))
     f.close()
-    #--- xslt transforms
-    shellCommandToFile(
-        "/usr/bin/xsltproc --novalid livedata.xsl " + REPORT_FILE,
-        "./www/index.html"
-    )
-    shellCommandToFile(
-        "/usr/bin/xsltproc --novalid raw-table.xsl " + REPORT_FILE,
-        "./www/raw-report.html"
-    )
+    #--- xslt transforms from XML to HTML
+    fmt = "/usr/bin/xsltproc --novalid %s " + REPORT_FILE
+    shellCommandToFile(fmt % "livedata.xsl", "./www/index.html")
+    shellCommandToFile(fmt % "raw-table.xsl", "./www/raw-report.html")
 
 
 def getTime():
@@ -232,63 +227,70 @@ def getTime():
     return dt
 
 
-if __name__ == '__main__':
-    GLOBAL_MONITOR_COUNTER
-    if pvConnect.IMPORTED_CACHANNEL:
-        test_pv = 'S:SRcurrentAI'
-        if pvConnect.testConnect(test_pv):
-            logMessage("starting pvwatch.py")
+def main():
+    '''
+    run the main loop
+    '''
+    global GLOBAL_MONITOR_COUNTER
+    test_pv = 'S:SRcurrentAI'
+    if pvConnect.testConnect(test_pv):
+        logMessage("starting pvwatch.py")
 
-            ch = pvConnect.EpicsPv(test_pv)
-            ch.connectw()
-            ch.monitor()
-            for row in pvlist.pvconfig:
-                #print "ROW: ", row
+        ch = pvConnect.EpicsPv(test_pv)
+        ch.connectw()
+        ch.monitor()
+        for row in pvlist.pvconfig:
+            #print "ROW: ", row
+            try:
+                add_pv(row)
+            except:
+                logException("pvlist.xml row: %s" % row)
+        pvConnect.CaPoll()
+        logMessage("Connected %d EPICS PVs" % len(pvdb))
+
+        nextReport = getTime()
+        nextLog = nextReport
+        delta_report = datetime.timedelta(seconds=REPORT_INTERVAL_S)
+        delta_log = datetime.timedelta(seconds=LOG_INTERVAL_S)
+        while True:
+            dt = getTime()
+            ch.chan.pend_event()
+            if dt >= nextReport:
+                nextReport = dt + delta_report
                 try:
-                    add_pv(row)
+                    report()                # write contents of pvdb to a file
                 except:
-                    logException("pvlist.xml row: %s" % row)
-            pvConnect.CaPoll()
-            logMessage("Connected %d EPICS PVs" % len(pvdb))
+                    # report the exception
+                    logException("report()")
+                try:
+                    updateSpecMacroFile()   # copy the spec macro file
+                except:
+                    # report the exception
+                    logException("updateSpecMacroFile()")
+                try:
+                    updatePlotImage()       # update the plot
+                except:
+                    logException("updatePlotImage()")
+            if dt >= nextLog:
+                nextLog = dt + delta_log
+                logMessage(
+                    "checkpoint, %d EPICS monitor events received"
+                    % GLOBAL_MONITOR_COUNTER
+                )
+            #print dt
+            time.sleep(SLEEP_INTERVAL_S)
 
-            nextReport = getTime()
-            nextLog = nextReport
-            delta_report = datetime.timedelta(seconds=REPORT_INTERVAL_S)
-            delta_log = datetime.timedelta(seconds=LOG_INTERVAL_S)
-            while True:
-                dt = getTime()
-                ch.chan.pend_event()
-                if dt >= nextReport:
-                    nextReport = dt + delta_report
-                    try:
-                        report()                # write contents of pvdb to a file
-                    except:
-                        # report the exception
-                        logException("report()")
-                    try:
-                        updateSpecMacroFile()   # copy the spec macro file
-                    except:
-                        # report the exception
-                        logException("updateSpecMacroFile()")
-                    try:
-                        updatePlotImage()       # update the plot
-                    except:
-                        logException("updatePlotImage()")
-                if dt >= nextLog:
-                    nextLog = dt + delta_log
-                    logMessage(
-                        "checkpoint, %d EPICS monitor events received"
-                        % GLOBAL_MONITOR_COUNTER
-                    )
-                #print dt
-                time.sleep(SLEEP_INTERVAL_S)
+        # this exit handling will never be called
+        for pv in pvdb:
+            ch = pvdb[pv]['ch']
+            if ch != None:
+                pvdb[pv]['ch'].release()
+        pvConnect.on_exit()
+        print "script is done"
 
-            # this exit handling will never be called
-            for pv in pvdb:
-                ch = pvdb[pv]['ch']
-                if ch != None:
-                    pvdb[pv]['ch'].release()
-            pvConnect.on_exit()
-            print "script is done"
+
+if __name__ == '__main__':
+    if pvConnect.IMPORTED_CACHANNEL:
+        main()
     else:
         print "CaChannel is missing, cannot run"
