@@ -27,6 +27,8 @@ PLOTICUS = "/home/beams/S15USAXS/bin/pl"
 PLOTICUS_PREFABS = "/home/beams/S15USAXS/Documents/ploticus/pl241src/prefabs"
 PLOTFILE = "www/livedata.png"
 SHELL_SCRIPT = "/tmp/plot-ploticus-usaxs.sh"
+A_keV = 12.3984244
+FIXED_VF_GAIN = 1e5
 
 
 def update_n_plots(specFile, numScans):
@@ -266,19 +268,21 @@ def calc_usaxs_data(specScan):
     sampleTitle = specScan.comments[0]
     arCenter = specScan.positioner['ar']
     wavelength = specScan.float['DCM_lambda']
+    if wavelength == 0:  wavelength = A_keV/specScan.float['DCM_energy']      # TODO: development ONLY
     numData = len(specScan.data['Epoch'])
     USAXS_Q = []
     USAXS_I = []
+    V_f_gain = FIXED_VF_GAIN
     for i in range(numData):
         pd_counts = specScan.data['pd_counts'][i]
         pd_range = specScan.data['pd_range'][i]
         ar_enc = specScan.data['ar_enc'][i]
         seconds = specScan.data['seconds'][i]
         I0 = specScan.data['I0'][i]
+        if I0 == 0:  I0 = 1      # TODO: development ONLY
         index = str(int(pd_range))
         diode_gain = specScan.float["UPD2gain" + index]
         dark_curr = specScan.float["UPD2bkg" + index]
-        V_f_gain = 1e5
         #----
         qVec = (4 * math.pi / wavelength) * math.sin(d2r*(arCenter - ar_enc)/2)
         rVec = (pd_counts - seconds*dark_curr) / diode_gain / I0 / V_f_gain
