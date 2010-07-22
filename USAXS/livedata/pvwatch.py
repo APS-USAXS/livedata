@@ -15,43 +15,40 @@
    /APSshare/bin/python ./pvwatch.py >>& log.txt
 '''
 
-import sys              # for flushing log output
-import time             # provides sleep()
+
 import datetime         # date/time stamps
+import os.path          # testing if a file exists
+import shlex            # parsing command lines (for xsltproc)
 import shutil           # file copies
 import subprocess       # calling other software (xsltproc)
-import shlex            # parsing command lines (for xsltproc)
-import os.path          # testing if a file exists
+import sys              # for flushing log output
+import time             # provides sleep()
 import pvConnect        # manages EPICS connections
-import pvlist   # the list of PVs to be watched
+import pvlist           # the list of PVs to be watched
 import prjPySpec        # read SPEC data files
 import plot             # makes PNG files of recent USAXS scans
+import localConfig      # definitions for 15ID
+
+
+SVN_ID = "$Id$"
 
 
 global GLOBAL_MONITOR_COUNTER
 global pvdb
 global xref
-global EXC_FMT
 
-
-BASE_NFS = "/home/beams/S15USAXS/Documents/eclipse/USAXS/livedata"
 GLOBAL_MONITOR_COUNTER = 0
-LOG_INTERVAL_S = 60*5
-NUM_SCANS_PLOTTED = 5
-REPORT_FILE = "./www/report.xml"
-REPORT_INTERVAL_S = 10
-SLEEP_INTERVAL_S = 0.1
-SVN_ID = "$Id$"
-XSL_STYLESHEET = "raw-table.xsl"
-
-
 pvdb = {}   # EPICS data will go here
 xref = {}   # cross-reference id with PV
 
 
 def logMessage(msg):
     '''write a message with a timestamp and pid to the log file'''
-    print "[%s %d %s] %s" % (sys.argv[0], os.getpid(), getTime(), msg)
+    try:
+        scriptName
+    except:
+        scriptName = os.path.basename(sys.argv[0])
+    print "[%s %d %s] %s" % (scriptName, os.getpid(), getTime(), msg)
     sys.stdout.flush()
 
 
@@ -131,18 +128,21 @@ def makeSimpleTag(tag, value):
 def getSpecFileName(pv):
     '''construct the name of the file, based on a PV'''
     userDir = pvdb[xref['spec_dir']]['value']
-    rawName = pvdb[pv]['value']
+    rawName = pvdb[pv]['value']   #@TODO: What if rawName is an empty string?
     specFile = userDir + "/" + rawName
     return specFile
 
 
 def updateSpecMacroFile():
     '''copy the current SPEC macro file to the WWW page space'''
+    #@TODO: What if the specFile is actually a directory?
     specFile = getSpecFileName(xref['spec_macro_file'])
     if not os.path.exists(specFile):
         return
-    wwwFile = BASE_NFS + "/" + "specmacro.txt"
+    wwwFile = os.path.join(localConfig.WWW_BASE_DIR, "specmacro.txt")
     if not os.path.exists(wwwFile):
+        #@TODO: Why return now?  
+        #   Looks like the file needs to be written to the WWW server.
         return
     spec_mtime = os.stat(specFile).st_mtime
     www_mtime = os.stat(wwwFile).st_mtime
@@ -157,14 +157,14 @@ def updatePlotImage():
     if not os.path.exists(specFile):
         return
     spec_mtime = os.stat(specFile).st_mtime
-    if not os.path.exists(plot.PLOTFILE):
+    if not os.path.exists(localConfig.PLOTFILE):
         # no plot yet, let's make one!
-        plot.update_n_plots(specFile, NUM_SCANS_PLOTTED)
+        plot.update_n_plots(specFile, localConfig.NUM_SCANS_PLOTTED)
         return
-    plot_mtime = os.stat(plot.PLOTFILE).st_mtime
+    plot_mtime = os.stat(localConfig.PLOTFILE).st_mtime
     if spec_mtime > plot_mtime:
         #  plot only if new data
-        plot.update_n_plots(specFile, NUM_SCANS_PLOTTED)
+        plot.update_n_plots(specFile, localConfig.NUM_SCANS_PLOTTED)
 
 
 def shellCommandToFile(command, outFile):
@@ -187,7 +187,8 @@ def report():
     #---
     xml = []
     xml.append('<?xml version="1.0" encoding="UTF-8"?>')
-    xml.append('<?xml-stylesheet type="text/xsl" href="%s" ?>' % XSL_STYLESHEET)
+    xml.append('<?xml-stylesheet type="text/xsl" href="%s" ?>' 
+               % localConfig.XSL_STYLESHEET)
     xml.append('<usaxs_pvs version="1">')
     xml.append("  " + makeSimpleTag('writer', SVN_ID))
     xml.append("  " + makeSimpleTag('datetime', getTime()))
@@ -212,11 +213,11 @@ def report():
         xml.append('  </pv>')
     xml.append('</usaxs_pvs>')
     #--- write the XML with the raw data from EPICS
-    f = open(REPORT_FILE, 'w')
+    f = open(localConfig.REPORT_FILE, 'w')
     f.write("\n".join(xml))
     f.close()
     #--- xslt transforms from XML to HTML
-    fmt = "/usr/bin/xsltproc --novalid %s " + REPORT_FILE
+    fmt = "/usr/bin/xsltproc --novalid %s " + localConfig.REPORT_FILE
     shellCommandToFile(fmt % "livedata.xsl", "./www/index.html")
     shellCommandToFile(fmt % "raw-table.xsl", "./www/raw-report.html")
 
@@ -250,8 +251,8 @@ def main():
 
         nextReport = getTime()
         nextLog = nextReport
-        delta_report = datetime.timedelta(seconds=REPORT_INTERVAL_S)
-        delta_log = datetime.timedelta(seconds=LOG_INTERVAL_S)
+        delta_report = datetime.timedelta(seconds=localConfig.REPORT_INTERVAL_S)
+        delta_log = datetime.timedelta(seconds=localConfig.LOG_INTERVAL_S)
         while True:
             dt = getTime()
             ch.chan.pend_event()
@@ -278,7 +279,7 @@ def main():
                     % GLOBAL_MONITOR_COUNTER
                 )
             #print dt
-            time.sleep(SLEEP_INTERVAL_S)
+            time.sleep(localConfig.SLEEP_INTERVAL_S)
 
         # this exit handling will never be called
         for pv in pvdb:
