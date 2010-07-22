@@ -20,13 +20,12 @@ import tempfile
 import prjPySpec	# read SPEC data files
 
 
-#@TODO: needs to be converted to 15ID-D
-#@TODO: needs ploticus
-
-
 PLOT_FORMAT = "png"
-PLOTICUS = "/home/joule/USAXS/bin/pl"
-PLOTFILE = "pete.png"
+PLOTICUS = "/home/beams/S15USAXS/bin/pl"
+PLOTICUS_PREFABS = "/home/beams/S15USAXS/Documents/ploticus/pl241src/prefabs"
+TEST_DATA = '/data/USAXS_data/2010-03/03_25.dat'
+TEST_SCAN_NUMBER = 1
+TEST_PLOTFILE = "pete.png"
 PLOTICUS_COMMAND_FILE = "pete.pl"
 NO_POINTS_THRESHOLD = 400
 
@@ -72,6 +71,9 @@ def makePloticusPlot(scan, plotFile):
     command += " -" + PLOT_FORMAT
     command += " -o " + plotFile
     lex = shlex.split(command)
+    #
+    # ploticus needs this
+    os.environ['PLOTICUS_PREFABS'] = PLOTICUS_PREFABS
     # run the command but gobble up stdout (make it less noisy)
     p = subprocess.Popen(lex, stdout=subprocess.PIPE)
     p.wait()
@@ -102,13 +104,14 @@ def findScan(sd, n):
 
 
 if __name__ == '__main__':
-    specFile = '/share1/USAXS_data/2010-03/03_25.dat'
-    scan_number = 1
+    specFile = TEST_DATA
+    scan_number = TEST_SCAN_NUMBER
+    plotFile = TEST_PLOTFILE
     if len(sys.argv) == 4:
         (specFile, scan_number, plotFile) = sys.argv[1:4]
     else:
         print "usage: %s specFile scan_number plotFile" % sys.argv[0]
-        sys.exit()
+        #sys.exit()  # TODO: development ONLY
     specData = openSpecFile(specFile)
     scan = findScan(specData, scan_number)
     makePloticusPlot(scan, plotFile)
