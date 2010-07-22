@@ -9,6 +9,8 @@
 
 '''
    watch a directory (and all directories beneath) for new versions of SPEC data files
+   
+   TODO: this is an incomplete project, it seems
 '''
 
 import os
