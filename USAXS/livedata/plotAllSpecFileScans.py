@@ -9,7 +9,7 @@
 
 '''
    read a SPEC data file and plot all the scans
-   @TODO: check for 15ID-D readiness
+   @TODO: eliminate redundant plot updates
 '''
 
 import os
@@ -18,9 +18,9 @@ import time
 import shutil
 import specplot
 
-TEST_FILE = "/data/USAXS_data/2010-03/03_27.dat"
-PLOT_DIR = os.path.join(".", "www", "scanplots")
-SPEC_FILE = os.path.join(TEST_FILE.split("/"))
+
+PLOT_DIR = "./www/scanplots"
+SPEC_FILE = "/data/USAXS_data/2010-03/03_27.dat"
 TIMESTAMP_FORMAT = "%Y-%m-%d %H:%M:%S"
 SVN_ID = "$Id$"
 HREF_FORMAT = "<a href=\"%s\"><img src=\"%s\" width=\"%s\" height=\"%s\" alt=\"%s\"/></a>"
@@ -54,7 +54,7 @@ def plotAllSpecFileScans(specFile):
     yyyy = "%04d" % date[0]
     mm = "%02d" % date[1]
     dd = "%02d" % date[2]
-    basedir = os.path.join(PLOT_DIR, yyyy, mm, dd, basename)
+    #basedir = os.path.join(PLOT_DIR, yyyy, mm, dd, basename)
     # shorter path if we cut out the dd part
     basedir = os.path.join(PLOT_DIR, yyyy, mm, basename)
     if not os.path.exists(basedir):
@@ -68,6 +68,7 @@ def plotAllSpecFileScans(specFile):
         #print "specplot.py %s %d %s" % (specFile, scan.scanNum, fullPlotFile)
         remake_plot = True
         if os.path.exists(fullPlotFile):
+            # TODO: check this logic
             plotFile_mtime = os.path.getmtime(fullPlotFile)
             if plotFile_mtime > specFile_mtime:
                 # plot was made after the data file was updated, don't remake the plot
@@ -112,6 +113,6 @@ def plotAllSpecFileScans(specFile):
 
 if __name__ == '__main__':
     specFile = SPEC_FILE
-    if len(sys.argv) > 0:
+    if len(sys.argv) > 1:
         specFile = sys.argv[1]
     plotAllSpecFileScans(specFile)
