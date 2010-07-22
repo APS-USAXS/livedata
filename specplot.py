@@ -17,7 +17,7 @@ import sys
 import subprocess
 import shlex
 import tempfile
-import prjPySpec	# read SPEC data files
+import prjPySpec        # read SPEC data files
 
 
 PLOT_FORMAT = "png"
@@ -34,22 +34,22 @@ def makePloticusPlot(scan, plotFile):
     '''plot scan n from the SPEC scan object'''
     plotData = zip(scan.data[scan.column_first], scan.data[scan.column_last])
     if len(plotData) == 0:
-	raise Exception("No data to plot")
+        raise Exception("No data to plot")
     #------------
     # http://ploticus.sourceforge.net/doc/prefab_lines_ex.html
     #------------
     pl = []
     xMin = xMax = yMin = yMax = None
     for (x, y) in plotData:
-	pl.append("   %s  %s" % (x, y))
-	if xMin == None:
-	    xMin = xMax = x
-	    yMin = yMax = y
-	else:
-	    if x < xMin: xMin = x
-	    if y < yMin: yMin = y
-	    if x > xMax: xMax = x
-	    if y > yMax: yMax = y
+        pl.append("   %s  %s" % (x, y))
+        if xMin == None:
+            xMin = xMax = x
+            yMin = yMax = y
+        else:
+            if x < xMin: xMin = x
+            if y < yMin: yMin = y
+            if x > xMax: xMax = x
+            if y > yMax: yMax = y
     #---- write the ploticus data file
     ext = os.extsep + "pl"
     (f, dataFile) = tempfile.mkstemp(dir="/tmp", text=True, suffix=ext)
@@ -82,7 +82,7 @@ def makePloticusPlot(scan, plotFile):
 
 def openSpecFile(specFile):
     '''
-    convenience routine so that others 
+    convenience routine so that others
     do not have to import prjPySpec
     '''
     sd = prjPySpec.specDataFile(specFile)
@@ -91,15 +91,15 @@ def openSpecFile(specFile):
 
 def findScan(sd, n):
     '''
-    return the first scan with scan number "n" 
+    return the first scan with scan number "n"
     from the spec data file object or None
     '''
     scan = None
     n = int(n)
     for t in sd.scans:
-	if n == t.scanNum:
-	    scan = t
-	    break
+        if n == t.scanNum:
+            scan = t
+            break
     return scan
 
 
@@ -114,4 +114,7 @@ if __name__ == '__main__':
         #sys.exit()  # TODO: development ONLY
     specData = openSpecFile(specFile)
     scan = findScan(specData, scan_number)
-    makePloticusPlot(scan, plotFile)
+    try:
+        makePloticusPlot(scan, plotFile)
+    except:
+        pass
