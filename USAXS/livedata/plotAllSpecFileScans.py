@@ -9,7 +9,6 @@
 
 '''
    read a SPEC data file and plot all the scans
-   @TODO: eliminate redundant plot updates
 '''
 
 import os
@@ -59,6 +58,7 @@ def plotAllSpecFileScans(specFile):
     if not os.path.exists(basedir):
         os.makedirs(basedir)
     plotList = []
+    updateIndexFile = False
     for scan in sd.scans:
         basePlotFile = "s%05d.png" % scan.scanNum
         fullPlotFile = os.path.join(basedir, basePlotFile)
@@ -68,7 +68,6 @@ def plotAllSpecFileScans(specFile):
         #print "specplot.py %s %d %s" % (specFile, scan.scanNum, fullPlotFile)
         remake_plot = True
         if os.path.exists(fullPlotFile):
-            # TODO: check this logic
             plotFile_mtime = os.path.getmtime(fullPlotFile)
             if plotFile_mtime > specFile_mtime:
                 # plot was made after the data file was updated
@@ -78,6 +77,7 @@ def plotAllSpecFileScans(specFile):
         if remake_plot:
             try:
                 specplot.makePloticusPlot(scan, fullPlotFile)
+                updateIndexFile = True
             except:
                 msg = "ERROR: '%s' %s #%d" % (sys.exc_value, 
                         specFile, scan.scanNum)
@@ -89,31 +89,34 @@ def plotAllSpecFileScans(specFile):
                 plotList.append(HREF_FORMAT % (basePlotFile, 
                         basePlotFile, "150", "75", altText))
     baseSpecFile = os.path.basename(specFile)
-    datestamp = time.strftime(TIMESTAMP_FORMAT, time.localtime(time.time()))
-    commentFormat = """
-       written by: %s
-       SVN: %s
-       date: %s
-    """
-    comment = commentFormat % (sys.argv[0], SVN_ID, datestamp)
-    html = HTML_FORMAT % (specFile, comment, specFile, 
-                baseSpecFile, specFile, '\n'.join(plotList))
+    if updateIndexFile:
+        datestamp = time.strftime(TIMESTAMP_FORMAT, time.localtime(time.time()))
+        commentFormat = """
+           written by: %s
+           SVN: %s
+           date: %s
+        """
+        comment = commentFormat % (sys.argv[0], SVN_ID, datestamp)
+        html = HTML_FORMAT % (specFile, comment, specFile, 
+                    baseSpecFile, specFile, '\n'.join(plotList))
+        #------------------
+        htmlFile = os.path.join(basedir, "index.html")
+        f = open(htmlFile, "w")
+        f.write(html)
+        f.close()
     #------------------
     # copy the SPEC data file to the WWW site, only if file has newer mtime
     wwwSpecFile = os.path.join(basedir, baseSpecFile)
+    copySpecFile = False
     if os.path.exists(wwwSpecFile):
         wwwSpecFile_mtime = os.path.getmtime(wwwSpecFile)
         if specFile_mtime > wwwSpecFile_mtime:
-            # specFile is newer, copy to WWW site
-            shutil.copy2(specFile,wwwSpecFile)
+            copySpecFile = True     # specFile is newer, copy to WWW site
     else:
+        copySpecFile = True     # specFile is not yet on WWW site
+    if copySpecFile:
         # copy specFile to WWW site
         shutil.copy2(specFile,wwwSpecFile)
-    #------------------
-    htmlFile = os.path.join(basedir, "index.html")
-    f = open(htmlFile, "w")
-    f.write(html)
-    f.close()
 
 
 if __name__ == '__main__':
