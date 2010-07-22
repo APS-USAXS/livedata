@@ -18,7 +18,7 @@ import shutil
 import specplot
 
 
-PLOT_DIR = "./www/scanplots"
+PLOT_DIR = "./www/specplots"
 SPEC_FILE = "/data/USAXS_data/2010-03/03_27.dat"
 TIMESTAMP_FORMAT = "%Y-%m-%d %H:%M:%S"
 SVN_ID = "$Id$"
@@ -59,6 +59,7 @@ def plotAllSpecFileScans(specFile):
         os.makedirs(basedir)
     plotList = []
     updateIndexFile = False
+    somethingWritten = False
     for scan in sd.scans:
         basePlotFile = "s%05d.png" % scan.scanNum
         fullPlotFile = os.path.join(basedir, basePlotFile)
@@ -81,7 +82,7 @@ def plotAllSpecFileScans(specFile):
             except:
                 msg = "ERROR: '%s' %s #%d" % (sys.exc_value, 
                         specFile, scan.scanNum)
-                print msg
+                # print msg
                 plotList.pop()     # replace the default link
                 plotList.append("<!-- " + msg + " -->")
                 altText = "%s: #%d %s" % (sys.exc_value, 
@@ -104,6 +105,7 @@ def plotAllSpecFileScans(specFile):
         f = open(htmlFile, "w")
         f.write(html)
         f.close()
+        somethingWritten = True
     #------------------
     # copy the SPEC data file to the WWW site, only if file has newer mtime
     wwwSpecFile = os.path.join(basedir, baseSpecFile)
@@ -117,6 +119,9 @@ def plotAllSpecFileScans(specFile):
     if copySpecFile:
         # copy specFile to WWW site
         shutil.copy2(specFile,wwwSpecFile)
+        somethingWritten = True
+    if somethingWritten:
+        print specFile
 
 
 if __name__ == '__main__':

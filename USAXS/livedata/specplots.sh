@@ -22,6 +22,6 @@ echo "#=-------------" >> $LOGFILE 2>&1
 filelist=`/bin/ls -1 $SPEC_DATA_PATTERN`
 for item in $filelist; 
   do
-  echo $item >> $LOGFILE 2>&1;
+  # echo $item >> $LOGFILE 2>&1;
   $WORKING_DIR/plotAllSpecFileScans.py $item >> $LOGFILE 2>&1;
 done
