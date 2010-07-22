@@ -15,6 +15,7 @@
 #@TODO: needs to be converted to 15ID-D
 
 setenv SCRIPT_DIR /home/beams/S15USAXS/Documents/eclipse/USAXS/livedata
+setenv PLOTICUS_PREFABS /home/beams/S15USAXS/Documents/ploticus/pl241src/prefabs
 setenv WWW_DIR    /data/www
 setenv SCRIPT  ${SCRIPT_DIR}/pvwatch.py
 setenv LOGFILE ${WWW_DIR}/log.txt

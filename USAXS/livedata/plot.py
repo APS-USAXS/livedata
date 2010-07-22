@@ -22,12 +22,9 @@ import time
 import prjPySpec        # read SPEC data files
 
 
-#@TODO: needs to be converted to 15ID-D
-#@TODO: needs ploticus
-
-
 PLOT_FORMAT = "png"
-PLOTICUS = "/home/joule/USAXS/bin/pl"
+PLOTICUS = "/home/beams/S15USAXS/bin/pl"
+PLOTICUS_PREFABS = "/home/beams/S15USAXS/Documents/ploticus/pl241src/prefabs"
 PLOTFILE = "www/livedata.png"
 SHELL_SCRIPT = "/tmp/plot-ploticus-usaxs.sh"
 
@@ -103,6 +100,8 @@ def run_ploticus(script, plot):
     os.close(f)  # close f since ploticus will write the file
     command = "%s %s -%s -o %s" % (PLOTICUS, tmpScript, PLOT_FORMAT, tmpPlot)
     lex = shlex.split(command)
+    #
+    os.environ['PLOTICUS_PREFABS'] = PLOTICUS_PREFABS
     p = subprocess.Popen(lex)
     p.wait()
     #---- copy and cleanup
@@ -195,8 +194,9 @@ def ploticus_commands(db, usaxs):
     output.append("  xfield: 2")
     output.append("  yfield: 3")
     output.append("  linedetails: color=%s width=0.5" % color)
-    output.append("  pointsymbol: shape=%s radius=0.025" % symbol)
-    output.append("    linecolor=%s fillcolor=white" % color)
+    txt = "  pointsymbol: shape=%s radius=0.025"
+    txt += " linecolor=%s fillcolor=white"
+    output.append(txt % (symbol, color))
     output.append("  legendlabel: %s" % scan['title'])
     output.append("  select: @@dataset == S%d" % scan['scan'])
     output.append("")
