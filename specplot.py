@@ -13,21 +13,12 @@
 
 import os
 import os.path
-import sys
-import subprocess
 import shlex
+import subprocess
+import sys
 import tempfile
 import prjPySpec        # read SPEC data files
-
-
-PLOT_FORMAT = "png"
-PLOTICUS = "/home/beams/S15USAXS/bin/pl"
-PLOTICUS_PREFABS = "/home/beams/S15USAXS/Documents/ploticus/pl241src/prefabs"
-TEST_DATA = '/data/USAXS_data/2010-03/03_25.dat'
-TEST_SCAN_NUMBER = 1
-TEST_PLOTFILE = "pete.png"
-PLOTICUS_COMMAND_FILE = "pete.pl"
-NO_POINTS_THRESHOLD = 400
+import localConfig      # definitions for 15ID
 
 
 def makePloticusPlot(scan, plotFile):
@@ -59,21 +50,21 @@ def makePloticusPlot(scan, plotFile):
     #---- execute the ploticus command file using a "prefab" plot style
     name = "#%d: %s" % (scan.scanNum, scan.scanCmd)
     title = "%s, %s" % (scan.specFile, scan.date)
-    command = PLOTICUS
+    command = localConfig.PLOTICUS
     command += " -prefab lines"
     command += " data=%s x=1 y=2" % dataFile
     command += " xlbl=\"%s\"" % scan.column_first
     command += " ylbl=\"%s\"" % scan.column_last
-    if len(plotData) >= NO_POINTS_THRESHOLD:
+    if len(plotData) >= localConfig.LINE_ONLY_THRESHOLD:
         command += " pointsym=\"none\""
     command += " name=\"%s\"" % name
     command += " title=\"%s\"" % title
-    command += " -" + PLOT_FORMAT
+    command += " -" + localConfig.PLOT_FORMAT
     command += " -o " + plotFile
     lex = shlex.split(command)
     #
     # ploticus needs this
-    os.environ['PLOTICUS_PREFABS'] = PLOTICUS_PREFABS
+    os.environ['PLOTICUS_PREFABS'] = localConfig.PLOTICUS_PREFABS
     # run the command but gobble up stdout (make it less noisy)
     p = subprocess.Popen(lex, stdout=subprocess.PIPE)
     p.wait()
@@ -104,9 +95,9 @@ def findScan(sd, n):
 
 
 if __name__ == '__main__':
-    specFile = TEST_DATA
-    scan_number = TEST_SCAN_NUMBER
-    plotFile = TEST_PLOTFILE
+    specFile = localConfig.TEST_SPEC_DATA
+    scan_number = localConfig.TEST_SPEC_SCAN_NUMBER
+    plotFile = localConfig.TEST_PLOTFILE
     if len(sys.argv) == 4:
         (specFile, scan_number, plotFile) = sys.argv[1:4]
     else:

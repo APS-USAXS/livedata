@@ -16,29 +16,10 @@ import sys
 import time
 import shutil
 import specplot
+import localConfig      # definitions for 15ID
 
 
-PLOT_DIR = "./www/specplots"
-SPEC_FILE = "/data/USAXS_data/2010-03/03_27.dat"
-TIMESTAMP_FORMAT = "%Y-%m-%d %H:%M:%S"
 SVN_ID = "$Id$"
-HREF_FORMAT = "<a href=\"%s\"><img src=\"%s\" width=\"%s\" "
-HREF_FORMAT += " height=\"%s\" alt=\"%s\"/></a>"
-HTML_FORMAT = """<html>
-  <head>
-    <title>SPEC scans from %s</title>
-    <!-- %s -->
-  </head>
-  <body>
-    <h1>SPEC scans from: %s</h1>
-
-      spec file: <a href='%s'>%s</a>
-      <br />
-
-%s
-
-  </body>
-</html>"""
 
 
 def plotAllSpecFileScans(specFile):
@@ -54,7 +35,7 @@ def plotAllSpecFileScans(specFile):
     yyyy = "%04d" % date[0]
     mm = "%02d" % date[1]
     dd = "%02d" % date[2]
-    basedir = os.path.join(PLOT_DIR, yyyy, mm, basename)
+    basedir = os.path.join(localConfig.SPECPLOTS_DIR, yyyy, mm, basename)
     if not os.path.exists(basedir):
         os.makedirs(basedir)
     plotList = []
@@ -64,8 +45,8 @@ def plotAllSpecFileScans(specFile):
         basePlotFile = "s%05d.png" % scan.scanNum
         fullPlotFile = os.path.join(basedir, basePlotFile)
         altText = "#%d: %s" % (scan.scanNum, scan.scanCmd)
-        plotList.append(HREF_FORMAT % (basePlotFile, basePlotFile, 
-                "150", "75", altText))
+        plotList.append(localConfig.HREF_FORMAT % (basePlotFile, 
+               basePlotFile, "150", "75", altText))
         #print "specplot.py %s %d %s" % (specFile, scan.scanNum, fullPlotFile)
         remake_plot = True
         if os.path.exists(fullPlotFile):
@@ -87,18 +68,19 @@ def plotAllSpecFileScans(specFile):
                 plotList.append("<!-- " + msg + " -->")
                 altText = "%s: #%d %s" % (sys.exc_value, 
                         scan.scanNum, scan.scanCmd)
-                plotList.append(HREF_FORMAT % (basePlotFile, 
+                plotList.append(localConfig.HREF_FORMAT % (basePlotFile, 
                         basePlotFile, "150", "75", altText))
     baseSpecFile = os.path.basename(specFile)
     if updateIndexFile:
-        datestamp = time.strftime(TIMESTAMP_FORMAT, time.localtime(time.time()))
+        datestamp = time.strftime(
+                      localConfig.TIMESTAMP_FORMAT, time.localtime(time.time()))
         commentFormat = """
            written by: %s
            SVN: %s
            date: %s
         """
         comment = commentFormat % (sys.argv[0], SVN_ID, datestamp)
-        html = HTML_FORMAT % (specFile, comment, specFile, 
+        html = localConfig.HTML_FORMAT % (specFile, comment, specFile, 
                     baseSpecFile, specFile, '\n'.join(plotList))
         #------------------
         htmlFile = os.path.join(basedir, "index.html")
@@ -125,7 +107,9 @@ def plotAllSpecFileScans(specFile):
 
 
 if __name__ == '__main__':
-    specFile = SPEC_FILE
+    specFile = localConfig.TEST_SPEC_DATA
     if len(sys.argv) > 1:
-        specFile = sys.argv[1]
-    plotAllSpecFileScans(specFile)
+        for specFile in sys.argv[1:]:
+            plotAllSpecFileScans(specFile)
+    else:
+        plotAllSpecFileScans(specFile)

@@ -17,13 +17,7 @@ import os
 import string
 #import sys
 import time
-
-
-BASE_DIR = "/data/USAXS_data/"
-SKIP_DIRS = ['.AppleFileInfo']
-KEEP_EXTS = ['.dat']
-TIME_WINDOWS_SECS = 60*60*24*180
-TIMESTAMP_FORMAT = "%Y-%m-%d %H:%M:%S"
+import localConfig      # definitions for 15ID
 
 
 class dirWatch:
@@ -41,21 +35,22 @@ class dirWatch:
         '''
         walk the directory tree looking for new treasures
         @TODO: this algorithm is not very efficient
-            It keeps regenerating files even when the source has nto changed.
+            It keeps regenerating files even when the source has not changed.
         '''
         if not os.path.exists(self.baseDir):
             return      # cannot find this item
         now = time.time()
-        time_window = now - TIME_WINDOWS_SECS
+        time_window = now - localConfig.TIME_WINDOWS_SECS
         for (dirpath, dirnames, filenames) in os.walk(self.baseDir):
-            if os.path.split(os.path.abspath(dirpath))[-1] in SKIP_DIRS:
+            tail = os.path.split(os.path.abspath(dirpath))[-1]
+            if tail in localConfig.SKIP_DIRS:
                 continue    # weed out unwanted directories
             if len(filenames) == 0:
                 continue    # no files in this directory
             absdir = os.path.abspath(dirpath)
             for item in filenames:
                 ext = string.lower(os.path.splitext(item)[-1])
-                if not ext in KEEP_EXTS:
+                if not ext in localConfig.KEEP_EXTS:
                     continue    # only look at certain files
                 full = os.path.join(dirpath, item)
                 mtime = os.path.getmtime(os.path.join(absdir, item))
@@ -69,12 +64,14 @@ class dirWatch:
 
 def ts2text(ts):
     '''convert a floating-point timestamp into text'''
-    return time.strftime(TIMESTAMP_FORMAT, time.localtime(ts))
+    return time.strftime(localConfig.TIMESTAMP_FORMAT, time.localtime(ts))
 
 
 if __name__ == '__main__':
-    first = dirWatch(BASE_DIR)
+    first = dirWatch(localConfig.BASE_DIR)
     ts = ts2text(first.mtime)
+    keys = first.db.keys()
+    keys.sort()
     #print len(first.db), ts, first.file
-    for item in first.db:
+    for item in keys:
         print ts2text(first.db[item]), item

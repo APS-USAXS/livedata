@@ -20,15 +20,7 @@ import shutil
 import tempfile
 import time
 import prjPySpec        # read SPEC data files
-
-
-PLOT_FORMAT = "png"
-PLOTICUS = "/home/beams/S15USAXS/bin/pl"
-PLOTICUS_PREFABS = "/home/beams/S15USAXS/Documents/ploticus/pl241src/prefabs"
-PLOTFILE = "www/livedata.png"
-SHELL_SCRIPT = "/tmp/plot-ploticus-usaxs.sh"
-A_keV = 12.3984244
-FIXED_VF_GAIN = 1e5
+import localConfig      # definitions for 15ID
 
 
 def update_n_plots(specFile, numScans):
@@ -83,7 +75,7 @@ def update_n_plots(specFile, numScans):
         ploticus[label] = "#%d: %s" % (scan['scan'], scan['title'])
     command_script = ploticus_commands(ploticus, usaxs)
     #---- make the plot
-    run_ploticus(command_script, PLOTFILE)
+    run_ploticus(command_script, localConfig.PLOTFILE)
     os.remove(tempDataFile)
     # perhaps copy the SPEC macro here, as well
 
@@ -97,13 +89,14 @@ def run_ploticus(script, plot):
     os.write(f, "\n".join(script))
     os.close(f)
     #---- run ploticus
-    ext = os.extsep + PLOT_FORMAT
+    ext = os.extsep + localConfig.PLOT_FORMAT
     (f, tmpPlot) = tempfile.mkstemp(dir="/tmp", text=False, suffix=ext)
     os.close(f)  # close f since ploticus will write the file
-    command = "%s %s -%s -o %s" % (PLOTICUS, tmpScript, PLOT_FORMAT, tmpPlot)
+    command = "%s %s -%s -o %s" % (localConfig.PLOTICUS, 
+                   tmpScript, localConfig.PLOT_FORMAT, tmpPlot)
     lex = shlex.split(command)
     #
-    os.environ['PLOTICUS_PREFABS'] = PLOTICUS_PREFABS
+    os.environ['PLOTICUS_PREFABS'] = localConfig.PLOTICUS_PREFABS
     p = subprocess.Popen(lex)
     p.wait()
     #---- copy and cleanup
@@ -268,11 +261,12 @@ def calc_usaxs_data(specScan):
     sampleTitle = specScan.comments[0]
     arCenter = specScan.positioner['ar']
     wavelength = specScan.float['DCM_lambda']
-    if wavelength == 0:  wavelength = A_keV/specScan.float['DCM_energy']      # TODO: development ONLY
+    if wavelength == 0:      # TODO: development ONLY
+        wavelength = localConfig.A_keV/specScan.float['DCM_energy']
     numData = len(specScan.data['Epoch'])
     USAXS_Q = []
     USAXS_I = []
-    V_f_gain = FIXED_VF_GAIN
+    V_f_gain = localConfig.FIXED_VF_GAIN
     for i in range(numData):
         pd_counts = specScan.data['pd_counts'][i]
         pd_range = specScan.data['pd_range'][i]
@@ -293,6 +287,6 @@ def calc_usaxs_data(specScan):
 
 
 if __name__ == '__main__':
-    specFile = '/data/USAXS_data/2010-03/03_25.dat'
+    specFile = localConfig.TEST_SPEC_DATA
     numScans = 5
     update_n_plots(specFile, numScans)
