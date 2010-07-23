@@ -9,6 +9,7 @@
 
 '''
    read a SPEC data file and plot scan n using ploticus
+   @note: does not copy any file to XSD WWW server
 '''
 
 import os
@@ -29,9 +30,35 @@ def makePloticusPlot(scan, plotFile):
     #------------
     # http://ploticus.sourceforge.net/doc/prefab_lines_ex.html
     #------------
+    pl = format_ploticus_data(plotData)
+    dataFile = write_ploticus_data_file(pl['data'])
+
+    #---- execute the ploticus command file using a "prefab" plot style
+    run_ploticus_command_script(scan, dataFile, plotData, plotFile)
+
+
+def write_ploticus_data_file(data):
+    '''
+    find x & y min & max
+    @return: dictionary
+    '''
+    #---- write the ploticus data file
+    ext = os.extsep + "pl"
+    (f, dataFile) = tempfile.mkstemp(dir="/tmp", text=True, suffix=ext)
+    f = open(dataFile, "w")
+    f.write("\n".join(data))
+    f.close()
+    return dataFile
+
+
+def format_ploticus_data(data):
+    '''
+    find x & y min & max
+    @return: dictionary
+    '''
     pl = []
     xMin = xMax = yMin = yMax = None
-    for (x, y) in plotData:
+    for (x, y) in data:
         pl.append("   %s  %s" % (x, y))
         if xMin == None:
             xMin = xMax = x
@@ -41,13 +68,20 @@ def makePloticusPlot(scan, plotFile):
             if y < yMin: yMin = y
             if x > xMax: xMax = x
             if y > yMax: yMax = y
-    #---- write the ploticus data file
-    ext = os.extsep + "pl"
-    (f, dataFile) = tempfile.mkstemp(dir="/tmp", text=True, suffix=ext)
-    f = open(dataFile, "w")
-    f.write("\n".join(pl))
-    f.close()
-    #---- execute the ploticus command file using a "prefab" plot style
+    dict = {
+            'data': pl,
+            'xMin': xMin,
+            'xMax': xMax,
+            'yMin': yMin,
+            'yMax': yMax
+            }
+    return dict
+
+
+def run_ploticus_command_script(scan, dataFile, plotData, plotFile):
+    '''
+    execute the ploticus command file using a "prefab" plot style
+    '''
     name = "#%d: %s" % (scan.scanNum, scan.scanCmd)
     title = "%s, %s" % (scan.specFile, scan.date)
     command = localConfig.PLOTICUS
@@ -94,6 +128,15 @@ def findScan(sd, n):
     return scan
 
 
+def makePloticusPlotByScanNum(specFile, scan_number, plotFile):
+    '''
+    all-in-one function
+    '''
+    specData = openSpecFile(specFile)
+    scan = findScan(specData, scan_number)
+    makePloticusPlot(scan, plotFile)
+
+
 if __name__ == '__main__':
     specFile = localConfig.TEST_SPEC_DATA
     scan_number = localConfig.TEST_SPEC_SCAN_NUMBER
@@ -102,10 +145,8 @@ if __name__ == '__main__':
         (specFile, scan_number, plotFile) = sys.argv[1:4]
     else:
         print "usage: %s specFile scan_number plotFile" % sys.argv[0]
-        #sys.exit()  # TODO: development ONLY
-    specData = openSpecFile(specFile)
-    scan = findScan(specData, scan_number)
+        sys.exit()
     try:
-        makePloticusPlot(scan, plotFile)
+        makePloticusPlotByScanNum(specFile, scan_number, plotFile)
     except:
         pass
