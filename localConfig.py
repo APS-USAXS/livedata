@@ -19,7 +19,7 @@ HOME_DIR = "/home/beams/S15USAXS"
 BASE_DIR = "/data/USAXS_data/"
 LOCAL_DATA_DIR = "/data"
 LOCAL_USAXS_DATA_DIR = LOCAL_DATA_DIR + "/USAXS_data"
-LOCAL_WWW_LIVEDATA_DIR = LOCAL_DATA_DIR + "/www"
+LOCAL_WWW_LIVEDATA_DIR = LOCAL_DATA_DIR + "/www/livedata"
 
 PLOT_FORMAT = "png"
 PLOTICUS = os.path.join(HOME_DIR, "bin/pl")
@@ -59,11 +59,12 @@ HTML_FORMAT = """<html>
 # plot.py
 A_keV = 12.3984244
 FIXED_VF_GAIN = 1e5
-PLOTFILE = "www/livedata.png"
+#PLOTFILE = "www/livedata/livedata.png"
+LOCAL_PLOTFILE = "livedata" + os.extsep + PLOT_FORMAT
 
 
 # pvwatch.py
-BASE_NFS = os.path.join(HOME_DIR, "Documents/eclipse/USAXS/livedata")
+SOURCECODE_BASE = os.path.join(HOME_DIR, "Documents/eclipse/USAXS/livedata")
 LOG_INTERVAL_S = 60*5
 NUM_SCANS_PLOTTED = 5
 REPORT_FILE = "./www/report.xml"

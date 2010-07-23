@@ -43,7 +43,11 @@ def update_n_plots(specFile, numScans):
     command_script = ploticus_commands(ploticus, usaxs)
 
     #---- make the plot
-    run_ploticus(command_script, localConfig.PLOTFILE)
+    local_plot = os.path.join(
+                              localConfig.LOCAL_WWW_LIVEDATA_DIR, 
+                              localConfig.LOCAL_PLOTFILE)
+    www_plot = localConfig.LOCAL_PLOTFILE
+    run_ploticus(command_script, local_plot, www_plot)
     os.remove(tempDataFile)
     # perhaps copy the SPEC macro here, as well
 
@@ -72,15 +76,10 @@ def extract_USAXS_data(specData, scanList):
     @param scanList: integer list of scan numbers
     @return: list of dictionaries with reduced USAXS R(Q)
     '''
-    # extract the USAXS R(Q) profiles (ignoring error estimates)
     usaxs = []
     for scan in scanList:
-        (title, qVec, rVec) = calc_usaxs_data(specData.scans[scan-1])
-        entry = {}
+        entry = calc_usaxs_data(specData.scans[scan-1])
         entry['scan'] = scan
-        entry['title'] = title
-        entry['qVec'] = qVec
-        entry['rVec'] = rVec
         usaxs.append( entry )
     return usaxs
 
@@ -145,16 +144,16 @@ def run_ploticus_command_script(scriptFile):
     return tmpPlot
 
 
-def run_ploticus(script, plot):
-    '''use ploticus to generate the plot image file'''
+def run_ploticus(script, localPlotFile, wwwPlotFile):
+    '''use ploticus to generate the localPlotFile image file'''
     tmpScript = write_ploticus_command_script(script)
     tmpPlot = run_ploticus_command_script(tmpScript)
     #---- copy and cleanup
-    shutil.copy2(tmpPlot, plot)
+    shutil.copy2(tmpPlot, localPlotFile)
     os.remove(tmpScript)
     os.remove(tmpPlot)
     # and copy to WWW server now?
-    wwwServerTransfers.scpToWebServer_Demonstrate(plot)
+    wwwServerTransfers.scpToWebServer(localPlotFile, wwwPlotFile)
 
 
 def ploticus_commands(db, usaxs):
@@ -345,7 +344,12 @@ def calc_usaxs_data(specScan):
         #----
         USAXS_Q.append( str(qVec) )
         USAXS_I.append( str(rVec) )
-    return sampleTitle, USAXS_Q, USAXS_I
+    entry = {
+             'title': sampleTitle,
+             'qVec': USAXS_Q,
+             'rVec': USAXS_I
+             }
+    return entry
 
 
 if __name__ == '__main__':
