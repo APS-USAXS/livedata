@@ -9,6 +9,8 @@
 
 '''
    read a SPEC data file and plot all the scans
+   @note: also copies files to USAXS site on XSD WWW server
+   @todo: code looks tangled, refactor
 '''
 
 import os

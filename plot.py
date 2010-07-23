@@ -9,6 +9,7 @@
 
 '''
    read a SPEC data file and plot the last n USAXS scans for the livedata WWW page
+   @note: copies plot file to USAXS site on XSD WWW server
 '''
 
 import datetime         # date/time stamps
@@ -47,7 +48,8 @@ def update_n_plots(specFile, numScans):
                               localConfig.LOCAL_WWW_LIVEDATA_DIR, 
                               localConfig.LOCAL_PLOTFILE)
     www_plot = localConfig.LOCAL_PLOTFILE
-    run_ploticus(command_script, local_plot, www_plot)
+    run_ploticus(command_script, local_plot)
+    wwwServerTransfers.scpToWebServer(local_plot, www_plot)
     os.remove(tempDataFile)
     # perhaps copy the SPEC macro here, as well
 
@@ -139,12 +141,13 @@ def run_ploticus_command_script(scriptFile):
     lex = shlex.split(command)
     #
     os.environ['PLOTICUS_PREFABS'] = localConfig.PLOTICUS_PREFABS
-    p = subprocess.Popen(lex)
+    # run the command but gobble up stdout (make it less noisy)
+    p = subprocess.Popen(lex, stdout=subprocess.PIPE)
     p.wait()
     return tmpPlot
 
 
-def run_ploticus(script, localPlotFile, wwwPlotFile):
+def run_ploticus(script, localPlotFile):
     '''use ploticus to generate the localPlotFile image file'''
     tmpScript = write_ploticus_command_script(script)
     tmpPlot = run_ploticus_command_script(tmpScript)
@@ -152,8 +155,6 @@ def run_ploticus(script, localPlotFile, wwwPlotFile):
     shutil.copy2(tmpPlot, localPlotFile)
     os.remove(tmpScript)
     os.remove(tmpPlot)
-    # and copy to WWW server now?
-    wwwServerTransfers.scpToWebServer(localPlotFile, wwwPlotFile)
 
 
 def ploticus_commands(db, usaxs):
@@ -265,10 +266,7 @@ def format_as_ploticus_data(usaxs):
     build the data portion of the ploticus script
     @return: dictionary of formatted data and R(Q) limits
     '''
-    qMin = None
-    qMax = None
-    iMin = None
-    iMax = None
+    qMin = qMax = iMin = iMax = None
     result = []
     format = "%-10s %s %s"
     result.append("%-10s %15s %s" % ("dataset", "qVec", "rVec"))
@@ -285,19 +283,13 @@ def format_as_ploticus_data(usaxs):
                 label = sLabel
                 #--- initialize, if necessary
                 if qMin == None:
-                    qMin = USAXS_Q
-                    qMax = USAXS_Q
-                    iMin = USAXS_I
-                    iMax = USAXS_I
+                    qMin = qMax = USAXS_Q
+                    iMin = iMax = USAXS_I
                 #--- update, if necessary
-                if USAXS_Q < qMin:
-                    qMin = USAXS_Q
-                if USAXS_Q > qMax:
-                    qMax = USAXS_Q
-                if USAXS_I < iMin:
-                    iMin = USAXS_I
-                if USAXS_I > iMax:
-                    iMax = USAXS_I
+                if USAXS_Q < qMin: qMin = USAXS_Q
+                if USAXS_Q > qMax: qMax = USAXS_Q
+                if USAXS_I < iMin: iMin = USAXS_I
+                if USAXS_I > iMax: iMax = USAXS_I
             result.append("%-10s %15s %s" % (label, USAXS_Q, USAXS_I))
         # strange ploticus bug that will not plot any data when Qmax/Qmin < 2.9
         if qMax < 3*qMin:
