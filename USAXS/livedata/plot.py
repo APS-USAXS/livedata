@@ -15,8 +15,6 @@
 import datetime         # date/time stamps
 import math
 import os
-import subprocess
-import shlex
 import shutil
 import tempfile
 import time
@@ -133,17 +131,14 @@ def write_ploticus_command_script(script):
 def run_ploticus_command_script(scriptFile):
     '''use ploticus to generate the plot image file'''
     # first, get a temporary file for the plot image
+    os.environ['PLOTICUS_PREFABS'] = localConfig.PLOTICUS_PREFABS
+
     ext = os.extsep + localConfig.PLOT_FORMAT   # ext = ".png"
     (f, tmpPlot) = tempfile.mkstemp(dir="/tmp", text=False, suffix=ext)
     os.close(f)  # close f since ploticus will write the file
     command = "%s %s -%s -o %s" % (localConfig.PLOTICUS, 
                    scriptFile, localConfig.PLOT_FORMAT, tmpPlot)
-    lex = shlex.split(command)
-    #
-    os.environ['PLOTICUS_PREFABS'] = localConfig.PLOTICUS_PREFABS
-    # run the command but gobble up stdout (make it less noisy)
-    p = subprocess.Popen(lex, stdout=subprocess.PIPE)
-    p.wait()
+    wwwServerTransfers.execute_command(command)
     return tmpPlot
 
 

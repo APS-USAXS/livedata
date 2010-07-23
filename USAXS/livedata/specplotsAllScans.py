@@ -9,8 +9,7 @@
 
 '''
    read a SPEC data file and plot all the scans
-   @note: also copies files to USAXS site on XSD WWW server
-   @todo: code looks tangled, refactor
+   @note: also copies files to USAXS site on XSD WWW server using rsync
 '''
 
 import os
@@ -19,93 +18,171 @@ import time
 import shutil
 import specplot
 import localConfig      # definitions for 15ID
+import wwwServerTransfers
 
 
 SVN_ID = "$Id$"
 
 
 def plotAllSpecFileScans(specFile):
-    '''show the commands to be used'''
+    '''make standard plots for all scans in the specFile'''
     if not os.path.exists(specFile):
         return
+
     sd = specplot.openSpecFile(specFile)
     if len(sd.headers) == 0:    # no scan header found
         return
-    specFile_mtime = os.path.getmtime(specFile)
-    basename = os.path.splitext(os.path.basename(specFile))[0]
-    date = time.strptime(sd.headers[-1].date, "%a %b %d %H:%M:%S %Y")
-    yyyy = "%04d" % date[0]
-    mm = "%02d" % date[1]
-    dd = "%02d" % date[2]
-    basedir = os.path.join(localConfig.SPECPLOTS_DIR, yyyy, mm, basename)
+
+    plotList = []
+    newFileList = [] # list of all new files created
+
+    mtime_specFile = getTimeFileModified(specFile)
+    basename = getBaseName(specFile)
+    basedir = getBaseDir(basename, sd.headers[-1].date)
     if not os.path.exists(basedir):
         os.makedirs(basedir)
-    plotList = []
-    updateIndexFile = False
-    somethingWritten = False
+
+    HREF_FORMAT = "<a href=\"%s\">"
+    HREF_FORMAT += "<img src=\"%s\" width=\"150\" height=\"75\" alt=\"%s\"/>"
+    HREF_FORMAT += "</a>"
+
     for scan in sd.scans:
         basePlotFile = "s%05d.png" % scan.scanNum
         fullPlotFile = os.path.join(basedir, basePlotFile)
         altText = "#%d: %s" % (scan.scanNum, scan.scanCmd)
-        plotList.append(localConfig.HREF_FORMAT % (basePlotFile, 
-               basePlotFile, "150", "75", altText))
+        href = HREF_FORMAT % (basePlotFile, basePlotFile, altText)
+        plotList.append(href)
         #print "specplot.py %s %d %s" % (specFile, scan.scanNum, fullPlotFile)
-        remake_plot = True
-        if os.path.exists(fullPlotFile):
-            plotFile_mtime = os.path.getmtime(fullPlotFile)
-            if plotFile_mtime > specFile_mtime:
-                # plot was made after the data file was updated
-                # don't remake the plot
-                remake_plot = False
-        #remake_plot = True  # force new plots for development
-        if remake_plot:
+        if needToMakePlot(fullPlotFile, mtime_specFile):
             try:
                 specplot.makePloticusPlot(scan, fullPlotFile)
-                updateIndexFile = True
+                newFileList.append(fullPlotFile)
             except:
                 msg = "ERROR: '%s' %s #%d" % (sys.exc_value, 
                         specFile, scan.scanNum)
                 # print msg
-                plotList.pop()     # replace the default link
+                plotList.pop()     # rewrite the default link
                 plotList.append("<!-- " + msg + " -->")
                 altText = "%s: #%d %s" % (sys.exc_value, 
                         scan.scanNum, scan.scanCmd)
-                plotList.append(localConfig.HREF_FORMAT % (basePlotFile, 
-                        basePlotFile, "150", "75", altText))
+                href = HREF_FORMAT % (basePlotFile, basePlotFile, altText)
+                plotList.append(href)
     baseSpecFile = os.path.basename(specFile)
-    if updateIndexFile:
-        datestamp = time.strftime(
-                      localConfig.TIMESTAMP_FORMAT, time.localtime(time.time()))
-        commentFormat = """
-           written by: %s
-           SVN: %s
-           date: %s
-        """
-        comment = commentFormat % (sys.argv[0], SVN_ID, datestamp)
-        html = localConfig.HTML_FORMAT % (specFile, comment, specFile, 
-                    baseSpecFile, specFile, '\n'.join(plotList))
-        #------------------
-        htmlFile = os.path.join(basedir, "index.html")
+
+    htmlFile = os.path.join(basedir, "index.html")
+    if len(newFileList) or not os.path.exists(htmlFile):
+        html = build_index_html(baseSpecFile, specFile, plotList)
         f = open(htmlFile, "w")
         f.write(html)
         f.close()
-        somethingWritten = True
+        newFileList.append(htmlFile)
     #------------------
     # copy the SPEC data file to the WWW site, only if file has newer mtime
     wwwSpecFile = os.path.join(basedir, baseSpecFile)
+    if needToCopySpecDataFile(wwwSpecFile, mtime_specFile):
+        # copy specFile to WWW site
+        shutil.copy2(specFile,wwwSpecFile)
+        newFileList.append(wwwSpecFile)
+    if len(newFileList):
+        # use rsync to update the XSD WWW server
+        # limit the rsync to just the specplots/yyyymm subdir
+        yyyymm = datePath(sd.headers[-1].date)
+        source = "./www/livedata/specplots" + "/" + yyyymm + "/"
+        target = wwwServerTransfers.SERVER_WWW_HOMEDIR
+        command = wwwServerTransfers.RSYNC
+        command += " -rRtz %s %s" % (source, target)
+        wwwServerTransfers.execute_command(command)
+
+
+def getBaseName(specFile):
+    '''get the base plot name from the spec file name (no path or extension)'''
+    return os.path.splitext(os.path.basename(specFile))[0]
+
+
+def datePath(date):
+    '''convert the date into a path: yyyy/mm'''
+    dateStr = time.strptime(date, "%a %b %d %H:%M:%S %Y")
+    yyyy = "%04d" % dateStr[0]
+    mm = "%02d" % dateStr[1]
+    dd = "%02d" % dateStr[2]
+    return os.path.join(yyyy, mm)
+
+
+def getBaseDir(basename, date):
+    '''find the path based on the date in the spec file'''
+    firstDir = localConfig.LOCAL_SPECPLOTS_DIR
+    return os.path.join(firstDir, datePath(date), basename)
+
+
+def getTimeFileModified(file):
+    '''@return: time (float) file was last modified'''
+    return os.path.getmtime(file)
+
+
+def needToMakePlot(fullPlotFile, mtime_specFile):
+    '''
+    Determine if a plot needs to be (re)made
+    Use mtime as the basis
+    @return: True or False
+    '''
+    remake_plot = True
+    if os.path.exists(fullPlotFile):
+        mtime_plotFile = getTimeFileModified(fullPlotFile)
+        if mtime_plotFile > mtime_specFile:
+            # plot was made after the data file was updated
+            remake_plot = False     # don't remake the plot
+    return remake_plot
+
+
+def needToCopySpecDataFile(wwwSpecFile, mtime_specFile):
+    '''
+    Determine if spec data file needs to be copied
+    Base the decision on the mtime (last modification time of the file)
+    @return: True or False
+    '''
     copySpecFile = False
     if os.path.exists(wwwSpecFile):
-        wwwSpecFile_mtime = os.path.getmtime(wwwSpecFile)
-        if specFile_mtime > wwwSpecFile_mtime:
+        mtime_wwwSpecFile = getTimeFileModified(wwwSpecFile)
+        if mtime_specFile > mtime_wwwSpecFile:
             copySpecFile = True     # specFile is newer, copy to WWW site
     else:
         copySpecFile = True     # specFile is not yet on WWW site
-    if copySpecFile:
-        # copy specFile to WWW site
-        shutil.copy2(specFile,wwwSpecFile)
-        somethingWritten = True
-    if somethingWritten:
-        print specFile
+    return copySpecFile
+
+
+def timestamp():
+    '''current time as yyyy-mm-dd hh:mm:ss'''
+    return time.strftime(
+                      localConfig.TIMESTAMP_FORMAT, 
+                      time.localtime(time.time()))
+
+
+def build_index_html(baseSpecFile, specFile, plotList):
+    '''build index.html content'''
+    comment = "\n"
+    comment += "   written by: %s\n" % sys.argv[0]
+    comment += "   SVN: %s\n"        % SVN_ID
+    comment += "   date: %s\n"       % timestamp()
+    comment += "\n"
+    href = "<a href='%s'>%s</a>" % (baseSpecFile, specFile)
+    html  = "<html>\n"
+    html += "  <head>\n"
+    html += "    <title>SPEC scans from %s</title>\n" % specFile
+    html += "    <!-- %s -->\n"                       % comment
+    html += "  </head>\n"
+    html += "  <body>\n"
+    html += "    <h1>SPEC scans from: %s</h1>\n"      % specFile
+    html += "\n"
+    html += "    spec file: %s\n"                     % href
+    html += "    <br />\n"
+    html += "\n"
+    html += "\n"
+    html += "\n".join(plotList)
+    html += "\n"
+    html += "\n"
+    html += "  </body>\n"
+    html += "</html>\n"
+    return html
 
 
 if __name__ == '__main__':
