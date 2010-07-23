@@ -139,7 +139,7 @@ def updateSpecMacroFile():
     specFile = getSpecFileName(xref['spec_macro_file'])
     if not os.path.exists(specFile):
         return
-    wwwFile = os.path.join(localConfig.WWW_BASE_DIR, "specmacro.txt")
+    wwwFile = os.path.join(localConfig.LOCAL_WWW_LIVEDATA_DIR, "specmacro.txt")
     if not os.path.exists(wwwFile):
         #@TODO: Why return now?  
         #   Looks like the file needs to be written to the WWW server.

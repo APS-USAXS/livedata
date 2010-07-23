@@ -68,7 +68,7 @@ def ts2text(ts):
 
 
 if __name__ == '__main__':
-    first = dirWatch(localConfig.BASE_DIR)
+    first = dirWatch(localConfig.LOCAL_USAXS_DATA_DIR)
     ts = ts2text(first.mtime)
     keys = first.db.keys()
     keys.sort()
