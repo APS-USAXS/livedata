@@ -17,7 +17,9 @@ import os
 # general use
 HOME_DIR = "/home/beams/S15USAXS"
 BASE_DIR = "/data/USAXS_data/"
-WWW_BASE_DIR = os.path.join(BASE_DIR, "www")
+LOCAL_DATA_DIR = "/data"
+LOCAL_USAXS_DATA_DIR = LOCAL_DATA_DIR + "/USAXS_data"
+LOCAL_WWW_LIVEDATA_DIR = LOCAL_DATA_DIR + "/www"
 
 PLOT_FORMAT = "png"
 PLOTICUS = os.path.join(HOME_DIR, "bin/pl")
@@ -33,7 +35,7 @@ TIMESTAMP_FORMAT = "%Y-%m-%d %H:%M:%S"
 
 # plotAllSpecFileScans.py
 SPECPLOTS_DIR = "./www/specplots"
-SPEC_FILE = os.path.join(BASE_DIR, "2010-03/03_27.dat")
+SPEC_FILE = os.path.join(LOCAL_USAXS_DATA_DIR, "2010-03/03_27.dat")
 TIMESTAMP_FORMAT = "%Y-%m-%d %H:%M:%S"
 HREF_FORMAT = "<a href=\"%s\"><img src=\"%s\" width=\"%s\" "
 HREF_FORMAT += " height=\"%s\" alt=\"%s\"/></a>"
@@ -71,7 +73,7 @@ XSL_STYLESHEET = "raw-table.xsl"
 
 
 # specplot.py
-TEST_SPEC_DATA = os.path.join(BASE_DIR, "2010-03/03_25.dat")
+TEST_SPEC_DATA = os.path.join(LOCAL_USAXS_DATA_DIR, "2010-03/03_25.dat")
 TEST_SPEC_SCAN_NUMBER = 1
 TEST_PLOTFILE = "pete.png"
 TEST_PLOTICUS_COMMAND_FILE = "pete.pl"

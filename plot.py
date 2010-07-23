@@ -21,88 +21,140 @@ import tempfile
 import time
 import prjPySpec        # read SPEC data files
 import localConfig      # definitions for 15ID
+import wwwServerTransfers
 
 
 def update_n_plots(specFile, numScans):
     '''read the SPEC file and grab n scans'''
     sd = prjPySpec.specDataFile(specFile)
-    scanList = []
-    for scan in sd.scans:
-        cmd = scan.scanCmd.split()[0]
-        if (cmd == "uascan") or (cmd == "sbuascan"):
-            scanList.append(scan.scanNum)
-            if len(scanList) > numScans:
-                scanList.pop(0)
+    scanList = last_n_scans(sd.scans, numScans)
     if len(scanList) == 0:
         return
-    # extract the USAXS R(Q) profiles (ignoring error estimates)
-    usaxs = []
-    for scan in scanList:
-        (title, qVec, rVec) = calc_usaxs_data(sd.scans[scan-1])
-        entry = {}
-        entry['scan'] = scan
-        entry['title'] = title
-        entry['qVec'] = qVec
-        entry['rVec'] = rVec
-        usaxs.append( entry )
-    #---- format the data in the ploticus way
-    (data_rows, qMin, qMax, iMin, iMax) = ploticus_data(usaxs)
-    if len(data_rows) == 0:
+
+    usaxs = extract_USAXS_data(sd, scanList)  # extract R(Q), ignoring errors
+    ploticus_data = format_as_ploticus_data(usaxs)
+    if len(ploticus_data['data']) == 0:
         return
-    # use temporary files with ploticus
-    epoch = int(time.mktime(time.gmtime()))
-    root = "%s-%d-%08x" % ("/tmp/ploticus", os.getpid(), epoch)
-    tempDataFile = root + ".dat"
-    #---- write the plot data file
-    f = open(tempDataFile, "w")
-    f.write("\n".join(data_rows))
-    f.close()
-    #---- make the ploticus command script
-    ploticus = {}
-    ploticus['specFile'] = specFile
-    ploticus['dataFile'] = tempDataFile
-    ploticus['title'] = specFile
-    ploticus['Qmin'] = 1e-5
-    ploticus['Qmax'] = 1.0
-    ploticus['Qmin'] = float(qMin)
-    ploticus['Qmax'] = float(qMax)
-    ploticus['Imin'] = float(iMin)
-    ploticus['Imax'] = float(iMax)
-    ploticus['scanList'] = ""
-    for scan in usaxs:
-        ploticus['scanList'] += "S" + str(int(scan['scan']))
-        label = "S" + str(int(scan['scan'])) + scan['title']
-        ploticus[label] = "#%d: %s" % (scan['scan'], scan['title'])
+
+    tempDataFile = write_ploticus_data(ploticus_data['data'])
+
+    ploticus = make_ploticus_command_script(specFile, 
+                        tempDataFile, ploticus_data, usaxs)
     command_script = ploticus_commands(ploticus, usaxs)
+
     #---- make the plot
     run_ploticus(command_script, localConfig.PLOTFILE)
     os.remove(tempDataFile)
     # perhaps copy the SPEC macro here, as well
 
 
-def run_ploticus(script, plot):
-    '''use ploticus to generate the plot image file'''
-    #---- write the ploticus command script
+def last_n_scans(scans, maxScans):
+    '''
+    find the last maxScans scans in the specData
+    @param scans: specDataFileScan instance list
+    @param maxScans: maximum number of scans to find
+    @return: integer list of scan numbers where len() <= maxScans
+    '''
+    scanList = []
+    for scan in scans:
+        cmd = scan.scanCmd.split()[0]
+        if (cmd == "uascan") or (cmd == "sbuascan"):
+            scanList.append(scan.scanNum)
+            if len(scanList) > maxScans:
+                scanList.pop(0)
+    return scanList
+
+
+def extract_USAXS_data(specData, scanList):
+    '''
+    extract the USAXS R(Q) profiles (ignoring error estimates)
+    @param specData: as returned by prjPySpec.specDataFile(specFile)
+    @param scanList: integer list of scan numbers
+    @return: list of dictionaries with reduced USAXS R(Q)
+    '''
+    # extract the USAXS R(Q) profiles (ignoring error estimates)
+    usaxs = []
+    for scan in scanList:
+        (title, qVec, rVec) = calc_usaxs_data(specData.scans[scan-1])
+        entry = {}
+        entry['scan'] = scan
+        entry['title'] = title
+        entry['qVec'] = qVec
+        entry['rVec'] = rVec
+        usaxs.append( entry )
+    return usaxs
+
+
+def write_ploticus_data(data):
+    '''write the data file for ploticus'''
+    epoch = int(time.mktime(time.gmtime()))
+    root = "%s-%d-%08x" % ("/tmp/ploticus", os.getpid(), epoch)
+    tempDataFile = root + ".dat"
+    #---- write the plot data file
+    f = open(tempDataFile, "w")
+    f.write("\n".join(data))
+    f.close()
+    return tempDataFile
+
+
+def make_ploticus_command_script(specFile, tempDataFile, ploticus_data, usaxs):
+    '''
+    build the command script for ploticus
+    '''
+    ploticus = {}
+    ploticus['specFile'] = specFile
+    ploticus['dataFile'] = tempDataFile
+    ploticus['title'] = specFile
+    ploticus['Qmin'] = 1e-5
+    ploticus['Qmax'] = 1.0
+    ploticus['Qmin'] = float(ploticus_data['qMin'])
+    ploticus['Qmax'] = float(ploticus_data['qMax'])
+    ploticus['Imin'] = float(ploticus_data['iMin'])
+    ploticus['Imax'] = float(ploticus_data['iMax'])
+    ploticus['scanList'] = ""
+    for scan in usaxs:
+        ploticus['scanList'] += "S" + str(int(scan['scan']))
+        label = "S" + str(int(scan['scan'])) + scan['title']
+        ploticus[label] = "#%d: %s" % (scan['scan'], scan['title'])
+    return ploticus
+
+
+def write_ploticus_command_script(script):
+    '''write the command script for ploticus'''
     ext = os.extsep + "pl"
     # note: mkstemp opens the file as if f=os.open()
     (f, tmpScript) = tempfile.mkstemp(dir="/tmp", text=True, suffix=ext)
     os.write(f, "\n".join(script))
     os.close(f)
-    #---- run ploticus
-    ext = os.extsep + localConfig.PLOT_FORMAT
+    return tmpScript
+
+
+def run_ploticus_command_script(scriptFile):
+    '''use ploticus to generate the plot image file'''
+    # first, get a temporary file for the plot image
+    ext = os.extsep + localConfig.PLOT_FORMAT   # ext = ".png"
     (f, tmpPlot) = tempfile.mkstemp(dir="/tmp", text=False, suffix=ext)
     os.close(f)  # close f since ploticus will write the file
     command = "%s %s -%s -o %s" % (localConfig.PLOTICUS, 
-                   tmpScript, localConfig.PLOT_FORMAT, tmpPlot)
+                   scriptFile, localConfig.PLOT_FORMAT, tmpPlot)
     lex = shlex.split(command)
     #
     os.environ['PLOTICUS_PREFABS'] = localConfig.PLOTICUS_PREFABS
     p = subprocess.Popen(lex)
     p.wait()
+    return tmpPlot
+
+
+def run_ploticus(script, plot):
+    '''use ploticus to generate the plot image file'''
+    tmpScript = write_ploticus_command_script(script)
+    tmpPlot = run_ploticus_command_script(tmpScript)
     #---- copy and cleanup
     shutil.copy2(tmpPlot, plot)
     os.remove(tmpScript)
     os.remove(tmpPlot)
+    # and copy to WWW server now?
+    wwwServerTransfers.scpToWebServer_Demonstrate(plot)
 
 
 def ploticus_commands(db, usaxs):
@@ -185,17 +237,17 @@ def ploticus_commands(db, usaxs):
         else:
             color = colorList[i % len(colorList)]
         symbol = symbolList[i % len(symbolList)]
-    output.append("#proc lineplot ")
-    output.append("  xfield: 2")
-    output.append("  yfield: 3")
-    output.append("  linedetails: color=%s width=0.5" % color)
-    txt = "  pointsymbol: shape=%s radius=0.025"
-    txt += " linecolor=%s fillcolor=white"
-    output.append(txt % (symbol, color))
-    output.append("  legendlabel: %s" % scan['title'])
-    output.append("  select: @@dataset == S%d" % scan['scan'])
-    output.append("")
-    i += 1
+        output.append("#proc lineplot ")
+        output.append("  xfield: 2")
+        output.append("  yfield: 3")
+        output.append("  linedetails: color=%s width=0.5" % color)
+        txt = "  pointsymbol: shape=%s radius=0.025"
+        txt += " linecolor=%s fillcolor=white"
+        output.append(txt % (symbol, color))
+        output.append("  legendlabel: %s" % scan['title'])
+        output.append("  select: @@dataset == S%d" % scan['scan'])
+        output.append("")
+        i += 1
     output.append("#proc rect")
     output.append("  rectangle: 4.2 5.7   6.8 6.8")
     output.append("  color: white")
@@ -209,8 +261,11 @@ def ploticus_commands(db, usaxs):
     return output
 
 
-def ploticus_data(usaxs):
-    '''build the data portion of the ploticus script'''
+def format_as_ploticus_data(usaxs):
+    '''
+    build the data portion of the ploticus script
+    @return: dictionary of formatted data and R(Q) limits
+    '''
     qMin = None
     qMax = None
     iMin = None
@@ -252,7 +307,14 @@ def ploticus_data(usaxs):
             qMax = qMin * 1.5
             qMin = qMin / 1.5
             #print qMin, qMax, iMin, iMax
-    return result, qMin, qMax, iMin, iMax
+    dict = {
+            'data': result,
+            'qMin': qMin,
+            'qMax': qMax,
+            'iMin': iMin,
+            'iMax': iMax
+            }
+    return dict
 
 
 def calc_usaxs_data(specScan):
