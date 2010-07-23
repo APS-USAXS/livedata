@@ -14,13 +14,11 @@
 
 import os
 import os.path
-import shlex
-import subprocess
 import sys
 import tempfile
 import prjPySpec        # read SPEC data files
 import localConfig      # definitions for 15ID
-
+import wwwServerTransfers
 
 def makePloticusPlot(scan, plotFile):
     '''plot scan n from the SPEC scan object'''
@@ -82,6 +80,9 @@ def run_ploticus_command_script(scan, dataFile, plotData, plotFile):
     '''
     execute the ploticus command file using a "prefab" plot style
     '''
+    # ploticus needs this
+    os.environ['PLOTICUS_PREFABS'] = localConfig.PLOTICUS_PREFABS
+    
     name = "#%d: %s" % (scan.scanNum, scan.scanCmd)
     title = "%s, %s" % (scan.specFile, scan.date)
     command = localConfig.PLOTICUS
@@ -95,13 +96,8 @@ def run_ploticus_command_script(scan, dataFile, plotData, plotFile):
     command += " title=\"%s\"" % title
     command += " -" + localConfig.PLOT_FORMAT
     command += " -o " + plotFile
-    lex = shlex.split(command)
-    #
-    # ploticus needs this
-    os.environ['PLOTICUS_PREFABS'] = localConfig.PLOTICUS_PREFABS
-    # run the command but gobble up stdout (make it less noisy)
-    p = subprocess.Popen(lex, stdout=subprocess.PIPE)
-    p.wait()
+
+    wwwServerTransfers.execute_command(command)
     os.remove(dataFile)
 
 

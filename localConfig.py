@@ -34,26 +34,10 @@ TIMESTAMP_FORMAT = "%Y-%m-%d %H:%M:%S"
 
 
 # plotAllSpecFileScans.py
-SPECPLOTS_DIR = "./www/specplots"
+LOCAL_SPECPLOTS_DIR = LOCAL_WWW_LIVEDATA_DIR + "/specplots"
+WWW_SPECPLOTS_DIR = "specplots"
 SPEC_FILE = os.path.join(LOCAL_USAXS_DATA_DIR, "2010-03/03_27.dat")
 TIMESTAMP_FORMAT = "%Y-%m-%d %H:%M:%S"
-HREF_FORMAT = "<a href=\"%s\"><img src=\"%s\" width=\"%s\" "
-HREF_FORMAT += " height=\"%s\" alt=\"%s\"/></a>"
-HTML_FORMAT = """<html>
-  <head>
-    <title>SPEC scans from %s</title>
-    <!-- %s -->
-  </head>
-  <body>
-    <h1>SPEC scans from: %s</h1>
-
-      spec file: <a href='%s'>%s</a>
-      <br />
-
-%s
-
-  </body>
-</html>"""
 
 
 # plot.py
