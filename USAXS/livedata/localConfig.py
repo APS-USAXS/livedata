@@ -58,6 +58,7 @@ HTML_RAWREPORT_FILE = "raw-report.html"
 LIVEDATA_XSL_STYLESHEET = "livedata.xsl"
 RAWTABLE_XSL_STYLESHEET = "raw-table.xsl"
 XSLT_COMMAND = "/usr/bin/xsltproc --novalid %s "
+SPECMACRO_TXT_FILE = "specmacro.txt"
 
 
 
