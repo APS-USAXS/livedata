@@ -34,7 +34,7 @@ TIMESTAMP_FORMAT = "%Y-%m-%d %H:%M:%S"
 
 
 # plotAllSpecFileScans.py
-LOCAL_SPECPLOTS_DIR = LOCAL_WWW_LIVEDATA_DIR + "/specplots"
+LOCAL_SPECPLOTS_DIR = os.path.join(LOCAL_WWW_LIVEDATA_DIR, "specplots")
 WWW_SPECPLOTS_DIR = "specplots"
 SPEC_FILE = os.path.join(LOCAL_USAXS_DATA_DIR, "2010-03/03_27.dat")
 TIMESTAMP_FORMAT = "%Y-%m-%d %H:%M:%S"
@@ -43,7 +43,6 @@ TIMESTAMP_FORMAT = "%Y-%m-%d %H:%M:%S"
 # plot.py
 A_keV = 12.3984244
 FIXED_VF_GAIN = 1e5
-#PLOTFILE = "www/livedata/livedata.png"
 LOCAL_PLOTFILE = "livedata" + os.extsep + PLOT_FORMAT
 
 
@@ -51,10 +50,15 @@ LOCAL_PLOTFILE = "livedata" + os.extsep + PLOT_FORMAT
 SOURCECODE_BASE = os.path.join(HOME_DIR, "Documents/eclipse/USAXS/livedata")
 LOG_INTERVAL_S = 60*5
 NUM_SCANS_PLOTTED = 5
-REPORT_FILE = "./www/report.xml"
 REPORT_INTERVAL_S = 10
 SLEEP_INTERVAL_S = 0.1
-XSL_STYLESHEET = "raw-table.xsl"
+XML_REPORT_FILE = "report.xml"
+HTML_INDEX_FILE = "index.html"
+HTML_RAWREPORT_FILE = "raw-report.html"
+LIVEDATA_XSL_STYLESHEET = "livedata.xsl"
+RAWTABLE_XSL_STYLESHEET = "raw-table.xsl"
+XSLT_COMMAND = "/usr/bin/xsltproc --novalid %s "
+
 
 
 # specplot.py
