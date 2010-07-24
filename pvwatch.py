@@ -42,6 +42,7 @@ GLOBAL_MONITOR_COUNTER = 0
 pvdb = {}   # EPICS data will go here
 xref = {}   # cross-reference id with PV
 PVLIST_FILE = "pvlist.xml"
+CYCLE_LOG_MESSAGE = 10000  # print a log message periodically
 
 
 def logMessage(msg):
@@ -134,14 +135,17 @@ def updateSpecMacroFile():
     #@TODO: What if the specFile is actually a directory?
     specFile = getSpecFileName(xref['spec_macro_file'])
     if not os.path.exists(specFile):
+        # @TODO: will this write too much to the logs?
         logMessage(specFile + " does not exist")
         return
     if not os.path.isfile(specFile):
+        # @TODO: will this write too much to the logs?
         logMessage(specFile + " is not a file")
         return
     localDir = localConfig.LOCAL_WWW_LIVEDATA_DIR
-    macroFile = "specmacro.txt"
+    macroFile = localConfig.SPECMACRO_TXT_FILE
     wwwFile = os.path.join(localDir, macroFile)
+
     updateFile = False
     if os.path.exists(wwwFile):
         spec_mtime = os.stat(specFile).st_mtime
@@ -159,15 +163,23 @@ def updatePlotImage():
     '''make a new PNG file with the most recent USAXS scans'''
     specFile = getSpecFileName(xref['spec_data_file'])
     if not os.path.exists(specFile):
+        logMessage(specFile + " does not exist")
+        return
+    if not os.path.isfile(specFile):
+        logMessage(specFile + " is not a file")
         return
     spec_mtime = os.stat(specFile).st_mtime
-    if not os.path.exists(localConfig.PLOTFILE):
-        # no plot yet, let's make one!
-        plot.update_n_plots(specFile, localConfig.NUM_SCANS_PLOTTED)
-        return
-    plot_mtime = os.stat(localConfig.PLOTFILE).st_mtime
-    if spec_mtime > plot_mtime:
-        #  plot only if new data
+
+    makePlot = False
+    plotFile = localConfig.LOCAL_PLOTFILE
+    plotFile = os.path.join(localConfig.LOCAL_WWW_LIVEDATA_DIR, plotFile)
+    if not os.path.exists(plotFile):
+        makePlot = True        # no plot yet, let's make one!
+    else:
+        plot_mtime = os.stat(plotFile).st_mtime
+        if spec_mtime > plot_mtime:
+            makePlot = True        #  plot only if new data
+    if makePlot:
         plot.update_n_plots(specFile, localConfig.NUM_SCANS_PLOTTED)
 
 
@@ -316,9 +328,15 @@ def main():
         nextLog = nextReport
         delta_report = datetime.timedelta(seconds=localConfig.REPORT_INTERVAL_S)
         delta_log = datetime.timedelta(seconds=localConfig.LOG_INTERVAL_S)
+        cycle_counter = 0
         while True:
             dt = getTime()
             ch.chan.pend_event()
+
+            cycle_counter = (cycle_counter + 1) % CYCLE_LOG_MESSAGE
+            if cycle_counter % CYCLE_LOG_MESSAGE == 0:
+                logMessage(" %s cycles through main loop" % CYCLE_LOG_MESSAGE)
+
             if dt >= nextReport:
                 nextReport = dt + delta_report
 
