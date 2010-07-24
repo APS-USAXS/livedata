@@ -23,8 +23,9 @@ import shutil           # file copies
 import subprocess       # calling other software (xsltproc)
 import sys              # for flushing log output
 import time             # provides sleep()
+from xml.dom import minidom
+from xml.etree import ElementTree
 import pvConnect        # manages EPICS connections
-import pvlist           # the list of PVs to be watched
 import prjPySpec        # read SPEC data files
 import plot             # makes PNG files of recent USAXS scans
 import localConfig      # definitions for 15ID
@@ -40,6 +41,7 @@ global xref
 GLOBAL_MONITOR_COUNTER = 0
 pvdb = {}   # EPICS data will go here
 xref = {}   # cross-reference id with PV
+PVLIST_FILE = "pvlist.xml"
 
 
 def logMessage(msg):
@@ -85,15 +87,8 @@ def monitor_receiver(epics_args, user_args):
     #print 'monitor_receiver: ', pv, ' = ', value, epics_args
 
 
-def add_pv(item):
+def add_pv(mne, pv, desc, fmt):
     '''Connect to another EPICS process variable, uses pvConnect module'''
-    my_id = item[0]
-    pv = item[1]
-    desc = item[2]
-    if len(item) > 3:
-        fmt = item[3]   # specified display format
-    else:
-        fmt = "%s"      # default display format
     if pv in pvdb:
         raise Exception("%s already defined by id=%s" % (pv, pvdb[pv]['id']))
     ch = pvConnect.EpicsPv(pv)
@@ -103,7 +98,7 @@ def add_pv(item):
     ch.monitor()
     entry = {}
     entry['name'] = pv
-    entry['id'] = my_id
+    entry['id'] = mne
     entry['description'] = desc
     entry['timestamp'] = None
     entry['counter'] = 0
@@ -113,7 +108,7 @@ def add_pv(item):
     entry['value'] = None       # formatted value
     entry['raw_value'] = None   # unformatted value
     pvdb[pv] = entry
-    xref[my_id] = pv            # allows this code to call by "id" (can change PV only in pvlist.xml then)
+    xref[mne] = pv            # mne is local mnemonic, define actual PV in pvlist.xml
 
 
 def makeSimpleTag(tag, value):
@@ -203,11 +198,11 @@ def report():
     field_list.append("value")
     field_list.append("raw_value")
     field_list.append("format")
-    for my_id in sorted_id_list:
-        pv = xref[my_id]
+    for mne in sorted_id_list:
+        pv = xref[mne]
         entry = pvdb[pv]
         ch = entry['ch']
-        xml.append('  <pv id="%s" name="%s">' % (my_id, pv))
+        xml.append('  <pv id="%s" name="%s">' % (mne, pv))
         for item in field_list:
             xml.append("    " + makeSimpleTag(item, entry[item]))
         xml.append('  </pv>')
@@ -240,12 +235,29 @@ def main():
         ch = pvConnect.EpicsPv(test_pv)
         ch.connectw()
         ch.monitor()
-        for row in pvlist.pvconfig:
-            #print "ROW: ", row
-            try:
-                add_pv(row)
-            except:
-                logException("pvlist.xml row: %s" % row)
+
+        if os.path.exists(PVLIST_FILE):
+            logMessage('could not find file: ' + PVLIST_FILE)
+            return
+        try:
+            tree = ElementTree.parse(PVLIST_FILE)
+        except:
+            logMessage('could not parse file: ' + PVLIST_FILE)
+            return
+
+        for key in tree.findall("//EPICS_PV"):
+            if key.get("_ignore_", "false").lower() == "false":
+                mne = key.get("mne")
+                pv = key.get("PV")
+                desc = key.get("description")
+                fmt = key.get("display_format", "%s")  # default format
+                try:
+                    add_pv(mne, pv, desc, fmt)
+                except:
+                    logException(
+                                 "%s: problem connecting: %s" 
+                                 % (PVLIST_FILE, ElementTree.tostring(key))
+                                 )
         pvConnect.CaPoll()
         logMessage("Connected %d EPICS PVs" % len(pvdb))
 
