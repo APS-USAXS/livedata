@@ -6,7 +6,7 @@
         pv             : EPICS process variable name (must be used in only one EPICS_PV)
         description    : useful text informative to others
         display_format : (optional, default="%s") PVs will be formatted with this string
-        _ignore_       : (optional) do not monitor this PV ("true" or "false")
+        _ignore_       : (optional, default="false") this PV is ignored if value is not "false"
      -->
   <EPICS_PV PV="S:SRcurrentAI" description="APS storage ring current, mA" display_format="%.2f" mne="SR_current"/>
   <EPICS_PV PV="ID32:Energy" description="ID E, keV" display_format="%.4f" mne="Und_E"/>

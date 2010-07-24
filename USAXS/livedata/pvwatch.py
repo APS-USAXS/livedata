@@ -29,7 +29,7 @@ import pvConnect        # manages EPICS connections
 import prjPySpec        # read SPEC data files
 import plot             # makes PNG files of recent USAXS scans
 import localConfig      # definitions for 15ID
-
+import wwwServerTransfers
 
 SVN_ID = "$Id$"
 
@@ -96,17 +96,18 @@ def add_pv(mne, pv, desc, fmt):
     ch.connectw()
     ch.SetUserCallback(monitor_receiver)
     ch.monitor()
-    entry = {}
-    entry['name'] = pv
-    entry['id'] = mne
-    entry['description'] = desc
-    entry['timestamp'] = None
-    entry['counter'] = 0
-    entry['units'] = ""
-    entry['ch'] = ch
-    entry['format'] = fmt       # format for display
-    entry['value'] = None       # formatted value
-    entry['raw_value'] = None   # unformatted value
+    entry = {
+        'name': pv,           # EPICS PV name
+        'id': mne,            # symbolic name used in the python code
+        'description': desc,  # text description for humans
+        'timestamp': None,    # client time last monitor was received
+        'counter': 0,         # number of monitor events received
+        'units': "",          # engineering units
+        'ch': ch,             # EPICS PV channel
+        'format': fmt,        # format for display
+        'value': None,        # formatted value
+        'raw_value': None     # unformatted value
+    }
     pvdb[pv] = entry
     xref[mne] = pv            # mne is local mnemonic, define actual PV in pvlist.xml
 
@@ -133,17 +134,25 @@ def updateSpecMacroFile():
     #@TODO: What if the specFile is actually a directory?
     specFile = getSpecFileName(xref['spec_macro_file'])
     if not os.path.exists(specFile):
+        logMessage(specFile + " does not exist")
         return
-    wwwFile = os.path.join(localConfig.LOCAL_WWW_LIVEDATA_DIR, "specmacro.txt")
-    if not os.path.exists(wwwFile):
-        #@TODO: Why return now?  
-        #   Looks like the file needs to be written to the WWW server.
+    if not os.path.isfile(specFile):
+        logMessage(specFile + " is not a file")
         return
-    spec_mtime = os.stat(specFile).st_mtime
-    www_mtime = os.stat(wwwFile).st_mtime
-    if spec_mtime > www_mtime:
-        #  copy only if it is newer
+    localDir = localConfig.LOCAL_WWW_LIVEDATA_DIR
+    macroFile = "specmacro.txt"
+    wwwFile = os.path.join(localDir, macroFile)
+    updateFile = False
+    if os.path.exists(wwwFile):
+        spec_mtime = os.stat(specFile).st_mtime
+        www_mtime = os.stat(wwwFile).st_mtime
+        if spec_mtime > www_mtime:
+            updateFile = True   # only if file is newer
+    else:
+        updateFile = True
+    if updateFile:
         shutil.copy2(specFile, wwwFile)
+        wwwServerTransfers.scpToWebServer(specFile, macroFile)
 
 
 def updatePlotImage():
@@ -162,6 +171,13 @@ def updatePlotImage():
         plot.update_n_plots(specFile, localConfig.NUM_SCANS_PLOTTED)
 
 
+def writeFile(file, contents):
+    '''write contents to file'''
+    f = open(file, 'w')
+    f.write(contents)
+    f.close()
+
+
 def shellCommandToFile(command, outFile):
     '''execute a shell command and write its output to a file'''
     p = subprocess.Popen(shlex.split(command), stdout=subprocess.PIPE)
@@ -169,52 +185,87 @@ def shellCommandToFile(command, outFile):
     p.wait()
     buf = f.read()
     f.close()
-    f = open(outFile, 'w')
-    f.write(buf)
-    f.close()
+    writeFile(outFile, buf)
 
 
-def report():
-    '''write the values out in XML'''
-    #---
-    # the detector currents are not read directly from EPICS 
-    # but rather calculated from the voltage and gain
-    #---
-    xml = []
-    xml.append('<?xml version="1.0" encoding="UTF-8"?>')
-    xml.append('<?xml-stylesheet type="text/xsl" href="%s" ?>' 
-               % localConfig.XSL_STYLESHEET)
-    xml.append('<usaxs_pvs version="1">')
-    xml.append("  " + makeSimpleTag('writer', SVN_ID))
-    xml.append("  " + makeSimpleTag('datetime', getTime()))
+def insertPI(xmlText, piText):
+    '''insert XML Processing Instruction text after first line of XML'''
+    xml = xmlText.split("\n")
+    xml.insert(1, piText)
+    return "\n".join(xml)
+
+
+def buildReport():
+    '''build the report'''
+    # ProcessingInstruction for 2nd line of XML
+    # Cannot place this with ElementTree where it is needed
+    t = datetime.datetime.now()
+    yyyymmdd = t.strftime("%Y-%m-%d")
+    hhmmss = t.strftime("%H:%M:%S")
+
+    piText = u'<?xml-stylesheet type="text/xsl" href="raw-table.xsl" ?>'
+
+    root = ElementTree.Element("usaxs_pvs")
+    root.set("version", "1")
+    root.set('date', yyyymmdd)
+    root.set('time', hhmmss)
+    root.append(ElementTree.Comment("subversion ID: " + SVN_ID))
+
     sorted_id_list = sorted(xref)
-    field_list = []
-    field_list.append("name")
-    field_list.append("id")
-    field_list.append("description")
-    field_list.append("timestamp")
-    field_list.append("counter")
-    field_list.append("units")
-    field_list.append("value")
-    field_list.append("raw_value")
-    field_list.append("format")
+    fields = ("name", "id", "description", "timestamp", "counter", "units", "value", "raw_value", "format")
+
     for mne in sorted_id_list:
         pv = xref[mne]
         entry = pvdb[pv]
-        ch = entry['ch']
-        xml.append('  <pv id="%s" name="%s">' % (mne, pv))
-        for item in field_list:
-            xml.append("    " + makeSimpleTag(item, entry[item]))
-        xml.append('  </pv>')
-    xml.append('</usaxs_pvs>')
+        #ch = entry['ch']
+
+        #xml.append('  <pv id="%s" name="%s">' % (mne, pv))
+        node = ElementTree.SubElement(root, "pv")
+        node.set("id", mne)
+        node.set("name", pv)
+
+        for item in fields:
+            #xml.append("    " + makeSimpleTag(item, entry[item]))
+            subnode = ElementTree.SubElement(node, item)
+            subnode.text = str(entry[item])
+
+    # final steps
+    doc = minidom.parseString(ElementTree.tostring(root))
+    xmlText = doc.toprettyxml(indent = "  ")
+    return insertPI(xmlText, piText)
+
+
+def report():
+    '''write the values out to files'''
+    xmlText = buildReport()
+
+    # WWW directory for livedata (absolute path)
+    localDir = localConfig.LOCAL_WWW_LIVEDATA_DIR
+
     #--- write the XML with the raw data from EPICS
-    f = open(localConfig.REPORT_FILE, 'w')
-    f.write("\n".join(xml))
-    f.close()
+    file__raw_xml = localConfig.XML_REPORT_FILE
+    localFile = os.path.join(localDir, file__raw_xml)
+    writeFile(localFile, xmlText)
+    wwwServerTransfers.scpToWebServer(localFile, file__raw_xml)
+
     #--- xslt transforms from XML to HTML
-    fmt = "/usr/bin/xsltproc --novalid %s " + localConfig.REPORT_FILE
-    shellCommandToFile(fmt % "livedata.xsl", "./www/index.html")
-    shellCommandToFile(fmt % "raw-table.xsl", "./www/raw-report.html")
+    xsltCommandFormat = localConfig.XSLT_COMMAND + localFile  # xslt command
+
+    # make the index.html file
+    file__index_html = localConfig.HTML_INDEX_FILE  # short name
+    xslFile = localConfig.LIVEDATA_XSL_STYLESHEET   # in Python code dir
+    localFile = os.path.join(localDir, file__index_html)  # absolute path
+    xsltCommand = xsltCommandFormat % xslFile
+    shellCommandToFile(xsltCommand, localFile)    # do the XSLT transform
+    wwwServerTransfers.scpToWebServer(localFile, file__index_html)  # copy to XSD
+
+    # display the raw data (but pre-convert it in an html page)
+    file__raw_html = localConfig.HTML_RAWREPORT_FILE
+    xslFile = localConfig.RAWTABLE_XSL_STYLESHEET
+    localFile = os.path.join(localDir, file__raw_html)
+    xsltCommand = xsltCommandFormat % xslFile
+    shellCommandToFile(xsltCommand, localFile)    # do the XSLT transform
+    wwwServerTransfers.scpToWebServer(localFile, file__raw_html)
 
 
 def getTime():
@@ -236,7 +287,7 @@ def main():
         ch.connectw()
         ch.monitor()
 
-        if os.path.exists(PVLIST_FILE):
+        if not os.path.exists(PVLIST_FILE):
             logMessage('could not find file: ' + PVLIST_FILE)
             return
         try:
@@ -270,16 +321,19 @@ def main():
             ch.chan.pend_event()
             if dt >= nextReport:
                 nextReport = dt + delta_report
+
                 try:
                     report()                # write contents of pvdb to a file
                 except:
                     # report the exception
                     logException("report()")
+
                 try:
                     updateSpecMacroFile()   # copy the spec macro file
                 except:
                     # report the exception
                     logException("updateSpecMacroFile()")
+
                 try:
                     updatePlotImage()       # update the plot
                 except:
