@@ -1,20 +1,36 @@
 <?xml version="1.0" ?>
+<?xml-stylesheet type="text/xsl" href="pvlist.xsl" ?>
+
+<!-- You can edit this file with a text editor -->
+
 <pvwatch version="1.0">
+	<!-- (update version if format of XML file changes) -->
   <SVN svnid="$Id$"/>
-  <!-- 
-        mne            : one-word mnemonic reference used in python and xslt code
-        pv             : EPICS process variable name (must be used in only one EPICS_PV)
-        description    : useful text informative to others
-        display_format : (optional, default="%s") PVs will be formatted with this string
-        _ignore_       : (optional, default="false") this PV is ignored if value is not "false"
-     -->
+
+  <definition name="mne">
+  	one-word mnemonic reference used in python and xslt code
+  	(mne should be unique for each EPICS_PV)
+  </definition>
+  <definition name="PV">
+  	EPICS process variable name (must be used in only one EPICS_PV)
+  </definition>
+  <definition name="description">
+  	useful text informative to others
+  </definition>
+  <definition name="display_format">
+  	(optional, default="%s") PVs will be formatted with this string
+  </definition>
+  <definition name="_ignore_">
+  	(optional, default="false") this PV is ignored if value is not "false"
+  </definition>
+
   <EPICS_PV PV="S:SRcurrentAI" description="APS storage ring current, mA" display_format="%.2f" mne="SR_current"/>
   <EPICS_PV PV="ID15:Energy" description="ID E, keV" display_format="%.4f" mne="Und_E"/>
   <EPICS_PV PV="PA:32ID:A_SHTRS_CLOSED.VAL" _ignore_="true" description="32ID white shutter closed" mne="white_shtr_closed"/>
   <EPICS_PV PV="PA:32ID:B_SHTRS_CLOSED.VAL" _ignore_="true" description="32ID mono shutter closed" mne="mono_shtr_closed"/>
   <EPICS_PV PV="32idb:AShtr:Enable.RVAL" _ignore_="true" description="32ID white shutter autoOpen" mne="white_shtr_auto"/>
   <EPICS_PV PV="32idbMIR:alldone" _ignore_="true" description="Mirror eBrick motors moving" mne="mir_alldone"/>
-  <EPICS_PV PV="32ida:BraggEAO" _ignore_="true" description="DCM E, keV" display_format="%.4f" mne="DCM_E"/>
+  <EPICS_PV PV="32ida:BraggEAO" _ignore_="true" description="DCM E, keV" display_format="%.4f" mne="DCM_E_32ID"/>
   <EPICS_PV PV="15iddLAX:float1" description="fake DCM E, keV" display_format="%.4f" mne="DCM_E"/>
   <EPICS_PV PV="32ida:m1.RBV" _ignore_="true" description="motor DCM_theta, degrees" display_format="%.6f" mne="DCM_theta"/>
   <EPICS_PV PV="32ida:m3.RBV" _ignore_="true" description="motor DCM_chi2, degrees" display_format="%.6f" mne="DCM_chi2"/>
