@@ -42,7 +42,7 @@ GLOBAL_MONITOR_COUNTER = 0
 pvdb = {}   # EPICS data will go here
 xref = {}   # cross-reference id with PV
 PVLIST_FILE = "pvlist.xml"
-CYCLE_LOG_MESSAGE = 10000  # print a log message periodically
+MAINLOOP_COUNTER_TRIGGER = 10000  # print a log message periodically
 
 
 def logMessage(msg):
@@ -222,6 +222,8 @@ def buildReport():
     root.set('date', yyyymmdd)
     root.set('time', hhmmss)
     root.append(ElementTree.Comment("subversion ID: " + SVN_ID))
+    node = ElementTree.SubElement(root, "datetime")
+    node.text = yyyymmdd + " " + hhmmss
 
     sorted_id_list = sorted(xref)
     fields = ("name", "id", "description", "timestamp", "counter", "units", "value", "raw_value", "format")
@@ -328,14 +330,14 @@ def main():
         nextLog = nextReport
         delta_report = datetime.timedelta(seconds=localConfig.REPORT_INTERVAL_S)
         delta_log = datetime.timedelta(seconds=localConfig.LOG_INTERVAL_S)
-        cycle_counter = 0
+        mainLoopCount = 0
         while True:
             dt = getTime()
             ch.chan.pend_event()
 
-            cycle_counter = (cycle_counter + 1) % CYCLE_LOG_MESSAGE
-            if cycle_counter % CYCLE_LOG_MESSAGE == 0:
-                logMessage(" %s cycles through main loop" % CYCLE_LOG_MESSAGE)
+            mainLoopCount = (mainLoopCount + 1) % MAINLOOP_COUNTER_TRIGGER
+            if mainLoopCount % MAINLOOP_COUNTER_TRIGGER == 0:
+                logMessage(" %s times through main loop" % MAINLOOP_COUNTER_TRIGGER)
 
             if dt >= nextReport:
                 nextReport = dt + delta_report
@@ -362,6 +364,7 @@ def main():
                     "checkpoint, %d EPICS monitor events received"
                     % GLOBAL_MONITOR_COUNTER
                 )
+                GLOBAL_MONITOR_COUNTER = 0  # reset
             #print dt
             time.sleep(localConfig.SLEEP_INTERVAL_S)
 
