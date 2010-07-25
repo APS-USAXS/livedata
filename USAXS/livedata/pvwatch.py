@@ -219,8 +219,8 @@ def buildReport():
 
     root = ElementTree.Element("usaxs_pvs")
     root.set("version", "1")
-    root.set('date', yyyymmdd)
-    root.set('time', hhmmss)
+    # root.set('date', yyyymmdd)
+    # root.set('time', hhmmss)
     root.append(ElementTree.Comment("subversion ID: " + SVN_ID))
     node = ElementTree.SubElement(root, "datetime")
     node.text = yyyymmdd + " " + hhmmss
