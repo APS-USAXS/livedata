@@ -1,4 +1,23 @@
 
+see docs/index.html for more information
+
+The main code here is pvwatch.py.  It monitors EPICS PVs 
+(described in pvlist.xml) and writes files in the local 
+WWW server directory.  It can be started and stopped by
+the Makefile (for manual control) or the manage.csh script
+for automated startup in /etc/init.d or similar.
+
+
+Another code module, buildSpecPlots.sh, crawls a set of 
+subdirectories, looking for SPEC data files and plotting
+all scans using defaults (last column vs. first column).
+
+
+The Python documentation was generated using the commands:
+	/APSshare/bin/pydoc -w ./
+	mv *.html docs/
+
+
 ########### SVN repository information ###################
 # $Date$
 # $Author$
@@ -6,73 +25,3 @@
 # $URL$
 # $Id$
 ########### SVN repository information ###################
-
-
-TERSE EXPLANATION OF MAJOR CODE BLOCKS
-
-Makefile
-	--- calls starts/stops/restarts manage.csh
-
-manage.csh
-	--- starts/stops/restarts pvwatch.py
-	--- sysAdmins could point to this from /etc/init.d or similar
-
-pvwatch.py
-	--- *** this is the main code of this "package" ***
-	--- uses these resources
-		pvlist.xml
-		pvConnect.py
-		livedata.xsl
-		localConfig.py
-		prjPySpec.py
-		raw-table.xsl
-		specplot.py
-		wwwServerTransfers.py
-	--- and generates files in /data/www/livedata
-		index.html
-		livedata.png
-		raw-report.html
-		report.xml
-		specmacro.txt
-	--- copies these to the XSD WWW server as they are generated
-
-buildSpecPlots.sh
-	--- uses these resources
-		specplotsAllScans.py
-		specplot.py
-	--- and generates files and subdirs in
-		/data/www/livedata/specplots
-	--- rsyncs these to the XSD WWW server as they are generated
-This script could be called from a cron job every 5 minutes or so.
-
-dirWatch.py
-	--- will probably go away - ignore it
-
-NOTE
-While many of the Python routines have code that executes 
-when called directly from the command line, don't do this
-unless you are CERTAIN of what will happen.  Some routines
-change the local WWW dir and some even push files to the 
-XSD WWW server.
-
-
-LIST OF FILES
-==================
-buildSpecPlots.sh*		script to crawl directories for SPEC data files and build default plots for all scans
-dirWatch.py*			code under development
-__init__.py				tells Python this directory is a "package"
-livedata.xsl			XSLT transform to build index.html from XML data
-localConfig.py*			global Python variables for this package
-Makefile				starts/stops the manage.csh script
-manage.csh*				sysAdmin script to start/stop pvwatch.py
-plot.py*				plots last n USAXS scans from one SPEC data file
-prjPySpec.py*			reads SPEC data files
-pvConnect.py*			EPICS PV connection management
-pvlist.xml				list of EPICS process variables to be monitored/reported
-pvwatch.py				watches PVs, writes reports, makes livedata page content
-raw-table.xsl			XSLT transform to build raw-report.html from XML data
-README					this file
-specplot.py*			default plot of one scan in one SPEC data file
-specplotsAllScans.py*	default plots of all scans in one SPEC data file
-www@					soft link to local WWW root directory (/data/www)
-wwwServerTransfers.py*	common code to scp files from usaxscontrol2.cars to usaxs.xor

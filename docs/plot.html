@@ -1,0 +1,56 @@
+
+<!doctype html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module plot</title>
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong>plot</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:/home/beams21/S15USAXS/Documents/eclipse/USAXS/livedata/plot.py">/home/beams21/S15USAXS/Documents/eclipse/USAXS/livedata/plot.py</a></font></td></tr></table>
+    <p><tt>read&nbsp;a&nbsp;SPEC&nbsp;data&nbsp;file&nbsp;and&nbsp;plot&nbsp;the&nbsp;last&nbsp;n&nbsp;USAXS&nbsp;scans&nbsp;for&nbsp;the&nbsp;livedata&nbsp;WWW&nbsp;page<br>
+@note:&nbsp;copies&nbsp;plot&nbsp;file&nbsp;to&nbsp;USAXS&nbsp;site&nbsp;on&nbsp;XSD&nbsp;WWW&nbsp;server</tt></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#fffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="datetime.html">datetime</a><br>
+<a href="localConfig.html">localConfig</a><br>
+<a href="math.html">math</a><br>
+</td><td width="25%" valign=top><a href="os.html">os</a><br>
+<a href="prjPySpec.html">prjPySpec</a><br>
+<a href="shutil.html">shutil</a><br>
+</td><td width="25%" valign=top><a href="tempfile.html">tempfile</a><br>
+<a href="time.html">time</a><br>
+<a href="wwwServerTransfers.html">wwwServerTransfers</a><br>
+</td><td width="25%" valign=top></td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#eeaa77">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl><dt><a name="-calc_usaxs_data"><strong>calc_usaxs_data</strong></a>(specScan)</dt><dd><tt>calculate&nbsp;the&nbsp;USAXS&nbsp;R&nbsp;wave&nbsp;from&nbsp;the&nbsp;raw&nbsp;SPEC&nbsp;scan&nbsp;data</tt></dd></dl>
+ <dl><dt><a name="-extract_USAXS_data"><strong>extract_USAXS_data</strong></a>(specData, scanList)</dt><dd><tt>extract&nbsp;the&nbsp;USAXS&nbsp;R(Q)&nbsp;profiles&nbsp;(ignoring&nbsp;error&nbsp;estimates)<br>
+@param&nbsp;specData:&nbsp;as&nbsp;returned&nbsp;by&nbsp;prjPySpec.specDataFile(specFile)<br>
+@param&nbsp;scanList:&nbsp;integer&nbsp;list&nbsp;of&nbsp;scan&nbsp;numbers<br>
+@return:&nbsp;list&nbsp;of&nbsp;dictionaries&nbsp;with&nbsp;reduced&nbsp;USAXS&nbsp;R(Q)</tt></dd></dl>
+ <dl><dt><a name="-format_as_ploticus_data"><strong>format_as_ploticus_data</strong></a>(usaxs)</dt><dd><tt>build&nbsp;the&nbsp;data&nbsp;portion&nbsp;of&nbsp;the&nbsp;ploticus&nbsp;script<br>
+@return:&nbsp;dictionary&nbsp;of&nbsp;formatted&nbsp;data&nbsp;and&nbsp;R(Q)&nbsp;limits</tt></dd></dl>
+ <dl><dt><a name="-last_n_scans"><strong>last_n_scans</strong></a>(scans, maxScans)</dt><dd><tt>find&nbsp;the&nbsp;last&nbsp;maxScans&nbsp;scans&nbsp;in&nbsp;the&nbsp;specData<br>
+@param&nbsp;scans:&nbsp;specDataFileScan&nbsp;instance&nbsp;list<br>
+@param&nbsp;maxScans:&nbsp;maximum&nbsp;number&nbsp;of&nbsp;scans&nbsp;to&nbsp;find<br>
+@return:&nbsp;integer&nbsp;list&nbsp;of&nbsp;scan&nbsp;numbers&nbsp;where&nbsp;len()&nbsp;&lt;=&nbsp;maxScans</tt></dd></dl>
+ <dl><dt><a name="-make_ploticus_command_script"><strong>make_ploticus_command_script</strong></a>(specFile, tempDataFile, ploticus_data, usaxs)</dt><dd><tt>build&nbsp;the&nbsp;command&nbsp;script&nbsp;for&nbsp;ploticus</tt></dd></dl>
+ <dl><dt><a name="-ploticus_commands"><strong>ploticus_commands</strong></a>(db, usaxs)</dt><dd><tt>plot&nbsp;USAXS&nbsp;data&nbsp;using&nbsp;ploticus</tt></dd></dl>
+ <dl><dt><a name="-run_ploticus"><strong>run_ploticus</strong></a>(script, localPlotFile)</dt><dd><tt>use&nbsp;ploticus&nbsp;to&nbsp;generate&nbsp;the&nbsp;localPlotFile&nbsp;image&nbsp;file</tt></dd></dl>
+ <dl><dt><a name="-run_ploticus_command_script"><strong>run_ploticus_command_script</strong></a>(scriptFile)</dt><dd><tt>use&nbsp;ploticus&nbsp;to&nbsp;generate&nbsp;the&nbsp;plot&nbsp;image&nbsp;file</tt></dd></dl>
+ <dl><dt><a name="-update_n_plots"><strong>update_n_plots</strong></a>(specFile, numScans)</dt><dd><tt>read&nbsp;the&nbsp;SPEC&nbsp;file&nbsp;and&nbsp;grab&nbsp;n&nbsp;scans</tt></dd></dl>
+ <dl><dt><a name="-write_ploticus_command_script"><strong>write_ploticus_command_script</strong></a>(script)</dt><dd><tt>write&nbsp;the&nbsp;command&nbsp;script&nbsp;for&nbsp;ploticus</tt></dd></dl>
+ <dl><dt><a name="-write_ploticus_data"><strong>write_ploticus_data</strong></a>(data)</dt><dd><tt>write&nbsp;the&nbsp;data&nbsp;file&nbsp;for&nbsp;ploticus</tt></dd></dl>
+</td></tr></table>
+</body></html>

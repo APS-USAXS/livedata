@@ -1,0 +1,168 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>documentation for ''livedata'' source code</title>
+
+<!--
+########### SVN repository information ###################
+# $Date: 2010-07-24 21:49:05 -0500 (Sat, 24 Jul 2010) $
+# $Author: jemian $
+# $Revision: 383 $
+# $URL: https://subversion.xor.aps.anl.gov/small_angle/USAXS/livedata/README $
+# $Id: README 383 2010-07-25 02:49:05Z jemian $
+########### SVN repository information ###################
+-->
+
+</head>
+<body>
+
+<h1>documentation for ''livedata'' source code</h1>
+
+<h2>TERSE EXPLANATION OF MAJOR CODE BLOCKS</h2>
+
+<pre>
+Makefile
+	--- calls starts/stops/restarts manage.csh
+
+manage.csh
+	--- starts/stops/restarts pvwatch.py
+	--- sysAdmins could point to this from /etc/init.d or similar
+
+pvwatch.py
+	--- *** this is the main code of this "package" ***
+	--- uses these resources
+		pvlist.xml
+		pvConnect.py
+		livedata.xsl
+		localConfig.py
+		prjPySpec.py
+		raw-table.xsl
+		specplot.py
+		wwwServerTransfers.py
+	--- and generates files in /data/www/livedata
+		index.html
+		livedata.png
+		raw-report.html
+		report.xml
+		specmacro.txt
+	--- copies these to the XSD WWW server as they are generated
+
+buildSpecPlots.sh
+	--- uses these resources
+		specplotsAllScans.py
+		specplot.py
+	--- and generates files and subdirs in
+		/data/www/livedata/specplots
+	--- rsyncs these to the XSD WWW server as they are generated
+This script could be called from a cron job every 5 minutes or so.  Not any more frequent, though.
+
+dirWatch.py
+	--- will probably go away - ignore it
+</pre>
+
+<h3>NOTE</h3>
+While many of the Python routines have code that executes 
+when called directly from the command line, don't do this
+unless you are CERTAIN of what will happen.  Some routines
+change the local WWW dir and some even push files to the 
+XSD WWW server.
+
+
+<h2>LIST OF FILES</h2>
+<dl>
+
+	<dt><pre>buildSpecPlots.sh</pre></dt>
+	<dd>
+		script to crawl directories for SPEC data files 
+		and build default plots for all scans
+	</dd>
+
+	<dt><a href="dirWatch.html"><pre>dirWatch.py</pre></a></dt>
+	<dd>
+		code under development
+	</dd>
+
+	<dt><pre>__init__.py</pre></dt>
+	<dd>
+		tells Python this directory is a "package"
+	</dd>
+
+	<dt><pre>livedata.xsl</pre></dt>
+	<dd>
+		XSLT transform to build index.html from XML data
+	</dd>
+
+	<dt><a href="localConfig.html"><pre>localConfig.py</pre></a></dt>
+	<dd>
+		global Python variables for this package
+	</dd>
+
+	<dt><pre>Makefile</pre></dt>
+	<dd>
+		starts/stops the manage.csh script
+	</dd>
+
+	<dt><pre>manage.csh</pre></dt>
+	<dd>
+		sysAdmin script to start/stop pvwatch.py
+	</dd>
+
+	<dt><a href="plot.html"><pre>plot.py</pre></a></dt>
+	<dd>
+		plots last n USAXS scans from one SPEC data file
+	</dd>
+
+	<dt><a href="prjPySpec.html"><pre>prjPySpec.py</pre></a></dt>
+	<dd>
+		reads SPEC data files
+	</dd>
+
+	<dt><a href="pvConnect.html"><pre>pvConnect.py</pre></a></dt>
+	<dd>
+		EPICS PV connection management
+	</dd>
+
+	<dt><pre>pvlist.xml</pre></dt>
+	<dd>
+		list of EPICS process variables to be monitored/reported
+	</dd>
+
+	<dt><a href="pvwatch.html"><pre>pvwatch.py</pre></a></dt>
+	<dd>
+		watches PVs, writes reports, makes livedata page content
+	</dd>
+
+	<dt><pre>raw-table.xsl</pre></dt>
+	<dd>
+		XSLT transform to build raw-report.html from XML data
+	</dd>
+
+	<dt><pre>README</pre></dt>
+	<dd>
+		basic documentation for code developers
+	</dd>
+
+	<dt><a href="specplot.html"><pre>specplot.py</pre></a></dt>
+	<dd>
+		default plot of one scan in one SPEC data file
+	</dd>
+
+	<dt><a href="specplotsAllScans.html"><pre>specplotsAllScans.py</pre></a></dt>
+	<dd>
+		default plots of all scans in one SPEC data file
+	</dd>
+
+	<dt><pre>www/</pre></dt>
+	<dd>
+		soft link to local WWW root directory (/data/www)
+	</dd>
+
+	<dt><a href="wwwServerTransfers.html"><pre>wwwServerTransfers.py</pre></a></dt>
+	<dd>
+		common code to scp files from usaxscontrol2.cars to usaxs.xor
+	</dd>
+
+</dl>
+
+</body>
+</html>
