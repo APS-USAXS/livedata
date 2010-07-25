@@ -1,0 +1,121 @@
+
+<!doctype html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module prjPySpec</title>
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong>prjPySpec</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:/home/beams21/S15USAXS/Documents/eclipse/USAXS/livedata/prjPySpec.py">/home/beams21/S15USAXS/Documents/eclipse/USAXS/livedata/prjPySpec.py</a></font></td></tr></table>
+    <p><tt>&nbsp;&nbsp;Purpose:<br>
+&nbsp;&nbsp;Provides&nbsp;a&nbsp;set&nbsp;of&nbsp;classes&nbsp;to&nbsp;read&nbsp;the&nbsp;contents&nbsp;of&nbsp;a&nbsp;spec&nbsp;data&nbsp;file.<br>
+&nbsp;<br>
+###########&nbsp;SVN&nbsp;repository&nbsp;information&nbsp;###################<br>
+#&nbsp;$Date:&nbsp;2010-06-05&nbsp;11:39:55&nbsp;-0500&nbsp;(Sat,&nbsp;05&nbsp;Jun&nbsp;2010)&nbsp;$<br>
+#&nbsp;$Author:&nbsp;jemian&nbsp;$<br>
+#&nbsp;$Revision:&nbsp;288&nbsp;$<br>
+#&nbsp;$HeadURL:&nbsp;https://subversion.xor.aps.anl.gov/small_angle/USAXS/livedata/prjPySpec.py&nbsp;$<br>
+#&nbsp;$Id:&nbsp;prjPySpec.py&nbsp;288&nbsp;2010-06-05&nbsp;16:39:55Z&nbsp;jemian&nbsp;$<br>
+###########&nbsp;SVN&nbsp;repository&nbsp;information&nbsp;###################<br>
+&nbsp;<br>
+&nbsp;&nbsp;author:&nbsp;Pete&nbsp;Jemian,&nbsp;jemian@anl.gov<br>
+&nbsp;&nbsp;Further&nbsp;comments:<br>
+&nbsp;&nbsp;Includes&nbsp;the&nbsp;UNICAT&nbsp;extensions&nbsp;which&nbsp;write&nbsp;additional&nbsp;floating&nbsp;point<br>
+&nbsp;&nbsp;information&nbsp;in&nbsp;the&nbsp;scan&nbsp;headers&nbsp;using&nbsp;#H/#V&nbsp;pairs&nbsp;of&nbsp;labels/values.<br>
+&nbsp;&nbsp;The&nbsp;user&nbsp;should&nbsp;create&nbsp;a&nbsp;class&nbsp;instance&nbsp;for&nbsp;each&nbsp;spec&nbsp;data&nbsp;file,<br>
+&nbsp;&nbsp;specifying&nbsp;the&nbsp;file&nbsp;reference&nbsp;(by&nbsp;path&nbsp;reference&nbsp;as&nbsp;needed)<br>
+&nbsp;&nbsp;and&nbsp;the&nbsp;internal&nbsp;routines&nbsp;will&nbsp;take&nbsp;care&nbsp;of&nbsp;all&nbsp;that&nbsp;is&nbsp;necessary<br>
+&nbsp;&nbsp;to&nbsp;read&nbsp;and&nbsp;interpret&nbsp;the&nbsp;information.<br>
+&nbsp;&nbsp;Dependencies:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;os:&nbsp;operating&nbsp;system&nbsp;module<br>
+&nbsp;&nbsp;&nbsp;&nbsp;re:&nbsp;regular&nbsp;expression&nbsp;module</tt></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#fffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="os.html">os</a><br>
+</td><td width="25%" valign=top><a href="re.html">re</a><br>
+</td><td width="25%" valign=top><a href="sys.html">sys</a><br>
+</td><td width="25%" valign=top></td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ee77aa">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Classes</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#ee77aa"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl>
+<dt><font face="helvetica, arial"><a href="prjPySpec.html#specDataFile">specDataFile</a>
+</font></dt><dt><font face="helvetica, arial"><a href="prjPySpec.html#specDataFileHeader">specDataFileHeader</a>
+</font></dt><dt><font face="helvetica, arial"><a href="prjPySpec.html#specDataFileScan">specDataFileScan</a>
+</font></dt></dl>
+ <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="specDataFile">class <strong>specDataFile</strong></a></font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>contents&nbsp;of&nbsp;a&nbsp;spec&nbsp;data&nbsp;file<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="specDataFile-__init__"><strong>__init__</strong></a>(self, file)</dt></dl>
+
+<dl><dt><a name="specDataFile-read"><strong>read</strong></a>(self)</dt><dd><tt>Reads&nbsp;a&nbsp;spec&nbsp;data&nbsp;file</tt></dd></dl>
+
+<hr>
+Data and other attributes defined here:<br>
+<dl><dt><strong>errMsg</strong> = ''</dl>
+
+<dl><dt><strong>fileName</strong> = ''</dl>
+
+<dl><dt><strong>headers</strong> = []</dl>
+
+<dl><dt><strong>parts</strong> = ''</dl>
+
+<dl><dt><strong>readOK</strong> = -1</dl>
+
+<dl><dt><strong>scans</strong> = []</dl>
+
+</td></tr></table> <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="specDataFileHeader">class <strong>specDataFileHeader</strong></a></font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>contents&nbsp;of&nbsp;a&nbsp;spec&nbsp;data&nbsp;file&nbsp;header&nbsp;(#F)&nbsp;section<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="specDataFileHeader-__init__"><strong>__init__</strong></a>(self, buf)</dt></dl>
+
+<dl><dt><a name="specDataFileHeader-interpret"><strong>interpret</strong></a>(self)</dt><dd><tt>interpret&nbsp;the&nbsp;supplied&nbsp;buffer&nbsp;with&nbsp;the&nbsp;spec&nbsp;data&nbsp;file&nbsp;header</tt></dd></dl>
+
+</td></tr></table> <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="specDataFileScan">class <strong>specDataFileScan</strong></a></font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>contents&nbsp;of&nbsp;a&nbsp;spec&nbsp;data&nbsp;file&nbsp;scan&nbsp;(#S)&nbsp;section<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="specDataFileScan-__init__"><strong>__init__</strong></a>(self, header, buf)</dt></dl>
+
+<dl><dt><a name="specDataFileScan-interpret"><strong>interpret</strong></a>(self)</dt><dd><tt>interpret&nbsp;the&nbsp;supplied&nbsp;buffer&nbsp;with&nbsp;the&nbsp;spec&nbsp;scan&nbsp;data</tt></dd></dl>
+
+</td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#eeaa77">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl><dt><a name="-specScanLine_stripKey"><strong>specScanLine_stripKey</strong></a>(line)</dt><dd><tt>return&nbsp;everything&nbsp;after&nbsp;the&nbsp;first&nbsp;space&nbsp;on&nbsp;the&nbsp;line&nbsp;from&nbsp;the&nbsp;spec&nbsp;data&nbsp;file</tt></dd></dl>
+</td></tr></table>
+</body></html>

@@ -1,0 +1,56 @@
+
+<!doctype html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module specplotsAllScans</title>
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong>specplotsAllScans</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:/home/beams21/S15USAXS/Documents/eclipse/USAXS/livedata/specplotsAllScans.py">/home/beams21/S15USAXS/Documents/eclipse/USAXS/livedata/specplotsAllScans.py</a></font></td></tr></table>
+    <p><tt>read&nbsp;a&nbsp;SPEC&nbsp;data&nbsp;file&nbsp;and&nbsp;plot&nbsp;all&nbsp;the&nbsp;scans<br>
+@note:&nbsp;also&nbsp;copies&nbsp;files&nbsp;to&nbsp;USAXS&nbsp;site&nbsp;on&nbsp;XSD&nbsp;WWW&nbsp;server&nbsp;using&nbsp;rsync</tt></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#fffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="localConfig.html">localConfig</a><br>
+<a href="os.html">os</a><br>
+</td><td width="25%" valign=top><a href="shutil.html">shutil</a><br>
+<a href="specplot.html">specplot</a><br>
+</td><td width="25%" valign=top><a href="sys.html">sys</a><br>
+<a href="time.html">time</a><br>
+</td><td width="25%" valign=top><a href="wwwServerTransfers.html">wwwServerTransfers</a><br>
+</td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#eeaa77">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl><dt><a name="-build_index_html"><strong>build_index_html</strong></a>(baseSpecFile, specFile, plotList)</dt><dd><tt>build&nbsp;index.html&nbsp;content</tt></dd></dl>
+ <dl><dt><a name="-datePath"><strong>datePath</strong></a>(date)</dt><dd><tt>convert&nbsp;the&nbsp;date&nbsp;into&nbsp;a&nbsp;path:&nbsp;yyyy/mm</tt></dd></dl>
+ <dl><dt><a name="-getBaseDir"><strong>getBaseDir</strong></a>(basename, date)</dt><dd><tt>find&nbsp;the&nbsp;path&nbsp;based&nbsp;on&nbsp;the&nbsp;date&nbsp;in&nbsp;the&nbsp;spec&nbsp;file</tt></dd></dl>
+ <dl><dt><a name="-getBaseName"><strong>getBaseName</strong></a>(specFile)</dt><dd><tt>get&nbsp;the&nbsp;base&nbsp;plot&nbsp;name&nbsp;from&nbsp;the&nbsp;spec&nbsp;file&nbsp;name&nbsp;(no&nbsp;path&nbsp;or&nbsp;extension)</tt></dd></dl>
+ <dl><dt><a name="-getTimeFileModified"><strong>getTimeFileModified</strong></a>(file)</dt><dd><tt>@return:&nbsp;time&nbsp;(float)&nbsp;file&nbsp;was&nbsp;last&nbsp;modified</tt></dd></dl>
+ <dl><dt><a name="-needToCopySpecDataFile"><strong>needToCopySpecDataFile</strong></a>(wwwSpecFile, mtime_specFile)</dt><dd><tt>Determine&nbsp;if&nbsp;spec&nbsp;data&nbsp;file&nbsp;needs&nbsp;to&nbsp;be&nbsp;copied<br>
+Base&nbsp;the&nbsp;decision&nbsp;on&nbsp;the&nbsp;mtime&nbsp;(last&nbsp;modification&nbsp;time&nbsp;of&nbsp;the&nbsp;file)<br>
+@return:&nbsp;True&nbsp;or&nbsp;False</tt></dd></dl>
+ <dl><dt><a name="-needToMakePlot"><strong>needToMakePlot</strong></a>(fullPlotFile, mtime_specFile)</dt><dd><tt>Determine&nbsp;if&nbsp;a&nbsp;plot&nbsp;needs&nbsp;to&nbsp;be&nbsp;(re)made<br>
+Use&nbsp;mtime&nbsp;as&nbsp;the&nbsp;basis<br>
+@return:&nbsp;True&nbsp;or&nbsp;False</tt></dd></dl>
+ <dl><dt><a name="-plotAllSpecFileScans"><strong>plotAllSpecFileScans</strong></a>(specFile)</dt><dd><tt>make&nbsp;standard&nbsp;plots&nbsp;for&nbsp;all&nbsp;scans&nbsp;in&nbsp;the&nbsp;specFile</tt></dd></dl>
+ <dl><dt><a name="-timestamp"><strong>timestamp</strong></a>()</dt><dd><tt>current&nbsp;time&nbsp;as&nbsp;yyyy-mm-dd&nbsp;hh:mm:ss</tt></dd></dl>
+</td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#55aa55">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Data</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#55aa55"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><strong>SVN_ID</strong> = '$Id: specplotsAllScans.py 376 2010-07-23 23:20:40Z jemian $'</td></tr></table>
+</body></html>

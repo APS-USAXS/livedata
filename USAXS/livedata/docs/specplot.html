@@ -1,0 +1,46 @@
+
+<!doctype html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module specplot</title>
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong>specplot</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:/home/beams21/S15USAXS/Documents/eclipse/USAXS/livedata/specplot.py">/home/beams21/S15USAXS/Documents/eclipse/USAXS/livedata/specplot.py</a></font></td></tr></table>
+    <p><tt>read&nbsp;a&nbsp;SPEC&nbsp;data&nbsp;file&nbsp;and&nbsp;plot&nbsp;scan&nbsp;n&nbsp;using&nbsp;ploticus<br>
+@note:&nbsp;does&nbsp;not&nbsp;copy&nbsp;any&nbsp;file&nbsp;to&nbsp;XSD&nbsp;WWW&nbsp;server</tt></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#fffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="localConfig.html">localConfig</a><br>
+<a href="os.html">os</a><br>
+</td><td width="25%" valign=top><a href="prjPySpec.html">prjPySpec</a><br>
+<a href="sys.html">sys</a><br>
+</td><td width="25%" valign=top><a href="tempfile.html">tempfile</a><br>
+<a href="wwwServerTransfers.html">wwwServerTransfers</a><br>
+</td><td width="25%" valign=top></td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#eeaa77">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl><dt><a name="-findScan"><strong>findScan</strong></a>(sd, n)</dt><dd><tt>return&nbsp;the&nbsp;first&nbsp;scan&nbsp;with&nbsp;scan&nbsp;number&nbsp;"n"<br>
+from&nbsp;the&nbsp;spec&nbsp;data&nbsp;file&nbsp;object&nbsp;or&nbsp;None</tt></dd></dl>
+ <dl><dt><a name="-format_ploticus_data"><strong>format_ploticus_data</strong></a>(data)</dt><dd><tt>find&nbsp;x&nbsp;&amp;&nbsp;y&nbsp;min&nbsp;&amp;&nbsp;max<br>
+@return:&nbsp;dictionary</tt></dd></dl>
+ <dl><dt><a name="-makePloticusPlot"><strong>makePloticusPlot</strong></a>(scan, plotFile)</dt><dd><tt>plot&nbsp;scan&nbsp;n&nbsp;from&nbsp;the&nbsp;SPEC&nbsp;scan&nbsp;object</tt></dd></dl>
+ <dl><dt><a name="-makePloticusPlotByScanNum"><strong>makePloticusPlotByScanNum</strong></a>(specFile, scan_number, plotFile)</dt><dd><tt>all-in-one&nbsp;function</tt></dd></dl>
+ <dl><dt><a name="-openSpecFile"><strong>openSpecFile</strong></a>(specFile)</dt><dd><tt>convenience&nbsp;routine&nbsp;so&nbsp;that&nbsp;others<br>
+do&nbsp;not&nbsp;have&nbsp;to&nbsp;import&nbsp;prjPySpec</tt></dd></dl>
+ <dl><dt><a name="-run_ploticus_command_script"><strong>run_ploticus_command_script</strong></a>(scan, dataFile, plotData, plotFile)</dt><dd><tt>execute&nbsp;the&nbsp;ploticus&nbsp;command&nbsp;file&nbsp;using&nbsp;a&nbsp;"prefab"&nbsp;plot&nbsp;style</tt></dd></dl>
+ <dl><dt><a name="-write_ploticus_data_file"><strong>write_ploticus_data_file</strong></a>(data)</dt><dd><tt>find&nbsp;x&nbsp;&amp;&nbsp;y&nbsp;min&nbsp;&amp;&nbsp;max<br>
+@return:&nbsp;dictionary</tt></dd></dl>
+</td></tr></table>
+</body></html>
