@@ -133,6 +133,9 @@ def getSpecFileName(pv):
 def updateSpecMacroFile():
     '''copy the current SPEC macro file to the WWW page space'''
     #@TODO: What if the specFile is actually a directory?
+    if len(pvdb[xref['spec_macro_file']]['value'].strip()) == 0:
+        # SPEC file name PV is empty
+        return
     specFile = getSpecFileName(xref['spec_macro_file'])
     if not os.path.exists(specFile):
         # @TODO: will this write too much to the logs?
@@ -140,6 +143,7 @@ def updateSpecMacroFile():
         return
     if not os.path.isfile(specFile):
         # @TODO: will this write too much to the logs?
+	# 2010-08-19,PRJ: Certainly if the rawName is empty, now trapped above
         logMessage(specFile + " is not a file")
         return
     localDir = localConfig.LOCAL_WWW_LIVEDATA_DIR
