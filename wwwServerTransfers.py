@@ -41,20 +41,15 @@ def scpToWebServer_Demonstrate(sourceFile, targetFile = ""):
     @param sourceFile: file in local file space *relative* to /data/www/livedata
     @param targetFile: destination file (default is same path as sourceFile)
     '''
-    if not os.path.exists(sourceFile):
-        raise Exception("Local file not found: " + sourceFile)
-    if len(targetFile) == 0:
-        targetFile = sourceFile
-    destinationName = os.path.join(SERVER_WWW_LIVEDATA, targetFile)
-    command = "%s -p %s %s" % (SCP, sourceFile, destinationName)
-    print command
+    scpToWebServer_Demonstrate(sourceFile, targetFile, demo = True)
 
 
-def scpToWebServer(sourceFile, targetFile = ""):
+def scpToWebServer(sourceFile, targetFile = "", demo = False):
     '''
-    copy the local source file to the WWW server using scp
+    Copy the local source file to the WWW server using scp.
     @param sourceFile: file in local file space relative to /data/www/livedata
     @param targetFile: destination file (default is same path as sourceFile)
+    @param demo: If True, don't do the copy, just print the command
     '''
     if not os.path.exists(sourceFile):
         raise Exception("Local file not found: " + sourceFile)
@@ -62,9 +57,12 @@ def scpToWebServer(sourceFile, targetFile = ""):
         targetFile = sourceFile
     destinationName = os.path.join(SERVER_WWW_LIVEDATA, targetFile)
     command = "%s -p %s %s" % (SCP, sourceFile, destinationName)
-    lex = shlex.split(command)
-    p = subprocess.Popen(lex)
-    p.wait()
+    if demo:
+        print command
+    else:
+        lex = shlex.split(command)
+        p = subprocess.Popen(lex)
+        p.wait()
 
 
 def execute_command(command):
