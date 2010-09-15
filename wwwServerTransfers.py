@@ -40,7 +40,7 @@ def scpToWebServer_Demonstrate(sourceFile, targetFile = ""):
     ...
     @param sourceFile: file in local file space *relative* to /data/www/livedata
     @param targetFile: destination file (default is same path as sourceFile)
-    @return: null
+    @return: None
     '''
     return scpToWebServer_Demonstrate(sourceFile, targetFile, demo = True)
 
@@ -51,7 +51,7 @@ def scpToWebServer(sourceFile, targetFile = "", demo = False):
     @param sourceFile: file in local file space relative to /data/www/livedata
     @param targetFile: destination file (default is same path as sourceFile)
     @param demo: If True, don't do the copy, just print the command
-    @return: a tuple (stdoutdata,  stderrdata) -or- null (if demo=False)
+    @return: a tuple (stdoutdata,  stderrdata) -or- None (if demo=False)
     '''
     if not os.path.exists(sourceFile):
         raise Exception("Local file not found: " + sourceFile)
@@ -61,7 +61,7 @@ def scpToWebServer(sourceFile, targetFile = "", demo = False):
     command = "%s -p %s %s" % (SCP, sourceFile, destinationName)
     if demo:
         print command
-        return null
+        return None
     else:
         lex = shlex.split(command)
         p = subprocess.Popen(lex)
