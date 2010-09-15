@@ -110,8 +110,8 @@
                             <font>
                                 <em>
                                     <a href="raw-report.html">raw</a> 
-                                    | <a href="scanLog/scanlog.xml">scan log</a>
-				    | <a href="specplots">SPEC plots</a>
+                                    | <a href="scanlog.xml">scan log</a>
+                                    | <a href="specplots">SPEC plots</a>
                                     | content updated:
                                     <xsl:value-of select="/usaxs_pvs/datetime"/>
                                 </em>
