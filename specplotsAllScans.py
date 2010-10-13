@@ -58,12 +58,13 @@ def plotAllSpecFileScans(specFile):
                 specplot.makePloticusPlot(scan, fullPlotFile)
                 newFileList.append(fullPlotFile)
             except:
-                msg = "ERROR: '%s' %s #%d" % (sys.exc_value, 
+                exc_value = sys.exc_info()[1]
+                msg = "ERROR: '%s' %s #%d" % (exc_value, 
                         specFile, scan.scanNum)
                 # print msg
                 plotList.pop()     # rewrite the default link
                 plotList.append("<!-- " + msg + " -->")
-                altText = "%s: #%d %s" % (sys.exc_value, 
+                altText = "%s: #%d %s" % (exc_value, 
                         scan.scanNum, scan.scanCmd)
                 href = HREF_FORMAT % (basePlotFile, basePlotFile, altText)
                 plotList.append(href)
