@@ -98,18 +98,6 @@
 		    </tr>
                     <tr bgcolor="lightblue">
                         <td align="center">
-                            Axis Server Webcam: 	<!-- 164.54.162.185 -->
-			    <a href="http://usaxsaxis1.cars.aps.anl.gov">
-			        http://usaxsaxis1.cars.aps.anl.gov
-			    </a>
-                            IP Camera Webcam: 	<!-- 164.54.162.186 -->
-			    <a href="http://webcam15.cars.aps.anl.gov">
-			        http://webcam15.cars.aps.anl.gov
-			    </a>
-                        </td>
-                    </tr>
-                    <tr bgcolor="lightblue">
-                        <td align="center">
                             <font>
                                 <em>
                                     <a href="raw-report.html">raw</a> 
@@ -120,6 +108,27 @@
                                 </em>
                             </font>
                         </td>
+                    </tr>
+                    <tr bgcolor="lightblue">
+		        <td>
+                            <table border="1" width="100%" rules="all" bgcolor="lightblue">
+                                <tr>
+                                    <td>webcams</td>
+				    <td align="center">
+ 					Axis Server:	    <!-- 164.54.162.185 -->
+					<a href="http://usaxsaxis1.cars.aps.anl.gov">
+					    http://usaxsaxis1.cars.aps.anl.gov
+					</a>
+				    </td>
+				    <td align="center">
+ 					IP Camera:   <!-- 164.54.162.186 -->
+					<a href="http://webcam15.cars.aps.anl.gov">
+					    http://webcam15.cars.aps.anl.gov
+					</a>
+				    </td>
+                                </tr>
+                            </table>
+			</td>
                     </tr>
                 </table>
                 <table border="1" width="96%" rules="all">
@@ -204,7 +213,8 @@
                         <td>
                             <table border="1" width="100%" bgcolor="mintcream" rules="all">
                                 <td>
-                                    <xsl:choose>
+                                    <!-- TODO need to update this for 15ID-A mirror system -->
+				    <xsl:choose>
                                         <xsl:when test="//pv[@id='mirror_cr_pos']/value=1.0">
                                             <xsl:value-of select="//pv[@id='mirror_cr_pos']/description"/>
                                         </xsl:when>
@@ -217,7 +227,7 @@
                                         <xsl:when test="//pv[@id='mirror_wh_pos']/value=1.0">
                                             <xsl:value-of select="//pv[@id='mirror_wh_pos']/description"/>
                                         </xsl:when>
-                                        <xsl:otherwise>USAXS mirror not ready</xsl:otherwise>
+                                        <xsl:otherwise>(mirror settings not available)</xsl:otherwise>
                                     </xsl:choose>
                                     
                                 </td>
@@ -452,16 +462,17 @@
                         <td bgcolor="#dddddd"><!-- nothing --></td>
                         <td bgcolor="#dddddd"><!-- nothing --></td>
                     </tr>
+		    <!--
                     <tr>
-                        
                         <td>mirror</td>
-                        <td bgcolor="#dddddd"><!-- nothing --></td>
-                        <td bgcolor="#dddddd"><!-- nothing --></td>
+                        <td bgcolor="#dddddd">< !-/- nothing -/-></td>
+                        <td bgcolor="#dddddd">< !-/- nothing -/-></td>
                         <td bgcolor="white"><xsl:value-of select="//pv[@id='mirr_x']/value"/></td>
                         <td bgcolor="white"><xsl:value-of select="//pv[@id='mirr_vs']/value"/></td>
-                        <td bgcolor="#dddddd"><!-- nothing --></td>
-                        <td bgcolor="#dddddd"><!-- nothing --></td>
+                        <td bgcolor="#dddddd">< !-/- nothing -/-></td>
+                        <td bgcolor="#dddddd">< !-/- nothing -/-></td>
                     </tr>
+		    -->
                     <tr>
                         <td>tcam</td>
                         <td bgcolor="white"><xsl:value-of select="//pv[@id='tcam']/value"/></td>
