@@ -114,7 +114,7 @@ def make_ploticus_command_script(specFile, tempDataFile, ploticus_data, usaxs):
     for scan in usaxs:
         ploticus['scanList'] += "S" + str(int(scan['scan']))
         label = "S" + str(int(scan['scan'])) + scan['title']
-        ploticus[label] = "#%d: %s" % (scan['scan'], scan['title'])
+        ploticus[label] = "#%d: '%s'" % (scan['scan'], scan['title'])
     return ploticus
 
 
@@ -132,7 +132,7 @@ def run_ploticus_command_script(scriptFile):
     '''use ploticus to generate the plot image file'''
     # first, get a temporary file for the plot image
     os.environ['PLOTICUS_PREFABS'] = localConfig.PLOTICUS_PREFABS
-
+    #
     ext = os.extsep + localConfig.PLOT_FORMAT   # ext = ".png"
     (f, tmpPlot) = tempfile.mkstemp(dir="/tmp", text=False, suffix=ext)
     os.close(f)  # close f since ploticus will write the file

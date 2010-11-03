@@ -63,7 +63,8 @@ SPECMACRO_TXT_FILE = "specmacro.txt"
 
 
 # specplot.py
-TEST_SPEC_DATA = os.path.join(LOCAL_USAXS_DATA_DIR, "2010-03/03_25.dat")
+TEST_SPEC_DATA = os.path.join(LOCAL_USAXS_DATA_DIR, "2010-11/11_03_Vinod.dat")
+TEST_SPEC_DATA = os.path.join(".", "11_03_Vinod.dat")
 TEST_SPEC_SCAN_NUMBER = 1
 TEST_PLOTFILE = "pete.png"
 TEST_PLOTICUS_COMMAND_FILE = "pete.pl"
