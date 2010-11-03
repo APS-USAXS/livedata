@@ -37,8 +37,7 @@ def update_n_plots(specFile, numScans):
 
     tempDataFile = write_ploticus_data(ploticus_data['data'])
 
-    ploticus = make_ploticus_command_script(specFile, 
-                        tempDataFile, ploticus_data, usaxs)
+    ploticus = make_ploticus_dictionary(specFile, tempDataFile, ploticus_data, usaxs)
     command_script = ploticus_commands(ploticus, usaxs)
 
     #---- make the plot
@@ -80,6 +79,8 @@ def extract_USAXS_data(specData, scanList):
     for scan in scanList:
         entry = calc_usaxs_data(specData.scans[scan-1])
         entry['scan'] = scan
+        entry['key'] = "S%d" % scan
+        entry['label'] = "%s: %s" % (entry['key'], entry['title'])
         usaxs.append( entry )
     return usaxs
 
@@ -96,9 +97,9 @@ def write_ploticus_data(data):
     return tempDataFile
 
 
-def make_ploticus_command_script(specFile, tempDataFile, ploticus_data, usaxs):
+def make_ploticus_dictionary(specFile, tempDataFile, ploticus_data, usaxs):
     '''
-    build the command script for ploticus
+    build the dictionary for the ploticus command script
     '''
     ploticus = {}
     ploticus['specFile'] = specFile
@@ -110,11 +111,6 @@ def make_ploticus_command_script(specFile, tempDataFile, ploticus_data, usaxs):
     ploticus['Qmax'] = float(ploticus_data['qMax'])
     ploticus['Imin'] = float(ploticus_data['iMin'])
     ploticus['Imax'] = float(ploticus_data['iMax'])
-    ploticus['scanList'] = ""
-    for scan in usaxs:
-        ploticus['scanList'] += "S" + str(int(scan['scan']))
-        label = "S" + str(int(scan['scan'])) + scan['title']
-        ploticus[label] = "#%d: '%s'" % (scan['scan'], scan['title'])
     return ploticus
 
 
@@ -239,8 +235,8 @@ def ploticus_commands(db, usaxs):
         txt = "  pointsymbol: shape=%s radius=0.025"
         txt += " linecolor=%s fillcolor=white"
         output.append(txt % (symbol, color))
-        output.append("  legendlabel: %s" % scan['title'])
-        output.append("  select: @@dataset == S%d" % scan['scan'])
+        output.append("  legendlabel: %s" % scan['label'])
+        output.append("  select: @@dataset == %s" % scan['key'])
         output.append("")
         i += 1
     output.append("#proc rect")
@@ -268,7 +264,7 @@ def format_as_ploticus_data(usaxs):
     for scan in usaxs:
         # convert data columns to ordered-pairs
         pairs = zip(scan['qVec'], scan['rVec'])
-        sLabel = "S" + str(int(scan['scan']))
+        sLabel = scan['key']
         for (qStr, iStr) in pairs:
             USAXS_Q = math.fabs(float(qStr))
             USAXS_I = float(iStr)
