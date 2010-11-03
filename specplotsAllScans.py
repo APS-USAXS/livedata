@@ -29,8 +29,11 @@ def plotAllSpecFileScans(specFile):
     if not os.path.exists(specFile):
         return
 
-    sd = specplot.openSpecFile(specFile)
-    if len(sd.headers) == 0:    # no scan header found
+    try:
+        sd = specplot.openSpecFile(specFile)
+    except:
+        return    # could not open file, be silent about it
+    if len(sd.headers) == 0:    # no scan header found, again, silence
         return
 
     plotList = []

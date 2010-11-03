@@ -10,11 +10,12 @@
 # script to crawl directories for SPEC data files and build default plots for all scans
 # This script could be called from cron such as
 #
-#		# every five minutes
-#		0-59/5 * * * *  /home/beams/S15USAXS/Documents/eclipse/USAXS/livedata/buildSpecPlots.sh
+#   # every five minutes (generates no output from outer script)
+#   0-59/5 * * * *  $HOME/Documents/eclipse/USAXS/livedata/buildSpecPlots.sh
+
 
 CODE_DIR=/home/beams/S15USAXS/Documents/eclipse/USAXS/livedata
-PROGRAM=$CODE_DIR/specplotsAllScans
+PROGRAM=$CODE_DIR/specplotsAllScans.py
 LOGFILE=/data/www/livedata/specplots/specplots.log
 
 #
