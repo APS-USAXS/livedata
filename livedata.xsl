@@ -98,10 +98,13 @@
 		    </tr>
                     <tr bgcolor="lightblue">
                         <td align="center">
-                            Webcam: 
-			    <!-- @TODO: IP address of AXIS camera server -->
-			    <a href="http://usaxsqvs1.xor.aps.anl.gov">
-			        http://usaxsqvs1.xor.aps.anl.gov
+                            Axis Server Webcam: 	<!-- 164.54.162.185 -->
+			    <a href="http://usaxsaxis1.cars.aps.anl.gov">
+			        http://usaxsaxis1.cars.aps.anl.gov
+			    </a>
+                            IP Camera Webcam: 	<!-- 164.54.162.186 -->
+			    <a href="http://webcam15.cars.aps.anl.gov">
+			        http://webcam15.cars.aps.anl.gov
 			    </a>
                         </td>
                     </tr>
@@ -293,19 +296,26 @@
                         <td>mm</td>
                     </tr>
                     <tr>
+                        <td>HHL (r,l,t,b)</td>
+                        <td bgcolor="white"><xsl:value-of select="//pv[@id='hhl_slitr']/value"/></td>
+                        <td bgcolor="white"><xsl:value-of select="//pv[@id='hhl_slitl']/value"/></td>
+                        <td bgcolor="white"><xsl:value-of select="//pv[@id='hhl_slitt']/value"/></td>
+                        <td bgcolor="white"><xsl:value-of select="//pv[@id='hhl_slitb']/value"/></td>
+                    </tr>
+                    <tr>
+                        <td>mirror (r,l,t,b)</td>
+                        <td bgcolor="white"><xsl:value-of select="//pv[@id='mir_slitr']/value"/></td>
+                        <td bgcolor="white"><xsl:value-of select="//pv[@id='mir_slitl']/value"/></td>
+                        <td bgcolor="white"><xsl:value-of select="//pv[@id='mir_slitt']/value"/></td>
+                        <td bgcolor="white"><xsl:value-of select="//pv[@id='mir_slitb']/value"/></td>
+                    </tr>
+                    <tr>
                         <td>USAXS (h,v)(gap,center)</td>
                         <td bgcolor="white"><xsl:value-of select="//pv[@id='uslith']/value"/></td>
                         <td bgcolor="white"><xsl:value-of select="//pv[@id='uslitv']/value"/></td>
                         <td bgcolor="white"><xsl:value-of select="//pv[@id='uslith0']/value"/></td>
                         <td bgcolor="white"><xsl:value-of select="//pv[@id='uslitv0']/value"/></td>
                         
-                    </tr>
-                    <tr>
-                        <td>white (r,l,t,b)</td>
-                        <td bgcolor="white"><xsl:value-of select="//pv[@id='wslitr']/value"/></td>
-                        <td bgcolor="white"><xsl:value-of select="//pv[@id='wslitl']/value"/></td>
-                        <td bgcolor="white"><xsl:value-of select="//pv[@id='wslitt']/value"/></td>
-                        <td bgcolor="white"><xsl:value-of select="//pv[@id='wslitb']/value"/></td>
                     </tr>
                 </table>
                 <table>
