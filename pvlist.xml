@@ -46,11 +46,11 @@
   <EPICS_PV PV="15iddUSX:fem02:seq01:gain" description="I0 amplifier gain V/A" display_format="%.2e" mne="I0_amp_gain"/>
   <EPICS_PV PV="15iddUSX:fem03:seq01:gain" description="I00 amplifier gain, V/A" display_format="%.2e" mne="I00_amp_gain"/>
   <EPICS_PV PV="32idbMIR:fem01:seq01:gain" _ignore_="true" description="I000 amplifier gain, V/A" display_format="%.2e" mne="I000_amp_gain"/><!-- TODO -->
-  <EPICS_PV PV="15iddUSX:pd01:seq01:gain" description="PD amplifier diode gain, V/A" display_format="%.2e" mne="diode_amp_gain"/>
-  <EPICS_PV PV="15iddUSX:pd01:seq01:lurate" description="diode count rate (at last update), c/s" mne="diode_count_rate"/>
+  <EPICS_PV PV="15iddUSX:pd01:seq02:gain" description="PD amplifier diode gain, V/A" display_format="%.2e" mne="diode_amp_gain"/>
+  <EPICS_PV PV="15iddUSX:pd01:seq02:lurate" description="diode count rate (at last update), c/s" mne="diode_count_rate"/>
   <EPICS_PV PV="15iddUSX:pf4:filterAl" description="filter Al thickness in beam, mm" display_format="%.3f" mne="pf4_thickness_Al"/>
   <EPICS_PV PV="15iddUSX:pf4:filterTi" description="filter Ti thickness in beam, mm" display_format="%.3f" mne="pf4_thickness_Ti"/>
-  <EPICS_PV PV="15iddUSX:pf4:filterGlass" description="filter glass thickness in beam, mm" display_format="%.3f" mne="pf4_thickness_Gl"/>
+  <EPICS_PV PV="15iddUSX:pf42:filterGlass" description="filter glass thickness in beam, mm" display_format="%.3f" mne="pf4_thickness_Gl"/>
   <EPICS_PV PV="15iddUSX:pf4:trans" description="filter transmission" display_format="%.4e" mne="pf4_trans"/>
   <EPICS_PV PV="15iddUSX:pmm01:reg01:bo01" description="shutter closed, USAXS CCD" mne="CCD_shtr_closed"/>
   <EPICS_PV PV="15iddUSX:pzt:m1.RBV" description="motor A2RP, VDC" display_format="%.4f" mne="A2Rp_rbv"/>
@@ -63,7 +63,7 @@
   <EPICS_PV PV="15iddLAX:vsc:c0.CNT" description="scaler counting time, s" display_format="%.3f" mne="scaler_cnt"/>
   <EPICS_PV PV="15iddLAX:vsc:c0.S2" description="scaler I0, counts" display_format="%d" mne="scaler_I0"/>
   <EPICS_PV PV="15iddLAX:vsc:c0.S3" description="scaler I00, counts" display_format="%d" mne="scaler_I00"/>
-  <EPICS_PV PV="15iddLAX:vsc:c0.S5" description="scaler I000, counts" display_format="%d" mne="scaler_I000"/>
+  <EPICS_PV PV="15IDB:scaler1.S2" description="scaler I000, counts" display_format="%d" mne="scaler_I000"/>
   <EPICS_PV PV="15iddLAX:vsc:c0.S4" description="scaler diode, counts" display_format="%d" mne="scaler_diode"/>
   <EPICS_PV PV="15iddLAX:vsc:c0.TP" description="scaler counting time preset, s" display_format="%.3f" mne="scaler_tp"/>
   <EPICS_PV PV="15iddLAX:vsc:c0.T" description="scaler counting time elasped, s" display_format="%.3f" mne="scaler_t"/>
@@ -161,7 +161,7 @@
   <EPICS_PV PV="32idbMIR:m1.DMOV" _ignore_="true" description="motor done moving mirror X" mne="mirr_x_dmov"/><!-- TODO -->
   <EPICS_PV PV="32idbMIR:m2.DMOV" _ignore_="true" description="motor done moving mirror vertical steering" mne="mirr_vs_dmov"/><!-- TODO -->
   <EPICS_PV PV="15iddLAX:m58:c0:m3.DMOV" description="motor done moving tcam position" mne="tcam_dmov"/>
-  <EPICS_PV PV="15iddUSX:pd01:seq01:lucurrent" description="photodiode last-update current, A" display_format="%.3e" mne="diode_current"/>
+  <EPICS_PV PV="15iddUSX:pd01:seq02:lucurrent" description="photodiode last-update current, A" display_format="%.3e" mne="diode_current"/>
   <EPICS_PV PV="15iddLAX:userCalc7" description="photodiode computed current, A" display_format="%.3e" mne="diode_amp_current"/>
   <EPICS_PV PV="15iddLAX:userCalc8" description="I0 computed current, A" display_format="%.3e" mne="I0_amp_current"/>
   <EPICS_PV PV="15iddLAX:userCalc9" description="I00 computed current, A" display_format="%.3e" mne="I00_amp_current"/>
