@@ -17,7 +17,7 @@
             </head>
             <body>
                 <h1>USAXS: EPICS process variables</h1>
-                <p>written by: <xsl:value-of select="/usaxs_pvs/writer"/></p>
+                <p>written by: <xsl:value-of select="/usaxs_pvs/written_by"/></p>
                 <p>date/time stamp: <xsl:value-of select="/usaxs_pvs/datetime"/></p>
                 
                 <table border="2">
@@ -33,6 +33,11 @@
                 </table>
 
                 <hr />
+		<p>
+                    <small>
+                        data gathered by: <xsl:value-of select="/usaxs_pvs/writer"/>
+                    </small>
+                </p>
 		<p>
                     <small>
                         report page: $Id$
