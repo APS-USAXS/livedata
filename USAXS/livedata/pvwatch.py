@@ -223,7 +223,6 @@ def buildReport():
 
     root = ElementTree.Element("usaxs_pvs")
     root.set("version", "1")
-    #root.append(ElementTree.Comment("subversion ID: " + SVN_ID))
     node = ElementTree.SubElement(root, "written_by")
     node.text = SVN_ID
     node = ElementTree.SubElement(root, "datetime")
