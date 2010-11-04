@@ -98,15 +98,17 @@
 		    </tr>
                     <tr bgcolor="lightblue">
                         <td align="center">
-                            <font>
-                                <em>
-                                    <a href="raw-report.html">raw</a> 
-                                    | <a href="scanlog.xml">scan log</a>
-                                    | <a href="specplots">SPEC plots</a>
-                                    | content updated:
-                                    <xsl:value-of select="/usaxs_pvs/datetime"/>
-                                </em>
-                            </font>
+                            <table border="1" width="100%" rules="all" bgcolor="lightblue">
+                                <tr>
+                                    <td>
+					content updated:
+ 					<xsl:value-of select="/usaxs_pvs/datetime"/>
+				    </td>
+                                    <td align="center"><a href="raw-report.html">raw info</a> </td>
+                                    <td align="center"><a href="scanlog.xml">scan log</a></td>
+                                    <td align="center"><a href="specplots">SPEC plots</a></td>
+                                </tr>
+                            </table>
                         </td>
                     </tr>
                     <tr bgcolor="lightblue">
