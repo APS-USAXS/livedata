@@ -267,7 +267,7 @@
                                     <xsl:value-of select="//pv[@id='timeStamp']/value"/>
                                 </td>
                                 <xsl:choose>
-                                    <xsl:when test="//pv[@id='scanning']/value=1">
+                                    <xsl:when test="//pv[@id='USAXS_collecting']/value=1">
                                         <td bgcolor="#22ff22">USAXS scan running</td>
                                     </xsl:when>
                                     <xsl:otherwise>
