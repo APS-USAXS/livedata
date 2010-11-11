@@ -141,10 +141,10 @@
                                     <td>shutters:</td>
                                     <xsl:choose>
                                         <xsl:when test="//pv[@id='CCD_shtr_closed']/value=1">
-                                            <td bgcolor="#22ff22">USAXS CCD: open</td>
+                                            <td bgcolor="#ff2222">USAXS CCD: open</td>
                                         </xsl:when>
                                         <xsl:otherwise>
-                                            <td bgcolor="#ff2222">USAXS CCD: closed</td>
+                                            <td bgcolor="#22ff22">USAXS CCD: closed</td>
                                         </xsl:otherwise>
                                     </xsl:choose>
                                     <xsl:choose>
@@ -267,7 +267,7 @@
                                     <xsl:value-of select="//pv[@id='timeStamp']/value"/>
                                 </td>
                                 <xsl:choose>
-                                    <xsl:when test="//pv[@id='USAXS_collecting']/value=1">
+                                    <xsl:when test="//pv[@id='scanning']/value=1">
                                         <td bgcolor="#22ff22">USAXS scan running</td>
                                     </xsl:when>
                                     <xsl:otherwise>
