@@ -140,7 +140,7 @@
                                 <tr>
                                     <td>shutters:</td>
                                     <xsl:choose>
-                                        <xsl:when test="//pv[@id='CCD_shtr_closed']/value=1">
+                                        <xsl:when test="//pv[@id='CCD_shutter']/value=1">
                                             <td bgcolor="#ff2222">USAXS CCD: open</td>
                                         </xsl:when>
                                         <xsl:otherwise>
