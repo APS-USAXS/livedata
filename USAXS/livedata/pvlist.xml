@@ -113,7 +113,8 @@
   <EPICS_PV PV="15iddLAX:USAXS:specFile" description="SPEC data file" mne="spec_data_file"/>
   <EPICS_PV PV="15iddLAX:USAXS:specScan" description="SPEC scan number" mne="spec_scan"/>
   <EPICS_PV PV="15iddLAX:USAXS:state" description="SPEC what is happening?" mne="state"/>
-  <EPICS_PV PV="15iddLAX:bit19.VAL" description="USAXS collecting data" mne="USAXS_collecting"/>
+  <EPICS_PV PV="15iddLAX:bit19.VAL" _ignore_="true" description="USAXS collecting data" mne="USAXS_collecting"/>
+  <EPICS_PV PV="15iddLAX:USAXS:scanning" description="USAXS scanning" mne="scanning"/>
   <EPICS_PV PV="32idbMIR:seq01:rh:inpos.RVAL" _ignore_="true" description="USAXS mirror Rh stripe selected" mne="mirror_rh_pos"/><!-- TODO -->
   <EPICS_PV PV="32idbMIR:seq01:cr:inpos.RVAL" _ignore_="true" description="USAXS mirror Cr stripe selected" mne="mirror_cr_pos"/><!-- TODO -->
   <EPICS_PV PV="32idbMIR:seq01:si:inpos.RVAL" _ignore_="true" description="USAXS mirror Si stripe selected" mne="mirror_si_pos"/><!-- TODO -->
