@@ -52,7 +52,7 @@
   <EPICS_PV PV="15iddUSX:pf4:filterTi" description="filter Ti thickness in beam, mm" display_format="%.3f" mne="pf4_thickness_Ti"/>
   <EPICS_PV PV="15iddUSX:pf42:filterGlass" description="filter glass thickness in beam, mm" display_format="%.3f" mne="pf4_thickness_Gl"/>
   <EPICS_PV PV="15iddUSX:pf4:trans" description="filter transmission" display_format="%.4e" mne="pf4_trans"/>
-  <EPICS_PV PV="15iddUSX:pmm01:reg01:bo01" description="shutter closed, USAXS CCD" mne="CCD_shtr_closed"/>
+  <EPICS_PV PV="15iddUSX:pmm01:reg01:bo01" description="USAXS CCD shutter" mne="CCD_shutter"/>
   <EPICS_PV PV="15iddUSX:pzt:m1.RBV" description="motor A2RP, VDC" display_format="%.4f" mne="A2Rp_rbv"/>
   <EPICS_PV PV="15iddUSX:pzt:m2.RBV" description="motor M2RP, VDC" display_format="%.4f" mne="M2Rp_rbv"/>
   <EPICS_PV PV="15iddUSX:rmm01:ana01:ao01.VAL" description="pzt A2Rp, VDC" display_format="%.4f" mne="A2Rp_VDC"/>
