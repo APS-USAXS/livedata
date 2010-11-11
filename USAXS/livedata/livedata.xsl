@@ -144,7 +144,7 @@
                                             <td bgcolor="#ff2222">USAXS CCD: open</td>
                                         </xsl:when>
                                         <xsl:otherwise>
-                                            <td bgcolor="#22ff22">USAXS CCD: closed</td>
+                                            <td>USAXS CCD: closed</td><!-- no background color in this case -->
                                         </xsl:otherwise>
                                     </xsl:choose>
                                     <xsl:choose>
