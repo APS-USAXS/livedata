@@ -105,11 +105,11 @@
   <EPICS_PV PV="15IDA:m28.RBV" description="motor mir_slitb mirror slit bottom" mne="mir_slitb"/>
   <EPICS_PV PV="15IDA:m25.RBV" description="motor mir_slitr mirror slit right"  mne="mir_slitr"/>
   <EPICS_PV PV="15IDA:m26.RBV" description="motor mir_slitt mirror slit top"	mne="mir_slitt"/>
-  <EPICS_PV PV="15iddLAX:m58:c4:m1.RBV" description="motor MR, degrees" display_format="%.6f" mne="mr"/>
-  <EPICS_PV PV="15iddLAX:m58:c4:m2.RBV" description="motor M1T, degrees" display_format="%.4f" mne="m1t"/>
-  <EPICS_PV PV="15iddLAX:m58:c4:m4.RBV" description="motor MST, degrees" display_format="%.4f" mne="mst"/>
-  <EPICS_PV PV="15iddLAX:m58:c5:m1.RBV" description="motor AR, degrees" display_format="%.6f" mne="ar"/>
-  <EPICS_PV PV="15iddLAX:m58:c5:m4.RBV" description="motor AST, degrees" display_format="%.4f" mne="ast"/>
+  <EPICS_PV PV="15iddLAX:xps:c0:m1.RBV" description="motor MR, degrees" display_format="%.6f" mne="mr"/>
+  <EPICS_PV PV="15iddUSX:pic:m9.RBV" description="motor M1T, degrees" display_format="%.4f" mne="m1t"/>
+  <EPICS_PV PV="15iddLAX:xps:c0:m3.RBV" description="motor MST, degrees" display_format="%.4f" mne="mst"/>
+  <EPICS_PV PV="15iddLAX:aero:c0:m1.RBV" description="motor AR, degrees" display_format="%.6f" mne="ar"/>
+  <EPICS_PV PV="15iddLAX:xps:c0:m4.RBV" description="motor AST, degrees" display_format="%.4f" mne="ast"/>
   <EPICS_PV PV="15iddLAX:USAXS:I" description="I, a.u." display_format="%.4e" mne="USAXS_I"/>
   <EPICS_PV PV="15iddLAX:USAXS:Q" description="|Q|, 1/A" display_format="%.4e" mne="USAXS_Q"/>
   <EPICS_PV PV="15iddLAX:USAXS:SAD" description="sample-analyzer distance, mm" display_format="%.1f" mne="SAD"/>
@@ -164,8 +164,8 @@
   <EPICS_PV PV="15iddLAX:m58:c4:m1.DMOV" description="motor done moving MR" mne="mr_dmov"/>
   <EPICS_PV PV="15iddLAX:m58:c4:m2.DMOV" description="motor done moving M1T" mne="m1t_dmov"/>
   <EPICS_PV PV="15iddLAX:m58:c4:m4.DMOV" description="motor done moving MST" mne="mst_dmov"/>
-  <EPICS_PV PV="15iddLAX:m58:c5:m1.DMOV" description="motor done moving AR" mne="ar_dmov"/>
-  <EPICS_PV PV="15iddLAX:m58:c5:m4.DMOV" description="motor done moving AST" mne="ast_dmov"/>
+  <EPICS_PV PV="15iddLAX:aero:c0:m1.DMOV" description="motor done moving AR" mne="ar_dmov"/>
+  <EPICS_PV PV="15iddLAX:xps:c0:m4.DMOV" description="motor done moving AST" mne="ast_dmov"/>
   <EPICS_PV PV="32idbMIR:m1.DMOV" _ignore_="true" description="motor done moving mirror X" mne="mirr_x_dmov"/><!-- TODO -->
   <EPICS_PV PV="32idbMIR:m2.DMOV" _ignore_="true" description="motor done moving mirror vertical steering" mne="mirr_vs_dmov"/><!-- TODO -->
   <EPICS_PV PV="15iddLAX:m58:c0:m3.DMOV" description="motor done moving tcam position" mne="tcam_dmov"/>
