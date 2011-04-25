@@ -55,8 +55,10 @@ SLEEP_INTERVAL_S = 0.1
 XML_REPORT_FILE = "report.xml"
 HTML_INDEX_FILE = "index.html"
 HTML_RAWREPORT_FILE = "raw-report.html"
+HTML_USAXSTV_FILE = "usaxstv.html"
 LIVEDATA_XSL_STYLESHEET = "livedata.xsl"
 RAWTABLE_XSL_STYLESHEET = "raw-table.xsl"
+USAXSTV_XSL_STYLESHEET = "usaxstv.xsl"
 XSLT_COMMAND = "/usr/bin/xsltproc --novalid %s "
 SPECMACRO_TXT_FILE = "specmacro.txt"
 
