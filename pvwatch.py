@@ -284,6 +284,14 @@ def report():
     shellCommandToFile(xsltCommand, localFile)    # do the XSLT transform
     wwwServerTransfers.scpToWebServer(localFile, file__raw_html)
 
+    # make the usaxstv.html file
+    file__usaxstv_html = localConfig.HTML_USAXSTV_FILE  # short name
+    xslFile = localConfig.USAXSTV_XSL_STYLESHEET   # in Python code dir
+    localFile = os.path.join(localDir, file__usaxstv_html)  # absolute path
+    xsltCommand = xsltCommandFormat % xslFile
+    shellCommandToFile(xsltCommand, localFile)    # do the XSLT transform
+    wwwServerTransfers.scpToWebServer(localFile, file__usaxstv_html)  # copy to XSD
+
 
 def getTime():
     '''return a datetime value'''

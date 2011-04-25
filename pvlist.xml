@@ -23,6 +23,14 @@
   <definition name="_ignore_">
   	(optional, default="false") this PV is ignored if value is not "false"
   </definition>
+<!-- Linkam CI94 status PVs PAB 2010-11-11 -->
+  <EPICS_PV PV="EPLinkam2:ci94:temp" description="Linkam Temp. 1, C"  mne="linkam_temp1"/>
+  <EPICS_PV PV="EPLinkam2:ci94:temp2" description="Linkam Temp. 2, C"  mne="linkam_temp2"/>
+  <EPICS_PV PV="EPLinkam2:ci94:status" description="Linkam Status" display_format="%s"  mne="linkam_status"/>
+  <EPICS_PV PV="EPLinkam2:ci94:setRate" description="Linkam Rate, C/min"  mne="linkam_rate"/>
+  <EPICS_PV PV="EPLinkam2:ci94:setLimit" description="Linkam Limit, C"  mne="linkam_limit"/>
+  <EPICS_PV PV="EPLinkam2:ci94:errorByte" description="Linkam errors" mne="linkam_errors" />
+<!-- end Linkam CI94 status PVs -->
 
   <EPICS_PV PV="S:SRcurrentAI" description="APS storage ring current, mA" display_format="%.2f" mne="SR_current"/>
   <EPICS_PV PV="ID15:Energy" description="ID E, keV" display_format="%.4f" mne="Und_E"/>
@@ -166,5 +174,8 @@
   <EPICS_PV PV="15iddLAX:userCalc8" description="I0 computed current, A" display_format="%.3e" mne="I0_amp_current"/>
   <EPICS_PV PV="15iddLAX:userCalc9" description="I00 computed current, A" display_format="%.3e" mne="I00_amp_current"/>
   <EPICS_PV PV="15iddLAX:userCalc10" description="I000 computed current, A" display_format="%.3e" mne="I000_amp_current"/>
+
+  <EPICS_PV PV="PA:15ID:D_BEAM_READY" description="PSS: D Beam Ready" mne="D_beam_ready"/>
+  <EPICS_PV PV="PA:15ID:D_BEAM_ACTIVE" description="PSS: D Beam Active" mne="D_beam_active"/>
 </pvwatch>
 
