@@ -17,7 +17,7 @@
 					<meta http-equiv="Refresh" content="60" />
                                         </xsl:when>
                                         <xsl:otherwise>
-                                        <meta http-equiv="Refresh" content="4" />
+                                        <meta http-equiv="Refresh" content="10" />
 					</xsl:otherwise>
                                     </xsl:choose>
 
@@ -91,7 +91,7 @@
 </head>
 <body>
 <table border="0" width="100%" bgcolor="mintcream" rules="all"><tr>
-<td width="65%">
+<td width="56%">
  <xsl:choose>
                                         <xsl:when test="contains(//pv[@id='state']/value,'Radiography Mode')">
 					    <script language="javascript">
@@ -112,10 +112,21 @@
 
 </td>
 
-<td width="35%">
+<td width="44%">
 <table width="100%" bgcolor="mintcream" rules="all"><tr>
 <td bgcolor="darkblue" align="center">
-<font color="white" size="6">USAXS status</font></td></tr>
+<font color="white" size="6">
+<xsl:comment>
+   FIXME: Fonts of links look too dark!  Need to adjust by setting proper style attributes!
+</xsl:comment>
+<a href="http://usaxs.xor.aps.anl.gov/livedata/"> _ </a>
+
+USAXS 
+
+status
+
+<xsl:comment>FIXME: again, too dark</xsl:comment><a href="http://usaxs.xor.aps.anl.gov/livedata/raw-report.html"> _ </a>
+</font></td></tr>
 
 <tr><td bgcolor="darkblue" align="center">
 <font color="white" size="4">updated  <xsl:value-of select="/usaxs_pvs/datetime"/></font></td></tr>
