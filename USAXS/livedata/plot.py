@@ -262,8 +262,13 @@ def format_as_ploticus_data(usaxs):
     format = "%-10s %s %s"
     result.append("%-10s %15s %s" % ("dataset", "qVec", "rVec"))
     for scan in usaxs:
+        if len(scan['qVec']) == 0 and len(scan['rVec']) == 0:
+            # no data in this scan
+            continue
         # convert data columns to ordered-pairs
         pairs = zip(scan['qVec'], scan['rVec'])
+        if len(pairs) == 0:
+            continue
         sLabel = scan['key']
         for (qStr, iStr) in pairs:
             USAXS_Q = math.fabs(float(qStr))
