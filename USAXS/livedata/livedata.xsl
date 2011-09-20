@@ -124,9 +124,21 @@
 					</a>
 				    </td>
 				    <td align="center">
- 					IP Camera:   <!-- 164.54.162.186 -->
+ 					IP Camera back:   <!--webcam front-->
 					<a href="http://webcam15.cars.aps.anl.gov">
 					    http://webcam15.cars.aps.anl.gov
+					</a>
+				    </td>
+				    <td align="center">
+ 					IP Camera side:   <!-- webcam back -->
+					<a href="http://webcam1.cars.aps.anl.gov">
+					    http://webcam1.cars.aps.anl.gov
+					</a>
+				    </td>
+				    <td align="center">
+ 					IP Camera back:   <!-- webcam side -->
+					<a href="http://webcam2.cars.aps.anl.gov">
+					    http://webcam2.cars.aps.anl.gov
 					</a>
 				    </td>
                                 </tr>
