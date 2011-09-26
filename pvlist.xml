@@ -32,16 +32,12 @@
   <EPICS_PV PV="EPLinkam2:ci94:errorByte" description="Linkam errors" mne="linkam_errors" />
 <!-- end Linkam CI94 status PVs -->
 
-  <!-- 
-  TODO:
-  the motor channels have been changed according to Kevin's sed script
-  
-  That is not good enough since some channels have been moved 
-  to other types of controller, such as XPS.
-  -->
-
-
   <EPICS_PV PV="15IDA:BraggEAO" description="DCM E, keV" display_format="%.4f" mne="DCM_E"/>
+
+  <EPICS_PV PV="15IDA:m6.DMOV"  description="motor done moving VDM_Stripe" mne="VDM_Stripe_dmov"/>
+  <EPICS_PV PV="15IDA:m6.RBV" description="motor VDM_Stripe" display_format="%.3f" mne="VDM_Stripe"/>
+  <EPICS_PV PV="15IDA:m7.DMOV"  description="motor done moving VDM_Vertical" mne="VDM_Vertical_dmov"/>
+  <EPICS_PV PV="15IDA:m7.RBV" description="motor VDM_Vertical" display_format="%.6f" mne="VDM_Vertical"/>
   <EPICS_PV PV="15IDA:m10.DMOV" description="motor done moving DCM_theta" mne="DCM_theta_dmov"/>
   <EPICS_PV PV="15IDA:m10.RBV" description="motor DCM_theta, degrees" display_format="%.6f" mne="DCM_theta"/>
   <EPICS_PV PV="15IDA:m17.DMOV" description="motor done moving hhl_slitr HHL slit right"  mne="hhl_slitr_dmov"/>
@@ -60,13 +56,13 @@
   <EPICS_PV PV="15IDA:m27.RBV" description="motor mir_slitl mirror slit left"	mne="mir_slitl"/>
   <EPICS_PV PV="15IDA:m28.DMOV" description="motor done moving mir_slitb mirror slit bottom" mne="mir_slitb_dmov"/>
   <EPICS_PV PV="15IDA:m28.RBV" description="motor mir_slitb mirror slit bottom" mne="mir_slitb"/>
-  <EPICS_PV PV="15IDA:m7.DMOV"  description="motor done moving DCM_chi2" mne="DCM_chi2_dmov"/>
-  <EPICS_PV PV="15IDA:m7.RBV" description="motor DCM_chi2, degrees" display_format="%.6f" mne="DCM_chi2"/>
   <EPICS_PV PV="15IDB:scaler1.S2" description="scaler I000, counts" display_format="%d" mne="scaler_I000"/>
 
   <EPICS_PV PV="15iddLAX:alldone" description="LAX motors moving" mne="lax_alldone"/>
+  
   <EPICS_PV PV="15iddLAX:aero:c0:m1.DMOV" description="motor done moving AR" mne="ar_dmov"/>
   <EPICS_PV PV="15iddLAX:aero:c0:m1.RBV" description="motor AR, degrees" display_format="%.6f" mne="ar"/>
+  
   <EPICS_PV PV="15iddLAX:m58:c0:m2.DMOV" description="motor done moving MX" mne="mx_dmov"/>
   <EPICS_PV PV="15iddLAX:m58:c0:m2.RBV" description="motor MX, mm" display_format="%.3f" mne="mx"/>
   <EPICS_PV PV="15iddLAX:m58:c0:m3.DMOV" description="motor done moving MY" mne="my_dmov"/>
@@ -80,19 +76,19 @@
   <EPICS_PV PV="15iddLAX:m58:c0:m7.DMOV" description="motor done moving AZ" mne="az_dmov"/>
   <EPICS_PV PV="15iddLAX:m58:c0:m7.RBV" description="motor AZ, mm" display_format="%.3f" mne="az"/>
   
-  <!-- TODO: isn't MSR on iddLAX:xps:c0:m5 now -->
-  <EPICS_PV PV="15iddLAX:m58:c0:m8.DMOV" description="motor done moving MSR" mne="msr_dmov"/>
-  <EPICS_PV PV="15iddLAX:m58:c0:m8.RBV" description="motor MSR, degrees" display_format="%.6f" mne="msr"/>
   <EPICS_PV PV="15iddLAX:m58:c1:m1.DMOV" description="motor done moving MSX" mne="msx_dmov"/>
   <EPICS_PV PV="15iddLAX:m58:c1:m1.RBV" description="motor MSX, mm" display_format="%.3f" mne="msx"/>
   <EPICS_PV PV="15iddLAX:m58:c1:m2.DMOV" description="motor done moving MSY" mne="msy_dmov"/>
   <EPICS_PV PV="15iddLAX:m58:c1:m2.RBV" description="motor MSY, mm" display_format="%.3f" mne="msy"/>
-  <EPICS_PV PV="15iddLAX:m58:c1:m3.DMOV" description="motor done moving ASY" mne="asy_dmov"/>
-  <EPICS_PV PV="15iddLAX:m58:c1:m3.RBV" description="motor ASY, mm" display_format="%.3f" mne="asy"/>
-  <EPICS_PV PV="15iddLAX:m58:c1:m7.DMOV" description="motor done moving ASX" mne="asx_dmov"/>
-  <EPICS_PV PV="15iddLAX:m58:c1:m7.RBV" description="motor ASX, mm" display_format="%.3f" mne="asx"/>
-  <EPICS_PV PV="15iddLAX:m58:c1:m8.DMOV" description="motor done moving tcam position" mne="tcam_dmov"/>
-  <EPICS_PV PV="15iddLAX:m58:c1:m8.RBV" description="motor tcam position, degrees" display_format="%.1f" mne="tcam"/>
+  <EPICS_PV PV="15iddLAX:m58:c1:m3.DMOV" description="motor done moving ASX" mne="asx_dmov"/>
+  <EPICS_PV PV="15iddLAX:m58:c1:m3.RBV" description="motor ASX, mm" display_format="%.3f" mne="asx"/>
+  <EPICS_PV PV="15iddLAX:m58:c1:m4.DMOV" description="motor done moving ASY" mne="asy_dmov"/>
+  <EPICS_PV PV="15iddLAX:m58:c1:m4.RBV" description="motor ASY, mm" display_format="%.3f" mne="asy"/>
+  <EPICS_PV PV="15iddLAX:m58:c1:m5.DMOV" description="motor done moving I0_stage" mne="I0_stage_dmov"/>
+  <EPICS_PV PV="15iddLAX:m58:c1:m5.RBV" description="motor I0_stage, mm" display_format="%.3f" mne="I0_stage"/>
+  <EPICS_PV PV="15iddLAX:m58:c1:m6.DMOV" description="motor done moving tcam position" mne="tcam_dmov"/>
+  <EPICS_PV PV="15iddLAX:m58:c1:m6.RBV" description="motor tcam position, degrees" display_format="%.1f" mne="tcam"/>
+  
   <EPICS_PV PV="15iddLAX:m58:c2:m1.DMOV" description="motor done moving SX" mne="sx_dmov"/>
   <EPICS_PV PV="15iddLAX:m58:c2:m1.RBV" description="motor SX, mm" display_format="%.3f" mne="sx"/>
   <EPICS_PV PV="15iddLAX:m58:c2:m2.DMOV" description="motor done moving SY" mne="sy_dmov"/>
@@ -109,11 +105,57 @@
   <EPICS_PV PV="15iddLAX:m58:c2:m7.RBV" description="motor uslitv USAXS slit vertical gap, mm" display_format="%.4f" mne="uslitv"/>
   <EPICS_PV PV="15iddLAX:m58:c2:m8.DMOV" description="motor done moving uslith USAXS slit horizontal gap" mne="uslith_dmov"/>
   <EPICS_PV PV="15iddLAX:m58:c2:m8.RBV" description="motor uslith USAXS slit horizontal gap, mm" display_format="%.4f" mne="uslith"/>
-  <EPICS_PV PV="15iddLAX:m58:c3:m4.DMOV" description="motor done moving ASR" mne="asr_dmov"/>
-  <EPICS_PV PV="15iddLAX:m58:c3:m4.RBV" description="motor ASR, degrees" display_format="%.6f" mne="asr"/>
-  <EPICS_PV PV="15iddLAX:m58:c4:m1.DMOV" description="motor done moving MR" mne="mr_dmov"/>
-  <EPICS_PV PV="15iddLAX:m58:c4:m2.DMOV" description="motor done moving M1T" mne="m1t_dmov"/>
-  <EPICS_PV PV="15iddLAX:m58:c4:m4.DMOV" description="motor done moving MST" mne="mst_dmov"/>
+  
+  <EPICS_PV PV="15iddLAX:mxv:c0:m1.DMOV" description="motor done moving pin_x" mne="pin_x_dmov"/>
+  <EPICS_PV PV="15iddLAX:mxv:c0:m1.RBV" description="motor Pilatus pin_x, mm" display_format="%.3f" mne="pin_x"/>
+  <EPICS_PV PV="15iddLAX:mxv:c0:m2.DMOV" description="motor done moving pin_y" mne="pin_y_dmov"/>
+  <EPICS_PV PV="15iddLAX:mxv:c0:m2.RBV" description="motor Pilatus pin_y, mm" display_format="%.3f" mne="pin_y"/>
+  <EPICS_PV PV="15iddLAX:mxv:c0:m3.DMOV" description="motor done moving GuardOutB" mne="GuardOutB_dmov"/>
+  <EPICS_PV PV="15iddLAX:mxv:c0:m3.RBV" description="motor GuardOutB slit, mm" display_format="%.3f" mne="GuardOutB"/>
+  <EPICS_PV PV="15iddLAX:mxv:c0:m4.DMOV" description="motor done moving GuardInB" mne="GuardInB_dmov"/>
+  <EPICS_PV PV="15iddLAX:mxv:c0:m4.RBV" description="motor GuardInB slit, mm" display_format="%.3f" mne="GuardInB"/>
+  <EPICS_PV PV="15iddLAX:mxv:c0:m5.DMOV" description="motor done moving GuardTop" mne="GuardTop_dmov"/>
+  <EPICS_PV PV="15iddLAX:mxv:c0:m5.RBV" description="motor GuardTop slit, mm" display_format="%.3f" mne="GuardTop"/>
+  <EPICS_PV PV="15iddLAX:mxv:c0:m6.DMOV" description="motor done moving GuardBot" mne="GuardBot_dmov"/>
+  <EPICS_PV PV="15iddLAX:mxv:c0:m6.RBV" description="motor GuardBot slit, mm" display_format="%.3f" mne="GuardBot"/>
+  <EPICS_PV PV="15iddLAX:mxv:c0:m8.DMOV" description="motor done moving pin_z" mne="pin_z_dmov"/>
+  <EPICS_PV PV="15iddLAX:mxv:c0:m8.RBV" description="motor Pilatus pin_z, mm" display_format="%.3f" mne="pin_z"/>
+
+  <EPICS_PV PV="15iddLAX:xps:c0:m1.DMOV" description="motor done moving MR" mne="mr_dmov"/>
+  <EPICS_PV PV="15iddLAX:xps:c0:m1.RBV" description="motor MR, degrees" display_format="%.6f" mne="mr"/>
+  <EPICS_PV PV="15iddLAX:xps:c0:m3.DMOV" description="motor done moving MST" mne="mst_dmov"/>
+  <EPICS_PV PV="15iddLAX:xps:c0:m3.RBV" description="motor MST, mm" display_format="%.3f" mne="mst"/>
+  <EPICS_PV PV="15iddLAX:xps:c0:m4.DMOV" description="motor done moving AST" mne="ast_dmov"/>
+  <EPICS_PV PV="15iddLAX:xps:c0:m4.RBV" description="motor AST, mm" display_format="%.3f" mne="ast"/>
+  <EPICS_PV PV="15iddLAX:xps:c0:m5.DMOV" description="motor done moving MSR" mne="msr_dmov"/>
+  <EPICS_PV PV="15iddLAX:xps:c0:m5.RBV" description="motor MSR, mm" display_format="%.6f" mne="msr"/>
+  <EPICS_PV PV="15iddLAX:xps:c0:m6.DMOV" description="motor done moving ASR" mne="asr_dmov"/>
+  <EPICS_PV PV="15iddLAX:xps:c0:m6.RBV" description="motor ASR, mm" display_format="%.6f" mne="asr"/>
+
+
+  <EPICS_PV PV="15iddUSX:pic:m1.DMOV" description="motor done moving A2RPico" mne="A2Rpico_dmov"/>
+  <EPICS_PV PV="15iddUSX:pic:m1.RBV" description="motor A2RPico, degrees" display_format="%.6f" mne="A2RPico"/>
+  <EPICS_PV PV="15iddUSX:pic:m2.DMOV" description="motor done moving A1TPico" mne="A1TPico_dmov"/>
+  <EPICS_PV PV="15iddUSX:pic:m2.RBV" description="motor A1TPico mm" display_format="%.6f" mne="A1TPico"/>
+  <EPICS_PV PV="15iddUSX:pic:m3.DMOV" description="motor done moving A2TPico" mne="A2TPico_dmov"/>
+  <EPICS_PV PV="15iddUSX:pic:m3.RBV" description="motor A2TPico, mm" display_format="%.6f" mne="A2TPico"/>
+  <EPICS_PV PV="15iddUSX:pic:m4.DMOV" description="motor done moving M2RPico" mne="M2RPico_dmov"/>
+  <EPICS_PV PV="15iddUSX:pic:m4.RBV" description="motor M2RPico, degrees" display_format="%.6f" mne="M2RPico"/>
+  <EPICS_PV PV="15iddUSX:pic:m5.DMOV" description="motor done moving M1TPico" mne="M1TPico_dmov"/>
+  <EPICS_PV PV="15iddUSX:pic:m5.RBV" description="motor M1TPico, mm" display_format="%.6f" mne="M1TPico"/>
+  <EPICS_PV PV="15iddUSX:pic:m6.DMOV" description="motor done moving M2TPico" mne="M2TPico_dmov"/>
+  <EPICS_PV PV="15iddUSX:pic:m6.RBV" description="motor M2TPico, mm" display_format="%.6f" mne="M2TPico"/>
+
+
+  <EPICS_PV PV="15iddUSX:pzt:m1.DMOV" description="motor done moving A2Rp" mne="A2Rp_dmov"/>
+  <EPICS_PV PV="15iddUSX:pzt:m1.RBV" description="motor A2Rp, VDC" display_format="%.4f" mne="A2Rp_rbv"/>
+  <EPICS_PV PV="15iddUSX:pzt:m2.DMOV" description="motor done moving M2Rp" mne="M2Rp_dmov"/>
+  <EPICS_PV PV="15iddUSX:pzt:m2.RBV" description="motor M2Rp, VDC" display_format="%.4f" mne="M2Rp_rbv"/>
+  <EPICS_PV PV="15iddUSX:pzt:m1.DMOV" description="motor done moving ASRp" mne="ASRp_dmov"/>
+  <EPICS_PV PV="15iddUSX:pzt:m1.RBV" description="motor ASRp, VDC" display_format="%.4f" mne="A2Rp_rbv"/>
+  <EPICS_PV PV="15iddUSX:pzt:m2.DMOV" description="motor done moving MSRp" mne="MSRp_dmov"/>
+  <EPICS_PV PV="15iddUSX:pzt:m2.RBV" description="motor MSRp, VDC" display_format="%.4f" mne="MSRp_rbv"/>
+
   <EPICS_PV PV="15iddLAX:mr:encoder" description="motor MR encoder, degrees" display_format="%.6f" mne="mr_enc"/>
 
   <EPICS_PV PV="15iddLAX:string19" description="SPEC macro file" mne="spec_macro_file"/>
@@ -138,10 +180,6 @@
   <EPICS_PV PV="15iddLAX:vsc:c0.S4" description="scaler diode, counts" display_format="%d" mne="scaler_diode"/>
   <EPICS_PV PV="15iddLAX:vsc:c0.T" description="scaler counting time elasped, s" display_format="%.3f" mne="scaler_t"/>
   <EPICS_PV PV="15iddLAX:vsc:c0.TP" description="scaler counting time preset, s" display_format="%.3f" mne="scaler_tp"/>
-  <EPICS_PV PV="15iddLAX:xps:c0:m1.RBV" description="motor MR, degrees" display_format="%.6f" mne="mr"/>
-  <EPICS_PV PV="15iddLAX:xps:c0:m3.RBV" description="motor MST, degrees" display_format="%.4f" mne="mst"/>
-  <EPICS_PV PV="15iddLAX:xps:c0:m4.DMOV" description="motor done moving AST" mne="ast_dmov"/>
-  <EPICS_PV PV="15iddLAX:xps:c0:m4.RBV" description="motor AST, degrees" display_format="%.4f" mne="ast"/>
   <EPICS_PV PV="15iddUSX:alldone" description="USAXS eBrick motors moving" mne="usx_alldone"/>
   <EPICS_PV PV="15iddUSX:ath01:ana01:ai01.VAL" description="pzt A2Rp, VDC, readback" display_format="%.4f" mne="A2Rp_rbv"/>
   <EPICS_PV PV="15iddUSX:ath01:ana01:ai02.VAL" description="pzt M2Rp, VDC, readback" display_format="%.4f" mne="M2Rp_rbv"/>
@@ -156,16 +194,11 @@
   <EPICS_PV PV="15iddUSX:pd01:seq02:gain" description="PD amplifier diode gain, V/A" display_format="%.2e" mne="diode_amp_gain"/>
   <EPICS_PV PV="15iddUSX:pd01:seq02:lucurrent" description="photodiode last-update current, A" display_format="%.3e" mne="diode_current"/>
   <EPICS_PV PV="15iddUSX:pd01:seq02:lurate" description="diode count rate (at last update), c/s" mne="diode_count_rate"/>
-  <EPICS_PV PV="15iddUSX:pf42:filterGlass" description="filter glass thickness in beam, mm" display_format="%.3f" mne="pf4_thickness_Gl"/>
+  <EPICS_PV PV="15iddUSX:pf4:filterGlass" description="filter glass thickness in beam, mm" display_format="%.3f" mne="pf4_thickness_Gl"/>
   <EPICS_PV PV="15iddUSX:pf4:filterAl" description="filter Al thickness in beam, mm" display_format="%.3f" mne="pf4_thickness_Al"/>
   <EPICS_PV PV="15iddUSX:pf4:filterTi" description="filter Ti thickness in beam, mm" display_format="%.3f" mne="pf4_thickness_Ti"/>
   <EPICS_PV PV="15iddUSX:pf4:trans" description="filter transmission" display_format="%.4e" mne="pf4_trans"/>
-  <EPICS_PV PV="15iddUSX:pic:m9.RBV" description="motor M1T, degrees" display_format="%.4f" mne="m1t"/>
   <EPICS_PV PV="15iddUSX:pmm01:reg01:bo01" description="USAXS CCD shutter" mne="CCD_shutter"/>
-  <EPICS_PV PV="15iddUSX:pzt:m1.DMOV" description="motor done moving A2RP" mne="A2Rp_dmov"/>
-  <EPICS_PV PV="15iddUSX:pzt:m1.RBV" description="motor A2RP, VDC" display_format="%.4f" mne="A2Rp_rbv"/>
-  <EPICS_PV PV="15iddUSX:pzt:m2.DMOV" description="motor done moving M2RP" mne="M2Rp_dmov"/>
-  <EPICS_PV PV="15iddUSX:pzt:m2.RBV" description="motor M2RP, VDC" display_format="%.4f" mne="M2Rp_rbv"/>
   <EPICS_PV PV="15iddUSX:rmm01:ana01:ao01.VAL" description="pzt A2Rp, VDC" display_format="%.4f" mne="A2Rp_VDC"/>
   <EPICS_PV PV="15iddUSX:rmm01:ana01:ao02.VAL" description="pzt M2Rp, VDC" display_format="%.4f" mne="M2Rp_VDC"/>
   <EPICS_PV PV="15iddUSX:rmm01:ana01:ao03.VAL" description="pzt ASRp, VDC" display_format="%.4f" mne="ASRp_VDC"/>
@@ -178,18 +211,18 @@
   <EPICS_PV PV="PA:15ID:D_BEAM_READY" description="PSS: D Beam Ready" mne="D_beam_ready"/>
   <EPICS_PV PV="S:SRcurrentAI" description="APS storage ring current, mA" display_format="%.2f" mne="SR_current"/>
 
-  <xEPICS_PV PV="32idb:AShtr:Enable.RVAL" _ignore_="true" description="32ID white shutter autoOpen" mne="white_shtr_auto"/><!-- TODO -->
-  <xEPICS_PV PV="32idbMIR:alldone" _ignore_="true" description="Mirror eBrick motors moving" mne="mir_alldone"/><!-- TODO -->
-  <xEPICS_PV PV="32idbMIR:ath01:ana01:ai01.VAL" _ignore_="true" description="ADC I000, VDC" display_format="%.4f" mne="I000_VDC"/><!-- TODO -->
-  <xEPICS_PV PV="32idbMIR:fem01:seq01:gain" _ignore_="true" description="I000 amplifier gain, V/A" display_format="%.2e" mne="I000_amp_gain"/><!-- TODO -->
-  <xEPICS_PV PV="32idbMIR:m1.DMOV" _ignore_="true" description="motor done moving mirror X" mne="mirr_x_dmov"/><!-- TODO -->
-  <xEPICS_PV PV="32idbMIR:m1.RBV" _ignore_="true" description="motor mirror X, mm" display_format="%.3f" mne="mirr_x"/><!-- TODO -->
-  <xEPICS_PV PV="32idbMIR:m2.DMOV" _ignore_="true" description="motor done moving mirror vertical steering" mne="mirr_vs_dmov"/><!-- TODO -->
-  <xEPICS_PV PV="32idbMIR:m2.RBV" _ignore_="true" description="motor mirror vertical steering, mm" display_format="%.3f" mne="mirr_vs"/><!-- TODO -->
-  <xEPICS_PV PV="32idbMIR:seq01:cr:inpos.RVAL" _ignore_="true" description="USAXS mirror Cr stripe selected" mne="mirror_cr_pos"/><!-- TODO -->
-  <xEPICS_PV PV="32idbMIR:seq01:rh:inpos.RVAL" _ignore_="true" description="USAXS mirror Rh stripe selected" mne="mirror_rh_pos"/><!-- TODO -->
-  <xEPICS_PV PV="32idbMIR:seq01:si:inpos.RVAL" _ignore_="true" description="USAXS mirror Si stripe selected" mne="mirror_si_pos"/><!-- TODO -->
-  <xEPICS_PV PV="32idbMIR:seq01:wht:inpos.RVAL" _ignore_="true" description="USAXS mirror white beam position selected" mne="mirror_wh_pos"/><!-- TODO -->
+  <EPICS_PV PV="32idb:AShtr:Enable.RVAL" _ignore_="true" description="32ID white shutter autoOpen" mne="white_shtr_auto"/><!-- TODO -->
+  <EPICS_PV PV="32idbMIR:alldone" _ignore_="true" description="Mirror eBrick motors moving" mne="mir_alldone"/><!-- TODO -->
+  <EPICS_PV PV="32idbMIR:ath01:ana01:ai01.VAL" _ignore_="true" description="ADC I000, VDC" display_format="%.4f" mne="I000_VDC"/><!-- TODO -->
+  <EPICS_PV PV="32idbMIR:fem01:seq01:gain" _ignore_="true" description="I000 amplifier gain, V/A" display_format="%.2e" mne="I000_amp_gain"/><!-- TODO -->
+  <EPICS_PV PV="32idbMIR:m1.DMOV" _ignore_="true" description="motor done moving mirror X" mne="mirr_x_dmov"/><!-- TODO -->
+  <EPICS_PV PV="32idbMIR:m1.RBV" _ignore_="true" description="motor mirror X, mm" display_format="%.3f" mne="mirr_x"/><!-- TODO -->
+  <EPICS_PV PV="32idbMIR:m2.DMOV" _ignore_="true" description="motor done moving mirror vertical steering" mne="mirr_vs_dmov"/><!-- TODO -->
+  <EPICS_PV PV="32idbMIR:m2.RBV" _ignore_="true" description="motor mirror vertical steering, mm" display_format="%.3f" mne="mirr_vs"/><!-- TODO -->
+  <EPICS_PV PV="32idbMIR:seq01:cr:inpos.RVAL" _ignore_="true" description="USAXS mirror Cr stripe selected" mne="mirror_cr_pos"/><!-- TODO -->
+  <EPICS_PV PV="32idbMIR:seq01:rh:inpos.RVAL" _ignore_="true" description="USAXS mirror Rh stripe selected" mne="mirror_rh_pos"/><!-- TODO -->
+  <EPICS_PV PV="32idbMIR:seq01:si:inpos.RVAL" _ignore_="true" description="USAXS mirror Si stripe selected" mne="mirror_si_pos"/><!-- TODO -->
+  <EPICS_PV PV="32idbMIR:seq01:wht:inpos.RVAL" _ignore_="true" description="USAXS mirror white beam position selected" mne="mirror_wh_pos"/><!-- TODO -->
 
 </pvwatch>
 
