@@ -388,6 +388,13 @@
                         <td bgcolor="white"><xsl:value-of select="//pv[@id='mir_slitb']/value"/></td>
                     </tr>
                     <tr>
+                        <td>guard (r,l,t,b)</td>
+                        <td bgcolor="white"><xsl:value-of select="//pv[@id='GuardOutB']/value"/></td>
+                        <td bgcolor="white"><xsl:value-of select="//pv[@id='GuardInB']/value"/></td>
+                        <td bgcolor="white"><xsl:value-of select="//pv[@id='GuardTop']/value"/></td>
+                        <td bgcolor="white"><xsl:value-of select="//pv[@id='GuardBot']/value"/></td>
+                    </tr>
+                    <tr>
                         <td>USAXS (h,v)(gap,center)</td>
                         <td bgcolor="white"><xsl:value-of select="//pv[@id='uslith']/value"/></td>
                         <td bgcolor="white"><xsl:value-of select="//pv[@id='uslitv']/value"/></td>
@@ -548,6 +555,15 @@
                         <td bgcolor="#dddddd"><!-- nothing --></td>
                         <td bgcolor="#dddddd"><!-- nothing --></td>
                         <td bgcolor="#dddddd"><!-- nothing --></td>
+                        <td bgcolor="#dddddd"><!-- nothing --></td>
+                    </tr>
+                    <tr>
+                        <td>Pilatus</td>
+                        <td bgcolor="#dddddd"><!-- nothing --></td>
+                        <td bgcolor="#dddddd"><!-- nothing --></td>
+                        <td bgcolor="white"><xsl:value-of select="//pv[@id='pin_x']/value"/></td>
+                        <td bgcolor="white"><xsl:value-of select="//pv[@id='pin_y']/value"/></td>
+                        <td bgcolor="white"><xsl:value-of select="//pv[@id='pin_z']/value"/></td>
                         <td bgcolor="#dddddd"><!-- nothing --></td>
                     </tr>
                 </table>
