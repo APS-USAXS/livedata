@@ -173,6 +173,15 @@ status
                                         </xsl:otherwise>
                                     </xsl:choose>
 </tr>
+<tr>                                    
+	<td align="center">
+		<font size="3">
+			DCM E =
+			<xsl:value-of select="//pv[@id='DCM_E']/value"/>
+			keV
+		</font>
+	</td>
+</tr>
 
 <tr><td align="center"><font size="3">I0: <xsl:value-of select="//pv[@id='I0_VDC']/value"/> V</font></td></tr>
 
