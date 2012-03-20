@@ -48,8 +48,8 @@ class specDataFile:
     headers = []
     scans = []
     readOK = -1
-    def __init__(self, file):
-        self.fileName = file
+    def __init__(self, filename):
+        self.fileName = filename
         self.errMsg = ''
         self.headers = []
         self.scans = []
@@ -171,9 +171,9 @@ class specDataFileScan:
         self.specFile = self.header.file    # this is the short name, does not have the file system path
         for line in lines:
             i += 1
-	    #print "[%s] %s" % (i, line)
+            #print "[%s] %s" % (i, line)
             key = line[0:2]
-	    #print i, key
+            #print i, key
             if (key[0] == "#"):
                 if (key == "#C"):
                     self.comments.append(specScanLine_stripKey(line))
@@ -211,6 +211,7 @@ class specDataFileScan:
                 self.errMsg = "cannot handle @ data yet."
             else:
                 self.data_lines.append(line)
+        #print self.scanNum, "\n\t".join( self.comments )
         # interpret the motor positions from the scan header
         self.positioner = {}
         for row, values in enumerate(self.P):
@@ -225,12 +226,12 @@ class specDataFileScan:
                 self.float[label] = float(val)
         # interpret the data lines from the body of the scan
         self.data = {}
-	for col in range(len(self.L)):
-	    label = self.L[col]
-	    # need to guard when same column label is used more than once
-	    if label in self.data.keys():
-	        label += "(duplicate)"
-		self.L[col] = label    # rename this column's label
+        for col in range(len(self.L)):
+            label = self.L[col]
+            # need to guard when same column label is used more than once
+            if label in self.data.keys():
+                label += "(duplicate)"
+                self.L[col] = label    # rename this column's label
             self.data[label] = []
         for row, values in enumerate(self.data_lines):
             for col, val in enumerate(values.split()):

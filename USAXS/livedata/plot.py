@@ -12,7 +12,7 @@
    @note: copies plot file to USAXS site on XSD WWW server
 '''
 
-import datetime         # date/time stamps
+#import datetime         # date/time stamps
 import math
 import os
 import shutil
@@ -54,15 +54,16 @@ def update_n_plots(specFile, numScans):
 def last_n_scans(scans, maxScans):
     '''
     find the last maxScans scans in the specData
-    @param scans: specDataFileScan instance list
-    @param maxScans: maximum number of scans to find
-    @return: integer list of scan numbers where len() <= maxScans
+    
+    :param scans: specDataFileScan instance list
+    :param int maxScans: maximum number of scans to find
+    :return: list of specDataFileScan objects where len() <= maxScans
     '''
     scanList = []
     for scan in scans:
         cmd = scan.scanCmd.split()[0]
         if (cmd == "uascan") or (cmd == "sbuascan"):
-            scanList.append(scan.scanNum)
+            scanList.append(scan)
             if len(scanList) > maxScans:
                 scanList.pop(0)
     return scanList
@@ -72,14 +73,14 @@ def extract_USAXS_data(specData, scanList):
     '''
     extract the USAXS R(Q) profiles (ignoring error estimates)
     @param specData: as returned by prjPySpec.specDataFile(specFile)
-    @param scanList: integer list of scan numbers
+    @param scanList: list of specDataFileScan objects
     @return: list of dictionaries with reduced USAXS R(Q)
     '''
     usaxs = []
     for scan in scanList:
-        entry = calc_usaxs_data(specData.scans[scan-1])
-        entry['scan'] = scan
-        entry['key'] = "S%d" % scan
+        entry = calc_usaxs_data(scan)
+        entry['scan'] = scan.scanNum
+        entry['key'] = "S%d" % scan.scanNum
         entry['label'] = "%s: %s" % (entry['key'], entry['title'])
         usaxs.append( entry )
     return usaxs
@@ -259,7 +260,6 @@ def format_as_ploticus_data(usaxs):
     '''
     qMin = qMax = iMin = iMax = None
     result = []
-    format = "%-10s %s %s"
     result.append("%-10s %15s %s" % ("dataset", "qVec", "rVec"))
     for scan in usaxs:
         if len(scan['qVec']) == 0 and len(scan['rVec']) == 0:
@@ -294,14 +294,14 @@ def format_as_ploticus_data(usaxs):
             qMax = qMin * 1.5
             qMin = qMin / 1.5
             #print qMin, qMax, iMin, iMax
-    dict = {
+    dct = {
             'data': result,
             'qMin': qMin,
             'qMax': qMax,
             'iMin': iMin,
             'iMax': iMax
             }
-    return dict
+    return dct
 
 
 def calc_usaxs_data(specScan):
