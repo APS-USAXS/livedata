@@ -108,7 +108,7 @@ def make_ploticus_dictionary(specFile, tempDataFile, ploticus_data, usaxs):
     ploticus['title'] = specFile
     ploticus['Qmin'] = 1e-5
     ploticus['Qmax'] = 1.0
-    ploticus['Qmin'] = float(ploticus_data['qMin'])
+    ploticus['Qmin'] = max(0.95*ploticus['Qmin'], float(ploticus_data['qMin']))
     ploticus['Qmax'] = float(ploticus_data['qMax'])
     ploticus['Imin'] = float(ploticus_data['iMin'])
     ploticus['Imax'] = float(ploticus_data['iMax'])
@@ -145,6 +145,7 @@ def run_ploticus(script, localPlotFile):
     tmpPlot = run_ploticus_command_script(tmpScript)
     #---- copy and cleanup
     shutil.copy2(tmpPlot, localPlotFile)
+    #shutil.copy2(tmpScript, '/tmp/ploticus-usaxs-plot.pl')	# diagnostics only
     os.remove(tmpScript)
     os.remove(tmpPlot)
 
@@ -187,7 +188,7 @@ def ploticus_commands(db, usaxs):
     output.append("  label: |Q|, 1/A ")
     output.append("  labeldetails: size=18")
     output.append("  selflocatingstubs: text")
-    start = int(math.floor(math.log10(db['Qmin'])))
+    start = max(-5, int(math.floor(math.log10(db['Qmin']))))	# plot no lower than Q=1e-5
     finish = int(math.ceil(math.log10(db['Qmax'])))
     for y in range(start, finish+1):
         # major tick marks
@@ -241,12 +242,12 @@ def ploticus_commands(db, usaxs):
         output.append("")
         i += 1
     output.append("#proc rect")
-    output.append("  rectangle: 4.2 5.7   6.8 6.8")
+    output.append("  rectangle: 1.2 1.2   3.8 2.2")
     output.append("  color: white")
     output.append("  bevelsize: 0.05")
     output.append("")
     output.append("#proc legend")
-    output.append("  location: 4.5 6.7")
+    output.append("  location: 1.5 2.15")
     output.append("  seglen: 0.2")
     output.append("  format: multiline")
     output.append("  textdetails: align=Right")
@@ -321,7 +322,9 @@ def calc_usaxs_data(specScan):
         pd_range = specScan.data['pd_range'][i]
         ar_enc = specScan.data['ar_enc'][i]
         seconds = specScan.data['seconds'][i]
-        I0 = specScan.data['I0'][i]
+        I0_gain = specScan.data['I0_gain'][i]
+        if I0_gain <= 0:  I0_gain = 1			# safeguard
+        I0 = 1.0*specScan.data['I0'][i] / I0_gain
         if I0 == 0:  I0 = 1      # TODO: development ONLY
         index = str(int(pd_range))
         diode_gain = specScan.float["UPD2gain" + index]
