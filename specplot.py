@@ -8,12 +8,12 @@
 ########### SVN repository information ###################
 
 '''
-   read a SPEC data file and plot scan n using ploticus
-   @note: does not copy any file to XSD WWW server
+read a SPEC data file and plot scan n using ploticus
+
+.. note:: does not copy any file to XSD WWW server
 '''
 
 import os
-import os.path
 import sys
 import tempfile
 import prjPySpec        # read SPEC data files
@@ -38,7 +38,8 @@ def makePloticusPlot(scan, plotFile):
 def write_ploticus_data_file(data):
     '''
     find x & y min & max
-    @return: dictionary
+    
+    :returns: dictionary
     '''
     #---- write the ploticus data file
     ext = os.extsep + "pl"
@@ -52,7 +53,8 @@ def write_ploticus_data_file(data):
 def format_ploticus_data(data):
     '''
     find x & y min & max
-    @return: dictionary
+    
+    :returns: dictionary
     '''
     pl = []
     xMin = xMax = yMin = yMax = None
@@ -103,8 +105,7 @@ def run_ploticus_command_script(scan, dataFile, plotData, plotFile):
 
 def openSpecFile(specFile):
     '''
-    convenience routine so that others
-    do not have to import prjPySpec
+    convenience routine so that others do not have to import prjPySpec
     '''
     sd = prjPySpec.specDataFile(specFile)
     return sd
@@ -133,7 +134,7 @@ def makePloticusPlotByScanNum(specFile, scan_number, plotFile):
     makePloticusPlot(scan, plotFile)
 
 
-if __name__ == '__main__':
+def main():
     specFile = localConfig.TEST_SPEC_DATA
     scan_number = localConfig.TEST_SPEC_SCAN_NUMBER
     plotFile = localConfig.TEST_PLOTFILE
@@ -146,3 +147,7 @@ if __name__ == '__main__':
         makePloticusPlotByScanNum(specFile, scan_number, plotFile)
     except:
         pass
+
+
+if __name__ == '__main__':
+    main()
