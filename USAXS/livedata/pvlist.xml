@@ -26,12 +26,14 @@
 
 
 <!-- Linkam CI94 status PVs PAB 2010-11-11 -->
+<!-- 2013-02-12,PRJ
   <EPICS_PV PV="EPLinkam2:ci94:temp" description="Linkam Temp. 1, C"  mne="linkam_temp1"/>
   <EPICS_PV PV="EPLinkam2:ci94:temp2" description="Linkam Temp. 2, C"  mne="linkam_temp2"/>
   <EPICS_PV PV="EPLinkam2:ci94:status" description="Linkam Status" display_format="%s"  mne="linkam_status"/>
   <EPICS_PV PV="EPLinkam2:ci94:setRate" description="Linkam Rate, C/min"  mne="linkam_rate"/>
   <EPICS_PV PV="EPLinkam2:ci94:setLimit" description="Linkam Limit, C"  mne="linkam_limit"/>
   <EPICS_PV PV="EPLinkam2:ci94:errorByte" description="Linkam errors" mne="linkam_errors" />
+ -->
 <!-- end Linkam CI94 status PVs -->
 
   <EPICS_PV PV="ID15:Energy"    mne="Und_E" description="ID E, keV"  display_format="%.4f"/>
@@ -137,7 +139,7 @@
   <EPICS_PV PV="15iddLAX:xps:c0:m6.DMOV" description="motor done moving ASR" mne="asr_dmov"/>
   <EPICS_PV PV="15iddLAX:xps:c0:m6.RBV" description="motor ASR, mm" display_format="%.6f" mne="asr"/>
 
-
+<!-- 2013-02-12,PRJ
   <EPICS_PV PV="15iddUSX:pic:m1.DMOV" description="motor done moving A2RPico" mne="A2Rpico_dmov"/>
   <EPICS_PV PV="15iddUSX:pic:m1.RBV" description="motor A2RPico, degrees" display_format="%.6f" mne="A2RPico"/>
   <EPICS_PV PV="15iddUSX:pic:m2.DMOV" description="motor done moving A1TPico" mne="A1TPico_dmov"/>
@@ -146,6 +148,7 @@
   <EPICS_PV PV="15iddUSX:pic:m3.RBV" description="motor A2TPico, mm" display_format="%.6f" mne="A2TPico"/>
   <EPICS_PV PV="15iddUSX:pic:m4.DMOV" description="motor done moving M2RPico" mne="M2RPico_dmov"/>
   <EPICS_PV PV="15iddUSX:pic:m4.RBV" description="motor M2RPico, degrees" display_format="%.6f" mne="M2RPico"/>
+-->
   <EPICS_PV PV="15iddUSX:pic:m5.DMOV" description="motor done moving M1TPico" mne="M1TPico_dmov"/>
   <EPICS_PV PV="15iddUSX:pic:m5.RBV" description="motor M1TPico, mm" display_format="%.6f" mne="M1TPico"/>
   <EPICS_PV PV="15iddUSX:pic:m6.DMOV" description="motor done moving M2TPico" mne="M2TPico_dmov"/>
@@ -213,9 +216,12 @@
 
   <EPICS_PV PV="PA:15ID:STA_A_FES_OPEN_PL.VAL" description="15ID white shutter opened" mne="white_shtr_opened"/>
   <EPICS_PV PV="PA:15ID:STA_B_SBS_OPEN_PL.VAL" description="15ID mono shutter opened" mne="mono_shtr_opened"/>
-  <EPICS_PV PV="PA:15ID:D_BEAM_ACTIVE" description="PSS: D Beam Active" mne="D_beam_active"/>
-  <EPICS_PV PV="PA:15ID:D_BEAM_READY" description="PSS: D Beam Ready" mne="D_beam_ready"/>
+  <EPICS_PV PV="PA:15ID:STA_D_NO_ACCESS.VAL" description="15ID-D doors closed and hutch searched" mne="d_doors_closed"/>
+  <EPICS_PV PV="15iddLAX:blCalc:userCalc1" description="15ID-D beam is available" mne="d_beam_available"/>
+  <EPICS_PV _ignore_="true"  PV="PA:15ID:D_BEAM_ACTIVE" description="PSS: D Beam Active" mne="D_beam_active"/>
+  <EPICS_PV _ignore_="true"  PV="PA:15ID:D_BEAM_READY" description="PSS: D Beam Ready" mne="D_beam_ready"/>
   <EPICS_PV PV="S:SRcurrentAI" description="APS storage ring current, mA" display_format="%.2f" mne="SR_current"/>
+
 
   <EPICS_PV _ignore_="true" PV="32idb:AShtr:Enable.RVAL" description="32ID white shutter autoOpen" mne="white_shtr_auto"/><!-- TODO -->
   <EPICS_PV _ignore_="true" PV="32idbMIR:alldone" description="Mirror eBrick motors moving" mne="mir_alldone"/><!-- TODO -->
