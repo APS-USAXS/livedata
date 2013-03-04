@@ -19,7 +19,7 @@ import shutil
 
 
 # general use
-WWW_SERVER_ROOT = "usaxs@usaxs.xor.aps.anl.gov"
+WWW_SERVER_ROOT = "usaxs@www-i.xray.aps.anl.gov"
 LIVEDATA_DIR = "www/livedata"
 SERVER_WWW_HOMEDIR = WWW_SERVER_ROOT + ":~"
 SERVER_WWW_LIVEDATA = os.path.join(SERVER_WWW_HOMEDIR, LIVEDATA_DIR)
