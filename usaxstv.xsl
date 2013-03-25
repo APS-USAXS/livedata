@@ -11,19 +11,20 @@
 
 <html>
 <head>
-<meta http-equiv="Pragma" content="no-cache"/>
+ <meta http-equiv="Pragma" content="no-cache"/>
+ <!-- 2013-03-24,PRJ: override below, this is useless
  <xsl:choose>
-                                        <xsl:when test="contains(//pv[@id='state']/value,'Radiography Mode')">
-					<meta http-equiv="Refresh" content="60" />
-                                        </xsl:when>
-                                        <xsl:otherwise>
-                                        <meta http-equiv="Refresh" content="10" />
-					</xsl:otherwise>
-                                    </xsl:choose>
-
-<meta http-equiv="Refresh" content="60"/>
-<title>USAXS: TV status</title>
-<style type="text/css">
+  <xsl:when test="contains(//pv[@id='state']/value,'Radiography Mode')">
+   <meta http-equiv="Refresh" content="60" />
+  </xsl:when>
+  <xsl:otherwise>
+   <meta http-equiv="Refresh" content="10" />
+  </xsl:otherwise>
+ </xsl:choose>
+ -->
+ <meta http-equiv="Refresh" content="60"/>
+ <title>USAXS: TV status</title>
+ <style type="text/css">
                     
                     body {
                         font: x-small Verdana, Arial, Helvetica, sans-serif; 
@@ -87,7 +88,7 @@
                        font-size: smaller; 
                     }
                     
-                </style>
+ </style>
 </head>
 <body>
 <table border="0" width="100%" bgcolor="mintcream" rules="all"><tr>
@@ -106,7 +107,7 @@
                                         </script>
 					</xsl:when>
                                         <xsl:otherwise>
-											<img src="http://usaxs.xor.aps.anl.gov/livedata/livedata.png" width="100%" />
+											<img src="http://usaxs.xray.aps.anl.gov/livedata/livedata.png" width="100%" />
                                         </xsl:otherwise>
                                     </xsl:choose>
 
@@ -116,16 +117,9 @@
 <table width="100%" bgcolor="mintcream" rules="all"><tr>
 <td bgcolor="darkblue" align="center">
 <font color="white" size="6">
-<xsl:comment>
-   FIXME: Fonts of links look too dark!  Need to adjust by setting proper style attributes!
-</xsl:comment>
-<a href="http://usaxs.xor.aps.anl.gov/livedata/"> _ </a>
-
-USAXS 
-
-status
-
-<xsl:comment>FIXME: again, too dark</xsl:comment><a href="http://usaxs.xor.aps.anl.gov/livedata/raw-report.html"> _ </a>
+<a href="http://usaxs.xray.aps.anl.gov/livedata/" style="color: grey;"> _ </a>
+USAXS status
+<a href="http://usaxs.xray.aps.anl.gov/livedata/raw-report.html" style="color: grey;"> _ </a>
 </font></td></tr>
 
 <tr><td bgcolor="darkblue" align="center">
