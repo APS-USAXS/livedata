@@ -1,7 +1,14 @@
 #!/usr/bin/env python
 
 '''
-/APSshare//epd/rh5-x86/bin/python ./checkup.py pvlist.xml | more
+print descriptions for all motors defined in pvlist.xml
+
+Uses PyEpics
+
+usage::
+
+  /APSshare//epd/rh5-x86/bin/python ./checkup.py pvlist.xml | more
+
 '''
 
 # $Id $
