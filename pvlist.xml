@@ -25,16 +25,14 @@
   </definition>
 
 
-<!-- Linkam CI94 status PVs PAB 2010-11-11 -->
-<!-- 2013-02-12,PRJ
-  <EPICS_PV PV="EPLinkam2:ci94:temp" description="Linkam Temp. 1, C"  mne="linkam_temp1"/>
-  <EPICS_PV PV="EPLinkam2:ci94:temp2" description="Linkam Temp. 2, C"  mne="linkam_temp2"/>
-  <EPICS_PV PV="EPLinkam2:ci94:status" description="Linkam Status" display_format="%s"  mne="linkam_status"/>
-  <EPICS_PV PV="EPLinkam2:ci94:setRate" description="Linkam Rate, C/min"  mne="linkam_rate"/>
-  <EPICS_PV PV="EPLinkam2:ci94:setLimit" description="Linkam Limit, C"  mne="linkam_limit"/>
-  <EPICS_PV PV="EPLinkam2:ci94:errorByte" description="Linkam errors" mne="linkam_errors" />
- -->
-<!-- end Linkam CI94 status PVs -->
+  <!-- Linkam CI94 status PVs PAB 2010-11-11 -->
+  <EPICS_PV PV="15iddLAX:ci94:temp" description="Linkam Temp. 1, C"  mne="linkam_temp1"/>
+  <EPICS_PV PV="15iddLAX:ci94:temp2" description="Linkam Temp. 2, C"  mne="linkam_temp2"/>
+  <EPICS_PV PV="15iddLAX:ci94:status" description="Linkam Status" display_format="%s"  mne="linkam_status"/>
+  <EPICS_PV PV="15iddLAX:ci94:setRate" description="Linkam Rate, C/min"  mne="linkam_rate"/>
+  <EPICS_PV PV="15iddLAX:ci94:setLimit" description="Linkam Limit, C"  mne="linkam_limit"/>
+  <EPICS_PV PV="15iddLAX:ci94:errorByte" description="Linkam errors" mne="linkam_errors" />
+  <!-- end Linkam CI94 status PVs -->
 
   <EPICS_PV PV="ID15:Energy"    mne="Und_E" description="ID E, keV"  display_format="%.4f"/>
   <EPICS_PV PV="15IDA:BraggEAO" mne="DCM_E" description="DCM E, keV" display_format="%.4f"/>
