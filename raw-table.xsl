@@ -33,6 +33,18 @@
                 </table>
 
                 <hr />
+                <h2> recent USAXS scans plotted </h2>
+
+                <table border="2">
+                    <tr style="background-color: grey; color: white;">
+                        <th>title</th>
+                        <th>scan</th>
+                        <th>file</th>
+                    </tr>
+                    <xsl:apply-templates select="usaxs_scans/scan"/>
+                </table>
+
+                <hr />
 		<p>
                     <small>
                         data gathered by: <xsl:value-of select="/usaxs_pvs/writer"/>
@@ -58,6 +70,17 @@
             <td><xsl:value-of select="value"/></td>
             <td><xsl:value-of select="units"/></td>
             <td><xsl:value-of select="timestamp"/></td>
+        </tr>
+    </xsl:template>
+
+    <xsl:template match="scan">
+        <tr>
+ 	    <xsl:if test="position() mod 2=0">
+ 	      <xsl:attribute name="bgcolor">Azure</xsl:attribute>
+ 	    </xsl:if>
+            <td><xsl:value-of select="title"/></td>
+            <td><xsl:value-of select="@key"/></td>
+            <td><xsl:value-of select="@specfile"/></td>
         </tr>
     </xsl:template>
 

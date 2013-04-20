@@ -43,6 +43,7 @@ pvdb = {}   # EPICS data will go here
 xref = {}   # cross-reference id with PV
 PVLIST_FILE = "pvlist.xml"
 MAINLOOP_COUNTER_TRIGGER = 10000  # print a log message periodically
+USAXS_DATA = None
 
 
 def logMessage(msg):
@@ -184,7 +185,13 @@ def updatePlotImage():
         if spec_mtime > plot_mtime:
             makePlot = True        #  plot only if new data
     if makePlot:
-        plot.update_n_plots(specFile, localConfig.NUM_SCANS_PLOTTED)
+        logMessage("updating the plots and gathering scan data for XML file")
+	usaxs = plot.update_n_plots(specFile, localConfig.NUM_SCANS_PLOTTED)
+	global USAXS_DATA
+	USAXS_DATA = {
+	    'file': specFile,
+	    'usaxs': usaxs,
+	}
 
 
 def writeFile(file, contents):
@@ -245,6 +252,26 @@ def buildReport():
             #xml.append("    " + makeSimpleTag(item, entry[item]))
             subnode = ElementTree.SubElement(node, item)
             subnode.text = str(entry[item])
+    
+    global USAXS_DATA
+    if USAXS_DATA is not None:
+	try:
+            specfile = USAXS_DATA['file']
+	    node = ElementTree.SubElement(root, "usaxs_scans")
+	    node.set("file", specfile)
+	    for scan in USAXS_DATA['usaxs']:
+	        scannode = ElementTree.SubElement(node, "scan")
+		for item in ('scan', 'key', 'label'):
+		    scannode.set(item, str(scan[item]))
+		scannode.set('specfile', specfile)
+		ElementTree.SubElement(scannode, "title").text = scan['title']
+		ElementTree.SubElement(scannode, "Q").text = ' '.join(scan['qVec'])
+		ElementTree.SubElement(scannode, "R").text = ' '.join(scan['rVec'])
+	except Exception, e:
+	    logMessage('caught Exception while writing USAXS scan data to XML file')
+	    logMessage('  file: %s' % specfile)
+	    logMessage(e)
+    	
 
     # final steps
     doc = minidom.parseString(ElementTree.tostring(root))
@@ -283,6 +310,9 @@ def report():
     xsltCommand = xsltCommandFormat % xslFile
     shellCommandToFile(xsltCommand, localFile)    # do the XSLT transform
     wwwServerTransfers.scpToWebServer(localFile, file__raw_html)
+
+    localFile = os.path.join(localDir, xslFile)
+    wwwServerTransfers.scpToWebServer(localFile, xslFile)
 
     # make the usaxstv.html file
     file__usaxstv_html = localConfig.HTML_USAXSTV_FILE  # short name

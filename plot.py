@@ -49,6 +49,8 @@ def update_n_plots(specFile, numScans):
     wwwServerTransfers.scpToWebServer(local_plot, www_plot)
     os.remove(tempDataFile)
     # perhaps copy the SPEC macro here, as well
+    
+    return usaxs
 
 
 def last_n_scans(scans, maxScans):
