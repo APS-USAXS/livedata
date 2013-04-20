@@ -1,7 +1,7 @@
 
-see docs/index.html for more information
+see archive/docs/index.html for more information on the v1 code
 
-The main code here is pvwatch.py.  It monitors EPICS PVs 
+The main code for v1 here is pvwatch.py.  It monitors EPICS PVs 
 (described in pvlist.xml) and writes files in the local 
 WWW server directory.  It can be started and stopped by
 the Makefile (for manual control) or the manage.csh script
@@ -17,6 +17,8 @@ The Python documentation was generated using the commands:
 	/APSshare/bin/pydoc -w ./
 	mv *.html docs/
 
+
+Another code module, dirWatch.py, appears to be unused.
 
 ########### SVN repository information ###################
 # $Date$
