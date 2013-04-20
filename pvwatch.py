@@ -227,7 +227,8 @@ def buildReport():
     node.text = yyyymmdd + " " + hhmmss
 
     sorted_id_list = sorted(xref)
-    fields = ("name", "id", "description", "timestamp", "counter", "units", "value", "raw_value", "format")
+    fields = ("name", "id", "description", "timestamp", 
+              "counter", "units", "value", "raw_value", "format")
 
     for mne in sorted_id_list:
         pv = xref[mne]
@@ -245,23 +246,26 @@ def buildReport():
     
     global USAXS_DATA
     if USAXS_DATA is not None:
-	try:
+        try:
             specfile = USAXS_DATA['file']
-	    node = ElementTree.SubElement(root, "usaxs_scans")
-	    node.set("file", specfile)
-	    for scan in USAXS_DATA['usaxs']:
-	        scannode = ElementTree.SubElement(node, "scan")
-		for item in ('scan', 'key', 'label'):
-		    scannode.set(item, str(scan[item]))
-		scannode.set('specfile', specfile)
-		ElementTree.SubElement(scannode, "title").text = scan['title']
-		ElementTree.SubElement(scannode, "Q").text = ' '.join(scan['qVec'])
-		ElementTree.SubElement(scannode, "R").text = ' '.join(scan['rVec'])
-	except Exception, e:
-	    logMessage('caught Exception while writing USAXS scan data to XML file')
-	    logMessage('  file: %s' % specfile)
-	    logMessage(e)
-    	
+            node = ElementTree.SubElement(root, "usaxs_scans")
+            node.set("file", specfile)
+            for scan in USAXS_DATA['usaxs']:
+                scannode = ElementTree.SubElement(node, "scan")
+            for item in ('scan', 'key', 'label'):
+                scannode.set(item, str(scan[item]))
+            scannode.set('specfile', specfile)
+            ElementTree.SubElement(scannode, "title").text = scan['title']
+            vec = ElementTree.SubElement(scannode, "Q")
+            vec.set('units', '1/A')
+            vec.text = ' '.join(scan['qVec'])
+            vec.ElementTree.SubElement(scannode, "R")
+            vec.set('units', 'arbitrary')
+            vec.text = ' '.join(scan['rVec'])
+        except Exception, e:
+            logMessage('caught Exception while writing USAXS scan data to XML file')
+            logMessage('  file: %s' % specfile)
+            logMessage(e)
 
     # final steps
     doc = minidom.parseString(ElementTree.tostring(root))
