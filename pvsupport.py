@@ -19,6 +19,7 @@ import datetime
 from xml.etree import ElementTree
 from xml.dom import minidom
 
+
 total_callbacks = 0
 
 
@@ -44,7 +45,8 @@ class WatchedPV(object):
         total_callbacks += 1
         self.counter += 1
         self.timestamp = datetime.datetime.now()
-        self.units = kw.get('units', self.units)
+        if self.units is None:
+            self.units = kw.get('units', self.units)
         self.raw_value = kw.get('value', self.raw_value)
         try:
             self.value = self.fmt % self.raw_value
@@ -94,7 +96,7 @@ class WatchedList(object):
         return self.db.get(mne, None)
     
     def write_xml(self, parent, tag = 'pv'):
-        '''adds XML `tag` nodes below `parent`'''
+        '''adds XML `tag` nodes below `parent` for each PV in the list'''
         for obj in self.getList():
             obj.write_xml(parent, tag)
 
