@@ -41,7 +41,7 @@
                         <th>scan</th>
                         <th>file</th>
                     </tr>
-                    <xsl:apply-templates select="usaxs_scans/scan"/>
+                    <xsl:apply-templates select="usaxs_pvs/usaxs_scans/scan"/>
                 </table>
 
                 <hr />
