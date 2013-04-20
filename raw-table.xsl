@@ -16,10 +16,23 @@
                 <title>USAXS: EPICS process variables</title>
             </head>
             <body>
-                <h1>USAXS: EPICS process variables</h1>
+                <h1>USAXS: raw PV data from EPICS</h1>
                 <p>written by: <xsl:value-of select="/usaxs_pvs/written_by"/></p>
                 <p>date/time stamp: <xsl:value-of select="/usaxs_pvs/datetime"/></p>
+
+                <h2> recent USAXS scans plotted </h2>
+                <table border="2">
+                    <tr style="background-color: grey; color: white;">
+                        <th>title</th>
+                        <th>scan</th>
+                        <th>file</th>
+                    </tr>
+                    <xsl:apply-templates select="usaxs_pvs/usaxs_scans/scan"/>
+                </table>
+
+                <hr />
                 
+                <h2> EPICS process variables </h2>
                 <table border="2">
                     <tr style="background-color: grey; color: white;">
                         <th>name</th>
@@ -33,24 +46,12 @@
                 </table>
 
                 <hr />
-                <h2> recent USAXS scans plotted </h2>
-
-                <table border="2">
-                    <tr style="background-color: grey; color: white;">
-                        <th>title</th>
-                        <th>scan</th>
-                        <th>file</th>
-                    </tr>
-                    <xsl:apply-templates select="usaxs_pvs/usaxs_scans/scan"/>
-                </table>
-
-                <hr />
-		<p>
+                <p>
                     <small>
                         data gathered by: <xsl:value-of select="/usaxs_pvs/writer"/>
                     </small>
                 </p>
-		<p>
+                <p>
                     <small>
                         report page: $Id$
                     </small>
