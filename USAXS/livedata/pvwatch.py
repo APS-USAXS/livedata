@@ -114,15 +114,6 @@ def add_pv(mne, pv, desc, fmt):
     xref[mne] = pv            # mne is local mnemonic, define actual PV in pvlist.xml
 
 
-def makeSimpleTag(tag, value):
-    '''create a simple XML tag/value string'''
-    if len(str(value))>0:
-        s = "<%s>%s</%s>" % (tag, value, tag)
-    else:
-        s = "<%s/>" % tag
-    return s
-
-
 def getSpecFileName(pv):
     '''construct the name of the file, based on a PV'''
     userDir = pvdb[xref['spec_dir']]['value']
@@ -249,7 +240,6 @@ def buildReport():
         node.set("name", pv)
 
         for item in fields:
-            #xml.append("    " + makeSimpleTag(item, entry[item]))
             subnode = ElementTree.SubElement(node, item)
             subnode.text = str(entry[item])
     
