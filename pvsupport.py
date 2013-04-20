@@ -1,5 +1,9 @@
 #!/usr/bin/env python
 
+'''
+connect with and watch EPICS PVs
+'''
+
 ########### SVN repository information ###################
 # $Date$
 # $Author$
@@ -8,19 +12,15 @@
 # $Id$
 ########### SVN repository information ###################
 
-'''
-connect with and watch EPICS PVs
-'''
 
-
+from xml.dom import minidom
+from xml.etree import ElementTree
+import datetime
 import epics
 import time
-import datetime
-from xml.etree import ElementTree
-from xml.dom import minidom
 
 
-total_callbacks = 0
+TOTAL_CALLBACKS = 0
 
 
 class WatchedPV(object):
@@ -41,8 +41,8 @@ class WatchedPV(object):
     
     def callback(self, **kw):
         '''called when the PV updates'''
-        global total_callbacks
-        total_callbacks += 1
+        global TOTAL_CALLBACKS
+        TOTAL_CALLBACKS += 1
         self.counter += 1
         self.timestamp = datetime.datetime.now()
         if self.units is None:
@@ -107,10 +107,10 @@ if __name__ == '__main__':
     w.add('tod',     'morel:TOD',     'time of day', '%s')
     for _ in range(10):
         time.sleep(1)
-    print total_callbacks
+    print TOTAL_CALLBACKS
     
     root = ElementTree.Element("usaxs_pvs")
     root.set("version", "1")
-    root.set("monitored_events", str(total_callbacks))
+    root.set("monitored_events", str(TOTAL_CALLBACKS))
     w.write_xml(root, 'pv')
     print minidom.parseString(ElementTree.tostring(root)).toprettyxml(indent = "  ")
