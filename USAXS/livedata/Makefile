@@ -24,3 +24,6 @@ restart :: $(TARLIST)
 	./manage.csh restart
 
 all :: clean
+
+trigger_replot :: 
+	/bin/rm www/livedata/livedata.png
