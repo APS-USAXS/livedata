@@ -1,0 +1,32 @@
+<?xml version="1.0" ?>
+<?xml-stylesheet type="text/xsl" href="pvlist.xsl" ?>
+
+<!-- You can edit this file with a text editor -->
+
+<pvwatch version="1.0">
+	<!-- (update version if format of XML file changes) -->
+  <SVN svnid="$Id$"/>
+
+  <definition name="mne">
+  	one-word mnemonic reference used in python and xslt code
+  	(mne should be unique for each EPICS_PV)
+  </definition>
+  <definition name="PV">
+  	EPICS process variable name (must be used in only one EPICS_PV)
+  </definition>
+  <definition name="description">
+  	useful text informative to others
+  </definition>
+  <definition name="display_format">
+  	(optional, default="%s") PVs will be formatted with this string
+  </definition>
+  <definition name="_ignore_">
+  	(optional, default="false") this PV is ignored if value is not "false"
+  </definition>
+
+
+  <EPICS_PV PV="morel:iso8601" description="ISO-8601-compliant timestamp"  mne="timestamp"/>
+  <EPICS_PV PV="morel:TOD"     description="standard timestamp"            mne="datetime"/>
+
+</pvwatch>
+
