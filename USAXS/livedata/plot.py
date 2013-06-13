@@ -108,7 +108,7 @@ def make_ploticus_dictionary(specFile, tempDataFile, ploticus_data, usaxs):
     ploticus['specFile'] = specFile
     ploticus['dataFile'] = tempDataFile
     ploticus['title'] = specFile
-    ploticus['Qmin'] = 1e-5
+    ploticus['Qmin'] = 0.4e-5
     ploticus['Qmax'] = 1.0
     ploticus['Qmin'] = max(0.95*ploticus['Qmin'], float(ploticus_data['qMin']))
     ploticus['Qmax'] = float(ploticus_data['qMax'])
