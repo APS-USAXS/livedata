@@ -108,7 +108,7 @@ def make_ploticus_dictionary(specFile, tempDataFile, ploticus_data, usaxs):
     ploticus['specFile'] = specFile
     ploticus['dataFile'] = tempDataFile
     ploticus['title'] = specFile
-    ploticus['Qmin'] = 0.4e-5
+    ploticus['Qmin'] = 1e-6
     ploticus['Qmax'] = 1.0
     ploticus['Qmin'] = max(0.95*ploticus['Qmin'], float(ploticus_data['qMin']))
     ploticus['Qmax'] = float(ploticus_data['qMax'])
@@ -190,7 +190,7 @@ def ploticus_commands(db, usaxs):
     output.append("  label: |Q|, 1/A ")
     output.append("  labeldetails: size=18")
     output.append("  selflocatingstubs: text")
-    start = max(-5, int(math.floor(math.log10(db['Qmin']))))	# plot no lower than Q=1e-5
+    start = max(-6, int(math.floor(math.log10(db['Qmin']))))	# plot no lower than Q=1e-6, even if Qmin smaller
     finish = int(math.ceil(math.log10(db['Qmax'])))
     for y in range(start, finish+1):
         # major tick marks
