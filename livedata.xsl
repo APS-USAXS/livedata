@@ -169,7 +169,7 @@
                                         </xsl:otherwise>
                                     </xsl:choose>
                                     <xsl:choose>
-                                        <xsl:when test="//pv[@id='white_shtr_opened']/value=1">
+                                        <xsl:when test="//pv[@id='mono_shtr_opened']/value=1">
                                             <td bgcolor="#22ff22">mono: open</td>
                                         </xsl:when>
                                         <xsl:otherwise>
@@ -177,7 +177,7 @@
                                         </xsl:otherwise>
                                     </xsl:choose>
                                     <xsl:choose>
-                                        <xsl:when test="//pv[@id='mono_shtr_opened']/value=1">
+                                        <xsl:when test="//pv[@id='white_shtr_opened']/value=1">
                                             <td bgcolor="#22ff22">white: open</td>
                                         </xsl:when>
                                         <xsl:otherwise>
