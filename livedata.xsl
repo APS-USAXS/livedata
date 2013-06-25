@@ -161,11 +161,11 @@
                                         </xsl:otherwise>
                                     </xsl:choose>
                                     <xsl:choose>
-                                        <xsl:when test="//pv[@id='Ti_pf42_b3']/value=1 and //pv[@id='Ti_pf42_b4']/value=0">
-                                            <td bgcolor="#22ff22">USAXS Ti filter: open</td>
+                                        <xsl:when test="(//pv[@id='Ti_pf42_b3']/value=1) and (//pv[@id='Ti_pf42_b4']/value=0)">
+                                            <td bgcolor="#22ff22">USAXS Ti filter/shutter: open</td>
                                         </xsl:when>
                                         <xsl:otherwise>
-                                            <td bgcolor="#ff2222">USAXS Ti filter: closed</td>
+                                            <td bgcolor="#ff2222">USAXS Ti filter/shutter: closed</td>
                                         </xsl:otherwise>
                                     </xsl:choose>
                                     <xsl:choose>
