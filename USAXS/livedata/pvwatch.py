@@ -68,8 +68,12 @@ def logException(troublemaker):
 
 
 def monitor_receiver(epics_args, user_args):
-    '''Response to an EPICS monitor on the channel, uses pvConnect module
-       @param value: str(epics_args['pv_value'])'''
+    '''Response to an EPICS monitor on the channel, 
+    
+    uses pvConnect module
+    
+    @param value: str(epics_args['pv_value'])
+    '''
     global GLOBAL_MONITOR_COUNTER
     ch = user_args[0]
     pv = ch.GetPv()
@@ -90,7 +94,10 @@ def monitor_receiver(epics_args, user_args):
 
 
 def add_pv(mne, pv, desc, fmt):
-    '''Connect to another EPICS process variable, uses pvConnect module'''
+    '''Connect to another EPICS process variable, 
+    
+    uses pvConnect module
+    '''
     if pv in pvdb:
         raise Exception("%s already defined by id=%s" % (pv, pvdb[pv]['id']))
     ch = pvConnect.EpicsPv(pv)
