@@ -19,7 +19,7 @@ setenv WWW_DIR		 /data/www/livedata
 setenv SCRIPT		 ${SCRIPT_DIR}/pvwatch.py
 setenv LOGFILE		 ${WWW_DIR}/log.txt
 setenv PIDFILE		 ${WWW_DIR}/pid.txt
-setenv PYTHON		 /APSshare/bin/python
+setenv PYTHON		 /APSshare/epd/rh6-x86_64/bin/python
 
 switch ($1)
   case "start":
