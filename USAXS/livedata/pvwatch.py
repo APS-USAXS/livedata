@@ -25,7 +25,7 @@ import sys              # for flushing log output
 import time             # provides sleep()
 from xml.dom import minidom
 from xml.etree import ElementTree
-import pvConnect        # manages EPICS connections
+import epics            # manages EPICS (PyEpics) connections for Python 2.6+
 import prjPySpec        # read SPEC data files
 import plot             # makes PNG files of recent USAXS scans
 import localConfig      # definitions for 15ID
@@ -67,22 +67,20 @@ def logException(troublemaker):
     logMessage(msg)
 
 
-def monitor_receiver(epics_args, user_args):
-    '''Response to an EPICS monitor on the channel, 
-    
-    uses pvConnect module
-    
-    @param value: str(epics_args['pv_value'])
-    '''
+def EPICS_monitor_receiver(*args, **kws):
+    '''Response to an EPICS (PyEpics) monitor on the channel'''
     global GLOBAL_MONITOR_COUNTER
-    ch = user_args[0]
-    pv = ch.GetPv()
+    pv = kws['pvname']
+    if pv not in pvdb:
+        msg = '!!!ERROR!!! %s was not found in pvdb!' % pv
+        logMessage(msg)        # TODO: should this raise an exception?
+        return
     entry = pvdb[pv]
-    value = ch.GetValue()
+    ch = entry['ch']
     entry['timestamp'] = getTime()
     entry['counter'] += 1
-    entry['raw_value'] = value
-    entry['value'] = entry['format'] % value
+    entry['raw_value'] = ch.value
+    entry['value'] = entry['format'] % ch.value
     GLOBAL_MONITOR_COUNTER += 1
     try:
         # update the units, if possible
@@ -90,21 +88,15 @@ def monitor_receiver(epics_args, user_args):
             entry['units'] = epics_args['pv_units']
     except:
         pass    # some PVs have no "units", ignore these transgressions
-    #print 'monitor_receiver: ', pv, ' = ', value, epics_args
+    #print 'EPICS_monitor_receiver: ', entry['timestamp'], entry['counter'], pv, ' = ', ch.value
 
 
 def add_pv(mne, pv, desc, fmt):
-    '''Connect to another EPICS process variable, 
-    
-    uses pvConnect module
-    '''
+    '''Connect to another EPICS (PyEpics) process variable'''
     if pv in pvdb:
         raise Exception("%s already defined by id=%s" % (pv, pvdb[pv]['id']))
-    ch = pvConnect.EpicsPv(pv)
-    ch.SetUserArgs(ch)
-    ch.connectw()
-    ch.SetUserCallback(monitor_receiver)
-    ch.monitor()
+    ch = epics.PV(pv, callback=EPICS_monitor_receiver)
+    ch.connect()
     entry = {
         'name': pv,           # EPICS PV name
         'id': mne,            # symbolic name used in the python code
@@ -240,9 +232,7 @@ def buildReport():
     for mne in sorted_id_list:
         pv = xref[mne]
         entry = pvdb[pv]
-        #ch = entry['ch']
 
-        #xml.append('  <pv id="%s" name="%s">' % (mne, pv))
         node = ElementTree.SubElement(root, "pv")
         node.set("id", mne)
         node.set("name", pv)
@@ -283,6 +273,9 @@ def buildReport():
 def report():
     '''write the values out to files'''
     xmlText = buildReport()
+    
+    # TODO: do these XSLT transformation with Python package rather than system shellCommandToFile()
+    # TODO: can replace scpToWebServer() with Python package capabilities?
 
     # WWW directory for livedata (absolute path)
     localDir = localConfig.LOCAL_WWW_LIVEDATA_DIR
@@ -330,42 +323,73 @@ def getTime():
     return dt
 
 
+def _initiate_PV_connections():
+    '''create connections to all defined PVs'''
+    if not os.path.exists(PVLIST_FILE):
+        logMessage('could not find file: ' + PVLIST_FILE)
+        return
+    try:
+        tree = ElementTree.parse(PVLIST_FILE)
+    except:
+        logMessage('could not parse file: ' + PVLIST_FILE)
+        return
+
+    for key in tree.findall(".//EPICS_PV"):
+        if key.get("_ignore_", "false").lower() == "false":
+            mne = key.get("mne")
+            pv = key.get("PV")
+            desc = key.get("description")
+            fmt = key.get("display_format", "%s")  # default format
+            try:
+                add_pv(mne, pv, desc, fmt)
+            except:
+                msg = "%s: problem connecting: %s" % (PVLIST_FILE, ElementTree.tostring(key))
+                logException(msg)
+
+
+def _periodic_reporting_task(mainLoopCount, nextReport, nextLog, delta_report, delta_log):
+    global GLOBAL_MONITOR_COUNTER
+    global MAINLOOP_COUNTER_TRIGGER
+    dt = getTime()
+    epics.ca.poll()
+
+    if mainLoopCount == 0:
+        logMessage(" %s times through main loop" % MAINLOOP_COUNTER_TRIGGER)
+
+    if dt >= nextReport:
+        nextReport = dt + delta_report
+
+        try: report()                                   # write contents of pvdb to a file
+        except: logException("report()")                # report the exception
+
+        try: updateSpecMacroFile()                      # copy the spec macro file
+        except: logException("updateSpecMacroFile()")   # report the exception
+
+        try: updatePlotImage()                          # update the plot
+        except: logException("updatePlotImage()")       # report the exception
+
+    if dt >= nextLog:
+        nextLog = dt + delta_log
+        msg = "checkpoint, %d EPICS monitor events received" % GLOBAL_MONITOR_COUNTER
+        logMessage(msg)
+        GLOBAL_MONITOR_COUNTER = 0  # reset
+    #print dt
+    return nextReport, nextLog
+
 def main():
     '''
     run the main loop
     '''
     global GLOBAL_MONITOR_COUNTER
     test_pv = 'S:SRcurrentAI'
-    if pvConnect.testConnect(test_pv):
+    epics.caget(test_pv)
+    ch = epics.PV(test_pv)
+    epics.ca.poll()
+    connected = ch.connect(timeout=5.0)
+    if connected:
         logMessage("starting pvwatch.py")
+        _initiate_PV_connections()
 
-        ch = pvConnect.EpicsPv(test_pv)
-        ch.connectw()
-        ch.monitor()
-
-        if not os.path.exists(PVLIST_FILE):
-            logMessage('could not find file: ' + PVLIST_FILE)
-            return
-        try:
-            tree = ElementTree.parse(PVLIST_FILE)
-        except:
-            logMessage('could not parse file: ' + PVLIST_FILE)
-            return
-
-        for key in tree.findall("//EPICS_PV"):
-            if key.get("_ignore_", "false").lower() == "false":
-                mne = key.get("mne")
-                pv = key.get("PV")
-                desc = key.get("description")
-                fmt = key.get("display_format", "%s")  # default format
-                try:
-                    add_pv(mne, pv, desc, fmt)
-                except:
-                    logException(
-                                 "%s: problem connecting: %s" 
-                                 % (PVLIST_FILE, ElementTree.tostring(key))
-                                 )
-        pvConnect.CaPoll()
         logMessage("Connected %d EPICS PVs" % len(pvdb))
 
         nextReport = getTime()
@@ -374,53 +398,18 @@ def main():
         delta_log = datetime.timedelta(seconds=localConfig.LOG_INTERVAL_S)
         mainLoopCount = 0
         while True:
-            dt = getTime()
-            ch.chan.pend_event()
-
             mainLoopCount = (mainLoopCount + 1) % MAINLOOP_COUNTER_TRIGGER
-            if mainLoopCount % MAINLOOP_COUNTER_TRIGGER == 0:
-                logMessage(" %s times through main loop" % MAINLOOP_COUNTER_TRIGGER)
-
-            if dt >= nextReport:
-                nextReport = dt + delta_report
-
-                try:
-                    report()                # write contents of pvdb to a file
-                except:
-                    # report the exception
-                    logException("report()")
-
-                try:
-                    updateSpecMacroFile()   # copy the spec macro file
-                except:
-                    # report the exception
-                    logException("updateSpecMacroFile()")
-
-                try:
-                    updatePlotImage()       # update the plot
-                except:
-                    logException("updatePlotImage()")
-            if dt >= nextLog:
-                nextLog = dt + delta_log
-                logMessage(
-                    "checkpoint, %d EPICS monitor events received"
-                    % GLOBAL_MONITOR_COUNTER
-                )
-                GLOBAL_MONITOR_COUNTER = 0  # reset
-            #print dt
+            nextReport, nextLog = _periodic_reporting_task(mainLoopCount, nextReport, nextLog, delta_report, delta_log)
             time.sleep(localConfig.SLEEP_INTERVAL_S)
 
         # this exit handling will never be called
         for pv in pvdb:
             ch = pvdb[pv]['ch']
             if ch != None:
-                pvdb[pv]['ch'].release()
-        pvConnect.on_exit()
+                ch.disconnect()
         print "script is done"
+    print 'Did not connect PV:', ch, '  program has exited'
 
 
 if __name__ == '__main__':
-    if pvConnect.IMPORTED_CACHANNEL:
-        main()
-    else:
-        print "CaChannel is missing, cannot run"
+    main()
