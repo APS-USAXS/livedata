@@ -45,6 +45,10 @@ PVLIST_FILE = "pvlist.xml"
 MAINLOOP_COUNTER_TRIGGER = 10000  # print a log message periodically
 USAXS_DATA = None
 
+PVWATCH_INDEX_PV = '15iddLAX:long20'
+PVWATCH_PID_PV   = '15iddLAX:long19'
+PVWATCH_REF_PV   = '15iddLAX:long18'
+
 
 def logMessage(msg):
     '''write a message with a timestamp and pid to the log file'''
@@ -123,6 +127,8 @@ def getSpecFileName(pv):
 
 def updateSpecMacroFile():
     '''copy the current SPEC macro file to the WWW page space'''
+    epics.caput(PVWATCH_REF_PV, 3)
+
     #@TODO: What if the specFile is actually a directory?
     if len(pvdb[xref['spec_macro_file']]['value'].strip()) == 0:
         # SPEC file name PV is empty
@@ -134,7 +140,7 @@ def updateSpecMacroFile():
         return
     if not os.path.isfile(specFile):
         # @TODO: will this write too much to the logs?
-	# 2010-08-19,PRJ: Certainly if the rawName is empty, now trapped above
+        # 2010-08-19,PRJ: Certainly if the rawName is empty, now trapped above
         logMessage(specFile + " is not a file")
         return
     localDir = localConfig.LOCAL_WWW_LIVEDATA_DIR
@@ -156,6 +162,8 @@ def updateSpecMacroFile():
 
 def updatePlotImage():
     '''make a new PNG file with the most recent USAXS scans'''
+    epics.caput(PVWATCH_REF_PV, 4)
+
     specFile = getSpecFileName(xref['spec_data_file'])
     if not os.path.exists(specFile):
         logMessage(specFile + " does not exist")
@@ -176,12 +184,12 @@ def updatePlotImage():
             makePlot = True        #  plot only if new data
     if makePlot:
         logMessage("updating the plots and gathering scan data for XML file")
-	usaxs = plot.update_n_plots(specFile, localConfig.NUM_SCANS_PLOTTED)
-	global USAXS_DATA
-	USAXS_DATA = {
-	    'file': specFile,
-	    'usaxs': usaxs,
-	}
+        usaxs = plot.update_n_plots(specFile, localConfig.NUM_SCANS_PLOTTED)
+        global USAXS_DATA
+        USAXS_DATA = {
+            'file': specFile,
+            'usaxs': usaxs,
+        }
 
 
 def writeFile(file, contents):
@@ -226,7 +234,7 @@ def buildReport():
     node.text = yyyymmdd + " " + hhmmss
 
     sorted_id_list = sorted(xref)
-    fields = ("name", "id", "description", "timestamp", 
+    fields = ("name", "id", "description", "timestamp",
               "counter", "units", "value", "raw_value", "format")
 
     for mne in sorted_id_list:
@@ -240,7 +248,7 @@ def buildReport():
         for item in fields:
             subnode = ElementTree.SubElement(node, item)
             subnode.text = str(entry[item])
-    
+
     global USAXS_DATA
     if USAXS_DATA is not None:
         try:
@@ -272,8 +280,10 @@ def buildReport():
 
 def report():
     '''write the values out to files'''
+    epics.caput(PVWATCH_REF_PV, 2)
+
     xmlText = buildReport()
-    
+
     # TODO: do these XSLT transformation with Python package rather than system shellCommandToFile()
     # TODO: can replace scpToWebServer() with Python package capabilities?
 
@@ -369,12 +379,15 @@ def _periodic_reporting_task(mainLoopCount, nextReport, nextLog, delta_report, d
         except: logException("updatePlotImage()")       # report the exception
 
     if dt >= nextLog:
+        epics.caput(PVWATCH_REF_PV, 1)
         nextLog = dt + delta_log
         msg = "checkpoint, %d EPICS monitor events received" % GLOBAL_MONITOR_COUNTER
         logMessage(msg)
         GLOBAL_MONITOR_COUNTER = 0  # reset
+
     #print dt
     return nextReport, nextLog
+
 
 def main():
     '''
@@ -391,6 +404,12 @@ def main():
         _initiate_PV_connections()
 
         logMessage("Connected %d EPICS PVs" % len(pvdb))
+        epics.caput(PVWATCH_INDEX_PV+'.DESC', 'pvwatch mainLoopCounter')
+        epics.caput(PVWATCH_PID_PV+'.DESC', 'pvwatch PID')
+        epics.caput(PVWATCH_REF_PV+'.DESC', 'pvwatch reference')
+        epics.caput(PVWATCH_INDEX_PV, -1)
+        epics.caput(PVWATCH_PID_PV, os.getpid())
+        epics.caput(PVWATCH_REF_PV, -1)
 
         nextReport = getTime()
         nextLog = nextReport
@@ -398,8 +417,11 @@ def main():
         delta_log = datetime.timedelta(seconds=localConfig.LOG_INTERVAL_S)
         mainLoopCount = 0
         while True:
+            epics.caput(PVWATCH_REF_PV, 0)
             mainLoopCount = (mainLoopCount + 1) % MAINLOOP_COUNTER_TRIGGER
-            nextReport, nextLog = _periodic_reporting_task(mainLoopCount, nextReport, nextLog, delta_report, delta_log)
+            nextReport, nextLog = _periodic_reporting_task(mainLoopCount,
+                                           nextReport, nextLog, delta_report, delta_log)
+            epics.caput(PVWATCH_INDEX_PV, mainLoopCount)
             time.sleep(localConfig.SLEEP_INTERVAL_S)
 
         # this exit handling will never be called
