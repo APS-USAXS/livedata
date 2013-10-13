@@ -59,7 +59,7 @@ HTML_USAXSTV_FILE = "usaxstv.html"
 LIVEDATA_XSL_STYLESHEET = "livedata.xsl"
 RAWTABLE_XSL_STYLESHEET = "raw-table.xsl"
 USAXSTV_XSL_STYLESHEET = "usaxstv.xsl"
-XSLT_COMMAND = "/usr/bin/xsltproc --novalid %s "
+#XSLT_COMMAND = "/usr/bin/xsltproc --novalid %s "
 SPECMACRO_TXT_FILE = "specmacro.txt"
 
 
