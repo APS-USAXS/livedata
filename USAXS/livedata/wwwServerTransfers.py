@@ -34,10 +34,11 @@ RSYNC = "/usr/bin/rsync"
 
 def scpToWebServer_Demonstrate(sourceFile, targetFile = ""):
     '''
-    Demonstrate a copy the local source file to the WWW server using scp BUT DON"T DO IT
+    Demonstrate a copy from the local source file to the WWW server using scp BUT DO NOT DO IT
     ...
     ... this is useful for code development only...
     ...
+
     @param sourceFile: file in local file space *relative* to /data/www/livedata
     @param targetFile: destination file (default is same path as sourceFile)
     @return: None
@@ -48,11 +49,16 @@ def scpToWebServer_Demonstrate(sourceFile, targetFile = ""):
 def scpToWebServer(sourceFile, targetFile = "", demo = False):
     '''
     Copy the local source file to the WWW server using scp.
+
     @param sourceFile: file in local file space relative to /data/www/livedata
     @param targetFile: destination file (default is same path as sourceFile)
     @param demo: If True, don't do the copy, just print the command
     @return: a tuple (stdoutdata,  stderrdata) -or- None (if demo=False)
     '''
+    # TODO: can we replace scpToWebServer() with Python package capabilities?
+    #  not a major improvement
+    # see: http://stackoverflow.com/questions/250283/how-to-scp-in-python
+    # see: http://stackoverflow.com/questions/68335/how-do-i-copy-a-file-to-a-remote-server-in-python-using-scp-or-ssh?lq=1
     if not os.path.exists(sourceFile):
         raise Exception("Local file not found: " + sourceFile)
     if len(targetFile) == 0:
@@ -72,6 +78,7 @@ def scpToWebServer(sourceFile, targetFile = "", demo = False):
 def execute_command(command):
     '''
     execute the specified command
+
     @return: a tuple (stdoutdata,  stderrdata)
     '''
     # run the command but gobble up stdout (make it less noisy)

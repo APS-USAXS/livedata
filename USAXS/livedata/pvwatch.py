@@ -31,6 +31,7 @@ import plot             # makes PNG files of recent USAXS scans
 import localConfig      # definitions for 15ID
 import wwwServerTransfers
 
+
 SVN_ID = "$Id$"
 
 
@@ -199,6 +200,18 @@ def writeFile(file, contents):
     f.close()
 
 
+def xslt_transformation(xslt_file, src_xml_file, result_xml_file):
+    '''transform an XMLS file using an XSLT'''
+    # see: http://lxml.de/xpathxslt.html#xslt
+    from lxml import etree      # in THIS routine, use lxml's etree
+    src_doc = etree.parse(src_xml_file)
+    xslt_doc = etree.parse(xslt_file)
+    transform = etree.XSLT(xslt_doc)
+    result_doc = transform(src_doc)
+    buf = etree.tostring(result_doc, pretty_print=True)
+    writeFile(result_xml_file, buf)
+
+
 def shellCommandToFile(command, outFile):
     '''execute a shell command and write its output to a file'''
     p = subprocess.Popen(shlex.split(command), stdout=subprocess.PIPE)
@@ -283,48 +296,48 @@ def report():
     epics.caput(PVWATCH_REF_PV, 2)
 
     xmlText = buildReport()
-
-    # TODO: do these XSLT transformation with Python package rather than system shellCommandToFile()
-    # TODO: can replace scpToWebServer() with Python package capabilities?
+    epics.caput(PVWATCH_REF_PV, 20)
 
     # WWW directory for livedata (absolute path)
     localDir = localConfig.LOCAL_WWW_LIVEDATA_DIR
 
     #--- write the XML with the raw data from EPICS
-    file__raw_xml = localConfig.XML_REPORT_FILE
-    localFile = os.path.join(localDir, file__raw_xml)
-    writeFile(localFile, xmlText)
-    wwwServerTransfers.scpToWebServer(localFile, file__raw_xml)
+    raw_xml = localConfig.XML_REPORT_FILE
+    abs_raw_xml = os.path.join(localDir, raw_xml)
+    writeFile(abs_raw_xml, xmlText)
+    epics.caput(PVWATCH_REF_PV, 21)
+    wwwServerTransfers.scpToWebServer(abs_raw_xml, raw_xml)
+    epics.caput(PVWATCH_REF_PV, 22)
 
     #--- xslt transforms from XML to HTML
-    xsltCommandFormat = localConfig.XSLT_COMMAND + localFile  # xslt command
 
     # make the index.html file
-    file__index_html = localConfig.HTML_INDEX_FILE  # short name
-    xslFile = localConfig.LIVEDATA_XSL_STYLESHEET   # in Python code dir
-    localFile = os.path.join(localDir, file__index_html)  # absolute path
-    xsltCommand = xsltCommandFormat % xslFile
-    shellCommandToFile(xsltCommand, localFile)    # do the XSLT transform
-    wwwServerTransfers.scpToWebServer(localFile, file__index_html)  # copy to XSD
+    index_html = localConfig.HTML_INDEX_FILE  # short name
+    abs_index_html = os.path.join(localDir, index_html)  # absolute path
+    xslt_transformation(localConfig.LIVEDATA_XSL_STYLESHEET, abs_raw_xml, abs_index_html)
+    epics.caput(PVWATCH_REF_PV, 23)
+    wwwServerTransfers.scpToWebServer(abs_index_html, index_html)  # copy to XSD
+    epics.caput(PVWATCH_REF_PV, 24)
 
     # display the raw data (but pre-convert it in an html page)
-    file__raw_html = localConfig.HTML_RAWREPORT_FILE
-    xslFile = localConfig.RAWTABLE_XSL_STYLESHEET
-    localFile = os.path.join(localDir, file__raw_html)
-    xsltCommand = xsltCommandFormat % xslFile
-    shellCommandToFile(xsltCommand, localFile)    # do the XSLT transform
-    wwwServerTransfers.scpToWebServer(localFile, file__raw_html)
+    raw_html = localConfig.HTML_RAWREPORT_FILE
+    abs_raw_html = os.path.join(localDir, raw_html)
+    xslt_transformation(localConfig.RAWTABLE_XSL_STYLESHEET, abs_raw_xml, abs_raw_html)
+    epics.caput(PVWATCH_REF_PV, 25)
+    wwwServerTransfers.scpToWebServer(abs_raw_html, raw_html)
+    epics.caput(PVWATCH_REF_PV, 26)
 
-    localFile = os.path.join(localDir, xslFile)
-    wwwServerTransfers.scpToWebServer(localFile, xslFile)
+    # also copy the raw table XSLT
+    xslFile = localConfig.RAWTABLE_XSL_STYLESHEET
+    wwwServerTransfers.scpToWebServer(os.path.join(localDir, xslFile), xslFile)
 
     # make the usaxstv.html file
-    file__usaxstv_html = localConfig.HTML_USAXSTV_FILE  # short name
-    xslFile = localConfig.USAXSTV_XSL_STYLESHEET   # in Python code dir
-    localFile = os.path.join(localDir, file__usaxstv_html)  # absolute path
-    xsltCommand = xsltCommandFormat % xslFile
-    shellCommandToFile(xsltCommand, localFile)    # do the XSLT transform
-    wwwServerTransfers.scpToWebServer(localFile, file__usaxstv_html)  # copy to XSD
+    usaxstv_html = localConfig.HTML_USAXSTV_FILE  # short name
+    abs_usaxstv_html = os.path.join(localDir, usaxstv_html)  # absolute path
+    xslt_transformation(localConfig.USAXSTV_XSL_STYLESHEET, abs_raw_xml, abs_usaxstv_html)
+    epics.caput(PVWATCH_REF_PV, 27)
+    wwwServerTransfers.scpToWebServer(abs_usaxstv_html, usaxstv_html)  # copy to XSD
+    epics.caput(PVWATCH_REF_PV, 28)
 
 
 def getTime():
