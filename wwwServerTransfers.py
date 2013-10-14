@@ -43,7 +43,7 @@ def scpToWebServer_Demonstrate(sourceFile, targetFile = ""):
     @param targetFile: destination file (default is same path as sourceFile)
     @return: None
     '''
-    return scpToWebServer_Demonstrate(sourceFile, targetFile, demo = True)
+    return scpToWebServer(sourceFile, targetFile, demo = True)
 
 
 def scpToWebServer(sourceFile, targetFile = "", demo = False):
@@ -71,7 +71,7 @@ def scpToWebServer(sourceFile, targetFile = "", demo = False):
     else:
         lex = shlex.split(command)
         p = subprocess.Popen(lex)
-        p.wait()
+        #p.wait()
         return p.communicate()
 
 
