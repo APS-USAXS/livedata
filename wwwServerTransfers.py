@@ -1,14 +1,7 @@
 #!/usr/bin/env python
-########### SVN repository information ###################
-# $Date$
-# $Author$
-# $Revision$
-# $URL$
-# $Id$
-########### SVN repository information ###################
 
 '''
-   manage file transfers with the USAXS account on the XSD WWW server
+manage file transfers with the USAXS account on the XSD WWW server
 '''
 
 
@@ -17,10 +10,14 @@ import subprocess
 import shlex
 import shutil
 import datetime
+import paramiko
+from scp import SCPClient
 
 
 # general use
-WWW_SERVER_ROOT = "usaxs@www-i.xray.aps.anl.gov"
+WWW_SERVER = 'www-i.xray.aps.anl.gov'
+WWW_SERVER_USER = 'usaxs'
+WWW_SERVER_ROOT = WWW_SERVER_USER + '@' + WWW_SERVER
 LIVEDATA_DIR = "www/livedata"
 SERVER_WWW_HOMEDIR = WWW_SERVER_ROOT + ":~"
 SERVER_WWW_LIVEDATA = os.path.join(SERVER_WWW_HOMEDIR, LIVEDATA_DIR)
@@ -32,6 +29,36 @@ SCP_TIMEOUT_S = 30
 
 SCP = "/usr/bin/scp"
 RSYNC = "/usr/bin/rsync"
+
+
+def scpToWebServer(sourceFile, targetFile = "", demo = False):
+    '''
+    Copy the local source file to the WWW server using scp.
+
+    @param sourceFile: file in local file space relative to /data/www/livedata
+    @param targetFile: destination file (default is same path as sourceFile)
+    @param demo: If True, don't do the copy, just print the command
+    @return: a tuple (stdoutdata,  stderrdata) -or- None (if demo=False)
+    '''
+    import pvwatch
+    if not os.path.exists(sourceFile):
+        raise Exception("Local file not found: " + sourceFile)
+    if len(targetFile) == 0:
+        targetFile = sourceFile
+    destinationName = os.path.join(SERVER_WWW_LIVEDATA, targetFile)
+    command = "%s -p %s %s" % (SCP, sourceFile, destinationName)
+    if demo:
+        print command
+        return None
+
+    # TODO: handle exceptions
+    pvwatch.debugging_diagnostic(211)
+    ssh = createSSHClient(WWW_SERVER, user=WWW_SERVER_USER)
+    pvwatch.debugging_diagnostic(212)
+    scp = SCPClient(ssh.get_transport())
+    pvwatch.debugging_diagnostic(213)
+    scp.put(sourceFile, remote_path=LIVEDATA_DIR)
+    pvwatch.debugging_diagnostic(214)
 
 
 def scpToWebServer_Demonstrate(sourceFile, targetFile = ""):
@@ -48,7 +75,7 @@ def scpToWebServer_Demonstrate(sourceFile, targetFile = ""):
     return scpToWebServer(sourceFile, targetFile, demo = True)
 
 
-def scpToWebServer(sourceFile, targetFile = "", demo = False):
+def scpToWebServer_subprocess(sourceFile, targetFile = "", demo = False):
     '''
     Copy the local source file to the WWW server using scp.
 
@@ -103,6 +130,18 @@ def execute_command(command):
     return p.communicate(None)
 
 
+def createSSHClient(server, port=None, user=None, password=None):
+    '''scp over a paramiko transport'''
+    # see: http://stackoverflow.com/questions/250283/how-to-scp-in-python
+    # TODO: handle exceptions
+    client = paramiko.SSHClient()
+    client.load_system_host_keys()
+    client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    #client.connect(server, port, user, password)
+    client.connect(server, username=user)
+    return client
+
+
 if __name__ == '__main__':
     scpToWebServer("wwwServerTransfers.py")
     scpToWebServer_Demonstrate("wwwServerTransfers.py")
@@ -112,3 +151,12 @@ if __name__ == '__main__':
         print sys.exc_info()[1]
     scpToWebServer("wwwServerTransfers.py", "wally.txt")
     scpToWebServer_Demonstrate("wwwServerTransfers.py", "wally.txt")
+
+
+########### SVN repository information ###################
+# $Date$
+# $Author$
+# $Revision$
+# $URL$
+# $Id$
+########### SVN repository information ###################
