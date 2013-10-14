@@ -1,18 +1,12 @@
 #!/usr/bin/env python
-########### SVN repository information ###################
-# $Date$
-# $Author$
-# $Revision$
-# $URL$
-# $Id$
-########### SVN repository information ###################
 
 '''
-   watch the USAXS EPICS process variables and
-   write them to a file periodically
+watch the USAXS EPICS process variables and periodically write them to a file
 
-   Start this with the shell command
-   /APSshare/bin/python ./pvwatch.py >>& log.txt
+Start this with the shell command::
+
+    /APSshare/epd/rh6-x86_64/bin/python ./pvwatch.py >>& log.txt
+
 '''
 
 
@@ -452,3 +446,12 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+
+########### SVN repository information ###################
+# $Date$
+# $Author$
+# $Revision$
+# $URL$
+# $Id$
+########### SVN repository information ###################
