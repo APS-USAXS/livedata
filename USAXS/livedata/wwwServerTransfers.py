@@ -16,6 +16,7 @@ import os, sys
 import subprocess
 import shlex
 import shutil
+import datetime
 
 
 # general use
@@ -27,6 +28,7 @@ LOCAL_DATA_DIR = "/data"
 LOCAL_USAXS_DATA__DIR = LOCAL_DATA_DIR + "/USAXS_data"
 LOCAL_WWW = LOCAL_DATA_DIR + "/www"
 LOCAL_WWW_LIVEDATA = os.path.join(LOCAL_DATA_DIR, LIVEDATA_DIR)
+SCP_TIMEOUT_S = 30
 
 SCP = "/usr/bin/scp"
 RSYNC = "/usr/bin/rsync"
@@ -55,8 +57,9 @@ def scpToWebServer(sourceFile, targetFile = "", demo = False):
     @param demo: If True, don't do the copy, just print the command
     @return: a tuple (stdoutdata,  stderrdata) -or- None (if demo=False)
     '''
-    # TODO: can we replace scpToWebServer() with Python package capabilities?
-    #  not a major improvement
+    import pvwatch
+    # Can we replace scpToWebServer() with Python package capabilities?
+    #  No major improvement.
     # see: http://stackoverflow.com/questions/250283/how-to-scp-in-python
     # see: http://stackoverflow.com/questions/68335/how-do-i-copy-a-file-to-a-remote-server-in-python-using-scp-or-ssh?lq=1
     if not os.path.exists(sourceFile):
@@ -70,21 +73,34 @@ def scpToWebServer(sourceFile, targetFile = "", demo = False):
         return None
     else:
         lex = shlex.split(command)
+        pvwatch.debugging_diagnostic(211)
+        timeout_time = pvwatch.getTime() + datetime.timedelta(seconds=SCP_TIMEOUT_S)
         p = subprocess.Popen(lex)
-        #p.wait()
-        return p.communicate()
+        pvwatch.debugging_diagnostic(212)
+        finished = False
+        while pvwatch.getTime() < timeout_time and not finished:
+            code = p.poll()
+            if code is not None:
+                finished = True
+        result = p.communicate(None)
+        if not finished or code != 0:
+            msg = {True: 'problem', False: 'timeout'}[finished]
+            msg += ': command `%s` returned code=%d' % (command, code)
+            msg += '\nSTDOUT=%s\nSTDERR=%s' % (str(result[0]), str(result[1]))
+            pvwatch.logMessage(msg)
+        return result
 
 
 def execute_command(command):
     '''
-    execute the specified command
+    execute the specified shell command
 
     @return: a tuple (stdoutdata,  stderrdata)
     '''
     # run the command but gobble up stdout (make it less noisy)
     p = subprocess.Popen(shlex.split(command), stdout=subprocess.PIPE)
-    p.wait()
-    return p.communicate()
+    #p.wait()
+    return p.communicate(None)
 
 
 if __name__ == '__main__':

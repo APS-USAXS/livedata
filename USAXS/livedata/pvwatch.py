@@ -128,7 +128,7 @@ def getSpecFileName(pv):
 
 def updateSpecMacroFile():
     '''copy the current SPEC macro file to the WWW page space'''
-    epics.caput(PVWATCH_REF_PV, 3)
+    debugging_diagnostic(3)
 
     #@TODO: What if the specFile is actually a directory?
     if len(pvdb[xref['spec_macro_file']]['value'].strip()) == 0:
@@ -163,7 +163,7 @@ def updateSpecMacroFile():
 
 def updatePlotImage():
     '''make a new PNG file with the most recent USAXS scans'''
-    epics.caput(PVWATCH_REF_PV, 4)
+    debugging_diagnostic(4)
 
     specFile = getSpecFileName(xref['spec_data_file'])
     if not os.path.exists(specFile):
@@ -184,7 +184,7 @@ def updatePlotImage():
         if spec_mtime > plot_mtime:
             makePlot = True        #  plot only if new data
     if makePlot:
-        logMessage("updating the plots and gathering scan data for XML file")
+        #logMessage("updating the plots and gathering scan data for XML file")
         usaxs = plot.update_n_plots(specFile, localConfig.NUM_SCANS_PLOTTED)
         global USAXS_DATA
         USAXS_DATA = {
@@ -203,12 +203,12 @@ def writeFile(file, contents):
 def xslt_transformation(xslt_file, src_xml_file, result_xml_file):
     '''transform an XMLS file using an XSLT'''
     # see: http://lxml.de/xpathxslt.html#xslt
-    from lxml import etree      # in THIS routine, use lxml's etree
-    src_doc = etree.parse(src_xml_file)
-    xslt_doc = etree.parse(xslt_file)
-    transform = etree.XSLT(xslt_doc)
+    from lxml import etree as lxml_etree      # in THIS routine, use lxml's etree
+    src_doc = lxml_etree.parse(src_xml_file)
+    xslt_doc = lxml_etree.parse(xslt_file)
+    transform = lxml_etree.XSLT(xslt_doc)
     result_doc = transform(src_doc)
-    buf = etree.tostring(result_doc, pretty_print=True)
+    buf = lxml_etree.tostring(result_doc, pretty_print=True)
     writeFile(result_xml_file, buf)
 
 
@@ -227,6 +227,10 @@ def insertPI(xmlText, piText):
     xml = xmlText.split("\n")
     xml.insert(1, piText)
     return "\n".join(xml)
+
+
+def debugging_diagnostic(code):
+    epics.caput(PVWATCH_REF_PV, code)
 
 
 def buildReport():
@@ -277,7 +281,7 @@ def buildReport():
             vec = ElementTree.SubElement(scannode, "Q")
             vec.set('units', '1/A')
             vec.text = ' '.join(scan['qVec'])
-            vec.ElementTree.SubElement(scannode, "R")
+            vec = ElementTree.SubElement(scannode, "R")
             vec.set('units', 'arbitrary')
             vec.text = ' '.join(scan['rVec'])
         except Exception, e:
@@ -293,10 +297,10 @@ def buildReport():
 
 def report():
     '''write the values out to files'''
-    epics.caput(PVWATCH_REF_PV, 2)
+    debugging_diagnostic(2)
 
     xmlText = buildReport()
-    epics.caput(PVWATCH_REF_PV, 20)
+    debugging_diagnostic(20)
 
     # WWW directory for livedata (absolute path)
     localDir = localConfig.LOCAL_WWW_LIVEDATA_DIR
@@ -305,9 +309,9 @@ def report():
     raw_xml = localConfig.XML_REPORT_FILE
     abs_raw_xml = os.path.join(localDir, raw_xml)
     writeFile(abs_raw_xml, xmlText)
-    epics.caput(PVWATCH_REF_PV, 21)
+    debugging_diagnostic(21)
     wwwServerTransfers.scpToWebServer(abs_raw_xml, raw_xml)
-    epics.caput(PVWATCH_REF_PV, 22)
+    debugging_diagnostic(22)
 
     #--- xslt transforms from XML to HTML
 
@@ -315,17 +319,17 @@ def report():
     index_html = localConfig.HTML_INDEX_FILE  # short name
     abs_index_html = os.path.join(localDir, index_html)  # absolute path
     xslt_transformation(localConfig.LIVEDATA_XSL_STYLESHEET, abs_raw_xml, abs_index_html)
-    epics.caput(PVWATCH_REF_PV, 23)
+    debugging_diagnostic(23)
     wwwServerTransfers.scpToWebServer(abs_index_html, index_html)  # copy to XSD
-    epics.caput(PVWATCH_REF_PV, 24)
+    debugging_diagnostic(24)
 
     # display the raw data (but pre-convert it in an html page)
     raw_html = localConfig.HTML_RAWREPORT_FILE
     abs_raw_html = os.path.join(localDir, raw_html)
     xslt_transformation(localConfig.RAWTABLE_XSL_STYLESHEET, abs_raw_xml, abs_raw_html)
-    epics.caput(PVWATCH_REF_PV, 25)
+    debugging_diagnostic(25)
     wwwServerTransfers.scpToWebServer(abs_raw_html, raw_html)
-    epics.caput(PVWATCH_REF_PV, 26)
+    debugging_diagnostic(26)
 
     # also copy the raw table XSLT
     xslFile = localConfig.RAWTABLE_XSL_STYLESHEET
@@ -335,9 +339,9 @@ def report():
     usaxstv_html = localConfig.HTML_USAXSTV_FILE  # short name
     abs_usaxstv_html = os.path.join(localDir, usaxstv_html)  # absolute path
     xslt_transformation(localConfig.USAXSTV_XSL_STYLESHEET, abs_raw_xml, abs_usaxstv_html)
-    epics.caput(PVWATCH_REF_PV, 27)
+    debugging_diagnostic(27)
     wwwServerTransfers.scpToWebServer(abs_usaxstv_html, usaxstv_html)  # copy to XSD
-    epics.caput(PVWATCH_REF_PV, 28)
+    debugging_diagnostic(28)
 
 
 def getTime():
@@ -392,7 +396,7 @@ def _periodic_reporting_task(mainLoopCount, nextReport, nextLog, delta_report, d
         except: logException("updatePlotImage()")       # report the exception
 
     if dt >= nextLog:
-        epics.caput(PVWATCH_REF_PV, 1)
+        debugging_diagnostic(1)
         nextLog = dt + delta_log
         msg = "checkpoint, %d EPICS monitor events received" % GLOBAL_MONITOR_COUNTER
         logMessage(msg)
@@ -422,7 +426,7 @@ def main():
         epics.caput(PVWATCH_REF_PV+'.DESC', 'pvwatch reference')
         epics.caput(PVWATCH_INDEX_PV, -1)
         epics.caput(PVWATCH_PID_PV, os.getpid())
-        epics.caput(PVWATCH_REF_PV, -1)
+        debugging_diagnostic(-1)
 
         nextReport = getTime()
         nextLog = nextReport
@@ -430,7 +434,7 @@ def main():
         delta_log = datetime.timedelta(seconds=localConfig.LOG_INTERVAL_S)
         mainLoopCount = 0
         while True:
-            epics.caput(PVWATCH_REF_PV, 0)
+            debugging_diagnostic(0)
             mainLoopCount = (mainLoopCount + 1) % MAINLOOP_COUNTER_TRIGGER
             nextReport, nextLog = _periodic_reporting_task(mainLoopCount,
                                            nextReport, nextLog, delta_report, delta_log)
