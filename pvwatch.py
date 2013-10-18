@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/APSshare/epd/rh6-x86_64/bin/python
 
 '''
 watch the USAXS EPICS process variables and periodically write them to a file
@@ -94,8 +94,8 @@ def add_pv(mne, pv, desc, fmt):
     '''Connect to another EPICS (PyEpics) process variable'''
     if pv in pvdb:
         raise Exception("%s already defined by id=%s" % (pv, pvdb[pv]['id']))
-    ch = epics.PV(pv, callback=EPICS_monitor_receiver)
-    ch.connect()
+    ch = epics.PV(pv)
+    #ch.connect()
     entry = {
         'name': pv,           # EPICS PV name
         'id': mne,            # symbolic name used in the python code
@@ -110,6 +110,7 @@ def add_pv(mne, pv, desc, fmt):
     }
     pvdb[pv] = entry
     xref[mne] = pv            # mne is local mnemonic, define actual PV in pvlist.xml
+    ch.add_callback(EPICS_monitor_receiver)  # start callbacks now
 
 
 def getSpecFileName(pv):
@@ -160,6 +161,7 @@ def updatePlotImage():
     debugging_diagnostic(4)
 
     specFile = getSpecFileName(xref['spec_data_file'])
+    debugging_diagnostic(40)
     if not os.path.exists(specFile):
         logMessage(specFile + " does not exist")
         return
@@ -180,11 +182,13 @@ def updatePlotImage():
     if makePlot:
         #logMessage("updating the plots and gathering scan data for XML file")
         usaxs = plot.update_n_plots(specFile, localConfig.NUM_SCANS_PLOTTED)
+        debugging_diagnostic(41)
         global USAXS_DATA
         USAXS_DATA = {
             'file': specFile,
             'usaxs': usaxs,
         }
+        debugging_diagnostic(42)
 
 
 def writeFile(file, contents):
@@ -266,6 +270,8 @@ def buildReport():
             specfile = USAXS_DATA['file']
             node = ElementTree.SubElement(root, "usaxs_scans")
             node.set("file", specfile)
+            if USAXS_DATA['usaxs'] is None:
+                raise RuntimeWarning, "USAXS_DATA['usaxs'] is None: %s" % str(USAXS_DATA)
             for scan in USAXS_DATA['usaxs']:
                 scannode = ElementTree.SubElement(node, "scan")
             for item in ('scan', 'key', 'label'):
