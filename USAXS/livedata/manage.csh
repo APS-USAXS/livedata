@@ -20,6 +20,7 @@ setenv SCRIPT		 ${SCRIPT_DIR}/pvwatch.py
 setenv LOGFILE		 ${WWW_DIR}/log.txt
 setenv PIDFILE		 ${WWW_DIR}/pid.txt
 setenv PYTHON		 /APSshare/epd/rh6-x86_64/bin/python
+setenv CAGET		 /APSshare/epics/extensions-base/3.14.12.3-ext1/bin/linux-x86_64/caget
 
 switch ($1)
   case "start":
@@ -27,7 +28,7 @@ switch ($1)
        ${PYTHON} ${SCRIPT} >>& ${LOGFILE} &
        setenv PID $!
        /bin/echo ${PID} >! ${PIDFILE}
-       /bin/echo "# started ${PID}: ${SCRIPT}"
+       /bin/echo "# `/bin/date` started ${PID}: ${SCRIPT}"
        breaksw
   case "stop":
        cd ${SCRIPT_DIR}
@@ -41,22 +42,24 @@ switch ($1)
             /bin/echo "# not running ${PID}: ${SCRIPT}" >>& ${LOGFILE} &
        else
             kill ${PID}
-            /bin/echo "# stopped ${PID}: ${SCRIPT}" >>& ${LOGFILE} &
-            /bin/echo "# stopped ${PID}: ${SCRIPT}"
+            /bin/echo "# `/bin/date` stopped ${PID}: ${SCRIPT}" >>& ${LOGFILE} &
+            /bin/echo "# `/bin/date` stopped ${PID}: ${SCRIPT}"
        endif
        # the python code starts a 2nd PID which also needs to be stopped
        setenv PID `expr "${pidlist}" : '[0-9]*\( [0-9]*\)'`
        /bin/ps ${PID} >! /dev/null
        setenv NOT_EXISTS $?
        if (${NOT_EXISTS}) then
-            /bin/echo "not running ${PID}: ${SCRIPT}" >>& ${LOGFILE} &
+            /bin/echo "# `/bin/date` not running ${PID}: ${SCRIPT}" >>& ${LOGFILE} &
        else
             if (${PID} != "") then
 		 kill ${PID}
- 		 /bin/echo "# stopped ${PID}: ${SCRIPT}" >>& ${LOGFILE} &
- 		 /bin/echo "# stopped ${PID}: ${SCRIPT}"
+ 		 /bin/echo "# `/bin/date` stopped ${PID}: ${SCRIPT}" >>& ${LOGFILE} &
+ 		 /bin/echo "# `/bin/date` stopped ${PID}: ${SCRIPT}"
 	    endif
        endif
+       /bin/echo "# `/bin/date` pvWatch mainLoopCounter: `${CAGET} 15iddLAX:long20`"  >>& ${LOGFILE} &
+       /bin/echo "# `/bin/date` pvWatch phase: `${CAGET} 15iddLAX:long18`"  >>& ${LOGFILE} &
        breaksw
   case "restart":
        $0 stop
