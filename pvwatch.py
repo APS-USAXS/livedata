@@ -181,14 +181,15 @@ def updatePlotImage():
             makePlot = True        #  plot only if new data
     if makePlot:
         #logMessage("updating the plots and gathering scan data for XML file")
-        usaxs = plot.update_n_plots(specFile, localConfig.NUM_SCANS_PLOTTED)
         debugging_diagnostic(41)
+        usaxs = plot.update_n_plots(specFile, localConfig.NUM_SCANS_PLOTTED)
+        debugging_diagnostic(42)
         global USAXS_DATA
         USAXS_DATA = {
             'file': specFile,
             'usaxs': usaxs,
         }
-        debugging_diagnostic(42)
+        debugging_diagnostic(43)
 
 
 def writeFile(file, contents):
@@ -265,13 +266,11 @@ def buildReport():
             subnode.text = str(entry[item])
 
     global USAXS_DATA
-    if USAXS_DATA is not None:
+    if USAXS_DATA is not None and USAXS_DATA.get('usaxs', None) is not None:
         try:
             specfile = USAXS_DATA['file']
             node = ElementTree.SubElement(root, "usaxs_scans")
             node.set("file", specfile)
-            if USAXS_DATA['usaxs'] is None:
-                raise RuntimeWarning, "USAXS_DATA['usaxs'] is None: %s" % str(USAXS_DATA)
             for scan in USAXS_DATA['usaxs']:
                 scannode = ElementTree.SubElement(node, "scan")
             for item in ('scan', 'key', 'label'):
