@@ -137,7 +137,10 @@ def run_ploticus_command_script(scriptFile):
     os.close(f)  # close f since ploticus will write the file
     command = "%s %s -%s -o %s" % (localConfig.PLOTICUS, 
                    scriptFile, localConfig.PLOT_FORMAT, tmpPlot)
+    import pvwatch
+    pvwatch.debugging_diagnostic(8100)
     wwwServerTransfers.execute_command(command)
+    pvwatch.debugging_diagnostic(8101)
     return tmpPlot
 
 

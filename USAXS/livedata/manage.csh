@@ -19,6 +19,7 @@ setenv WWW_DIR		 /data/www/livedata
 setenv SCRIPT		 ${SCRIPT_DIR}/pvwatch.py
 setenv LOGFILE		 ${WWW_DIR}/log.txt
 setenv PIDFILE		 ${WWW_DIR}/pid.txt
+setenv COUNTERFILE	 ${WWW_DIR}/counter.txt
 setenv PYTHON		 /APSshare/epd/rh6-x86_64/bin/python
 setenv CAGET		 /APSshare/epics/extensions-base/3.14.12.3-ext1/bin/linux-x86_64/caget
 
@@ -29,6 +30,7 @@ switch ($1)
        setenv PID $!
        /bin/echo ${PID} >! ${PIDFILE}
        /bin/echo "# `/bin/date` started ${PID}: ${SCRIPT}"
+       /bin/echo -5 >! ${COUNTERFILE}
        breaksw
   case "stop":
        cd ${SCRIPT_DIR}
@@ -85,6 +87,18 @@ switch ($1)
           echo "# `/bin/date` could not identify running process ${pid}, restarting" >>& ${LOGFILE}
 	  # swallow up any console output
           echo `${MANAGE} restart` >& /dev/null
+       else
+ 	  # look to see if the process has stalled, then restart it
+	  set counter = `${CAGET} -t 15iddLAX:long20`
+	  set last_counter = `/bin/cat ${COUNTERFILE}`
+          #echo "# counter = ${counter}   last_counter ${last_counter}" >>& ${LOGFILE}
+	  if ("${counter}" == "${last_counter}") then
+ 	     echo "# `/bin/date` process ${pid} appears stalled, restarting" >>& ${LOGFILE}
+	     # swallow up any console output
+ 	     echo `${MANAGE} restart` >& /dev/null
+ 	  else
+	     /bin/echo ${counter} >! ${COUNTERFILE}
+	  endif
        endif
        breaksw
   default:
