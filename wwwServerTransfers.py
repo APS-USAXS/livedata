@@ -125,7 +125,10 @@ def execute_command(command):
     @return: a tuple (stdoutdata,  stderrdata)
     '''
     # run the command but gobble up stdout (make it less noisy)
+    import pvwatch
+    pvwatch.debugging_diagnostic(8110)
     p = subprocess.Popen(shlex.split(command), stdout=subprocess.PIPE)
+    pvwatch.debugging_diagnostic(8111)
     #p.wait()
     return p.communicate(None)
 
