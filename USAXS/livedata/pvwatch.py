@@ -290,8 +290,15 @@ def buildReport():
 
     # final steps
     doc = minidom.parseString(ElementTree.tostring(root))
+    # <?xml-stylesheet type="text/xsl" href="raw-table.xsl" ?>
+    pi = doc.createProcessingInstruction('xml-stylesheet',
+                                     'type="text/xsl" href="raw-table.xsl"')
+    root = doc.firstChild
+    doc.insertBefore(pi, root)
+    thing = doc.toxml()
     xmlText = doc.toprettyxml(indent = "  ")
-    return insertPI(xmlText, piText)
+    #return insertPI(xmlText, piText)
+    return thing
 
 
 def report():

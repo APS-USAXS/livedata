@@ -11,7 +11,7 @@ import shlex
 import shutil
 import datetime
 import paramiko
-from scp import SCPClient
+from scp import SCPClient, report_scp_progress
 
 
 # general use
@@ -46,16 +46,17 @@ def scpToWebServer(sourceFile, targetFile = "", demo = False):
     if len(targetFile) == 0:
         targetFile = sourceFile
     destinationName = os.path.join(SERVER_WWW_LIVEDATA, targetFile)
-    command = "%s -p %s %s" % (SCP, sourceFile, destinationName)
     if demo:
-        print command
+        print "%s -p %s %s" % (SCP, sourceFile, destinationName)
         return None
 
     # TODO: handle exceptions
     pvwatch.debugging_diagnostic(211)
     ssh = createSSHClient(WWW_SERVER, user=WWW_SERVER_USER)
     pvwatch.debugging_diagnostic(212)
-    scp = SCPClient(ssh.get_transport())
+    report = None
+    #report = report_scp_progress    # debugging
+    scp = SCPClient(ssh.get_transport(), progress=report)
     pvwatch.debugging_diagnostic(213)
     scp.put(sourceFile, remote_path=LIVEDATA_DIR)
     pvwatch.debugging_diagnostic(214)
