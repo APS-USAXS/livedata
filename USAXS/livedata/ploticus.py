@@ -1,23 +1,16 @@
 #!/usr/bin/env python
 
 '''
-   read a SPEC data file and plot the last n USAXS scans for the livedata WWW page
-   @note: copies plot file to USAXS site on XSD WWW server
+receive a list of USAXS scans for the livedata WWW page and chart them with ploticus
+
+@note: writes the chart locally, not to the WWW server
 '''
 
-#import datetime         # date/time stamps
 import math
 import os
-import shutil
-import tempfile
-import time
 import localConfig      # definitions for 15ID
 import wwwServerTransfers
-import plot
 
-scanlog_mtime = None
-usaxs_scans_cache = []
-spec_file_cache = {}
 SYMBOL_LIST = ("triangle", "diamond", "square", "downtriangle", "lefttriangle", "righttriangle")
 COLOR_LIST = ("green", "purple", "blue", "black", "orange") # red is NOT in the list
 
@@ -26,6 +19,7 @@ CHART_FILE = 'livedata.png'
 
 
 class Lineplot(object):
+    '''holds data for one lineplot on the chart'''
     
     def __init__(self):
         self.title = 'data'
@@ -94,7 +88,7 @@ class Ploticus(object):
         # run ploticus
         os.environ['PLOTICUS_PREFABS'] = localConfig.PLOTICUS_PREFABS
         command = "%s -%s %s -o %s" % (localConfig.PLOTICUS, localConfig.PLOT_FORMAT,
-                       SCRIPT_FILE, CHART_FILE)
+                       SCRIPT_FILE, chartfile)
         wwwServerTransfers.execute_command(command)
     
     def _build(self):
@@ -239,6 +233,7 @@ class Ploticus(object):
 
 
 if __name__ == '__main__':
+    import plot
     numScans = 5
     scans = plot.identify_last_n_scans(numScans)
     plot.get_spec_data()
