@@ -6,7 +6,6 @@
    @note: copies plot file to USAXS site on XSD WWW server
 '''
 
-#import datetime         # date/time stamps
 import math
 import os
 import shutil
@@ -438,10 +437,15 @@ def make_plots():
 
 
 if __name__ == '__main__':
+    import ploticus
     specFile = localConfig.TEST_SPEC_DATA
     numScans = 5
     identify_last_n_scans(numScans)
     get_spec_data()
+    pl = ploticus.Ploticus()
+    for scan in usaxs_scans_cache:
+        pl.addCurve(scan)
+    pl.create('livedata.png')
 
     #update_n_plots(specFile, numScans)
 
