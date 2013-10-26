@@ -1,14 +1,8 @@
 #!/usr/bin/env python
-########### SVN repository information ###################
-# $Date$
-# $Author$
-# $Revision$
-# $URL$
-# $Id$
-########### SVN repository information ###################
 
 '''
    read a SPEC data file and plot the last n USAXS scans for the livedata WWW page
+
    @note: copies plot file to USAXS site on XSD WWW server
 '''
 
@@ -21,6 +15,22 @@ import time
 import prjPySpec        # read SPEC data files
 import localConfig      # definitions for 15ID
 import wwwServerTransfers
+
+scanlog_mtime = None
+usaxs_scans_cache = []
+spec_file_cache = {}
+
+
+class Scan(object):
+    '''representation of a USAXS scan'''
+    
+    file = None
+    number = -1
+    title = ''
+    started = ''
+    specscan = None
+    qVec = []
+    rVec = []
 
 
 def update_n_plots(specFile, numScans):
@@ -348,7 +358,98 @@ def calc_usaxs_data(specScan):
     return entry
 
 
+def identify_last_n_scans(numScans):
+    '''refresh the cache of the last N scans, return list in case it is wanted'''
+    global scanlog_mtime, usaxs_scans_cache
+    # optimize this to avoid reptitive file scanning and sorting
+    # cache the results
+    scanlog_file = os.path.abspath('/data/www/livedata/scanlog.xml')
+    if not os.path.exists(scanlog_file):
+        raise IOError, 'scanlog file not found: ' + scanlog_file
+    mtime = os.path.getmtime(scanlog_file)      # compare against the cache to optimize
+    if mtime == scanlog_mtime and numScans == len(usaxs_scans_cache):
+        return usaxs_scans_cache
+    scanlog_mtime = mtime
+    
+    from lxml import etree as lxml_etree        # in THIS routine, use lxml's etree, it has xpath
+    scanlog = lxml_etree.parse(scanlog_file)
+    # assumption: the scans are logged in chronological order
+    # otherwise, need to compare the "started" element for attributes @date and @time
+    xpath_str = '/USAXS_SCAN_LOG/scan[position() >= last()-%d]' % (numScans - 1)
+    scans = scanlog.xpath(xpath_str)
+    db = []
+    for scan in scans:
+        started = scan.find('started')
+        record = Scan()
+        record.file = scan.find('file').text
+        record.number = int(scan.get('number', '-1'))
+        record.title = scan.find('title').text
+        record.started = started.get('date', '') + ' ' + started.get('time', '')
+        db.append(record)
+    usaxs_scans_cache = db
+    # ready to read scan data now
+    return db
+
+
+def get_spec_data():
+    '''read SPEC data files, get USAXS data from the chosen scans'''
+    global spec_file_cache, usaxs_scans_cache
+    
+    # optimize using a cache for the SPEC data files in recent use
+    # add any new spec files
+    files_in_use = []
+    for usaxs_scan in usaxs_scans_cache:
+        if usaxs_scan.file not in spec_file_cache:
+            if not os.path.exists(usaxs_scan.file):
+                raise IOError, 'spec data file not found: ' + usaxs_scan.file
+            spec_file_cache[usaxs_scan.file] = prjPySpec.specDataFile(usaxs_scan.file)
+        if usaxs_scan.file not in files_in_use:
+            files_in_use.append(usaxs_scan.file)
+    # discard unused spec files from RAM
+    for specfile in spec_file_cache.keys():
+        if specfile not in files_in_use:
+            del spec_file_cache[specfile]
+    del files_in_use
+    
+    # find the spec data for each scan
+    for usaxs_scan in usaxs_scans_cache:
+        sfd = spec_file_cache[usaxs_scan.file]
+        # search by exhaustion for the scan data
+        found = False
+        for specscan in sfd.scans:
+            if specscan.scanNum == usaxs_scan.number:
+                found = True
+                break
+        if not found:
+            continue    # TODO: is this the right thing to do?
+
+        # get R(Q) from the SPEC scan
+        entry = calc_usaxs_data(specscan)
+        # store it in the Scan object
+        usaxs_scan.specscan = specscan
+        usaxs_scan.qVec = entry['qVec']
+        usaxs_scan.rVec = entry['rVec']
+        # ready for plotting now
+
+
+def make_plots():
+    '''rebuild the plot, use ploticus'''
+    global usaxs_scans_cache
+
+
 if __name__ == '__main__':
     specFile = localConfig.TEST_SPEC_DATA
     numScans = 5
-    update_n_plots(specFile, numScans)
+    identify_last_n_scans(numScans)
+    get_spec_data()
+
+    #update_n_plots(specFile, numScans)
+
+
+########### SVN repository information ###################
+# $Date$
+# $Author$
+# $Revision$
+# $URL$
+# $Id$
+########### SVN repository information ###################
