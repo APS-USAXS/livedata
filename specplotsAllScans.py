@@ -1,15 +1,9 @@
 #!/usr/bin/env python
-########### SVN repository information ###################
-# $Date$
-# $Author$
-# $Revision$
-# $URL$
-# $Id$
-########### SVN repository information ###################
 
 '''
    read a SPEC data file and plot all the scans
-   @note: also copies files to USAXS site on XSD WWW server using rsync
+
+   .. note:: also copies files to USAXS site on XSD WWW server using rsync
 '''
 
 import os
@@ -44,6 +38,14 @@ def plotAllSpecFileScans(specFile):
     basedir = getBaseDir(basename, sd.headers[-1].date)
     if not os.path.exists(basedir):
         os.makedirs(basedir)
+        
+    # copy the SPEC data file to the WWW site, only if file has newer mtime
+    baseSpecFile = os.path.basename(specFile)
+    wwwSpecFile = os.path.join(basedir, baseSpecFile)
+    if needToCopySpecDataFile(wwwSpecFile, mtime_specFile):
+        # copy specFile to WWW site
+        shutil.copy2(specFile,wwwSpecFile)
+        newFileList.append(wwwSpecFile)
 
     HREF_FORMAT = "<a href=\"%s\">"
     HREF_FORMAT += "<img src=\"%s\" width=\"150\" height=\"75\" alt=\"%s\"/>"
@@ -71,7 +73,6 @@ def plotAllSpecFileScans(specFile):
                         scan.scanNum, scan.scanCmd)
                 href = HREF_FORMAT % (basePlotFile, basePlotFile, altText)
                 plotList.append(href)
-    baseSpecFile = os.path.basename(specFile)
 
     htmlFile = os.path.join(basedir, "index.html")
     if len(newFileList) or not os.path.exists(htmlFile):
@@ -80,13 +81,8 @@ def plotAllSpecFileScans(specFile):
         f.write(html)
         f.close()
         newFileList.append(htmlFile)
+        
     #------------------
-    # copy the SPEC data file to the WWW site, only if file has newer mtime
-    wwwSpecFile = os.path.join(basedir, baseSpecFile)
-    if needToCopySpecDataFile(wwwSpecFile, mtime_specFile):
-        # copy specFile to WWW site
-        shutil.copy2(specFile,wwwSpecFile)
-        newFileList.append(wwwSpecFile)
     if len(newFileList):
         # use rsync to update the XSD WWW server
         # limit the rsync to just the specplots/yyyymm subdir
@@ -135,6 +131,7 @@ def needToMakePlot(fullPlotFile, mtime_specFile):
         if mtime_plotFile > mtime_specFile:
             # plot was made after the data file was updated
             remake_plot = False     # don't remake the plot
+    # TODO: was the data in _this_ plot changed since the last time the SPEC file was modified?
     return remake_plot
 
 
@@ -190,9 +187,18 @@ def build_index_html(baseSpecFile, specFile, plotList):
 
 
 if __name__ == '__main__':
-    specFile = localConfig.TEST_SPEC_DATA
     if len(sys.argv) > 1:
-        for specFile in sys.argv[1:]:
-            plotAllSpecFileScans(specFile)
+        filelist = sys.argv[1:]                     # usual command-line use
     else:
+        filelist = [localConfig.TEST_SPEC_DATA]     # developer use
+    for specFile in filelist:
         plotAllSpecFileScans(specFile)
+
+
+########### SVN repository information ###################
+# $Date$
+# $Author$
+# $Revision$
+# $URL$
+# $Id$
+########### SVN repository information ###################

@@ -69,6 +69,7 @@ TEST_SPEC_DATA = os.path.join(LOCAL_USAXS_DATA_DIR, "2011-06/06_22_setup2.dat")
 TEST_SPEC_DATA = os.path.join("testdata", "03_19_LLNL.dat")
 #TEST_SPEC_DATA = os.path.join("testdata", "03_19_LLNL-problem.dat")
 #TEST_SPEC_DATA = os.path.join("testdata", "11_03_Vinod.dat")
+TEST_SPEC_DATA = '/data/USAXS_data/2013-10/10_26_Course.dat'
 TEST_SPEC_SCAN_NUMBER = 1
 TEST_PLOTFILE = "pete.png"
 TEST_PLOTICUS_COMMAND_FILE = "pete.pl"
