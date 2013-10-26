@@ -77,6 +77,9 @@ switch ($1)
        #
        # */5 * * * * /home/beams/S15USAXS/Documents/eclipse/USAXS/livedata/manage.csh checkup 2>&1 /dev/null
        #
+       # 2013-10-25,prj: new cleanup part, until pvwatch.py starts getting it right again
+       /bin/rm -f /tmp/tmp*.p*
+       #
        set pid = `/bin/cat ${PIDFILE}`
        setenv RESPONSE `ps -p ${pid} -o comm=`
        if (${RESPONSE} != "python") then

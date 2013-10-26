@@ -221,26 +221,15 @@ def shellCommandToFile(command, outFile):
     writeFile(outFile, buf)
 
 
-def insertPI(xmlText, piText):
-    '''insert XML Processing Instruction text after first line of XML'''
-    xml = xmlText.split("\n")
-    xml.insert(1, piText)
-    return "\n".join(xml)
-
-
 def debugging_diagnostic(code):
     epics.caput(PVWATCH_REF_PV, code)
 
 
 def buildReport():
     '''build the report'''
-    # ProcessingInstruction for 2nd line of XML
-    # Cannot place this with ElementTree where it is needed
     t = datetime.datetime.now()
     yyyymmdd = t.strftime("%Y-%m-%d")
     hhmmss = t.strftime("%H:%M:%S")
-
-    piText = u'<?xml-stylesheet type="text/xsl" href="raw-table.xsl" ?>'
 
     root = ElementTree.Element("usaxs_pvs")
     root.set("version", "1")
@@ -289,16 +278,19 @@ def buildReport():
             logMessage(e)
 
     # final steps
+    # ProcessingInstruction for 2nd line of XML
+    # Cannot place this with ElementTree where it is needed
+    # use minidom
     doc = minidom.parseString(ElementTree.tostring(root))
     # <?xml-stylesheet type="text/xsl" href="raw-table.xsl" ?>
+    # insert XML Processing Instruction text after first line of XML
     pi = doc.createProcessingInstruction('xml-stylesheet',
                                      'type="text/xsl" href="raw-table.xsl"')
     root = doc.firstChild
     doc.insertBefore(pi, root)
-    thing = doc.toxml()
-    xmlText = doc.toprettyxml(indent = "  ")
-    #return insertPI(xmlText, piText)
-    return thing
+    xmlText = doc.toxml()       # all on one line, looks bad, who cares?
+    #xmlText = doc.toprettyxml(indent = "  ") # toprettyxml() adds extra unwanted whitespace
+    return xmlText
 
 
 def report():

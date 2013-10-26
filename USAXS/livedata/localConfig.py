@@ -15,7 +15,7 @@ import os
 
 
 # general use
-HOME_DIR = "/home/beams/S15USAXS"
+HOME_DIR = os.environ['HOME']
 BASE_DIR = "/data/USAXS_data/"
 LOCAL_DATA_DIR = "/data"
 LOCAL_USAXS_DATA_DIR = LOCAL_DATA_DIR + "/USAXS_data"
