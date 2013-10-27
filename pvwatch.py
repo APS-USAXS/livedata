@@ -80,14 +80,16 @@ def EPICS_monitor_receiver(*args, **kws):
     entry['counter'] += 1
     entry['raw_value'] = ch.value
     entry['value'] = entry['format'] % ch.value
-    GLOBAL_MONITOR_COUNTER += 1
     try:
         # update the units, if possible
+        #         if entry['units'] != ch.units:
+        #             entry['units'] = ch.units
         if entry['units'] != epics_args['pv_units']:
             entry['units'] = epics_args['pv_units']
     except:
         pass    # some PVs have no "units", ignore these transgressions
     #print 'EPICS_monitor_receiver: ', entry['timestamp'], entry['counter'], pv, ' = ', ch.value
+    GLOBAL_MONITOR_COUNTER += 1
 
 
 def add_pv(mne, pv, desc, fmt):
@@ -111,6 +113,7 @@ def add_pv(mne, pv, desc, fmt):
     pvdb[pv] = entry
     xref[mne] = pv            # mne is local mnemonic, define actual PV in pvlist.xml
     ch.add_callback(EPICS_monitor_receiver)  # start callbacks now
+    entry['units'] = ch.units		# TODO: change 'None' to ''
 
 
 def getSpecFileName(pv):
