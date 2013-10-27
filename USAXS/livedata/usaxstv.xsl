@@ -124,7 +124,7 @@ USAXS status
 
 <tr><td bgcolor="darkblue" align="center">
 <font color="white" size="4">updated  <xsl:value-of select="/usaxs_pvs/datetime"/></font></td></tr>
-<tr><td height="75px"><br /></td></tr>
+<xsl:call-template name="vertical_spacer"/>
 
 <tr>                                    <xsl:choose>
                                         <xsl:when test="//pv[@id='D_beam_ready']/value=1">
@@ -170,9 +170,7 @@ USAXS status
 <tr>                                    
 	<td align="center">
 		<font size="3">
-			DCM E =
-			<xsl:value-of select="//pv[@id='DCM_E']/value"/>
-			keV
+			DCM E = <xsl:value-of select="//pv[@id='DCM_E']/value"/> keV
 		</font>
 	</td>
 </tr>
@@ -188,21 +186,37 @@ USAXS status
                                     </xsl:otherwise>
                                 </xsl:choose>
 
-<tr><td height="75px"><br /></td></tr>
+<xsl:call-template name="vertical_spacer"/>
+<tr>
+    <td align="center" bgcolor="bisque">
+        <table>
+	    <tr>
+	    	<td align="left" bgcolor="bisque"><font size="3">
+	    	    |Q| = <xsl:value-of select="//pv[@id='USAXS_Q']/value"/> (1/A),
+	    	</font></td>
+	    	<td align="center" bgcolor="bisque"> <br /> </td>
+	    	<td align="right" bgcolor="bisque"><font size="3">
+	    	    I = <xsl:value-of select="//pv[@id='USAXS_I']/value"/> (a.u.)
+	    	</font></td>
+	    </tr>
+        </table>
+    </td>
+</tr>
+
+<xsl:call-template name="vertical_spacer"/>
 <tr><td align="center" bgcolor="bisque"><font size="5">
                             <xsl:value-of select="//pv[@id='sampleTitle']/value"/>
-
     </font></td></tr>
+
 <tr><td align="center" bgcolor="lightblue"><font size="5">
                                 <xsl:value-of select="//pv[@id='state']/value"/>
-
     </font></td></tr>
-<tr><td height="75px"><br /></td></tr>
+
+<xsl:call-template name="vertical_spacer"/>
 <tr><td align="center"><font size="3">
                                     <xsl:value-of select="//pv[@id='spec_dir']/value"
                                     />/<xsl:value-of select="//pv[@id='spec_data_file']/value"
                                     />
-
     </font></td></tr>
 <tr><td align="center"><font size="3">
                                     scan #<xsl:value-of select="//pv[@id='spec_scan']/value"/>
@@ -210,12 +224,22 @@ USAXS status
    </font> </td></tr>
 <tr><td align="center"><font size="3">
                                     <xsl:value-of select="//pv[@id='spec_scan']/timestamp"/>
-
     </font></td></tr></tr>
+
+    <xsl:call-template name="vertical_spacer"/>
+    <tr><td align="center"><small>svn id: $Id$</small></td></tr>
+
 </table>
-</td></tr></table>
+</td></tr>
+</table>
 </body>
 </html>
     </xsl:template>
+
+    <!-- this template clarifies how to add a vertical space consistently in XSLT -->
+
+    <xsl:template name="vertical_spacer">
+        <tr><td height="75px"><br /></td></tr>
+    </xsl:template>        
 
 </xsl:stylesheet>
