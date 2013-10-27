@@ -126,46 +126,34 @@ USAXS status
 <font color="white" size="4">updated  <xsl:value-of select="/usaxs_pvs/datetime"/></font></td></tr>
 <xsl:call-template name="vertical_spacer"/>
 
-<tr>                                    <xsl:choose>
-                                        <xsl:when test="//pv[@id='D_beam_ready']/value=1">
-                                            <td bgcolor="#22ff22" align="center"><font size="3">
-                                              PSS: D Beam Ready </font></td>
-                                        </xsl:when>
-                                        <xsl:otherwise>
-                                            <td bgcolor="#ff2222" align="center"><font size="3">
-                                                PSS: D Beam Not Ready</font></td>
-                                        </xsl:otherwise>
-                                    </xsl:choose>
-</tr>
-
-<tr>                                    <xsl:choose>
-                                        <xsl:when test="//pv[@id='D_beam_active']/value=1">
-                                            <td bgcolor="#22ff22" align="center"><font size="3">
-                                             
-                                               PSS: D Beam Active</font></td>
-                                        </xsl:when>
-                                        <xsl:otherwise>
-                                            <td bgcolor="#ff2222" align="center"><font size="3">
-                                                PSS: D Beam Inactive</font></td>
-                                                
-                                        </xsl:otherwise>
-                                    </xsl:choose>
+<tr> 
+    <xsl:choose>
+    	 <xsl:when test="//pv[@id='d_beam_available']/value=1">
+    	     <td bgcolor="#22ff22" align="center"><font size="3">
+    	       15ID-D beam is available </font></td>
+    	 </xsl:when>
+    	 <xsl:otherwise>
+    	     <td bgcolor="#ff2222" align="center"><font size="3">
+    		 15ID-D beam is not available</font></td>
+    	 </xsl:otherwise>
+    </xsl:choose>
 </tr>
 
 
-<tr>                                    <xsl:choose>
-                                        <xsl:when test="//pv[@id='SR_current']/value>2">
-                                            <td bgcolor="#22ff22" align="center"><font size="3">
-                                             
-                                                APS current =
-                                                <xsl:value-of select="//pv[@id='SR_current']/value"/> mA</font></td>
-                                        </xsl:when>
-                                        <xsl:otherwise>
-                                            <td bgcolor="#ff2222" align="center"><font size="3">
-                                                    APS current =
-                                                <xsl:value-of select="//pv[@id='SR_current']/value"/> mA</font></td>
-                                        </xsl:otherwise>
-                                    </xsl:choose>
+<tr>
+     <xsl:choose>
+     	 <xsl:when test="//pv[@id='SR_current']/value>2">
+     	     <td bgcolor="#22ff22" align="center"><font size="3">
+     	      
+     		 APS current =
+     		 <xsl:value-of select="//pv[@id='SR_current']/value"/> mA</font></td>
+     	 </xsl:when>
+     	 <xsl:otherwise>
+     	     <td bgcolor="#ff2222" align="center"><font size="3">
+     		     APS current =
+     		 <xsl:value-of select="//pv[@id='SR_current']/value"/> mA</font></td>
+     	 </xsl:otherwise>
+     </xsl:choose>
 </tr>
 <tr>                                    
 	<td align="center">
@@ -177,17 +165,18 @@ USAXS status
 
 <tr><td align="center"><font size="3">I0: <xsl:value-of select="//pv[@id='I0_VDC']/value"/> V</font></td></tr>
 
-                       <tr>         <xsl:choose>
-                                    <xsl:when test="//pv[@id='USAXS_collecting']/value=1">
-                                        <td bgcolor="#22ff22" align="center"><font size="3">USAXS scan running</font></td>
-                                    </xsl:when>
-                                    <xsl:otherwise>
-                                        <td align="center"><font size="3">not scanning USAXS</font></td>
-                                    </xsl:otherwise>
-                                </xsl:choose>
-
-<xsl:call-template name="vertical_spacer"/>
 <tr>
+    <xsl:call-template name="vertical_spacer"/>
+    <xsl:choose>
+    	<xsl:when test="//pv[@id='USAXS_collecting']/value=1">
+    	    <td bgcolor="#22ff22" align="center"><font size="3">USAXS scan running</font></td>
+    	</xsl:when>
+    	<xsl:otherwise>
+    	    <td align="center"><font size="3">not scanning USAXS</font></td>
+    	</xsl:otherwise>
+    </xsl:choose>
+<tr>
+
     <td align="center" bgcolor="bisque">
         <table>
 	    <tr>
