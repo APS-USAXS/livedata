@@ -1,35 +1,28 @@
 #!/usr/bin/python
+
 """
+Provides a set of classes to read the contents of a SPEC data file.
 
-  Purpose:
-  Provides a set of classes to read the contents of a spec data file.
+Includes the UNICAT extensions which write additional floating point
+information in the scan headers using #H/#V pairs of labels/values.
+The user should create a class instance for each spec data file,
+specifying the file reference (by path reference as needed)
+and the internal routines will take care of all that is necessary
+to read and interpret the information.
 
-########### SVN repository information ###################
-# $Date$
-# $Author$
-# $Revision$
-# $HeadURL$
-# $Id$
-########### SVN repository information ###################
+:author: Pete Jemian
+:email: jemian@anl.gov
 
-  author: Pete Jemian, jemian@anl.gov
-  Further comments:
-  Includes the UNICAT extensions which write additional floating point
-  information in the scan headers using #H/#V pairs of labels/values.
-  The user should create a class instance for each spec data file,
-  specifying the file reference (by path reference as needed)
-  and the internal routines will take care of all that is necessary
-  to read and interpret the information.
-  Dependencies:
-    os: operating system module
-    re: regular expression module
+:Dependencies:
+* os: operating system module
+* re: regular expression module
 
 """
 
 import re
 import os
 import sys
-# from sys import *
+
 
 def specScanLine_stripKey(line):
     """return everything after the first space on the line from the spec data file"""
@@ -37,7 +30,9 @@ def specScanLine_stripKey(line):
     val = line[pos:]
     return val.strip()
 
+
 #-------------------------------------------------------------------------------------------
+
 
 class specDataFile:
     """contents of a spec data file"""
@@ -48,6 +43,7 @@ class specDataFile:
     headers = []
     scans = []
     readOK = -1
+
     def __init__(self, filename):
         self.fileName = filename
         self.errMsg = ''
@@ -89,8 +85,12 @@ class specDataFile:
                 self.errMsg = "unknown key: %s" % key
         self.readOK = 0
         return
+    
+    # TODO: create method to return a specific scan by scan number, make sure request matches scan.scanNum
+
 
 #-------------------------------------------------------------------------------------------
+
 
 class specDataFileHeader:
     """contents of a spec data file header (#F) section"""
@@ -131,7 +131,9 @@ class specDataFileHeader:
                 self.errMsg = "line %d: unknown key (%s) detected" % (i, key)
         return
 
+
 #-------------------------------------------------------------------------------------------
+
 
 class specDataFileScan:
     """contents of a spec data file scan (#S) section"""
@@ -239,7 +241,9 @@ class specDataFileScan:
                 self.data[label].append(float(val))
         return
 
+
 #-------------------------------------------------------------------------------------------
+
 
 def _test(mode):
     """test the routines that read from the spec data file
@@ -281,5 +285,15 @@ def _test(mode):
     # test = specDataFile('07_02_sn281_8950.dat')
     print test.scans[0].L
 
+
 if __name__ == "__main__":
     _test(0)
+
+
+########### SVN repository information ###################
+# $Date$
+# $Author$
+# $Revision$
+# $HeadURL$
+# $Id$
+########### SVN repository information ###################
