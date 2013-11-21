@@ -7,6 +7,7 @@ extractSpecScan: pull out named columns from scan(s) in a SPEC data file and sav
 **Usage**::
 
   extractSpecScan.py /tmp/CeCoIn5 5 HerixE Ana5 ICO-C
+  extractSpecScan.py ./testdata/11_03_Vinod.dat   2 12   USAXS.m2rp Monitor  I0
 
 **General usage**::
 
@@ -18,6 +19,8 @@ the scan numbers are integers, separated by spaces and the columns
 labels are character strings (not valid integers), separated by spaces.
 
 .. note:: TSV: tab-separated values
+
+Compatible with Python 2.6+
 """
 
 import prjPySpec
