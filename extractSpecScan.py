@@ -63,8 +63,7 @@ def do_the_work(specFile, scanList, column_labels):
     :param [str] column_labels: list of column labels
     
     .. note:: Each column label must match *exactly* the name of a label
-       in each chosen SPEC scan number or the program will stop with
-       a ValueError exception.
+       in each chosen SPEC scan number or the program will skip that particular scan
        
        If more than one column matches, the first match will be selected.
     
@@ -89,21 +88,29 @@ def do_the_work(specFile, scanList, column_labels):
         scan = specData.scans[scanNum-1]
     
         # get the column numbers corresponding to the column_labels
-        column_numbers = [scan.L.index(label) for label in column_labels]
-        # TODO: what if label is not found?  It raises a ValueError exception, handle it
-        # For now, let Python raise this all the way to the user
+	column_numbers = []
+	for label in column_labels:
+	    if label in scan.L:
+	        column_numbers.append( scan.L.index(label) )
+	    else:
+	        msg = 'column label "' + label + '" not found in scan #'
+	        msg += str(scanNum) + ' ... skipping'
+	        print msg
+	        column_numbers = None
+	        break
     
-        txt = ['# ' + '\t'.join(column_labels), ]
-        for data_row in scan.data_lines:
-            data_row = data_row.split()
-            row_data = [data_row[col] for col in column_numbers]
-            txt.append( '\t'.join(row_data) )
-        result = '\n'.join(txt)
+        if column_numbers is not None:
+            txt = ['# ' + '\t'.join(column_labels), ]
+            for data_row in scan.data_lines:
+                data_row = data_row.split()
+                row_data = [data_row[col] for col in column_numbers]
+                txt.append( '\t'.join(row_data) )
+            result = '\n'.join(txt)
         
-        fp = open(outFile, 'w')
-        fp.write(result)
-        fp.close()
-        print "wrote: " + outFile
+            fp = open(outFile, 'w')
+            fp.write(result)
+            fp.close()
+            print "wrote: " + outFile
 
 
 def parseCmdLine(cmdArgs):
