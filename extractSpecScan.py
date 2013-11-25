@@ -29,6 +29,9 @@ import os
 import sys
 
 
+PrintLabels = True      # put column labels in output file
+
+
 #-------------------------------------------------------------------------------------------
 
 
@@ -42,13 +45,16 @@ def makeOutputFileName(specFile, scanNum):
     append scanNum to specFile to get output file name 
     (before file extension if present)
     
+    Always add a file extension to the output file.
+    If none is present, use ".dat".
+    
     Examples:
     
     ===========  =======   ==============
     specFile     scanNum   outFile
     ===========  =======   ==============
-    CeCoIn5      scan 5    CeCoIn5_5
-    CeCoIn5.dat  scan 5    CeCoIn5_5.dat
+    CeCoIn5      scan 5    CeCoIn5_5.dat
+    CeCoIn5.dat  scan 77   CeCoIn5_77.dat
     ===========  =======   ==============
     '''
     name_parts = os.path.splitext(specFile)
@@ -75,6 +81,7 @@ def extractScans(cmdArgs):
         1.9975    65449    478
     
     '''
+    global PrintLabels
     specFile, scanList, column_labels = parseCmdLine(cmdArgs)
 
     print "program: " + sys.argv[0]
@@ -91,18 +98,20 @@ def extractScans(cmdArgs):
         #   scan = specData.get_scan(scanNum)
     
         # get the column numbers corresponding to the column_labels
-	column_numbers = []
-	for label in column_labels:
-	    if label in scan.L:
-	        # report all columns in order specified on command-line
-	        column_numbers.append( scan.L.index(label) )
-	    else:
-	        msg = 'column label "' + label + '" not found in scan #'
-	        msg += str(scanNum) + ' ... skipping'
-	        print msg       # report all mismatched column labels
+        column_numbers = []
+        for label in column_labels:
+            if label in scan.L:
+                # report all columns in order specified on command-line
+                column_numbers.append( scan.L.index(label) )
+            else:
+                msg = 'column label "' + label + '" not found in scan #'
+                msg += str(scanNum) + ' ... skipping'
+                print msg       # report all mismatched column labels
     
         if len(column_numbers) == len(column_labels):   # must be perfect matches
-            txt = ['# ' + '\t'.join(column_labels), ]
+            txt = []
+            if PrintLabels:
+                txt.append( '# ' + '\t'.join(column_labels) )
             for data_row in scan.data_lines:
                 data_row = data_row.split()
                 row_data = [data_row[col] for col in column_numbers]
@@ -127,9 +136,10 @@ def parseCmdLine(cmdArgs):
     :param [int] scanList: list of chosen SPEC scan numbers
     :param [str] column_labels: list of column labels
     '''
+    global PrintLabels
 
     if len(cmdArgs) < 4:
-        print "usage: extractSpecScan.py specFile scanNum [scanNum [...]] col1 [col2 [col3 [...]]]"
+        print "usage: extractSpecScan.py specFile scanNum [scanNum [...]] [-nolabels] col1 [col2 [col3 [...]]]"
         exit(1)
 
     # positional argument
@@ -153,6 +163,11 @@ def parseCmdLine(cmdArgs):
         except ValueError:
             break
 
+    # check for the '-nolabels' option to disable column labels in the output file
+    if cmdArgs[pos] == '-nolabels':
+        PrintLabels = False
+        pos += 1
+    
     # variable length argument
     # all that is left on the line are column labels
     column_labels = []
