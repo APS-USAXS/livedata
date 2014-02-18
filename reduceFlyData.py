@@ -11,7 +11,6 @@ import sys
 import math
 import numpy
 import h5py
-import eznx
 
 
 DEFAULT_NUM_BINS = 300
@@ -226,6 +225,7 @@ class UsaxsFlyScanData(object):
 
     def save_results(self, nxdata):
         '''save computed results to an HDF5 file (nxdata) group'''
+        import eznx
         eznx.makeDataset(nxdata, 'Q_binned', self.Q_binned, units='1/A')
         eznx.makeDataset(nxdata, 'R_binned', self.R_binned, units='a.u.',      signal=1, axes='Q_binned')
         
@@ -259,6 +259,7 @@ class UsaxsFlyScanData(object):
 def main():
     '''standard command-line interface'''
     import argparse
+    import eznx
     parser = argparse.ArgumentParser(prog='reduceFlyData', 
                                      description='reduce USAXS fly scan data to R(Q)')
     parser.add_argument('infile', 
@@ -347,6 +348,7 @@ def developer_main():
         key = os.path.splitext(filename)[0]
         db[key] = hdf
     if len(db) > 0:
+        import eznx
         out = eznx.makeFile('2013-12-09-reduced.h5')
         entry = eznx.makeGroup(out, 'fly_2013_12_09', 'NXentry')
         for key, hdf in sorted(db.items()):

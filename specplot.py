@@ -20,11 +20,34 @@ import prjPySpec        # read SPEC data files
 import localConfig      # definitions for 15ID
 import wwwServerTransfers
 
+
+def retrieve_specScanData(scan):
+    '''retrieve default data from spec data file'''
+    x = scan.data[scan.column_first]
+    y = scan.data[scan.column_last]
+    return zip(x, y)
+
+
+def retrieve_flyScanData(scan):
+    '''retrieve reduced, rebinned data from USAXS Fly Scans'''
+    import reduceFlyData
+    hdf_file_name = scan.comments[2].split()[-1].rstrip('.')
+    if os.path.exists(hdf_file_name):
+        # TODO: retrieve from pre-computed file?
+        hdf = reduceFlyData.UsaxsFlyScanData(hdf_file_name)
+        plotData = zip(hdf.Q_binned, hdf.R_binned)
+    else:
+        plotData = []
+    return plotData
+
+
 def makePloticusPlot(scan, plotFile):
     '''plot scan n from the SPEC scan object'''
-    plotData = zip(scan.data[scan.column_first], scan.data[scan.column_last])
-    if len(plotData) == 0:
-        raise Exception("No data to plot")
+    if scan.scanCmd.split()[0] == 'FlyScan':
+        plotData = retrieve_flyScanData(scan)
+    else:
+        # plot last column v. first column
+        plotData = retrieve_specScanData(scan)
     #------------
     # http://ploticus.sourceforge.net/doc/prefab_lines_ex.html
     #------------
@@ -50,32 +73,23 @@ def write_ploticus_data_file(data):
     return dataFile
 
 
-def format_ploticus_data(data):
+def format_ploticus_data(plotData):
     '''
-    find x & y min & max
+    format the x&y data as ploticus text
     
-    :returns: dictionary
+    .. find x & y min & max
+    
+    .. :returns: dictionary
+    
+    :returns: string
     '''
-    pl = []
-    xMin = xMax = yMin = yMax = None
-    for (x, y) in data:
-        pl.append("   %s  %s" % (x, y))
-        if xMin == None:
-            xMin = xMax = x
-            yMin = yMax = y
-        else:
-            if x < xMin: xMin = x
-            if y < yMin: yMin = y
-            if x > xMax: xMax = x
-            if y > yMax: yMax = y
-    dict = {
-            'data': pl,
-            'xMin': xMin,
-            'xMax': xMax,
-            'yMin': yMin,
-            'yMax': yMax
-            }
-    return dict
+    if len(plotData) == 0:
+        pl = ["   %s  %s" % (0, 0),]
+    else:
+        pl = ["   %s  %s" % (x, y) for (x, y) in plotData]
+    x, y = zip(*plotData)
+    pl_dict = dict(data=pl, xMin=min(x), xMax=max(x), yMin=min(y), yMax=max(y))
+    return pl_dict
 
 
 def run_ploticus_command_script(scan, dataFile, plotData, plotFile):
@@ -86,6 +100,8 @@ def run_ploticus_command_script(scan, dataFile, plotData, plotFile):
     os.environ['PLOTICUS_PREFABS'] = localConfig.PLOTICUS_PREFABS
     
     name = "#%d: %s" % (scan.scanNum, scan.scanCmd)
+    if len(plotData) == 0:
+        name += ' (no data to plot)'
     title = "%s, %s" % (scan.specFile, scan.date)
     command = localConfig.PLOTICUS
     command += " -prefab lines"
