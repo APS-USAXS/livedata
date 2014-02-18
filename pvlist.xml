@@ -164,7 +164,7 @@
 
   <EPICS_PV PV="15iddLAX:mr:encoder" description="motor MR encoder, degrees" display_format="%.6f" mne="mr_enc"/>
 
-  <EPICS_PV PV="15iddLAX:string19" description="SPEC macro file" mne="spec_macro_file"/>
+  <EPICS_PV PV="15iddLAX:USAXS:macroFile" description="SPEC macro file" mne="spec_macro_file"/>
   <EPICS_PV PV="15iddLAX:USAXS:I" description="I, a.u." display_format="%.4e" mne="USAXS_I"/>
   <EPICS_PV PV="15iddLAX:USAXS:Q" description="|Q|, 1/A" display_format="%.4e" mne="USAXS_Q"/>
   <EPICS_PV PV="15iddLAX:USAXS:SAD" description="sample-analyzer distance, mm" display_format="%.1f" mne="SAD"/>
