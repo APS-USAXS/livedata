@@ -77,11 +77,9 @@ def format_ploticus_data(plotData):
     '''
     format the x&y data as ploticus text
     
-    .. find x & y min & max
+    also find x & y min & max
     
-    .. :returns: dictionary
-    
-    :returns: string
+    :returns: dictionary
     '''
     if len(plotData) == 0:
         pl = ["   %s  %s" % (0, 0),]
