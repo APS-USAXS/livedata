@@ -552,12 +552,12 @@ class UsaxsFlyScan(object):
         hdf = h5py.File(hdf_file_name, 'a')
         
         nxentry = h5_openGroup(hdf, 'entry', 'NXentry')
-	# TODO: consider adding something to describe the sample
-	# Problem is when multiple of these files are opened in PyMca, NeXpy, IgorPro,
-	#  the datasets all have the same (or similar) NXdata group names 
-	#  and identical dataset names.  Those tools have a tough time differentiating.
-	# Possibly, full R(W) goes into a new group with the NXdata including the file name.  Something.
-	# Similar for rebinned.  Make that change soon **before** we make a lot of files!
+        # TODO: consider adding something to describe the sample
+        # Problem is when multiple of these files are opened in PyMca, NeXpy, IgorPro,
+        #  the datasets all have the same (or similar) NXdata group names 
+        #  and identical dataset names.  Those tools have a tough time differentiating.
+        # Possibly, full R(W) goes into a new group with the NXdata including the file name.  Something.
+        # Similar for rebinned.  Make that change soon **before** we make a lot of files!
 
         if self.full is not None:
             nxdata = h5_openGroup(nxentry, 'flyScan_reduced_full', 'NXdata')
@@ -614,8 +614,8 @@ def main():
     scan = UsaxsFlyScan(cmd_args.hdf5_file, bin_count=cmd_args.num_bins)
     print '  rebinning'
     scan.rebin()
-    if len(cmd_args.hdf5_file) > 0:
-        output_filename = cmd_args.hdf5_file
+    if len(cmd_args.output_file) > 0:
+        output_filename = cmd_args.output_file
         msg = '  saving to '
     else:
         output_filename = None
@@ -624,7 +624,6 @@ def main():
 
 
 if __name__ == '__main__':
-    #developer_test()
     main()
 
 
