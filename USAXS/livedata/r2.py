@@ -616,19 +616,11 @@ def main():
     scan.rebin()
     if len(cmd_args.hdf5_file) > 0:
         output_filename = cmd_args.hdf5_file
+        msg = '  saving to '
     else:
         output_filename = None
-    print '  saving back to ' + scan.save(output_filename)
-
-
-def developer_test():
-    import glob
-    for hdf5_file_name in glob.glob(os.path.join('testdata', 'fly_scans', '*.h5')):
-        print "Reducing data in " + hdf5_file_name
-        scan = UsaxsFlyScan(hdf5_file_name)
-        print '  rebinning'
-        scan.rebin()
-        print '  saving back to ' + scan.save()
+        msg = '  saving back to '
+    print msg + scan.save(output_filename)
 
 
 if __name__ == '__main__':
