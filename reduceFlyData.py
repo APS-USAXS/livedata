@@ -9,6 +9,7 @@ import numpy
 import scipy.linalg
 import h5py
 from spec2nexus import eznx
+import datetime         # date/time stamps
 
 
 MCA_CLOCK_FREQUENCY = 50e6      # 50 MHz clock (not stored in older files)
@@ -220,10 +221,16 @@ class UsaxsFlyScan(object):
         #  and identical dataset names.  Those tools have a tough time differentiating.
         # Possibly, full R(W) goes into a new group with the NXdata including the file name.  Something.
         # Similar for rebinned.  Make that change soon **before** we make a lot of files!
+        #
+        # HOW do we get that description _reliably_?
+        
+        t = datetime.datetime.now()
+        yyyymmdd = t.strftime("%Y-%m-%d")
+        hhmmss = t.strftime("%H:%M:%S")
+        timestamp = yyyymmdd + " " + hhmmss
 
         if save_full and self.full is not None:
-            nxdata = h5_openGroup(nxentry, 'flyScan_reduced_full', 'NXdata')
-            # TODO: add timestamp to this group as attribute
+            nxdata = h5_openGroup(nxentry, 'flyScan_reduced_full', 'NXdata', timestamp=timestamp)
             h5_write_dataset(nxdata, "AR",          self.full['AR'],       units='degrees')
             h5_write_dataset(nxdata, "Q",           self.full['Q'],        units='1/A')
             h5_write_dataset(nxdata, "R",           self.full['R'],        units='a.u.', signal=1, axes='Q')
@@ -232,8 +239,7 @@ class UsaxsFlyScan(object):
             h5_write_dataset(nxdata, "AR_FWHM",     [self.full['FWHM']],     units='degrees')
         
         if save_rebinned and self.reduced is not None:
-            # TODO: add timestamp to this group as attribute
-            nxdata =  h5_openGroup(nxentry, 'flyScan_reduced_'+str(self.reduced['Q'].size), 'NXdata')
+            nxdata =  h5_openGroup(nxentry, 'flyScan_reduced_'+str(self.reduced['Q'].size), 'NXdata', timestamp=timestamp)
             h5_write_dataset(nxdata, "Q",  self.reduced['Q'],  units='1/A')
             h5_write_dataset(nxdata, "R",  self.reduced['R'],  units='a.u.', signal=1, axes='Q', uncertainty='dR')
             h5_write_dataset(nxdata, "dR", self.reduced['dR'], units='a.u.')
@@ -499,8 +505,8 @@ def rebin(Q_orig, R_orig, bin_count = DEFAULT_BIN_COUNT):
     len_full = R_orig.size
     bin_step = len_full / bin_count
 
-    # setup a log-spaced Q bins, based on the positive Q_orig bin range
-    Q_MIN = 1.1e-6
+    # make log-spaced Q bins, based on the positive Q_orig bin range, but not too low
+    Q_MIN = 1.01e-6
     Qmin = max(Q_MIN, numpy.min(Q_orig[numpy.where(Q_orig > 0)]))
     Qmax = numpy.max(Q_orig)
     Q = numpy.exp(numpy.linspace(math.log(Qmin), math.log(Qmax), bin_count))
@@ -516,56 +522,32 @@ def rebin(Q_orig, R_orig, bin_count = DEFAULT_BIN_COUNT):
         bin_span = numpy.argwhere(numpy.abs(Q_orig-Q[bin]) < dq).flatten()
         while bin_span.size <= 4:
             # expand the range to get enough bins for curve fitting to work properly
-	    bin_span = expand_bin_span(bin_span, bin_count, Q_orig-Q[bin])
+            bin_span = expand_bin_span(bin_span, bin_count, Q_orig-Q[bin])
         try:
-            if bin_span.size > 4:
-                # realistically, with bin_size expansion above, this is the only interpolator that gets used now
-		x = Q_orig[bin_span] - Q[bin]
-                y = R_log[bin_span]
-                if False:   # error estimation is way off in this method
-                    result = numpy.polyfit(x, y, 1, cov=True)
-                    y_mean = math.exp(result[0][-1])
-                    y_sdev = math.sqrt(abs(result[1][0][0]))      # approximate
-                y_mean, y_sdev = estimate_linear_fit_intercept(x, y)          # slower but better error estimate
-
-            elif bin_span.size > 2:
-                # see: http://docs.scipy.org/doc/numpy/reference/generated/numpy.linalg.lstsq.html
-                x = Q_orig[bin_span] - Q[bin]
-                y = R_log[bin_span]
-                coeff = scipy.linalg.lstsq(numpy.vstack([x, numpy.ones(len(x))]).T, y)[0]
-                y_mean = math.exp(coeff[-1])
-                y_sdev = numpy.std(y)
-
-            elif bin_span.size > 1:
-                y = R_orig[bin_span]
-                y_mean = numpy.mean(y)
-                y_sdev = numpy.std(y)
-
-            elif bin_span.size == 1:
-                y_mean = R_orig[bin_span[0]]
-                y_sdev = 0                          # cannot estimate
-
-            else:
-                raise ValueError, 'no data in rebinning interval'
+            # realistically, with bin_size expansion above, this is the only interpolator that gets used now
+            x = Q_orig[bin_span] - Q[bin]
+            y = R_log[bin_span]
+            y_mean, y_sdev = estimate_linear_fit_intercept(x, y)        # slower but better error estimate
         except (OverflowError, ValueError):
             pass
         R[bin] = y_mean
-        dR[bin] = y_sdev        # FIXME: this is garbage now
+        dR[bin] = y_sdev        # not great, but acceptable
     
     numpy.seterr(**numpy_error_reporting)
     
     return dict(Q=Q, R=R, dR=dR)
 
 
-def h5_openGroup(parent, name, nx_class):
+def h5_openGroup(parent, name, nx_class, **attr):
     '''open or create the NeXus/HDF5 group, return the object
     
     note: this should be moved to eznx!
     '''
     try:
         group = parent[name]
+        eznx.addAttributes(parent, **attr)
     except KeyError:
-        group = eznx.makeGroup(parent, name, nx_class)
+        group = eznx.makeGroup(parent, name, nx_class, **attr)
     return group
 
 
