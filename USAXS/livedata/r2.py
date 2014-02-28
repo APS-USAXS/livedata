@@ -241,10 +241,10 @@ def estimate_linear_fit_intercept(xx, yy):
     map(add, zip(xx, yy))
     y_mean = math.exp(src.LinearRegression()[0])
     # the error estimation is not great, yet
-    #y_dev = numpy.std(yy)                           # straightforward, can we do better?
-    y_sdev = src.LinearRegressionVariance()[0]      # but Y is log(), need to undo that
-    y_sdev = y_mean * y_sdev                        # looks like an overestimate
-    y_sdev = y_sdev / math.sqrt(float(xx.size))     # this is a guess ...
+#     y_sdev = src.LinearRegressionVariance()[0]      # but Y is log(), need to undo that
+#     y_sdev = y_mean * y_sdev                        # looks like an overestimate
+#     y_sdev = y_sdev / math.sqrt(float(xx.size))     # this is a guess ...
+    y_sdev = numpy.std(numpy.exp(yy))                           # straightforward, can we do better?
     return y_mean, y_sdev
 
 
