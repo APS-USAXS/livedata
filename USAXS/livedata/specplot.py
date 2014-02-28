@@ -19,6 +19,7 @@ import tempfile
 import prjPySpec        # read SPEC data files
 import localConfig      # definitions for 15ID
 import wwwServerTransfers
+import reduceFlyData
 
 
 def retrieve_specScanData(scan):
@@ -30,12 +31,12 @@ def retrieve_specScanData(scan):
 
 def retrieve_flyScanData(scan):
     '''retrieve reduced, rebinned data from USAXS Fly Scans'''
-    import reduceFlyData
     hdf_file_name = scan.comments[2].split()[-1].rstrip('.')
     if os.path.exists(hdf_file_name):
         # TODO: retrieve from pre-computed file?
-        hdf = reduceFlyData.UsaxsFlyScanData(hdf_file_name)
-        plotData = zip(hdf.Q_binned, hdf.R_binned)
+        hdf = reduceFlyData.UsaxsFlyScan(hdf_file_name)
+        hdf.rebin(250)      # does not store any data back to HDF5 file
+        plotData = zip(hdf.reduced['Q'], hdf.reduced['R'])
     else:
         plotData = []
     return plotData
