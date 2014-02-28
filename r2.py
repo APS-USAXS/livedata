@@ -87,7 +87,7 @@ term                   HDF address path                                        d
 :math:`p_t`            /entry/flyScan/mca1                                     array of clock pulses
 :math:`p_m`            /entry/flyScan/mca2                                     array of monitor pulses
 :math:`p_d`            /entry/flyScan/mca3                                     array of detector pulses
-:math:`f_{clock}`      /entry/?   (It is 50 MHz, should be in the HDF5 file)   MCA clock frequency
+:math:`f_{clock}`      /entry/flyScan/mca_clock_frequency                      MCA clock frequency
 :math:`AR_{start}`     /entry/flyScan/AR_start                                 AR starting position
 :math:`\Delta E_{ar}`  /entry/flyScan/AR_increment                             AR channel increment
 changes_mcsChan        /entry/flyScan/changes_mcsChan                          array of MCS channels for range change events
@@ -116,8 +116,15 @@ import h5py
 from spec2nexus import eznx
 
 
-def get_data(dataset, astype=None):
+MCA_CLOCK_FREQUENCY = 50e6      # 50 MHz clock (not stored in older files)
+
+
+def get_data(parent, dataset_name, astype=None):
     '''get the numpy data from the HDF5 dataset, option to return as different numpy data type'''
+    try:
+        dataset = parent[dataset_name]
+    except KeyError:
+        return None
     dtype = dataset.dtype
     if astype is not None:
         dtype = astype
@@ -176,7 +183,7 @@ def get_channel_range_changes(hdf, raw_num_points):
     '''
 
     def _get_changes_data(identifier):
-        return get_data(hdf['/entry/flyScan/changes_'+identifier], astype=int)
+        return get_data(hdf, '/entry/flyScan/changes_'+identifier, astype=int)
 
     # get the data about range changes from HDF5 paths
     change_arrays = map(_get_changes_data, ('mcsChan', 'ampReqGain', 'ampGain'))
@@ -230,7 +237,7 @@ def calc_time_mask_channels(range_number, channel_start, channel_time_s, mask_ti
 def get_gains_bkg(hdf, raw_num_points, channel_time_s):
     '''get the amplifier gains and backgrounds for each data point'''
     def _get_meta(hdf_path_name):
-        return get_data(hdf[hdf_path_name])
+        return get_data(hdf, hdf_path_name)
     def _get_meta_gain(identifier):
         return _get_meta('/entry/metadata/upd_gain'+str(identifier))
     def _get_meta_bkg(identifier):
@@ -270,7 +277,7 @@ def get_range_change_mask_times(hdf):
     '''get the interval to mask data after each amplifier range change'''
     def _get_mask_data(identifier):
         prefix = '/entry/flyScan/upd_amp_change_mask_time'
-        return get_data(hdf[prefix+str(identifier)])
+        return get_data(hdf, prefix+str(identifier))
 
     try:
         mask_times = map(_get_mask_data, range(5))
@@ -320,7 +327,7 @@ def compute_Q_centroid_and_Rmax(hdf, ar, ratio, centroid = None):
     
     ar_fwhm = FWHM(ar, ratio)
 
-    wavelength = get_data(hdf['/entry/instrument/monochromator/DCM_wavelength'])
+    wavelength = get_data(hdf, '/entry/instrument/monochromator/DCM_wavelength')
     d2r = math.pi/180
     q = (4 * math.pi / wavelength) * numpy.sin(d2r*(ar_centroid - ar))
 
@@ -328,7 +335,7 @@ def compute_Q_centroid_and_Rmax(hdf, ar, ratio, centroid = None):
     return dict(Q=q, centroid=ar_centroid, Rmax=rMax, FWHM=ar_fwhm)
 
 
-def rebin(AR_orig, Q_orig, R_orig, number_bins = 2000):
+def rebin(Q_orig, R_orig, number_bins = 2000):
     '''rebin according to the attributes, return rebinned data in dict'''
     # basic rebinning strategy
     numpy_error_reporting = numpy.geterr()
@@ -336,65 +343,67 @@ def rebin(AR_orig, Q_orig, R_orig, number_bins = 2000):
     
     len_full = R_orig.size
     bin_step = len_full / number_bins
-    
-    # TODO: rebin in Q, ignore AR completely
 
-    AR = numpy.zeros((number_bins), dtype='float')
-    Q = numpy.zeros((number_bins), dtype='float')
+    # setup a log-spaced Q bins, based on the positive Q_orig bin range
+    Q_MIN = 1.1e-6
+    Qmin = max(Q_MIN, numpy.min(Q_orig[numpy.where(Q_orig > 0)]))
+    Qmax = numpy.max(Q_orig)
+    Q = numpy.exp(numpy.linspace(math.log(Qmin), math.log(Qmax), number_bins))
     R =  numpy.zeros((number_bins), dtype='float')
     dR = numpy.zeros((number_bins), dtype='float')
     R_log = numpy.log(R_orig)
-    
-    # map out the AR bins
-    # this algorithm could be replaced by another
-    # for example, one that preserves the smallest step size across the peak
-    bin_range = range(number_bins)
-    for bin in bin_range:
-        AR[bin] = AR_orig[bin*bin_step]
-        Q[bin] = Q_orig[bin*bin_step]
-    AR[-1] = AR_orig[-1]    # move the last bin to maximize the AR range
-    Q[-1] = Q_orig[-1]    # move the last bin to maximize the AR range
 
-    MIN_AR_BIN_WIDTH = 1e-44
     BIN_INDEX_HALF_WIDTH = 1
-    for bin in bin_range:
+    for bin in xrange(number_bins):
         bin_r = min(number_bins-1, bin+BIN_INDEX_HALF_WIDTH)
         bin_l = max(0, bin-BIN_INDEX_HALF_WIDTH)
-        ar_r = AR[bin_r]
-        ar_l = AR[bin_l]
-        width = max(MIN_AR_BIN_WIDTH,  abs(ar_r - ar_l))
-        bins = numpy.argwhere(numpy.abs(AR_orig-AR[bin]) < width).flatten()
+        dq = max(abs(Q[bin_r] - Q[bin_l]), Q_MIN)
+        bin_span = numpy.argwhere(numpy.abs(Q_orig-Q[bin]) < dq).flatten()
+        if bin_span.size <= 4:
+            # expand the range a few bins
+            if bin_span.size == 0:
+                bin_span = numpy.array([numpy.abs(Q_orig-Q[bin]).argmin()])
+            for _ in range(2):
+                bin_span = numpy.insert(bin_span, 0, bin_span.min()-1)
+                bin_span = numpy.append(bin_span, bin_span.max()+1)
+            # make sure bins are within range
+            bin_span = bin_span[numpy.where(bin_span >= 0)]
+            bin_span = bin_span[numpy.where(bin_span < number_bins)]
         try:
-            if bins.size > 3:
-                x = AR_orig[bins[0]:bins[-1]] - AR[bin]
-                y = R_log[bins[0]:bins[-1]]
+            if bin_span.size > 4:
+                x = Q_orig[bin_span] - Q[bin]
+                y = R_log[bin_span]
                 result = numpy.polyfit(x, y, 1, cov=True)
                 y_mean = math.exp(result[0][-1])
-                y_sdev = y_mean * math.sqrt(abs(poly[1][0][0]))      # approximate
-            elif bins.size > 3000000:
+                y_sdev = math.sqrt(abs(result[1][0][0]))      # approximate
+
+            elif bin_span.size > 2:
                 # see: http://docs.scipy.org/doc/numpy/reference/generated/numpy.linalg.lstsq.html
-                x = AR_orig[bins[0]:bins[-1]] - AR[bin]
-                y = R_log[bins[0]:bins[-1]]
+                x = Q_orig[bin_span] - Q[bin]
+                y = R_log[bin_span]
                 coeff = scipy.linalg.lstsq(numpy.vstack([x, numpy.ones(len(x))]).T, y)[0]
                 y_mean = math.exp(coeff[-1])
-                y_sdev = y_mean * numpy.std(y)      # approximate
-            elif bins.size > 1:
-                y = R[bins[0]:bins[-1]]
+                y_sdev = numpy.std(y)
+
+            elif bin_span.size > 1:
+                y = R_orig[bin_span]
                 y_mean = numpy.mean(y)
-                y_sdev = y_mean * numpy.std(y)      # approximate
-            elif bins.size == 1:
-                y_mean = R[bins[0]]
+                y_sdev = numpy.std(y)
+
+            elif bin_span.size == 1:
+                y_mean = R_orig[bin_span[0]]
                 y_sdev = 0                          # cannot estimate
+
             else:
                 raise ValueError, 'no data in rebinning interval'
         except (OverflowError, ValueError):
             pass
         R[bin] = y_mean
-        dR[bin] = y_sdev
+        dR[bin] = y_sdev        # FIXME: this is garbage now
     
     numpy.seterr(**numpy_error_reporting)
     
-    return dict(AR=AR, Q=Q, R=R, dR=dR)
+    return dict(Q=Q, R=R, dR=dR)
 
 
 def h5_openGroup(parent, name, nx_class):
@@ -426,50 +435,89 @@ def h5_write_dataset(parent, name, data, **attr):
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 
-def reduce_flyScan_file(hdf5_file_name, number_bins = 500):
-    '''apply preliminary USAXS fly scan data reduction, save results back to HDF5 file'''
-    hdf = h5py.File(hdf5_file_name)
+class UsaxsFlyScan(object):
+    '''data for one USAXS Fly Scan'''
     
-    raw_clock_pulses = get_data(hdf['/entry/flyScan/mca1'])
-    raw_I0 = get_data(hdf['/entry/flyScan/mca2'])
-    raw_upd = get_data(hdf['/entry/flyScan/mca3'])
-    raw_num_points = get_data(hdf['/entry/flyScan/AR_pulses'])
+    def __init__(self, hdf_file_name, number_bins = 500):
+        self.number_bins = number_bins
+        self.full = None
+        self.reduced = None
+        
+        if not os.path.exists(hdf_file_name):
+            self.hdf_file_name = None
+            raise IOError, 'file not found: ' + hdf_file_name
+        self.hdf_file_name = hdf_file_name
+        self.read()
     
-    AR_start = get_data(hdf['/entry/flyScan/AR_start'])
-    AR_increment = get_data(hdf['/entry/flyScan/AR_increment'])
-    raw_ar = numpy.linspace(AR_start, AR_start - (raw_num_points - 1) * AR_increment, raw_num_points)
+    def read(self):
+        hdf = h5py.File(self.hdf_file_name, 'r')
+        
+        raw_clock_pulses = get_data(hdf, '/entry/flyScan/mca1')
+        raw_I0 =           get_data(hdf, '/entry/flyScan/mca2')
+        raw_upd =          get_data(hdf, '/entry/flyScan/mca3')
+        raw_num_points =   get_data(hdf, '/entry/flyScan/AR_pulses')
+        
+        AR_start =     get_data(hdf, '/entry/flyScan/AR_start')
+        AR_increment = get_data(hdf, '/entry/flyScan/AR_increment')
+        ar_last = AR_start - (raw_num_points - 1) * AR_increment
+        raw_ar = numpy.linspace(AR_start, ar_last, raw_num_points)
+        
+        pulse_frequency = get_data(hdf, '/entry/flyScan/mca_clock_frequency') or  MCA_CLOCK_FREQUENCY
+        channel_time_s = raw_clock_pulses / pulse_frequency
+        
+        gain, bkg = get_gains_bkg(hdf, raw_num_points, channel_time_s)
+        
+        ratio = (raw_upd - bkg) / raw_I0 / gain
+        ratio = numpy.ma.masked_invalid(ratio)
+        ratio = numpy.ma.masked_less_equal(ratio, 0)
+        
+        R = ratio.compressed()
+        AR = numpy.ma.masked_array(data=raw_ar, mask=ratio.mask).compressed()
+        
+        peak_stats = compute_Q_centroid_and_Rmax(hdf, AR, R)
+        Q = peak_stats['Q']
+        
+        self.full = dict(AR=AR, R=R, **peak_stats)
+        
+        hdf.close()   # be CERTAIN to close the file
     
-    pulse_frequency = 50.0e6              # 50 MHz
-    channel_time_s = raw_clock_pulses / pulse_frequency
+    def rebin(self, number_bins = None):
+        '''generate R(Q) with a specified number of bins'''
+        number_bins = number_bins or self.number_bins
+        self.reduced = rebin(self.full['Q'], self.full['R'], number_bins)
     
-    gain, bkg = get_gains_bkg(hdf, raw_num_points, channel_time_s)
-    
-    ratio = (raw_upd - bkg) / raw_I0 / gain
-    ratio = numpy.ma.masked_invalid(ratio)
-    ratio = numpy.ma.masked_less_equal(ratio, 0)
-    
-    R = ratio.compressed()
-    AR = numpy.ma.masked_array(data=raw_ar, mask=ratio.mask).compressed()
-    
-    peak_stats = compute_Q_centroid_and_Rmax(hdf, AR, R)
-    Q = peak_stats['Q']
-    
-    reduced = rebin(AR, Q, R, number_bins = number_bins)
-    
-    nxentry = hdf['/entry']
-    nxdata = h5_openGroup(nxentry, 'flyScan_R_v_AR_full', 'NXdata')
-    h5_write_dataset(nxdata, "AR", AR, units='degrees')
-    h5_write_dataset(nxdata, "Q", Q, units='1/A')
-    h5_write_dataset(nxdata, "R", R, units='a.u.', signal=1, axes='Q')
-    h5_write_dataset(nxdata, "AR_centroid", peak_stats['centroid'], units='degrees')
-    h5_write_dataset(nxdata, "AR_FWHM", peak_stats['FWHM'], units='degrees')
-    h5_write_dataset(nxdata, "R_max", peak_stats['Rmax'], units='a.u.')
+    def save(self, hdf_file_name = None):
+        '''save the data to an HDF5 file, if written, return the filename, else None'''
+        if hdf_file_name is not None:
+            if not os.path.exists(hdf_file_name):
+                hdf_file_name = self.hdf_file_name
+        else:
+            hdf_file_name = self.hdf_file_name
+                
+        if self.full is None and self.reduced is None:
+            return None
 
-    nxdata = h5_openGroup(nxentry, 'flyScan_R_v_AR_'+str(number_bins), 'NXdata')
-    h5_write_dataset(nxdata, "Q", reduced['Q'], units='1/A')
-    h5_write_dataset(nxdata, "R", reduced['R'], units='a.u.', signal=1, axes='Q', uncertainty='dR')
-    h5_write_dataset(nxdata, "dR", reduced['dR'], units='a.u.')
-    hdf.close()   # be CERTAIN to close the file
+        hdf = h5py.File(hdf_file_name, 'a')
+        
+        nxentry = h5_openGroup(hdf, 'entry', 'NXentry')
+
+        if self.full is not None:
+            nxdata = h5_openGroup(nxentry, 'flyScan_R_v_AR_full', 'NXdata')
+            h5_write_dataset(nxdata, "AR",          self.full['AR'],       units='degrees')
+            h5_write_dataset(nxdata, "Q",           self.full['Q'],        units='1/A')
+            h5_write_dataset(nxdata, "R",           self.full['R'],        units='a.u.', signal=1, axes='Q')
+            h5_write_dataset(nxdata, "R_max",       [self.full['Rmax']],     units='a.u.')
+            h5_write_dataset(nxdata, "AR_centroid", [self.full['centroid']], units='degrees')
+            h5_write_dataset(nxdata, "AR_FWHM",     [self.full['FWHM']],     units='degrees')
+        
+        if self.reduced is not None:
+            nxdata =  h5_openGroup(nxentry, 'flyScan_R_v_AR_'+str(self.reduced['Q'].size), 'NXdata')
+            h5_write_dataset(nxdata, "Q",  self.reduced['Q'],  units='1/A')
+            h5_write_dataset(nxdata, "R",  self.reduced['R'],  units='a.u.', signal=1, axes='Q', uncertainty='dR')
+            h5_write_dataset(nxdata, "dR", self.reduced['dR'], units='a.u.')
+        
+        hdf.close()   # be CERTAIN to close the file
+        return hdf_file_name
 
 
 def main():
@@ -497,14 +545,20 @@ def main():
     cmd_args = parser.parse_args()
 
     print "Reducing data in " + cmd_args.infile
-    reduce_flyScan_file(cmd_args.infile, bin_count=cmd_args.num_bins)
+    scan = UsaxsFlyScan(cmd_args.infile, bin_count=cmd_args.num_bins)
+    print '  rebinning'
+    scan.rebin()
+    print '  saving back to ' + scan.save()
 
 
 def developer_test():
     import glob
-    for hdf5_file_name in glob.glob('testdata/fly_scans/*.h5'):
+    for hdf5_file_name in glob.glob(os.path.join('testdata', 'fly_scans', '*.h5')):
         print "Reducing data in " + hdf5_file_name
-        reduce_flyScan_file(hdf5_file_name)
+        scan = UsaxsFlyScan(hdf5_file_name)
+        print '  rebinning'
+        scan.rebin()
+        print '  saving back to ' + scan.save()
 
 
 if __name__ == '__main__':
