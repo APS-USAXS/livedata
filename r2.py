@@ -117,6 +117,7 @@ from spec2nexus import eznx
 
 
 MCA_CLOCK_FREQUENCY = 50e6      # 50 MHz clock (not stored in older files)
+DEFAULT_NUMBER_BINS = 500
 
 
 def get_data(parent, dataset_name, astype=None):
@@ -335,7 +336,19 @@ def compute_Q_centroid_and_Rmax(hdf, ar, ratio, centroid = None):
     return dict(Q=q, centroid=ar_centroid, Rmax=rMax, FWHM=ar_fwhm)
 
 
-def rebin(Q_orig, R_orig, number_bins = 2000):
+def estimate_linear_fit_intercept(xx, yy):
+    '''fit a line to xx and yy, and return the intercept and deviation'''
+    def add(pair):
+        x, y = pair
+        src.Add(x, y)
+    from StatsReg import StatsRegClass
+    src = StatsRegClass()
+    map(add, zip(xx, yy))
+    y_mean = math.exp(src.LinearRegression()[0])
+    y_sdev = y_mean * src.LinearRegressionVariance()[0]
+    return y_mean, y_sdev
+
+def rebin(Q_orig, R_orig, number_bins = DEFAULT_NUMBER_BINS):
     '''rebin according to the attributes, return rebinned data in dict'''
     # basic rebinning strategy
     numpy_error_reporting = numpy.geterr()
@@ -360,10 +373,10 @@ def rebin(Q_orig, R_orig, number_bins = 2000):
         dq = max(abs(Q[bin_r] - Q[bin_l]), Q_MIN)
         bin_span = numpy.argwhere(numpy.abs(Q_orig-Q[bin]) < dq).flatten()
         if bin_span.size <= 4:
-            # expand the range a few bins
-            if bin_span.size == 0:
+            # expand the range to get enough bins for curve fitting to work properly
+            if bin_span.size == 0:      # must have at least one bin
                 bin_span = numpy.array([numpy.abs(Q_orig-Q[bin]).argmin()])
-            for _ in range(2):
+            for _ in range(2):  # add more bins on each side
                 bin_span = numpy.insert(bin_span, 0, bin_span.min()-1)
                 bin_span = numpy.append(bin_span, bin_span.max()+1)
             # make sure bins are within range
@@ -373,9 +386,11 @@ def rebin(Q_orig, R_orig, number_bins = 2000):
             if bin_span.size > 4:
                 x = Q_orig[bin_span] - Q[bin]
                 y = R_log[bin_span]
-                result = numpy.polyfit(x, y, 1, cov=True)
-                y_mean = math.exp(result[0][-1])
-                y_sdev = math.sqrt(abs(result[1][0][0]))      # approximate
+                if False:   # error estimation is way off in this method
+                    result = numpy.polyfit(x, y, 1, cov=True)
+                    y_mean = math.exp(result[0][-1])
+                    y_sdev = math.sqrt(abs(result[1][0][0]))      # approximate
+                y_mean, y_sdev = estimate_linear_fit_intercept(x, y)          # slower but better error estimate
 
             elif bin_span.size > 2:
                 # see: http://docs.scipy.org/doc/numpy/reference/generated/numpy.linalg.lstsq.html
@@ -438,7 +453,7 @@ def h5_write_dataset(parent, name, data, **attr):
 class UsaxsFlyScan(object):
     '''data for one USAXS Fly Scan'''
     
-    def __init__(self, hdf_file_name, number_bins = 500):
+    def __init__(self, hdf_file_name, number_bins = DEFAULT_NUMBER_BINS):
         self.number_bins = number_bins
         self.full = None
         self.reduced = None
