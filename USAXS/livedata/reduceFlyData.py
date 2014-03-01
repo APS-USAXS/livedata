@@ -159,11 +159,9 @@ class UsaxsFlyScan(object):
         
         R = ratio.compressed()
         AR = numpy.ma.masked_array(data=raw_ar, mask=ratio.mask).compressed()
-        
         peak_stats = compute_Q_centroid_and_Rmax(hdf, AR, R)
-        Q = peak_stats['Q']
-        
-        self.full = dict(AR=AR, Q=Q, R=R, **peak_stats)
+        self.full = dict(AR=AR, R=R, **peak_stats)
+        # TODO: what else to do? slit length?
         
         hdf.close()   # be CERTAIN to close the file
     
