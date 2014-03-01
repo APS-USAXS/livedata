@@ -2,14 +2,12 @@
 
 '''reduceFlyScanData: reduce the raw data from USAXS Fly Scans to R(Q)'''
 
-import os
-import sys
+import datetime         # date/time stamps
 import math
 import numpy
-import scipy.linalg
+import os
 import h5py
 from spec2nexus import eznx
-import datetime         # date/time stamps
 
 
 MCA_CLOCK_FREQUENCY = 50e6      # 50 MHz clock (not stored in older files)
@@ -165,7 +163,7 @@ class UsaxsFlyScan(object):
         peak_stats = compute_Q_centroid_and_Rmax(hdf, AR, R)
         Q = peak_stats['Q']
         
-        self.full = dict(AR=AR, R=R, **peak_stats)
+        self.full = dict(AR=AR, Q=Q, R=R, **peak_stats)
         
         hdf.close()   # be CERTAIN to close the file
     
@@ -413,7 +411,7 @@ def get_range_change_mask_times(hdf):
 
     try:
         mask_times = map(_get_mask_data, range(5))
-    except KeyError, exc:
+    except KeyError:
         # default values
         mask_times = numpy.array((0, 0, 0, 0, 0.4), 'float')
         #mask_times = numpy.array((1, 1, 1, 1, 2), 'float')
@@ -447,15 +445,10 @@ def compute_Q_centroid_and_Rmax(hdf, ar, ratio, centroid = None):
         ar_centroid = numpy.sum(numerator) / numpy.sum(denominator)
 
 
-    binMax = numpy.argmax(ratio)
-    arMax = ar[binMax]
-    rMax = ratio[binMax]
     # narrow the range of values to search (avoids unmasked spikes)
     SEARCH_PRECISION = 0.8e-4
     bins = numpy.where( numpy.abs(ar-ar_centroid) < SEARCH_PRECISION )
-    y = ratio[bins]
-    x = ar[bins]
-    rMax = numpy.max(y)
+    rMax = numpy.max(ratio[bins])
     
     ar_fwhm = FWHM(ar, ratio)
 
@@ -502,10 +495,7 @@ def rebin(Q_orig, R_orig, bin_count = DEFAULT_BIN_COUNT):
     numpy_error_reporting = numpy.geterr()
     numpy.seterr(invalid='ignore')
     
-    len_full = R_orig.size
-    bin_step = len_full / bin_count
-
-    # make log-spaced Q bins, based on the positive Q_orig bin range, but not too low
+    # make log-spaced Q bins, based on the positive Q_orig key range, but not too low
     Q_MIN = 1.01e-6
     Qmin = max(Q_MIN, numpy.min(Q_orig[numpy.where(Q_orig > 0)]))
     Qmax = numpy.max(Q_orig)
@@ -515,23 +505,23 @@ def rebin(Q_orig, R_orig, bin_count = DEFAULT_BIN_COUNT):
     R_log = numpy.log(R_orig)
 
     BIN_INDEX_HALF_WIDTH = 1
-    for bin in xrange(bin_count):
-        bin_r = min(bin_count-1, bin+BIN_INDEX_HALF_WIDTH)
-        bin_l = max(0, bin-BIN_INDEX_HALF_WIDTH)
+    for key in xrange(bin_count):
+        bin_r = min(bin_count-1, key+BIN_INDEX_HALF_WIDTH)
+        bin_l = max(0, key-BIN_INDEX_HALF_WIDTH)
         dq = max(abs(Q[bin_r] - Q[bin_l]), Q_MIN)
-        bin_span = numpy.argwhere(numpy.abs(Q_orig-Q[bin]) < dq).flatten()
+        bin_span = numpy.argwhere(numpy.abs(Q_orig-Q[key]) < dq).flatten()
         while bin_span.size <= 4:
             # expand the range to get enough bins for curve fitting to work properly
-            bin_span = expand_bin_span(bin_span, bin_count, Q_orig-Q[bin])
+            bin_span = expand_bin_span(bin_span, bin_count, Q_orig-Q[key])
         try:
             # realistically, with bin_size expansion above, this is the only interpolator that gets used now
-            x = Q_orig[bin_span] - Q[bin]
+            x = Q_orig[bin_span] - Q[key]
             y = R_log[bin_span]
             y_mean, y_sdev = estimate_linear_fit_intercept(x, y)        # slower but better error estimate
         except (OverflowError, ValueError):
             pass
-        R[bin] = y_mean
-        dR[bin] = y_sdev        # not great, but acceptable
+        R[key] = y_mean
+        dR[key] = y_sdev        # not great, but acceptable
     
     numpy.seterr(**numpy_error_reporting)
     
