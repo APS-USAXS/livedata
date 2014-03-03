@@ -6,6 +6,7 @@ import datetime         # date/time stamps
 import math
 import numpy
 import os
+import sys
 import h5py
 from spec2nexus import eznx
 
@@ -88,11 +89,13 @@ class UsaxsFlyScan(object):
     
     .. caution:  Describe how :math:`r` is obtained.  Also describe data masking.
     
-    The ratio intensity, :math:`R`, is calculated as the ratio of the two corrected count rates:
+    .. note:: Actually, the monitor also has a gain and background which is 
+       patterned on the same terms for the detector signal
     
-    .. math:: R[i] = A[r[i]] * { D[i] - B[r[i]] ) \over  M[i] }
+    The ratio intensity, :math:`R`, is calculated as the ratio of the two corrected count rates
+    (where subscripts :math:`d` and :math:`m` refer to detector and monitor, respectively): 
     
-    .. caution:: This all assumes that the monitor has a fixed amplifier gain (an assumption that may be changed).
+    .. math:: R[i] = { ( A_d[r[i]] * ( D[i] - B_d[r[i]] ) \over ( A_m[r[i]] * ( M[i] - B_m[r[i]] ) }
     
     Data from the HDF5 file
     =======================
@@ -107,55 +110,83 @@ class UsaxsFlyScan(object):
     :math:`f_{clock}`      /entry/flyScan/mca_clock_frequency                      MCA clock frequency
     :math:`AR_{start}`     /entry/flyScan/AR_start                                 AR starting position
     :math:`\Delta E_{ar}`  /entry/flyScan/AR_increment                             AR channel increment
-    changes_mcsChan        /entry/flyScan/changes_mcsChan                          array of MCS channels for range change events
-    changes_ampGain        /entry/flyScan/changes_ampGain                          array of detector range change events (provides :math:`r`)
-    changes_ampReqGain     /entry/flyScan/changes_ampReqGain                       array of requested detector range change events
-    :math:`A[0]`           /entry/metadata/upd_gain0                               detector amplifier gain for range 0
-    :math:`A[1]`           /entry/metadata/upd_gain1                               detector amplifier gain for range 1
-    :math:`A[2]`           /entry/metadata/upd_gain2                               detector amplifier gain for range 2
-    :math:`A[3]`           /entry/metadata/upd_gain3                               detector amplifier gain for range 3
-    :math:`A[4]`           /entry/metadata/upd_gain4                               detector amplifier gain for range 4
-    :math:`B[0]`           /entry/metadata/upd_bkg0                                detector amplifier background count rate for range 0
-    :math:`B[1]`           /entry/metadata/upd_bkg1                                detector amplifier background count rate for range 1
-    :math:`B[2]`           /entry/metadata/upd_bkg2                                detector amplifier background count rate for range 2
-    :math:`B[3]`           /entry/metadata/upd_bkg3                                detector amplifier background count rate for range 3
-    :math:`B[4]`           /entry/metadata/upd_bkg4                                detector amplifier background count rate for range 4
+    changes_mcsChan        /entry/flyScan/changes_AMP_mcsChan                      array of MCS channels for range change events
+    changes_ampGain        /entry/flyScan/changes_AMP_ampGain                      array of AMPlifier range change events (provides :math:`r`)
+    changes_ampReqGain     /entry/flyScan/changes_AMP_ampReqGain                   array of requested AMPlifier range change events
+    :math:`A[0]`           /entry/metadata/upd_gain0                               amplifier gain for range 0
+    :math:`A[1]`           /entry/metadata/upd_gain1                               amplifier gain for range 1
+    :math:`A[2]`           /entry/metadata/upd_gain2                               amplifier gain for range 2
+    :math:`A[3]`           /entry/metadata/upd_gain3                               amplifier gain for range 3
+    :math:`A[4]`           /entry/metadata/upd_gain4                               amplifier gain for range 4
+    :math:`B[0]`           /entry/metadata/upd_bkg0                                amplifier background count rate for range 0
+    :math:`B[1]`           /entry/metadata/upd_bkg1                                amplifier background count rate for range 1
+    :math:`B[2]`           /entry/metadata/upd_bkg2                                amplifier background count rate for range 2
+    :math:`B[3]`           /entry/metadata/upd_bkg3                                amplifier background count rate for range 3
+    :math:`B[4]`           /entry/metadata/upd_bkg4                                amplifier background count rate for range 4
     =====================  ======================================================  ===========================================================
     '''
     
     def __init__(self, hdf_file_name, bin_count = DEFAULT_BIN_COUNT):
         self.bin_count = bin_count
         self.full = None
-        self.reduced = None
+        self.rebinned = None
+        self.full_from_file = False
+        self.rebinned_from_file = False
         
         if not os.path.exists(hdf_file_name):
             self.hdf_file_name = None
             raise IOError, 'file not found: ' + hdf_file_name
         self.hdf_file_name = hdf_file_name
-        self.read()
+        self.full_from_file = self.read_reduced()
+        if not self.full_from_file:
+            self.reduce()
     
-    def read(self):
-        '''read data from the HDF5 file and produce reduced, full :math:`R(Q)` in memory (``self.full`` dict)'''
+    def read_reduced(self):
+        '''try to read reduced, full data from the HDF5 file'''
+        hdf = h5py.File(self.hdf_file_name, 'r')
+        # check if reduction has already happened
+        name = '/entry/flyScan_reduced_full'
+        if name not in hdf:
+            hdf.close()
+            return False
+
+        fields = ('AR', 'Q', 'R', 'centroid', 'Rmax', 'FWHM')
+        self.full = read_nexus_group_fields(hdf, name, fields)
+
+        hdf.close()   # be CERTAIN to close the file
+        return True
+
+    def reduce(self):
+        '''reduce raw data from the HDF5 file to reduced, full :math:`R(Q)` in memory (``self.full`` dict)'''
         hdf = h5py.File(self.hdf_file_name, 'r')
         
-        raw_clock_pulses = get_data(hdf, '/entry/flyScan/mca1')
-        raw_I0 =           get_data(hdf, '/entry/flyScan/mca2')
-        raw_upd =          get_data(hdf, '/entry/flyScan/mca3')
-        raw_num_points =   get_data(hdf, '/entry/flyScan/AR_pulses')
+        nxdata = hdf['entry']
+        fields = ['mca1', 'mca2', 'mca3', 'AR_pulses', 'AR_start', 
+                  'AR_increment', 'mca_clock_frequency']
+        raw = read_nexus_group_fields(nxdata, 'flyScan', fields)
         
-        AR_start =     get_data(hdf, '/entry/flyScan/AR_start')
-        AR_increment = get_data(hdf, '/entry/flyScan/AR_increment')
+        raw_clock_pulses =  raw['mca1']
+        raw_I0 =            raw['mca2']
+        raw_upd =           raw['mca3']
+        raw_num_points =    raw['AR_pulses']
+        
+        AR_start =          raw['AR_start']
+        AR_increment =      raw['AR_increment']
         ar_last = AR_start - (raw_num_points - 1) * AR_increment
         raw_ar = numpy.linspace(AR_start, ar_last, raw_num_points)
         
-        pulse_frequency = get_data(hdf, '/entry/flyScan/mca_clock_frequency') or  MCA_CLOCK_FREQUENCY
+        pulse_frequency = raw['mca_clock_frequency'] or  MCA_CLOCK_FREQUENCY
         channel_time_s = raw_clock_pulses / pulse_frequency
         
         gain, bkg = get_gains_bkg(hdf, raw_num_points, channel_time_s)
         
-        ratio = (raw_upd - bkg) / raw_I0 / gain
+        numpy_error_reporting = numpy.geterr()
+        numpy.seterr(invalid='ignore', divide='ignore')     # suppress div-by-zero warning
+        masked_I0 = numpy.ma.masked_less_equal(raw_I0, 0)   # avoids div-by-zero error
+        ratio = (raw_upd - bkg) / masked_I0 / gain
         ratio = numpy.ma.masked_invalid(ratio)
         ratio = numpy.ma.masked_less_equal(ratio, 0)
+        numpy.seterr(**numpy_error_reporting)
         
         R = ratio.compressed()
         AR = numpy.ma.masked_array(data=raw_ar, mask=ratio.mask).compressed()
@@ -165,10 +196,27 @@ class UsaxsFlyScan(object):
         
         hdf.close()   # be CERTAIN to close the file
     
+    def read_rebinned(self, bin_count):
+        '''try to read rebinned data of the specified bin_count from the HDF5 file'''
+        hdf = h5py.File(self.hdf_file_name, 'r')
+        # check if rebinning has already happened
+        name = '/entry/flyScan_reduced_' + str(bin_count)
+        if name not in hdf:
+            hdf.close()
+            return False
+
+        fields = ('Q', 'R', 'dR')
+        self.rebinned = read_nexus_group_fields(hdf, name, fields)
+
+        hdf.close()   # be CERTAIN to close the file
+        return True
+    
     def rebin(self, bin_count = None):
-        '''generate R(Q) with a specified number of bins, save in ``self.reduced`` dict'''
+        '''generate R(Q) with a specified number of bins, save in ``self.rebinned`` dict'''
         bin_count = bin_count or self.bin_count
-        self.reduced = rebin(self.full['Q'], self.full['R'], bin_count)
+        self.rebinned_from_file = self.read_rebinned(bin_count)
+        if not self.rebinned_from_file:
+            self.rebinned = rebin(self.full['Q'], self.full['R'], bin_count)
     
     def save(self, hdf_file_name = None, save_full = True, save_rebinned = True):
         '''
@@ -202,7 +250,7 @@ class UsaxsFlyScan(object):
         '''
         if not save_full and not save_rebinned:         # no desire to save
             return None
-        if self.full is None and self.reduced is None:  # no data to save
+        if self.full is None and self.rebinned is None:  # no data to save
             return None
 
         if hdf_file_name is None:
@@ -220,34 +268,42 @@ class UsaxsFlyScan(object):
         #
         # HOW do we get that description _reliably_?
         
-        t = datetime.datetime.now()
-        yyyymmdd = t.strftime("%Y-%m-%d")
-        hhmmss = t.strftime("%H:%M:%S")
-        timestamp = yyyymmdd + " " + hhmmss
-
         if save_full and self.full is not None:
-            nxdata = h5_openGroup(nxentry, 'flyScan_reduced_full', 'NXdata', timestamp=timestamp)
+            nxdata = h5_openGroup(nxentry, 'flyScan_reduced_full', 'NXdata', timestamp=self.yyyymmdd_hhmmss())
             h5_write_dataset(nxdata, "AR",          self.full['AR'],       units='degrees')
             h5_write_dataset(nxdata, "Q",           self.full['Q'],        units='1/A')
             h5_write_dataset(nxdata, "R",           self.full['R'],        units='a.u.', signal=1, axes='Q')
+            # do not make these links, the R link violates NeXus signal=1 rule
+            # link: Q --> R_Qvec
+            # link: R --> R_Int
             h5_write_dataset(nxdata, "R_max",       [self.full['Rmax']],     units='a.u.')
             h5_write_dataset(nxdata, "AR_centroid", [self.full['centroid']], units='degrees')
             h5_write_dataset(nxdata, "AR_FWHM",     [self.full['FWHM']],     units='degrees')
         
-        if save_rebinned and self.reduced is not None:
-            nxdata =  h5_openGroup(nxentry, 'flyScan_reduced_'+str(self.reduced['Q'].size), 'NXdata', timestamp=timestamp)
-            h5_write_dataset(nxdata, "Q",  self.reduced['Q'],  units='1/A')
-            h5_write_dataset(nxdata, "R",  self.reduced['R'],  units='a.u.', signal=1, axes='Q', uncertainty='dR')
-            h5_write_dataset(nxdata, "dR", self.reduced['dR'], units='a.u.')
+        if save_rebinned and self.rebinned is not None:
+            nxdata =  h5_openGroup(nxentry, 'flyScan_reduced_'+str(self.rebinned['Q'].size), 'NXdata', timestamp=self.yyyymmdd_hhmmss())
+            h5_write_dataset(nxdata, "Q",  self.rebinned['Q'],  units='1/A')
+            h5_write_dataset(nxdata, "R",  self.rebinned['R'],  units='a.u.', signal=1, axes='Q', uncertainty='dR')
+            h5_write_dataset(nxdata, "dR", self.rebinned['dR'], units='a.u.')
+            # do not make these links, the R link violates NeXus signal=1 rule
+            # link: Q --> R_Qvec
+            # link: R --> R_Int
+            # link: dR --> R_error
         
         hdf.close()   # be CERTAIN to close the file
         return hdf_file_name
+    
+    def yyyymmdd_hhmmss(self):
+        t = datetime.datetime.now()
+        yyyymmdd = t.strftime("%Y-%m-%d")
+        hhmmss = t.strftime("%H:%M:%S")
+        return yyyymmdd + " " + hhmmss
 
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 
-def get_data(parent, dataset_name, astype=None):
+def read_nexus_field(parent, dataset_name, astype=None):
     '''get the numpy data from the HDF5 dataset, option to return as different numpy data type'''
     try:
         dataset = parent[dataset_name]
@@ -262,6 +318,12 @@ def get_data(parent, dataset_name, astype=None):
         return dataset[...].astype(dtype)   # as array
     else:
         return dataset[0].astype(dtype)     # as scalar
+
+
+def read_nexus_group_fields(parent, name, fields):
+    '''read the fields in the NeXus group, return as a dict'''
+    group = parent[name]
+    return {key: read_nexus_field(group, key) for key in fields}
 
 
 def get_channel_range_changes(hdf, raw_num_points):
@@ -311,10 +373,17 @@ def get_channel_range_changes(hdf, raw_num_points):
     '''
 
     def _get_changes_data(identifier):
-        return get_data(hdf, '/entry/flyScan/changes_'+identifier, astype=int)
+        return read_nexus_field(hdf, '/entry/flyScan/changes_'+identifier, astype=int)
+
+    which_upd_amp = {
+                 None: 'DDPCA300',  # default
+                 0: 'DLPCA200',
+                 1: 'DDPCA300',
+                 }[read_nexus_field(hdf, '/entry/flyScan/upd_flyScan_amplifier')]
 
     # get the data about range changes from HDF5 paths
-    change_arrays = map(_get_changes_data, ('mcsChan', 'ampReqGain', 'ampGain'))
+    p = which_upd_amp + '_'     # prefix for selected amplifier
+    change_arrays = map(_get_changes_data, (p+'mcsChan', p+'ampReqGain', p+'ampGain'))
 
     channel_change_start, channel_last, range_last = -1, -1, -1
     ranges, changes = [], []
@@ -365,12 +434,12 @@ def calc_time_mask_channels(range_number, channel_start, channel_time_s, mask_ti
 def get_gains_bkg(hdf, raw_num_points, channel_time_s):
     '''get the amplifier gains and backgrounds for each data point'''
     def _get_meta(hdf_path_name):
-        return get_data(hdf, hdf_path_name)
+        return read_nexus_field(hdf, hdf_path_name)
     def _get_meta_gain(identifier):
         return _get_meta('/entry/metadata/upd_gain'+str(identifier))
     def _get_meta_bkg(identifier):
         return _get_meta('/entry/metadata/upd_bkg'+str(identifier))
-
+    
     amp_range_changes = get_channel_range_changes(hdf, raw_num_points)
     mask_times = get_range_change_mask_times(hdf)
     # get the table of amplifier gains and measured backgrounds
@@ -405,7 +474,7 @@ def get_range_change_mask_times(hdf):
     '''get the interval to mask data after each amplifier range change'''
     def _get_mask_data(identifier):
         prefix = '/entry/flyScan/upd_amp_change_mask_time'
-        return get_data(hdf, prefix+str(identifier))
+        return read_nexus_field(hdf, prefix+str(identifier))
 
     try:
         mask_times = map(_get_mask_data, range(5))
@@ -450,7 +519,7 @@ def compute_Q_centroid_and_Rmax(hdf, ar, ratio, centroid = None):
     
     ar_fwhm = FWHM(ar, ratio)
 
-    wavelength = get_data(hdf, '/entry/instrument/monochromator/DCM_wavelength')
+    wavelength = read_nexus_field(hdf, '/entry/instrument/monochromator/DCM_wavelength')
     d2r = math.pi/180
     q = (4 * math.pi / wavelength) * numpy.sin(d2r*(ar_centroid - ar))
 
@@ -475,7 +544,7 @@ def estimate_linear_fit_intercept(xx, yy):
     return y_mean, y_sdev
 
 
-def expand_bin_span(bin_span, bin_count, Q_diff_array, expansion_number = 2):
+def expand_bin_span(bin_span, Q_diff_array, expansion_number = 2):
     '''expand the range to get enough bins for curve fitting to work properly'''
     if bin_span.size == 0:      # must have at least one bin
         bin_span = numpy.array([numpy.abs(Q_diff_array).argmin()])
@@ -484,8 +553,9 @@ def expand_bin_span(bin_span, bin_count, Q_diff_array, expansion_number = 2):
         bin_span = numpy.append(bin_span, bin_span.max()+1)
     # make sure bins are within range
     bin_span = bin_span[numpy.where(bin_span >= 0)]
-    bin_span = bin_span[numpy.where(bin_span < bin_count)]
+    bin_span = bin_span[numpy.where(bin_span < Q_diff_array.size)]
     return bin_span
+
 
 def rebin(Q_orig, R_orig, bin_count = DEFAULT_BIN_COUNT):
     '''rebin according to the attributes, return rebinned data in dict'''
@@ -510,7 +580,7 @@ def rebin(Q_orig, R_orig, bin_count = DEFAULT_BIN_COUNT):
         bin_span = numpy.argwhere(numpy.abs(Q_orig-Q[key]) < dq).flatten()
         while bin_span.size <= 4:
             # expand the range to get enough bins for curve fitting to work properly
-            bin_span = expand_bin_span(bin_span, bin_count, Q_orig-Q[key])
+            bin_span = expand_bin_span(bin_span, Q_orig-Q[key])
         try:
             # realistically, with bin_size expansion above, this is the only interpolator that gets used now
             x = Q_orig[bin_span] - Q[key]
@@ -596,10 +666,16 @@ def main():
     else:
         output_filename = None
         msg = '  saving back to '
-    print msg + scan.save(output_filename)
+    
+    # don't save data already saved
+    print msg, scan.save(output_filename, not scan.full_from_file, not scan.rebinned_from_file)
 
 
 if __name__ == '__main__':
+    # sys.argv = sys.argv[0:]
+    # sys.argv.append('-n')
+    # sys.argv.append('250')
+    # sys.argv.append('testdata/S123_NewFileContent.h5')
     main()
 
 
