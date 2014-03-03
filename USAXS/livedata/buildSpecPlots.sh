@@ -13,6 +13,8 @@
 #   # every five minutes (generates no output from outer script)
 #   0-59/5 * * * *  $HOME/Documents/eclipse/USAXS/livedata/buildSpecPlots.sh
 
+# kill -9 `psg bash | awk '/buildSpecPlots.sh/ {print $2}' -`
+# kill -9 `psg python | awk '/specplotsAllScans.py/ {print $2}' -`
 
 CODE_DIR=/home/beams/S15USAXS/Documents/eclipse/USAXS/livedata
 PROGRAM=$CODE_DIR/specplotsAllScans.py
