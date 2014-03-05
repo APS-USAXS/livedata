@@ -20,10 +20,10 @@ import time             # provides sleep()
 from xml.dom import minidom
 from xml.etree import ElementTree
 import epics            # manages EPICS (PyEpics) connections for Python 2.6+
-import prjPySpec        # read SPEC data files
 import plot             # makes PNG files of recent USAXS scans
 import localConfig      # definitions for 15ID
 import wwwServerTransfers
+import traceback
 
 
 SVN_ID = "$Id$"
@@ -45,6 +45,13 @@ PVWATCH_PID_PV   = '15iddLAX:long19'
 PVWATCH_REF_PV   = '15iddLAX:long18'
 
 
+'''value for expected EPICS PV is None'''
+class NoneEpicsValue(Exception): pass
+
+'''pv not in pvdb'''
+class PvNotRegistered(Exception): pass
+
+
 def logMessage(msg):
     '''write a message with a timestamp and pid to the log file'''
     try:
@@ -58,12 +65,26 @@ def logMessage(msg):
 def logException(troublemaker):
     '''write an exception report to the log file'''
     msg = "problem with %s:" % troublemaker
-    fmt = "\n  type=%s"
-    fmt += "\n  value=%s"
-    #fmt += "\n  stacktrace=%s"
-    msg += fmt % sys.exc_info()[:2]
-    #msg += "\n  type: %s\n  value: %s\n  traceback: %s" % sys.exc_info()
-    logMessage(msg)
+#     fmt = "\n  type=%s"
+#     fmt += "\n  value=%s"
+#     #fmt += "\n  stacktrace=%s"
+#     msg += fmt % sys.exc_info()[:2]
+    for _ in msg.splitlines():
+        logMessage(_)
+    for _ in traceback.format_exc().splitlines():
+        logMessage(_)
+
+
+def update_pvdb(pv, raw_value):
+    if pv not in pvdb:
+        msg = '!!!ERROR!!! %s was not found in pvdb!' % pv
+        raise PvNotRegistered, msg
+    entry = pvdb[pv]
+    ch = entry['ch']
+    entry['timestamp'] = getTime()
+    entry['counter'] += 1
+    entry['raw_value'] = raw_value
+    entry['value'] = entry['format'] % raw_value
 
 
 def EPICS_monitor_receiver(*args, **kws):
@@ -72,15 +93,8 @@ def EPICS_monitor_receiver(*args, **kws):
     pv = kws['pvname']
     if pv not in pvdb:
         msg = '!!!ERROR!!! %s was not found in pvdb!' % pv
-        logMessage(msg)        # TODO: should this raise an exception?
-        return
-    entry = pvdb[pv]
-    ch = entry['ch']
-    entry['timestamp'] = getTime()
-    entry['counter'] += 1
-    entry['raw_value'] = ch.value
-    entry['value'] = entry['format'] % ch.value
-    #print 'EPICS_monitor_receiver: ', entry['timestamp'], entry['counter'], pv, ' = ', ch.value
+        raise PvNotRegistered, msg
+    update_pvdb(pv, kws['value'])   # cache the last known good value
     GLOBAL_MONITOR_COUNTER += 1
 
 
@@ -120,12 +134,18 @@ def add_pv(mne, pv, desc, fmt):
         if units in unit_renames:
             units = unit_renames[units]
 	entry['units'] = units
+    update_pvdb(pv, ch.get())   # initialize the cache
 
 
 def getSpecFileName(pv):
     '''construct the name of the file, based on a PV'''
-    userDir = pvdb[xref['spec_dir']]['value']
-    rawName = pvdb[pv]['value']   #@TODO: What if rawName is an empty string?
+    dir_pv = xref['spec_dir']
+    userDir = pvdb[dir_pv]['value']
+    rawName = pvdb[pv]['value']
+    if userDir is None:
+        raise NoneEpicsValue, '"None" received for spec_dir PV: <' + str(dir_pv) + '>'
+    if rawName is None:
+        raise NoneEpicsValue, '"None" received for spec file PV: <' + str(pv) + '>'
     specFile = userDir + "/" + rawName
     return specFile
 
@@ -394,13 +414,13 @@ def _periodic_reporting_task(mainLoopCount, nextReport, nextLog, delta_report, d
         nextReport = dt + delta_report
 
         try: report()                                   # write contents of pvdb to a file
-        except: logException("report()")                # report the exception
+        except Exception: logException("report()")
 
         try: updateSpecMacroFile()                      # copy the spec macro file
-        except: logException("updateSpecMacroFile()")   # report the exception
+        except Exception as exc: logException("updateSpecMacroFile()")
 
         try: updatePlotImage()                          # update the plot
-        except: logException("updatePlotImage()")       # report the exception
+        except Exception as exc: logException("updatePlotImage()")
 
     if dt >= nextLog:
         debugging_diagnostic(1)
