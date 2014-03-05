@@ -519,7 +519,7 @@ def compute_Q_centroid_and_Rmax(hdf, ar, ratio, centroid = None):
     
     ar_fwhm = FWHM(ar, ratio)
 
-    wavelength = read_nexus_field(hdf, '/entry/instrument/monochromator/DCM_wavelength')
+    wavelength = read_nexus_field(hdf, '/entry/instrument/monochromator/wavelength')
     d2r = math.pi/180
     q = (4 * math.pi / wavelength) * numpy.sin(d2r*(ar_centroid - ar))
 
