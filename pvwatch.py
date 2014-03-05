@@ -30,8 +30,8 @@ SVN_ID = "$Id$"
 
 
 global GLOBAL_MONITOR_COUNTER
-global pvdb
-global xref
+global pvdb         # cache of last known good values
+global xref         # cross-reference between mnemonics and PV names: {mne:pvname}
 
 GLOBAL_MONITOR_COUNTER = 0
 pvdb = {}   # EPICS data will go here
@@ -65,10 +65,6 @@ def logMessage(msg):
 def logException(troublemaker):
     '''write an exception report to the log file'''
     msg = "problem with %s:" % troublemaker
-#     fmt = "\n  type=%s"
-#     fmt += "\n  value=%s"
-#     #fmt += "\n  stacktrace=%s"
-#     msg += fmt % sys.exc_info()[:2]
     for _ in msg.splitlines():
         logMessage(_)
     for _ in traceback.format_exc().splitlines():
@@ -164,8 +160,6 @@ def updateSpecMacroFile():
         logMessage(specFile + " does not exist")
         return
     if not os.path.isfile(specFile):
-        # @TODO: will this write too much to the logs?
-        # 2010-08-19,PRJ: Certainly if the rawName is empty, now trapped above
         logMessage(specFile + " is not a file")
         return
     localDir = localConfig.LOCAL_WWW_LIVEDATA_DIR
@@ -229,7 +223,7 @@ def writeFile(file, contents):
 
 
 def xslt_transformation(xslt_file, src_xml_file, result_xml_file):
-    '''transform an XMLS file using an XSLT'''
+    '''transform an XML file using an XSLT'''
     # see: http://lxml.de/xpathxslt.html#xslt
     from lxml import etree as lxml_etree      # in THIS routine, use lxml's etree
     src_doc = lxml_etree.parse(src_xml_file)
@@ -429,7 +423,6 @@ def _periodic_reporting_task(mainLoopCount, nextReport, nextLog, delta_report, d
         logMessage(msg)
         GLOBAL_MONITOR_COUNTER = 0  # reset
 
-    #print dt
     return nextReport, nextLog
 
 
