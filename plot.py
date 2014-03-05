@@ -11,7 +11,7 @@ import os
 import shutil
 import tempfile
 import time
-import prjPySpec        # read SPEC data files
+from spec2nexus import prjPySpec        # read SPEC data files
 import localConfig      # definitions for 15ID
 import wwwServerTransfers
 
@@ -34,7 +34,7 @@ class Scan(object):
 
 def update_n_plots(specFile, numScans):
     '''read the SPEC file and grab n scans'''
-    sd = prjPySpec.specDataFile(specFile)
+    sd = prjPySpec.SpecDataFile(specFile)
     scanList = last_n_scans(sd.scans, numScans)
     if len(scanList) == 0:
         return
@@ -66,9 +66,9 @@ def last_n_scans(scans, maxScans):
     '''
     find the last maxScans scans in the specData
     
-    :param scans: specDataFileScan instance list
+    :param scans: SpecDataFileScan instance list
     :param int maxScans: maximum number of scans to find
-    :return: list of specDataFileScan objects where len() <= maxScans
+    :return: list of SpecDataFileScan objects where len() <= maxScans
     '''
     scanList = []
     for scan in scans:
@@ -83,8 +83,8 @@ def last_n_scans(scans, maxScans):
 def extract_USAXS_data(specData, scanList):
     '''
     extract the USAXS R(Q) profiles (ignoring error estimates)
-    @param specData: as returned by prjPySpec.specDataFile(specFile)
-    @param scanList: list of specDataFileScan objects
+    @param specData: as returned by prjPySpec.SpecDataFile(specFile)
+    @param scanList: list of SpecDataFileScan objects
     @return: list of dictionaries with reduced USAXS R(Q)
     '''
     usaxs = []
@@ -401,7 +401,7 @@ def get_spec_data():
         if usaxs_scan.file not in spec_file_cache:
             if not os.path.exists(usaxs_scan.file):
                 raise IOError, 'spec data file not found: ' + usaxs_scan.file
-            spec_file_cache[usaxs_scan.file] = prjPySpec.specDataFile(usaxs_scan.file)
+            spec_file_cache[usaxs_scan.file] = prjPySpec.SpecDataFile(usaxs_scan.file)
         if usaxs_scan.file not in files_in_use:
             files_in_use.append(usaxs_scan.file)
     # discard unused spec files from RAM
