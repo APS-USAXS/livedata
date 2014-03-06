@@ -3,7 +3,7 @@
 '''
    read a SPEC data file and plot the last n USAXS scans for the livedata WWW page
 
-   @note: copies plot file to USAXS site on XSD WWW server
+   .. note:: copies plot file to USAXS site on XSD WWW server
 '''
 
 import math
@@ -70,6 +70,22 @@ def last_n_scans(scans, maxScans):
     :param int maxScans: maximum number of scans to find
     :return: list of SpecDataFileScan objects where len() <= maxScans
     '''
+    # TODO: revise to pick the last N scans from the XML scanLog instead
+    # /data/www/livedata/scanlog.xml
+    #<USAXS_SCAN_LOG version="1.0">
+    # <scan id="28:/data/USAXS_data/2014-03/03_06_JanTest.dat" number="28" state="complete" type="uascan">
+    #     <title>GC Adam</title>
+    #     <file>/data/USAXS_data/2014-03/03_06_JanTest.dat</file>
+    #     <started date="2014-03-06" time="08:43:22"/>
+    #     <ended date="2014-03-06" time="08:46:54"/>
+    # </scan>
+    # <scan id="29:/data/USAXS_data/2014-03/03_06_JanTest.dat" number="29" state="complete" type="uascan">
+    #     <title>GC Adam</title>
+    #     <file>/data/USAXS_data/2014-03/03_06_JanTest.dat</file>
+    #     <started date="2014-03-06" time="08:47:16"/>
+    #     <ended date="2014-03-06" time="08:49:27"/>
+    # </scan>
+    #</USAXS_SCAN_LOG>
     scanList = []
     for scan in scans.values():
         cmd = scan.scanCmd.split()[0]
@@ -83,9 +99,10 @@ def last_n_scans(scans, maxScans):
 def extract_USAXS_data(specData, scanList):
     '''
     extract the USAXS R(Q) profiles (ignoring error estimates)
-    @param specData: as returned by prjPySpec.SpecDataFile(specFile)
-    @param scanList: list of SpecDataFileScan objects
-    @return: list of dictionaries with reduced USAXS R(Q)
+
+    :param specData: as returned by prjPySpec.SpecDataFile(specFile)
+    :param scanList: list of SpecDataFileScan objects
+    :return: list of dictionaries with reduced USAXS R(Q)
     '''
     usaxs = []
     for scan in scanList:
@@ -271,7 +288,9 @@ def ploticus_commands(db, usaxs):
 def format_as_ploticus_data(usaxs):
     '''
     build the data portion of the ploticus script
-    @return: dictionary of formatted data and R(Q) limits
+
+    :params [{}] usaxs: list of dict as returned by calc_usaxs_data()
+    :returns: dictionary of formatted data and R(Q) limits
     '''
     qMin = qMax = iMin = iMax = None
     result = []
@@ -309,18 +328,16 @@ def format_as_ploticus_data(usaxs):
             qMax = qMin * 1.5
             qMin = qMin / 1.5
             #print qMin, qMax, iMin, iMax
-    dct = {
-            'data': result,
-            'qMin': qMin,
-            'qMax': qMax,
-            'iMin': iMin,
-            'iMax': iMax
-            }
-    return dct
+    return dict(data=result, qMin=qMin, qMax=qMax, iMin=iMin, iMax=iMax)
 
 
 def calc_usaxs_data(specScan):
-    '''calculate the USAXS R wave from the raw SPEC scan data'''
+    '''
+    calculate USAXS R(Q) from raw SPEC scan data, return as a dict
+    
+    :params obj specScan: prjPySpec.SpecDataFileScan object
+    :returns: dictionary of title and R(Q)
+    '''
     d2r = math.pi / 180
     sampleTitle = specScan.comments[0]
     arCenter = specScan.positioner['ar']
@@ -349,12 +366,7 @@ def calc_usaxs_data(specScan):
         #----
         USAXS_Q.append( str(qVec) )
         USAXS_I.append( str(rVec) )
-    entry = {
-             'title': sampleTitle,
-             'qVec': USAXS_Q,
-             'rVec': USAXS_I
-             }
-    return entry
+    return dict(title=sampleTitle, qVec=USAXS_Q, rVec=USAXS_I)
 
 
 def identify_last_n_scans(numScans):
@@ -393,6 +405,10 @@ def identify_last_n_scans(numScans):
 def get_spec_data():
     '''read SPEC data files, get USAXS data from the chosen scans'''
     global spec_file_cache, usaxs_scans_cache
+    
+    # TODO: cache reduced R(Q) data in an HDF5 file
+    # this allows to view scans from different data files together
+    # also allows to show reduced fly scan data as well as reduced image data
     
     # optimize using a cache for the SPEC data files in recent use
     # add any new spec files
@@ -436,7 +452,7 @@ def make_plots():
     global usaxs_scans_cache
 
 
-if __name__ == '__main__':
+def developer_main():
     import ploticus
     specFile = localConfig.TEST_SPEC_DATA
     numScans = 5
@@ -448,6 +464,10 @@ if __name__ == '__main__':
     pl.create('livedata.png')
 
     #update_n_plots(specFile, numScans)
+
+
+if __name__ == '__main__':
+    developer_main()
 
 
 ########### SVN repository information ###################
