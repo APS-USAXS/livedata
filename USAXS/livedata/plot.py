@@ -11,7 +11,8 @@ import os
 import shutil
 import tempfile
 import time
-from spec2nexus import prjPySpec        # read SPEC data files
+#from spec2nexus import prjPySpec        # read SPEC data files
+import prjPySpec        # borrow, temporarily
 import localConfig      # definitions for 15ID
 import wwwServerTransfers
 
