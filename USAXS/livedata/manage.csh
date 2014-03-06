@@ -65,7 +65,7 @@ switch ($1)
        breaksw
   case "checkup":
        #=====================
-       # call peridiocally (every 5 minutes) to see if livedata is running
+       # call periodically (every 5 minutes) to see if livedata is running
        #=====================
        #	field	       allowed values
        #      -----	     --------------
