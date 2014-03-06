@@ -68,7 +68,7 @@ def logException(troublemaker):
     for _ in msg.splitlines():
         logMessage(_)
     for _ in traceback.format_exc().splitlines():
-        logMessage(_)
+        logMessage('\t' + _)
 
 
 def update_pvdb(pv, raw_value):
