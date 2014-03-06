@@ -72,7 +72,7 @@ def last_n_scans(scans, maxScans):
     :return: list of SpecDataFileScan objects where len() <= maxScans
     '''
     scanList = []
-    for scan in scans:
+    for scan in scans.values():
         cmd = scan.scanCmd.split()[0]
         if (cmd == "uascan") or (cmd == "sbuascan"):
             scanList.append(scan)
@@ -325,9 +325,9 @@ def calc_usaxs_data(specScan):
     d2r = math.pi / 180
     sampleTitle = specScan.comments[0]
     arCenter = specScan.positioner['ar']
-    wavelength = specScan.float['DCM_lambda']
+    wavelength = specScan.metadata['DCM_lambda']
     if wavelength == 0:      # TODO: development ONLY
-        wavelength = localConfig.A_keV/specScan.float['DCM_energy']
+        wavelength = localConfig.A_keV/specScan.metadata['DCM_energy']
     numData = len(specScan.data['Epoch'])
     USAXS_Q = []
     USAXS_I = []
@@ -342,8 +342,8 @@ def calc_usaxs_data(specScan):
         I0 = 1.0*specScan.data['I0'][i] / I0_gain
         if I0 == 0:  I0 = 1      # TODO: development ONLY
         index = str(int(pd_range))
-        diode_gain = specScan.float["UPD2gain" + index]
-        dark_curr = specScan.float["UPD2bkg" + index]
+        diode_gain = specScan.metadata["UPD2gain" + index]
+        dark_curr = specScan.metadata["UPD2bkg" + index]
         #----
         qVec = (4 * math.pi / wavelength) * math.sin(d2r*(arCenter - ar_enc)/2)
         rVec = (pd_counts - seconds*dark_curr) / diode_gain / I0 / V_f_gain
