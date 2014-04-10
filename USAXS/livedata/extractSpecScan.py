@@ -24,7 +24,7 @@ Compatible with Python 2.6+
 """
 
 
-import prjPySpec
+from spec2nexus import prjPySpec
 import os
 import sys
 

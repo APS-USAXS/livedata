@@ -16,7 +16,7 @@ read a SPEC data file and plot scan n using ploticus
 import os
 import sys
 import tempfile
-import prjPySpec        # read SPEC data files
+from spec2nexus import prjPySpec        # read SPEC data files
 import localConfig      # definitions for 15ID
 import wwwServerTransfers
 import reduceFlyData
@@ -36,7 +36,7 @@ def retrieve_flyScanData(scan):
         # TODO: retrieve from pre-computed file?
         hdf = reduceFlyData.UsaxsFlyScan(hdf_file_name)
         hdf.rebin(250)      # does not store any data back to HDF5 file
-        plotData = zip(hdf.reduced['Q'], hdf.reduced['R'])
+        plotData = zip(hdf.rebinned['Q'], hdf.rebinned['R'])
     else:
         plotData = []
     return plotData
@@ -101,7 +101,11 @@ def run_ploticus_command_script(scan, dataFile, plotData, plotFile):
     name = "#%d: %s" % (scan.scanNum, scan.scanCmd)
     if len(plotData) == 0:
         name += ' (no data to plot)'
-    title = "%s, %s" % (scan.specFile, scan.date)
+    try:
+        specFileName = scan.specFile
+    except AttributeError:
+        specFileName = ''       # was in scan.specFile but interface changed
+    title = "%s, %s" % (specFileName, scan.date)
     command = localConfig.PLOTICUS
     command += " -prefab lines"
     command += " data=%s x=1 y=2" % dataFile
@@ -122,7 +126,7 @@ def openSpecFile(specFile):
     '''
     convenience routine so that others do not have to import prjPySpec
     '''
-    sd = prjPySpec.specDataFile(specFile)
+    sd = prjPySpec.SpecDataFile(specFile)
     return sd
 
 
@@ -131,12 +135,7 @@ def findScan(sd, n):
     return the first scan with scan number "n"
     from the spec data file object or None
     '''
-    scan = None
-    n = int(n)
-    for t in sd.scans:
-        if n == t.scanNum:
-            scan = t
-            break
+    scan = sd.getScan(int(n))
     return scan
 
 
