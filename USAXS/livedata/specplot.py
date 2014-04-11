@@ -104,7 +104,8 @@ def run_ploticus_command_script(scan, dataFile, plotData, plotFile):
     try:
         specFileName = scan.specFile
     except AttributeError:
-        specFileName = ''       # was in scan.specFile but interface changed
+	# was in scan.specFile but interface changed
+        specFileName = 'USAXS FlyScan %d' % scan.scanNum
     title = "%s, %s" % (specFileName, scan.date)
     command = localConfig.PLOTICUS
     command += " -prefab lines"

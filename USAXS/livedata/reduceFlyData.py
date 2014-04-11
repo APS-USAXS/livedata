@@ -6,6 +6,8 @@ import datetime         # date/time stamps
 import math
 import numpy
 import os
+import shutil
+import stat
 import sys
 import h5py
 from spec2nexus import eznx
@@ -13,6 +15,7 @@ from spec2nexus import eznx
 
 MCA_CLOCK_FREQUENCY = 50e6      # 50 MHz clock (not stored in older files)
 DEFAULT_BIN_COUNT   = 500
+ORIGINAL_SUBDIR_NAME = 'original'
 
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -155,9 +158,33 @@ class UsaxsFlyScan(object):
 
         hdf.close()   # be CERTAIN to close the file
         return True
+    
+    def _make_archive(self):
+        '''
+        archive the original data before writing new items to it
+        
+        This method checks for the presence of such a file in 
+        a subdirectory below the HDF5 file.  If found there, 
+        this method does nothing.  If not found, this method creates
+        the subdirectory (if necessary) and copies the HDF5 to
+        that subdirectory and makes the HDF5 file there to be read-only.
+        '''
+        pwd = os.getcwd()
+        path, hfile = os.path.split(self.hdf_file_name)
+        # TODO: check production use here, might need to consider pwd or path in the next steps
+        if False:
+            subdir = ORIGINAL_SUBDIR_NAME
+            ofile = os.path.join(subdir, hfile)
+            if not os.path.exists(subdir):
+                os.mkdir(subdir)
+            if not os.path.exists(ofile):
+                shutil.copy2(hfile, ofile)      # copy hfile to ofile
+                mode = stat.S_IRUSR | stat.S_IRGRP | stat.S_IROTH
+                os.chmod(ofile, mode)           # make ofile read-only to all
 
     def reduce(self):
         '''reduce raw data from the HDF5 file to reduced, full :math:`R(Q)` in memory (``self.full`` dict)'''
+        self._make_archive()
         hdf = h5py.File(self.hdf_file_name, 'r')
         
         nxdata = hdf['entry']
