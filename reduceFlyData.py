@@ -15,7 +15,7 @@ from spec2nexus import eznx
 
 MCA_CLOCK_FREQUENCY = 50e6      # 50 MHz clock (not stored in older files)
 DEFAULT_BIN_COUNT   = 500
-ORIGINAL_SUBDIR_NAME = 'original'
+ARCHIVE_SUBDIR_NAME = 'archive'
 
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -143,6 +143,7 @@ class UsaxsFlyScan(object):
         self.full_from_file = self.read_reduced()
         if not self.full_from_file:
             self.reduce()
+            self.save(hdf_file_name, True, False)
     
     def read_reduced(self):
         '''try to read reduced, full data from the HDF5 file'''
@@ -169,18 +170,15 @@ class UsaxsFlyScan(object):
         the subdirectory (if necessary) and copies the HDF5 to
         that subdirectory and makes the HDF5 file there to be read-only.
         '''
-        pwd = os.getcwd()
         path, hfile = os.path.split(self.hdf_file_name)
-        # TODO: check production use here, might need to consider pwd or path in the next steps
-        if False:
-            subdir = ORIGINAL_SUBDIR_NAME
-            ofile = os.path.join(subdir, hfile)
-            if not os.path.exists(subdir):
-                os.mkdir(subdir)
-            if not os.path.exists(ofile):
-                shutil.copy2(hfile, ofile)      # copy hfile to ofile
-                mode = stat.S_IRUSR | stat.S_IRGRP | stat.S_IROTH
-                os.chmod(ofile, mode)           # make ofile read-only to all
+        archive_dir = os.path.join(path, ARCHIVE_SUBDIR_NAME)
+        archive_file = os.path.join(archive_dir, hfile)
+        if not os.path.exists(archive_dir):
+            os.mkdir(archive_dir)
+        if not os.path.exists(archive_file):
+            shutil.copy2(self.hdf_file_name, archive_file)      # copy hfile to archive_file
+            mode = stat.S_IRUSR | stat.S_IRGRP | stat.S_IROTH
+            os.chmod(archive_file, mode)           # make archive_file read-only to all
 
     def reduce(self):
         '''reduce raw data from the HDF5 file to reduced, full :math:`R(Q)` in memory (``self.full`` dict)'''
@@ -244,6 +242,7 @@ class UsaxsFlyScan(object):
         self.rebinned_from_file = self.read_rebinned(bin_count)
         if not self.rebinned_from_file:
             self.rebinned = rebin(self.full['Q'], self.full['R'], bin_count)
+            self.save(self.hdf_file_name, False, True)
     
     def save(self, hdf_file_name = None, save_full = True, save_rebinned = True):
         '''
