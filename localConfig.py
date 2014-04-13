@@ -71,8 +71,12 @@ TEST_SPEC_DATA = os.path.join("testdata", "03_19_LLNL.dat")
 #TEST_SPEC_DATA = os.path.join("testdata", "11_03_Vinod.dat")
 #TEST_SPEC_DATA = '/data/USAXS_data/2013-10/10_26_Course.dat'
 TEST_SPEC_DATA = '/data/USAXS_data/2014-02/02_18_artune.dat'
-TEST_SPEC_DATA = '/data/USAXS_data/2014-04/04_09_Prakash.dat'
+TEST_SPEC_DATA = '/data/USAXS_data/2014-04/04_09_Prakash_A5.dat'
 TEST_SPEC_SCAN_NUMBER = 1
 TEST_PLOTFILE = "pete.png"
 TEST_PLOTICUS_COMMAND_FILE = "pete.pl"
 LINE_ONLY_THRESHOLD = 400
+
+
+# FlyScan
+REDUCED_FLY_SCAN_BINS = 250
