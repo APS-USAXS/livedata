@@ -51,14 +51,17 @@ def plotAllSpecFileScans(specFile):
     HREF_FORMAT += "<img src=\"%s\" width=\"150\" height=\"75\" alt=\"%s\"/>"
     HREF_FORMAT += "</a>"
 
-    for scan in sd.scans:
+    for scan in sd.scans.values():
         basePlotFile = "s%05d.png" % scan.scanNum
         fullPlotFile = os.path.join(basedir, basePlotFile)
         altText = "#%d: %s" % (scan.scanNum, scan.scanCmd)
         href = HREF_FORMAT % (basePlotFile, basePlotFile, altText)
         plotList.append(href)
         #print "specplot.py %s %d %s" % (specFile, scan.scanNum, fullPlotFile)
-        if needToMakePlot(fullPlotFile, mtime_specFile):
+        cmd = scan.scanCmd.strip()
+        cmd = cmd[:cmd.find(' ')]
+        ignore_this_scan = cmd in ('pinSAXS', 'WAXS')
+        if needToMakePlot(fullPlotFile, mtime_specFile) and not ignore_this_scan:
             try:
                 specplot.makePloticusPlot(scan, fullPlotFile)
                 newFileList.append(fullPlotFile)
