@@ -33,9 +33,8 @@ def retrieve_flyScanData(scan):
     '''retrieve reduced, rebinned data from USAXS Fly Scans'''
     hdf_file_name = scan.comments[2].split()[-1].rstrip('.')
     if os.path.exists(hdf_file_name):
-        # TODO: retrieve from pre-computed file?
-        hdf = reduceFlyData.UsaxsFlyScan(hdf_file_name)
-        hdf.rebin(250)      # does not store any data back to HDF5 file
+        hdf = reduceFlyData.UsaxsFlyScan(hdf_file_name)   # stores data back to HDF5 file
+        hdf.rebin(localConfig.REDUCED_FLY_SCAN_BINS)      # stores data back to HDF5 file
         plotData = zip(hdf.rebinned['Q'], hdf.rebinned['R'])
     else:
         plotData = []
