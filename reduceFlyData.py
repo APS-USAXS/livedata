@@ -11,10 +11,11 @@ import stat
 import sys
 import h5py
 from spec2nexus import eznx
+import localConfig
 
 
 MCA_CLOCK_FREQUENCY = 50e6      # 50 MHz clock (not stored in older files)
-DEFAULT_BIN_COUNT   = 500
+DEFAULT_BIN_COUNT   = localConfig.REDUCED_FLY_SCAN_BINS
 ARCHIVE_SUBDIR_NAME = 'archive'
 
 

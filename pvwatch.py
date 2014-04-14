@@ -436,38 +436,40 @@ def main():
     ch = epics.PV(test_pv)
     epics.ca.poll()
     connected = ch.connect(timeout=5.0)
-    if connected:
-        logMessage("starting pvwatch.py")
-        _initiate_PV_connections()
+    if not connected:
+        print 'Did not connect PV:', ch, '  program has exited'
+        return
 
-        logMessage("Connected %d EPICS PVs" % len(pvdb))
-        epics.caput(PVWATCH_INDEX_PV+'.DESC', 'pvwatch mainLoopCounter')
-        epics.caput(PVWATCH_PID_PV+'.DESC', 'pvwatch PID')
-        epics.caput(PVWATCH_REF_PV+'.DESC', 'pvwatch reference')
-        epics.caput(PVWATCH_INDEX_PV, -1)
-        epics.caput(PVWATCH_PID_PV, os.getpid())
-        debugging_diagnostic(-1)
+    logMessage("starting pvwatch.py")
+    _initiate_PV_connections()
 
-        nextReport = getTime()
-        nextLog = nextReport
-        delta_report = datetime.timedelta(seconds=localConfig.REPORT_INTERVAL_S)
-        delta_log = datetime.timedelta(seconds=localConfig.LOG_INTERVAL_S)
-        mainLoopCount = 0
-        while True:
-            debugging_diagnostic(0)
-            mainLoopCount = (mainLoopCount + 1) % MAINLOOP_COUNTER_TRIGGER
-            nextReport, nextLog = _periodic_reporting_task(mainLoopCount,
-                                           nextReport, nextLog, delta_report, delta_log)
-            epics.caput(PVWATCH_INDEX_PV, mainLoopCount)
-            time.sleep(localConfig.SLEEP_INTERVAL_S)
+    logMessage("Connected %d EPICS PVs" % len(pvdb))
+    epics.caput(PVWATCH_INDEX_PV+'.DESC', 'pvwatch mainLoopCounter')
+    epics.caput(PVWATCH_PID_PV+'.DESC', 'pvwatch PID')
+    epics.caput(PVWATCH_REF_PV+'.DESC', 'pvwatch reference')
+    epics.caput(PVWATCH_INDEX_PV, -1)
+    epics.caput(PVWATCH_PID_PV, os.getpid())
+    debugging_diagnostic(-1)
 
-        # this exit handling will never be called
-        for pv in pvdb:
-            ch = pvdb[pv]['ch']
-            if ch != None:
-                ch.disconnect()
-        print "script is done"
-    print 'Did not connect PV:', ch, '  program has exited'
+    nextReport = getTime()
+    nextLog = nextReport
+    delta_report = datetime.timedelta(seconds=localConfig.REPORT_INTERVAL_S)
+    delta_log = datetime.timedelta(seconds=localConfig.LOG_INTERVAL_S)
+    mainLoopCount = 0
+    while True:
+        debugging_diagnostic(0)
+        mainLoopCount = (mainLoopCount + 1) % MAINLOOP_COUNTER_TRIGGER
+        nextReport, nextLog = _periodic_reporting_task(mainLoopCount,
+                                       nextReport, nextLog, delta_report, delta_log)
+        epics.caput(PVWATCH_INDEX_PV, mainLoopCount)
+        time.sleep(localConfig.SLEEP_INTERVAL_S)
+
+    # this exit handling will never be called
+    for pv in pvdb:
+        ch = pvdb[pv]['ch']
+        if ch != None:
+            ch.disconnect()
+    print "script is done"
 
 
 if __name__ == '__main__':
