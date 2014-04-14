@@ -32,7 +32,7 @@ switch ($1)
        cd ${SCRIPT_DIR}
        setenv PID `/bin/cat ${PIDFILE}`
        # get the full list of PID children
-       # this line trolls pstree and strips non-numbers
+       # this line browses pstree and strips non-numbers
        set pidlist=`pstree -p $PID | tr -c "[:digit:]"  " " `
        /bin/ps ${PID} >! /dev/null
        setenv NOT_EXISTS $?

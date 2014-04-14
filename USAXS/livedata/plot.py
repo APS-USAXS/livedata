@@ -14,6 +14,7 @@ import time
 from spec2nexus import prjPySpec        # read SPEC data files
 import localConfig      # definitions for 15ID
 import wwwServerTransfers
+import reduceFlyData
 
 scanlog_mtime = None
 usaxs_scans_cache = []
@@ -89,7 +90,7 @@ def last_n_scans(scans, maxScans):
     scanList = []
     for scan in scans.values():
         cmd = scan.scanCmd.split()[0]
-        if (cmd == "uascan") or (cmd == "sbuascan"):
+        if cmd in ('uascan', 'sbuascan', 'FlyScan'):
             scanList.append(scan)
             if len(scanList) > maxScans:
                 scanList.pop(0)
@@ -106,7 +107,14 @@ def extract_USAXS_data(specData, scanList):
     '''
     usaxs = []
     for scan in scanList:
-        entry = calc_usaxs_data(scan)
+        if scan.scanCmd.strip().split()[0] in ('FlyScan',):
+            hdf5File = scan.comments[2].split()[-1][:-2]
+            fly = reduceFlyData.UsaxsFlyScan(hdf5File, bin_count=localConfig.REDUCED_FLY_SCAN_BINS)
+            fly.rebin()
+            title = os.path.split(hdf5File)[-1]
+            entry = dict(qVec=fly.rebinned['Q'], rVec=fly.rebinned['R'], title=title)
+        else:
+            entry = calc_usaxs_data(scan)
         entry['scan'] = scan.scanNum
         entry['key'] = "S%d" % scan.scanNum
         entry['label'] = "%s: %s" % (entry['key'], entry['title'])
