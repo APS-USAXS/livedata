@@ -29,7 +29,8 @@ PYTHON=/APSshare/epd/rh6-x86_64/bin/python
 #SPEC_DATA_PATTERN=/data/USAXS_data/2010-04/*.dat
 #SPEC_DATA_PATTERN=/data/USAXS_data/201*-*/*.dat
 #SPEC_DATA_PATTERN=/data/USAXS_data/2013-1*/*.dat
-SPEC_DATA_PATTERN=/data/USAXS_data/2014-*/*.dat
+#SPEC_DATA_PATTERN=/data/USAXS_data/2014-*/*.dat
+SPEC_DATA_PATTERN=/data/USAXS_data/2014-04/*.dat
 
 export PLOTICUS_BASE=/home/beams/S15USAXS/Documents/ploticus/pl241src
 export PLOTICUS_PREFABS=$PLOTICUS_BASE/prefabs
