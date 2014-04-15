@@ -512,7 +512,7 @@ def get_range_change_mask_times(hdf):
     return mask_times
 
 
-def FWHM(X,Y):
+def FWHM(X,Y, centroid):
     '''http://stackoverflow.com/questions/10582795/finding-the-full-width-half-maximum-of-a-peak'''
     half_max = max(Y) / 2.
     #find when function crosses line half_max (when sign of diff flips)
@@ -520,9 +520,17 @@ def FWHM(X,Y):
     d = numpy.sign(half_max - numpy.array(Y[0:-1])) - numpy.sign(half_max - numpy.array(Y[1:]))
     #plot(X,d) #if you are interested
     #find the left and right most indexes
-    left_idx = numpy.argwhere(d > 0).flatten()[0]
+    leftSide = numpy.argwhere(d > 0).flatten()
+    if len(leftSide) > 0:
+        left_idx = numpy.argwhere(d > 0).flatten()[0]
+    else:
+        left_idx = None
     right_idx = numpy.argwhere(d < 0).flatten()[-1]
-    return abs(X[right_idx] - X[left_idx])    #return the difference (full width)
+    if left_idx is not None:
+        fwhm = abs(X[right_idx] - X[left_idx])   #return the difference (full width)
+    else:
+        fwhm = abs(X[right_idx] - centroid)   #estimate the as 2 * half_width
+    return  fwhm
 
 
 def compute_Q_centroid_and_Rmax(hdf, ar, ratio, centroid = None):
@@ -544,11 +552,11 @@ def compute_Q_centroid_and_Rmax(hdf, ar, ratio, centroid = None):
     bins = numpy.where( numpy.abs(ar-ar_centroid) < SEARCH_PRECISION )
     rMax = numpy.max(ratio[bins])
     
-    ar_fwhm = FWHM(ar, ratio)
+    ar_fwhm = FWHM(ar, ratio, ar_centroid)
 
     wavelength = read_nexus_field(hdf, '/entry/instrument/monochromator/wavelength')
     d2r = math.pi/180
-    q = (4 * math.pi / wavelength) * numpy.sin(d2r*(ar_centroid - ar))
+    q = (4 * math.pi / wavelength) * numpy.sin(d2r*(ar_centroid - ar)/2)
 
     numpy.seterr(**numpy_error_reporting)
     return dict(Q=q, centroid=ar_centroid, Rmax=rMax, FWHM=ar_fwhm)
