@@ -111,7 +111,7 @@ def extract_USAXS_data(specData, scanList):
             hdf5File = scan.comments[2].split()[-1][:-2]
             fly = reduceFlyData.UsaxsFlyScan(hdf5File, bin_count=localConfig.REDUCED_FLY_SCAN_BINS)
             fly.rebin()
-            title = os.path.split(hdf5File)[-1]
+            title = os.path.split(hdf5File)[-1] + '(fly)'
             entry = dict(qVec=fly.rebinned['Q'], rVec=fly.rebinned['R'], title=title)
         else:
             entry = calc_usaxs_data(scan)
