@@ -15,7 +15,7 @@ import os
 
 
 # general use
-HOME_DIR = os.environ['HOME']
+HOME_DIR = os.environ.get('HOME', '')
 BASE_DIR = "/data/USAXS_data/"
 LOCAL_DATA_DIR = "/data"
 LOCAL_USAXS_DATA_DIR = LOCAL_DATA_DIR + "/USAXS_data"

@@ -183,6 +183,9 @@ class UsaxsFlyScan(object):
 
     def reduce(self):
         '''reduce raw data from the HDF5 file to reduced, full :math:`R(Q)` in memory (``self.full`` dict)'''
+        def array_cleaner(data, mask):
+            arr = numpy.ma.masked_array(data=data, mask=mask).compressed()
+            return arr
         self._make_archive()
         hdf = h5py.File(self.hdf_file_name, 'r')
         
@@ -194,17 +197,16 @@ class UsaxsFlyScan(object):
         raw_clock_pulses =  raw['mca1']
         raw_I0 =            raw['mca2']
         raw_upd =           raw['mca3']
+
         raw_num_points =    raw['AR_pulses']
-        
         AR_start =          raw['AR_start']
         AR_increment =      raw['AR_increment']
-        ar_last = AR_start - (raw_num_points - 1) * AR_increment
-        raw_ar = numpy.linspace(AR_start, ar_last, raw_num_points)
+        raw_ar = AR_start + numpy.arange(raw_num_points) * AR_increment
         
         pulse_frequency = raw['mca_clock_frequency'] or  MCA_CLOCK_FREQUENCY
         channel_time_s = raw_clock_pulses / pulse_frequency
         
-        gain, bkg = get_gains_bkg(hdf, raw_num_points, channel_time_s)
+        gain, bkg, ranges = get_gains_bkg(hdf, raw_num_points, channel_time_s)
         
         numpy_error_reporting = numpy.geterr()
         numpy.seterr(invalid='ignore', divide='ignore')     # suppress div-by-zero warning
@@ -215,10 +217,28 @@ class UsaxsFlyScan(object):
         numpy.seterr(**numpy_error_reporting)
         
         R = ratio.compressed()
-        AR = numpy.ma.masked_array(data=raw_ar, mask=ratio.mask).compressed()
+        AR = array_cleaner(raw_ar, ratio.mask)
         peak_stats = compute_Q_centroid_and_Rmax(hdf, AR, R)
         self.full = dict(AR=AR, R=R, **peak_stats)
         # TODO: what else to do? slit length?
+
+        # developer: save these Indra waves: 
+        if True:
+            #   Ar_encoder, MeasTime, Monitor, USAXS_PD, PD_range, I0gain
+            self.full['count_time'] = array_cleaner(channel_time_s, ratio.mask)
+            self.full['Monitor']    = array_cleaner(masked_I0, ratio.mask)
+            self.full['USAXS_PD']   = array_cleaner(raw_upd, ratio.mask)
+            self.full['PD_range']   = array_cleaner(ranges, ratio.mask)
+            self.full['background'] = array_cleaner(bkg, ratio.mask)
+            self.full['gain']       = array_cleaner(gain, ratio.mask)
+            key = '/entry/metadata/I0_gain0'
+            self.full['I0gain']     = self.full['count_time']*0 + hdf[key]
+        
+        # USAXS code: rVec = (pd_counts - seconds*dark_curr) / diode_gain / I0 / V_f_gain
+        rVec = (self.full['USAXS_PD'] - self.full['background'])
+        rVec /= self.full['gain']
+        rVec /= self.full['Monitor']
+        self.full['rVec']       = rVec
         
         hdf.close()   # be CERTAIN to close the file
     
@@ -306,6 +326,10 @@ class UsaxsFlyScan(object):
             h5_write_dataset(nxdata, "R_max",       [self.full['Rmax']],     units='a.u.')
             h5_write_dataset(nxdata, "AR_centroid", [self.full['centroid']], units='degrees')
             h5_write_dataset(nxdata, "AR_FWHM",     [self.full['FWHM']],     units='degrees')
+            
+            for item in ('count_time', 'Monitor', 'USAXS_PD', 'PD_range', 'I0gain', 'background', 'gain', 'rVec'):
+                if item in self.full:
+                    h5_write_dataset(nxdata, item, self.full[item], units='developer')
         
         if save_rebinned and self.rebinned is not None:
             nxdata =  h5_openGroup(nxentry, 'flyScan_reduced_'+str(self.rebinned['Q'].size), 'NXdata', timestamp=self.yyyymmdd_hhmmss())
@@ -494,7 +518,7 @@ def get_gains_bkg(hdf, raw_num_points, channel_time_s):
 
     bkg = channel_time_s * bkg_db[ranges]
     gain = numpy.ma.masked_array(data=gains_db[ranges], mask=ranges.mask)
-    return gain, bkg
+    return gain, bkg, ranges
 
 
 def get_range_change_mask_times(hdf):
