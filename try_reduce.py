@@ -87,18 +87,44 @@ class UsaxsFlyScan(object):
         channel_time_s = raw_clock_pulses / pulse_frequency
         
         # rVec = (pd_counts - seconds*dark_curr) / diode_gain / I0 / V_f_gain
-        rVec = (raw_upd - channel_time_s*upd_dark) / upd_gain / raw_I0 / V_f_gain
+#         rVec = (raw_upd - channel_time_s*upd_dark) / upd_gain / raw_I0 / V_f_gain
+        upd = numpy.ma.masked_array(data=raw_upd, mask=upd_dark.mask)
+        rVec = upd / upd_gain / raw_I0 / V_f_gain
+        rVec *= 1e8
 
         d2r = math.pi / 180
         wavelength = hdf['/entry/instrument/monochromator/wavelength'][0]
         # simple sum since AR are equi-spaced
         arCenter = numpy.sum(raw_ar * rVec) / numpy.sum(rVec)
         qVec = (4 * math.pi / wavelength) * numpy.sin(d2r*(arCenter - raw_ar)/2)
+        
+        upd = numpy.array(raw_upd)
+        i0 = numpy.array(raw_I0)
+        dark = numpy.array(channel_time_s*upd_dark)
         hdf.close()
 
-        d = dict(Q=numpy.ma.masked_array(data=qVec, mask=rVec.mask).compressed(),
-                    R=rVec.compressed(), 
-                    AR=numpy.ma.masked_array(data=raw_ar, mask=rVec.mask).compressed(), 
+        hdf = h5py.File(self.hdf5_file_name, 'a')
+        nxdata = reduceFlyData.h5_openGroup(hdf, '/entry/reduced', 'NXdata', timestamp=self.yyyymmdd_hhmmss())
+        reduceFlyData.h5_write_dataset(nxdata, 'AR',       raw_ar,          units='degrees')
+        reduceFlyData.h5_write_dataset(nxdata, 'upd',      upd,             units='counts')
+        reduceFlyData.h5_write_dataset(nxdata, 'time',     channel_time_s,  units='s')
+        reduceFlyData.h5_write_dataset(nxdata, 'dark',     dark,            units='counts')
+        reduceFlyData.h5_write_dataset(nxdata, 'upd_dark', upd_dark,        units='counts/s')
+        reduceFlyData.h5_write_dataset(nxdata, 'upd_gain', upd_gain,        units='n/a')
+        reduceFlyData.h5_write_dataset(nxdata, 'I0',       i0,              units='counts')
+        reduceFlyData.h5_write_dataset(nxdata, 'Q',        qVec,            units='1/A')
+        reduceFlyData.h5_write_dataset(nxdata, 'R',        rVec,            units='n/a')
+        hdf.close()
+
+#         d = dict(Q=numpy.ma.masked_array(data=qVec, mask=rVec.mask).compressed(),
+#                     R=rVec.compressed(), 
+#                     AR=numpy.ma.masked_array(data=raw_ar, mask=rVec.mask).compressed(), 
+#                     R_max=None, 
+#                     AR_centroid=arCenter, 
+#                     AR_FWHM=None)
+        d = dict(Q=qVec,
+                    R=rVec, 
+                    AR=raw_ar, 
                     R_max=None, 
                     AR_centroid=arCenter, 
                     AR_FWHM=None)
