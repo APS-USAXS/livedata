@@ -11,6 +11,13 @@ from specplot import *      #@UnusedWildImport
 import spec2nexus           #@UnusedImport
 import numpy
 import h5py
+import math
+import datetime
+
+MCA_CLOCK_FREQUENCY = 50e6      # 50 MHz clock (not stored in older files)
+ARCHIVE_SUBDIR_NAME = 'archive'
+V_f_gain = localConfig.FIXED_VF_GAIN
+FULL_REDUCED_DATASET = -1
 
 
 def Prakash_test():
@@ -46,6 +53,120 @@ def reduction_test():
         print 'done'
 
 
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+
+class UsaxsFlyScan(object):
+    
+    def __init__(self, hdf5_file_name):
+        if not os.path.exists(hdf5_file_name):
+            raise IOError, 'file not found: ' + hdf5_file_name
+        self.hdf5_file_name = hdf5_file_name
+        self.reduced = self.read_reduced()
+    
+    def reduce(self):
+        '''convert raw Fly Scan data to R(Q), also get other terms'''
+        hdf = h5py.File(self.hdf5_file_name, 'r')
+        amp_name = get_USAXS_PD_amplifier_name(hdf)
+        upd_ranges = revised__get_ranges(hdf, amp_name)
+        upd_gain = get_gain(hdf, amp_name, upd_ranges)
+        upd_dark = get_bkg(hdf, amp_name, upd_ranges)
+
+        raw = hdf['entry/flyScan']
+
+        raw_clock_pulses =  raw['mca1']
+        raw_I0 =            raw['mca2']
+        raw_upd =           raw['mca3']
+
+        raw_num_points =    int(raw['AR_pulses'][0])
+        AR_start =          raw['AR_start']
+        AR_increment =      raw['AR_increment']
+        raw_ar = AR_start - numpy.arange(raw_num_points) * AR_increment
+        
+        pulse_frequency = raw['mca_clock_frequency'][0] or  MCA_CLOCK_FREQUENCY
+        channel_time_s = raw_clock_pulses / pulse_frequency
+        
+        # rVec = (pd_counts - seconds*dark_curr) / diode_gain / I0 / V_f_gain
+        rVec = (raw_upd - channel_time_s*upd_dark) / upd_gain / raw_I0 / V_f_gain
+
+        d2r = math.pi / 180
+        wavelength = hdf['/entry/instrument/monochromator/wavelength'][0]
+        # simple sum since AR are equi-spaced
+        arCenter = numpy.sum(raw_ar * rVec) / numpy.sum(rVec)
+        qVec = (4 * math.pi / wavelength) * numpy.sin(d2r*(arCenter - raw_ar)/2)
+        hdf.close()
+
+        d = dict(Q=numpy.ma.masked_array(data=qVec, mask=rVec.mask).compressed(),
+                    R=rVec.compressed(), 
+                    AR=numpy.ma.masked_array(data=raw_ar, mask=rVec.mask).compressed(), 
+                    R_max=None, 
+                    AR_centroid=arCenter, 
+                    AR_FWHM=None)
+        
+        self.reduced = dict(full=d)
+        return d
+    
+    def rebin(self, bin_count = None):
+        if bin_count is None:
+            bin_count = localConfig.REDUCED_FLY_SCAN_BINS
+
+        # TODO: do the right thing here
+
+        d = dict(Q=None, R=None, dR=None)
+        self.reduced[str(bin_count)] = d
+    
+    def read_reduced(self):
+        '''
+        work-in-progress
+        
+        dictionary = {
+          'full': dict(Q, R, R_max, AR, AR_FWHM, AR_centroid)
+          '250':  dict(Q, R, dR)
+          '5000': dict(Q, R, dR)
+        }
+        '''
+        fields = ('Q', 'R', 'dR', 'R_max', 'AR', 'AR_centroid', 'AR_FWHM')
+        reduced = {}
+        hdf = h5py.File(self.hdf5_file_name, 'r')
+        entry = hdf['/entry']
+        for key in entry.keys():
+            if key.startswith('flyScan_reduced_'):
+                nxdata = entry[key]
+                #print nxdata.name
+                reduction_name = key[len('flyScan_reduced_'):]
+                d = {}
+                for dsname in fields:
+                    if dsname in nxdata:
+                        # extract the Numpy structure!
+                        d[dsname] = nxdata[dsname]
+                reduced[reduction_name] = d
+        hdf.close()
+        return reduced
+    
+    def save_reduced(self):
+        if len(self.reduced) == 0:
+            return
+        hdf = h5py.File(self.hdf5_file_name, 'a')
+        nxentry = reduceFlyData.h5_openGroup(hdf, 'entry', 'NXentry')
+        for key, reduced_ds in self.reduced.items():
+            nxdata = reduceFlyData.h5_openGroup(nxentry, 
+                                                'flyScan_reduced_'+key, 
+                                                'NXdata', 
+                                                timestamp=self.yyyymmdd_hhmmss())
+            for k, v in reduced_ds.items():
+                # TODO: fix the units
+                # TODO: do not save None datasets
+                if v is not None:
+                    reduceFlyData.h5_write_dataset(nxdata, k, v,  units='')
+        hdf.close()
+
+    def yyyymmdd_hhmmss(self):
+        t = datetime.datetime.now()
+        yyyymmdd = t.strftime("%Y-%m-%d")
+        hhmmss = t.strftime("%H:%M:%S")
+        return yyyymmdd + " " + hhmmss
+
+
 def revised__get_ranges(hdf, identifier):
     '''
     local routine to setup the call
@@ -60,6 +181,65 @@ def revised__get_ranges(hdf, identifier):
     arr_actual    = hdf[base + 'ampGain']
 
     return get_ranges(num_channels, arr_channel, arr_requested, arr_actual)
+
+
+def construct_indexed_array(lookup_table, pd_ranges):
+    '''
+    return masked numpy array of length len(pd_ranges) with values from lookup_table
+
+    :param [float] lookup_table: values for result array
+    :param [int] pd_ranges: range index numbers of the photodiode
+    
+    Build a new masked numpy array from lookup_table 
+    such that its values are indexed by pd_ranges.
+    Masks in pd_ranges are preserved.
+    ''' 
+    n = len(pd_ranges)
+    indexed_array = []
+    for r in range(n):
+        v = pd_ranges[r]
+        # TODO: can this be more efficient?
+        if isinstance(v, numpy.ma.core.MaskedConstant):
+            v = 0
+        else:
+            v = lookup_table[v]
+        indexed_array.append(v)
+    return numpy.ma.masked_less_equal(indexed_array, 0)
+
+
+def get_bkg(hdf, amplifier, pd_ranges):
+    '''
+    get backgrounds for named amplifier from the HDF5 file
+    
+    :param obj hdf: opened HDF5 file instance
+    :param str amplifier: amplifier name, as stored in the HDF5 file
+    :param [int] pd_ranges: range index numbers of the photodiode
+    
+    The masked numpy integer array pd_ranges has length equal to the number of
+    bins in the acquired dataset.  The value of pd_ranges are between 0 and
+    len(bkg)-1 inclusive, that is [0..4].
+    '''
+    base = '/entry/metadata/' + amplifier + '_bkg'
+    bkg = [hdf[base+str(_)][0] for _ in range(5)]
+    return construct_indexed_array(bkg, pd_ranges)
+
+
+def get_gain(hdf, amplifier, pd_ranges):
+    '''
+    get gains for named amplifier from the HDF5 file
+    
+    :param obj hdf: opened HDF5 file instance
+    :param str amplifier: amplifier name, as stored in the HDF5 file
+    :param [int] pd_ranges: range index numbers of the photodiode
+    
+    The masked numpy integer array pd_ranges has length equal to the number of
+    bins in the acquired dataset.  The value of pd_ranges are between 0 and
+    len(gain)-1 inclusive, that is [0..4].
+    '''
+    base = '/entry/metadata/' + amplifier + '_gain'
+    gain = [hdf[base+str(_)][0] for _ in range(5)]
+    # now construct new array upd_gain from gain[pd_ranges], sort of,
+    return construct_indexed_array(gain, pd_ranges)
 
 
 def get_ranges(num_channels, arr_channel, arr_requested, arr_actual):
@@ -101,11 +281,12 @@ def get_ranges(num_channels, arr_channel, arr_requested, arr_actual):
     ranges[-1] = mask_value             # assume this, for good measure
     return numpy.ma.masked_less_equal(ranges, mask_value)
 
+
 def get_USAXS_PD_amplifier_name(hdf):
     base = '/entry/flyScan/upd_flyScan_amplifier'
     amp_index = hdf[base][0]
     labels = {0: base+'_ZNAM', 1: base+'_ONAM'}
-    return hdf[labels[amp_index]][0]
+    return str(hdf[labels[amp_index]][0])
 
 
 def main():
@@ -113,13 +294,16 @@ def main():
     
     for hdf_file_name in glob.glob(os.path.join('testdata', 'flyScanHdf5Files', '*.h5')):
         print hdf_file_name
-        hdf = h5py.File(hdf_file_name, 'r')
-        amp_name = get_USAXS_PD_amplifier_name(hdf)
-        print 'uses USAXS_PD amplifier:', amp_name
-        # for key in ('DDPCA300', 'DLPCA200', 'I00', 'I0'):
-        #     print key, revised__get_ranges(hdf, key)
-        print amp_name, revised__get_ranges(hdf, amp_name)
-        hdf.close()
+        recomputed = False
+        h = UsaxsFlyScan(hdf_file_name)
+        if 'full' not in h.reduced:
+            h.reduce()
+            recomputed = True
+        if recomputed or str(localConfig.REDUCED_FLY_SCAN_BINS) not in h.reduced:
+            h.rebin(localConfig.REDUCED_FLY_SCAN_BINS)
+            recomputed = True
+        if recomputed:
+            h.save_reduced()
 
 
 if __name__ == '__main__':
