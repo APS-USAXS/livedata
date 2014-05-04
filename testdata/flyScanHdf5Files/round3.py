@@ -18,7 +18,36 @@ def get_USAXS_PD_amplifier_name(hdf):
     return str(hdf[labels[amp_index]][0])
 
 
-def revised__get_ranges(hdf, identifier):
+def get_gain(hdf, amplifier):
+    '''
+    get gains for named amplifier from the HDF5 file
+    
+    :param obj hdf: opened HDF5 file instance
+    :param str amplifier: amplifier name, as stored in the HDF5 file
+    '''
+    def load_gain(x):
+        return hdf[base+str(x)][0]
+    base = '/entry/metadata/' + amplifier + '_gain'
+#     gain = [hdf[base+str(_)][0] for _ in range(5)]
+    gain = map(load_gain, range(5))
+    return gain
+
+
+def get_bkg(hdf, amplifier):
+    '''
+    get backgrounds for named amplifier from the HDF5 file
+    
+    :param obj hdf: opened HDF5 file instance
+    :param str amplifier: amplifier name, as stored in the HDF5 file
+    '''
+    def load_bkg(x):
+        return hdf[base+str(x)][0]
+    base = '/entry/metadata/' + amplifier + '_bkg'
+    bkg = map(load_bkg, range(5))
+    return bkg
+
+
+def get_ranges(hdf, identifier):
     '''
     return a numpy masked array of detector range changes
     
@@ -84,31 +113,18 @@ def main():
     qVec = (4*math.pi/wavelength) * numpy.sin(d2r*(ar_center - raw_ar)/2.0)
     
     amp_name = get_USAXS_PD_amplifier_name(hdf)
-    upd_ranges = revised__get_ranges(hdf, amp_name)
-    V_f_gain = 1e5   # not the correct number!  localConfig.FIXED_VF_GAIN
-    gains = [1e4, 1e6, 1e8, 1e10, 1e12]   # TODO: read from HDF5 file
-    bkg   = [5., 5., 5., 85., 9034.]           # TODO: read from HDF5 file
+    upd_ranges = get_ranges(hdf, amp_name)
+    V_f_gain = 1e5   # FIXME: not the correct number!  localConfig.FIXED_VF_GAIN
+    gains = get_gain(hdf, amp_name)
+    bkg   = get_bkg(hdf, amp_name)
     
     upd_gain = numpy.array([0,] + gains)[upd_ranges.data+1]
+    upd_gain = numpy.ma.masked_less_equal(upd_gain, 0)
     upd_dark = numpy.array([0,] + bkg)[upd_ranges.data+1]
+    upd_dark = numpy.ma.masked_less_equal(upd_dark, 0)
     pulse_frequency = raw['mca_clock_frequency'][0] or  MCA_CLOCK_FREQUENCY
     channel_time_s = raw_clock_pulses / pulse_frequency
-    rVec_Numpy = (raw_upd - channel_time_s*upd_dark) / upd_gain / raw_I0 / V_f_gain
-    
-#     rVec = raw_upd / raw_I0 / V_f_gain
-#     rVec = numpy.ma.masked_array(rVec)
-    rVec = []
-    for i, upd_range in enumerate(upd_ranges.data):
-        if upd_range < 0:
-            r = 0
-        else:
-            pulses = raw_clock_pulses[i]
-            secs = pulses / MCA_CLOCK_FREQUENCY
-            i0 = raw_I0[i]
-            upd = float(raw_upd[i])
-            r = (upd - secs*bkg[upd_range]) / i0 / V_f_gain / gains[upd_range]
-        rVec.append(r)
-    rVec = numpy.ma.masked_less_equal(rVec, 0)
+    rVec = (raw_upd - channel_time_s*upd_dark) / upd_gain / raw_I0 / V_f_gain
     centroid = numpy.sum(rVec*raw_ar) / numpy.sum(rVec)
 
     hdf.close()
@@ -121,7 +137,6 @@ def main():
     eznx.write_dataset(nxdata, 'upd_ranges', upd_ranges, units='masked')
     eznx.write_dataset(nxdata, 'qVec', qVec, units='1/A')
     eznx.write_dataset(nxdata, 'rVec', rVec, units='none')
-    eznx.write_dataset(nxdata, 'rVec_Numpy', rVec_Numpy, units='none')
     eznx.write_dataset(nxdata, 'centroid', centroid, units='degrees')
     hdf.close()
 
