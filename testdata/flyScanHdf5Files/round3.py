@@ -13,6 +13,7 @@ import datetime             #@UnusedImport
 
 MCA_CLOCK_FREQUENCY = 50e6
 FIXED_VF_GAIN = 1e5   # FIXME: not the correct way to do this!  localConfig.FIXED_VF_GAIN
+Q_MIN = 1.01e-6             # absolute minimum Q for rebinning
 
 
 # TODO: need to decide how archived/reduced data files are arranged in directories
@@ -92,20 +93,47 @@ class UsaxsFlyScan(object):
         )
         self.reduced = dict(full = full)
 
-#     def rebin(self, bin_count = None):
-#         '''generate R(Q) with a bin_count bins, save in ``self.reduced[str(bin_count)]`` dict'''
-#         bin_count = bin_count or self.bin_count
-#         s = str(bin_count)
-#         if s in self.reduced:
-#             return self.reduced[s]
-#         # TODO: rebin work here
-#         reduced = dict(
-#             qVec = qVec,
-#             rVec = rVec,
-#             drVec = drVec,
-#         )
-#         self.reduced[s] = reduced
-#         return reduced
+    def rebin(self, bin_count = None):
+        '''generate R(Q) with a bin_count bins, save in ``self.reduced[str(bin_count)]`` dict'''
+        bin_count = bin_count or self.bin_count
+        s = str(bin_count)
+        if s in self.reduced:
+            return self.reduced[s]
+        
+        qVec_orig = self.reduced['full']['qVec']
+        rVec_orig = self.reduced['full']['rVec']
+        
+        # see: http://wiki.scipy.org/Cookbook/Rebinning, congrid() method (Example 3)
+        # http://docs.scipy.org/doc/scipy/reference/generated/scipy.ndimage.interpolation.map_coordinates.html
+        # http://docs.scipy.org/doc/scipy/reference/generated/scipy.ndimage.interpolation.spline_filter1d.html
+
+        Qmin = max(Q_MIN, qVec_orig[numpy.where(qVec_orig > 0)].min() )
+        Qmax = qVec_orig.max()
+        qHiEdge = numpy.exp(numpy.linspace(math.log(Qmin), math.log(Qmax), bin_count))
+        qLoEdge = numpy.insert(qHiEdge[0:-1], 0, 0.0)
+        
+        def subarray(arr, key_arr, lo, hi):
+            '''return subarray of arr where lo < arr <= hi'''
+            low_pass  = numpy.where(key_arr <= hi, arr,      0)
+            high_pass = numpy.where(lo < key_arr,  low_pass, 0)
+            return numpy.trim_zeros(high_pass)
+
+        qVec, rVec, drVec = [], [], []
+        for qLo, qHi in numpy.nditer([qLoEdge, qHiEdge]):
+            q = subarray(qVec_orig, qVec_orig, qLo, qHi)
+            r = subarray(rVec_orig, qVec_orig, qLo, qHi)
+            
+            qVec.append(  q.mean() )    # do it in log space
+            rVec.append(  r.mean() )    # do it in log space
+            drVec.append( r.std() )     # do it in log space (!)
+
+        reduced = dict(
+#             qVec = numpy.array(qVec),
+#             rVec = numpy.array(rVec),
+#             drVec = numpy.array(drVec),
+        )
+        self.reduced[s] = reduced
+        return reduced
 
     def read_reduced(self):
         '''
@@ -247,6 +275,7 @@ class UsaxsFlyScan(object):
 def main(hfile):
     ufs = UsaxsFlyScan(hfile)
     ufs.reduce()
+    ufs.rebin(250)
     ufs.save('reduced.h5', 'full')
 
 
