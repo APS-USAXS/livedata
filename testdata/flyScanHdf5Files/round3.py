@@ -110,15 +110,15 @@ class UsaxsFlyScan(object):
         if s in self.reduced:
             return self.reduced[s]
         
-        qVec_orig = self.reduced['full']['qVec']
-        rVec_orig = self.reduced['full']['rVec']
+        qVec_full = self.reduced['full']['qVec']
+        rVec_full = self.reduced['full']['rVec']
         
         # lowest non-zero Q value > 0 or minimum acceptable Q
-        Qmin = max(Q_MIN, qVec_orig[numpy.where(qVec_orig > 0)].min() )
-        Qmax = qVec_orig.max()
+        Qmin = max(Q_MIN, qVec_full[numpy.where(qVec_full > 0)].min() )
+        Qmax = qVec_full.max()
         
         # pick smallest Q step size from input data, scale by a factor
-        minStep = self.min_step_factor * numpy.min(qVec_orig[1:] - qVec_orig[:-1])
+        minStep = self.min_step_factor * numpy.min(qVec_full[1:] - qVec_full[:-1])
         # compute upper edges of bins from ustep
         qHiEdge = numpy.array(ustep.ustep(Qmin, 0.0, Qmax, bin_count, self.uaterm, minStep).series)
         # compute lower edges of bins from previous bin upper edge
@@ -126,8 +126,8 @@ class UsaxsFlyScan(object):
         
         qVec, rVec, drVec = [], [], []
         for qLo, qHi in numpy.nditer([qLoEdge, qHiEdge]):
-            q = subarray(qVec_orig, qVec_orig, qLo, qHi)  # all Q where qLo < Q <= qHi
-            r = subarray(rVec_orig, qVec_orig, qLo, qHi)  # corresponding R
+            q = subarray(qVec_full, qVec_full, qLo, qHi)  # all Q where qLo < Q <= qHi
+            r = subarray(rVec_full, qVec_full, qLo, qHi)  # corresponding R
             
             qVec.append(  q.mean() )    # TODO: do it in log space
             rVec.append(  r.mean() )    # TODO: do it in log space
