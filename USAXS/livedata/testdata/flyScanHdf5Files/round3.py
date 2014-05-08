@@ -9,12 +9,13 @@ import numpy                #@UnusedImport
 import h5py                 #@UnusedImport
 import math                 #@UnusedImport
 import datetime             #@UnusedImport
+import ustep                #@UnusedImport
 
 
 MCA_CLOCK_FREQUENCY = 50e6
 FIXED_VF_GAIN = 1e5   # FIXME: not the correct way to do this!  localConfig.FIXED_VF_GAIN
 Q_MIN = 1.01e-6             # absolute minimum Q for rebinning
-
+UATERM = 1.2
 
 # TODO: need to decide how archived/reduced data files are arranged in directories
 
@@ -35,6 +36,8 @@ class UsaxsFlyScan(object):
             centroid = 'degrees',
             fwhm = 'degrees',
         )
+        self.min_step_factor = 1.5
+        self.uaterm = UATERM
 
         self.hdf5_file_name = hdf5_file_name
         self.reduced = self.read_reduced()
@@ -95,6 +98,13 @@ class UsaxsFlyScan(object):
 
     def rebin(self, bin_count = None):
         '''generate R(Q) with a bin_count bins, save in ``self.reduced[str(bin_count)]`` dict'''
+
+        def subarray(arr, key_arr, lo, hi):
+            '''return subarray of arr where lo < arr <= hi'''
+            low_pass  = numpy.where(key_arr <= hi, arr,      0)
+            high_pass = numpy.where(lo < key_arr,  low_pass, 0)
+            return numpy.trim_zeros(high_pass)
+
         bin_count = bin_count or self.bin_count
         s = str(bin_count)
         if s in self.reduced:
@@ -103,34 +113,30 @@ class UsaxsFlyScan(object):
         qVec_orig = self.reduced['full']['qVec']
         rVec_orig = self.reduced['full']['rVec']
         
-        # see: http://wiki.scipy.org/Cookbook/Rebinning, congrid() method (Example 3)
-        # http://docs.scipy.org/doc/scipy/reference/generated/scipy.ndimage.interpolation.map_coordinates.html
-        # http://docs.scipy.org/doc/scipy/reference/generated/scipy.ndimage.interpolation.spline_filter1d.html
-
+        # lowest non-zero Q value > 0 or minimum acceptable Q
         Qmin = max(Q_MIN, qVec_orig[numpy.where(qVec_orig > 0)].min() )
         Qmax = qVec_orig.max()
-        qHiEdge = numpy.exp(numpy.linspace(math.log(Qmin), math.log(Qmax), bin_count))
+        
+        # pick smallest Q step size from input data, scale by a factor
+        minStep = self.min_step_factor * numpy.min(qVec_orig[1:] - qVec_orig[:-1])
+        # compute upper edges of bins from ustep
+        qHiEdge = numpy.array(ustep.ustep(Qmin, 0.0, Qmax, bin_count, self.uaterm, minStep).series)
+        # compute lower edges of bins from previous bin upper edge
         qLoEdge = numpy.insert(qHiEdge[0:-1], 0, 0.0)
         
-        def subarray(arr, key_arr, lo, hi):
-            '''return subarray of arr where lo < arr <= hi'''
-            low_pass  = numpy.where(key_arr <= hi, arr,      0)
-            high_pass = numpy.where(lo < key_arr,  low_pass, 0)
-            return numpy.trim_zeros(high_pass)
-
         qVec, rVec, drVec = [], [], []
         for qLo, qHi in numpy.nditer([qLoEdge, qHiEdge]):
-            q = subarray(qVec_orig, qVec_orig, qLo, qHi)
-            r = subarray(rVec_orig, qVec_orig, qLo, qHi)
+            q = subarray(qVec_orig, qVec_orig, qLo, qHi)  # all Q where qLo < Q <= qHi
+            r = subarray(rVec_orig, qVec_orig, qLo, qHi)  # corresponding R
             
-            qVec.append(  q.mean() )    # do it in log space
-            rVec.append(  r.mean() )    # do it in log space
-            drVec.append( r.std() )     # do it in log space (!)
+            qVec.append(  q.mean() )    # TODO: do it in log space
+            rVec.append(  r.mean() )    # TODO: do it in log space
+            drVec.append( r.std() )     # TODO: do it in log space (!)
 
         reduced = dict(
-#             qVec = numpy.array(qVec),
-#             rVec = numpy.array(rVec),
-#             drVec = numpy.array(drVec),
+            qVec = numpy.array(qVec),
+            rVec = numpy.array(rVec),
+            drVec = numpy.array(drVec),
         )
         self.reduced[s] = reduced
         return reduced
@@ -275,8 +281,9 @@ class UsaxsFlyScan(object):
 def main(hfile):
     ufs = UsaxsFlyScan(hfile)
     ufs.reduce()
-    ufs.rebin(250)
     ufs.save('reduced.h5', 'full')
+    ufs.rebin(250)
+    ufs.save('reduced.h5', str(250))
 
 
 if __name__ == '__main__':
