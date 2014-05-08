@@ -36,8 +36,8 @@ class ustep(object):
         '''
         Determine the factor that will make a series with the specified parameters.
         
-        This method improves on find_factor_simplistic() by choosing next 
-        choice for factor from recent history.
+        This method improves on find_factor_simplistic() by 
+        choosing next choice for factor from recent history.
         '''
         
         def assess(factor):
@@ -49,40 +49,31 @@ class ustep(object):
         span_precision = abs(self.minStep) * 0.2
         factor = abs(self.finish-self.start) / (self.numPts -1)
         span_diff = assess(factor)
-        fLo, fHi = factor, factor
-        dLo, dHi = span_diff, span_diff
+        f = [factor, factor]
+        d = [span_diff, span_diff]
         
-        # first make certain that dLo < 0 and dHi > 0, expand fLo and fHi
+        # first make certain that d[0] < 0 and d[1] > 0, expand f[0] and f[1]
         for _ in range(100):
-            if dLo * dHi < 0:
-                break           # now, dLo and dHi have opposite sign
-            if span_diff < 0:
-                factor *= 2
-            else:
-                factor /= 2
+            if d[0] * d[1] < 0:
+                break           # now, d[0] and d[1] have opposite sign
+            factor *= {True: 2, False: 0.5}[span_diff < 0]
             span_diff = assess(factor)
-            if span_diff > dHi:
-                fHi = factor
-                dHi = span_diff
-            if span_diff < dLo:
-                fLo = factor
-                dLo = span_diff
+            key = {True: 1, False: 0}[span_diff > d[1]]
+            f[key] = factor
+            d[key] = span_diff
         
-        # now: dLo < 0 and dHi > 0
+        # now: d[0] < 0 and d[1] > 0, squeeze f[0] & f[1] to converge
         for _ in range(100):
-            if (dHi - dLo) > span_target:
-                factor = (fLo + fHi)/2              # bracket by bisection when not close
+            if (d[1] - d[0]) > span_target:
+                factor = (f[0] + f[1])/2              # bracket by bisection when not close
             else:
-                factor = fLo - dLo * (fHi-fLo)/(dHi-dLo)    # linear interpolation when close
+                factor = f[0] - d[0] * (f[1]-f[0])/(d[1]-d[0])    # linear interpolation when close
             span_diff = assess(factor)
             if abs(span_diff) <= span_precision:
                 break
-            if span_diff < 0:
-                fLo = factor
-                dLo = span_diff
-            else:
-                fHi = factor
-                dHi = span_diff
+            key = {True: 0, False: 1}[span_diff < 0]
+            f[key] = factor
+            d[key] = span_diff
 
         return factor
         
@@ -109,7 +100,6 @@ class ustep(object):
         fStep = factor
         larger = 3.0
         smaller = 0.5
-        f, d = [], []
         for _ in range(100):
             self.make_series(factor)
             span = abs(self.series[0] - self.series[-1])
