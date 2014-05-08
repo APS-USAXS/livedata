@@ -13,11 +13,12 @@ import ustep                #@UnusedImport
 
 
 MCA_CLOCK_FREQUENCY = 50e6
-FIXED_VF_GAIN = 1e5   # FIXME: not the correct way to do this!  localConfig.FIXED_VF_GAIN
+FIXED_VF_GAIN = 1e5   # FIXME: there is a better way to do this!  localConfig.FIXED_VF_GAIN
 Q_MIN = 1.01e-6             # absolute minimum Q for rebinning
 UATERM = 1.2
 
 # TODO: need to decide how archived/reduced data files are arranged in directories
+# copy code from reduceFlyData
 
 
 class UsaxsFlyScan(object):
@@ -65,9 +66,14 @@ class UsaxsFlyScan(object):
         raw_ar = AR_start - numpy.arange(raw_num_points) * AR_increment
         d2r = math.pi / 180
         qVec = (4*math.pi/wavelength) * numpy.sin(d2r*(ar_center - raw_ar)/2.0)
+
+        V_f_gain = FIXED_VF_GAIN
+        pulse_frequency = raw['mca_clock_frequency'][0] or  MCA_CLOCK_FREQUENCY
+        channel_time_s = raw_clock_pulses / pulse_frequency
         
         amp_name = self.get_USAXS_PD_amplifier_name(hdf)
         upd_ranges = self.get_ranges(hdf, amp_name)
+        upd_ranges = self.apply_upd_range_change_time_mask(hdf, upd_ranges, channel_time_s)
         gains = self.get_gain(hdf, amp_name)
         bkg   = self.get_bkg(hdf, amp_name)
         
@@ -75,9 +81,6 @@ class UsaxsFlyScan(object):
         upd_gain = numpy.ma.masked_less_equal(upd_gain, 0)
         upd_dark = numpy.array([0,] + bkg)[upd_ranges.data+1]
         upd_dark = numpy.ma.masked_less_equal(upd_dark, 0)
-        V_f_gain = FIXED_VF_GAIN
-        pulse_frequency = raw['mca_clock_frequency'][0] or  MCA_CLOCK_FREQUENCY
-        channel_time_s = raw_clock_pulses / pulse_frequency
         rVec = (raw_upd - channel_time_s*upd_dark) / upd_gain / raw_I0 / V_f_gain
         
         centroid, sigma = self.mean_sigma(raw_ar, rVec)
@@ -125,13 +128,13 @@ class UsaxsFlyScan(object):
         qLoEdge = numpy.insert(qHiEdge[0:-1], 0, 0.0)
         
         qVec, rVec, drVec = [], [], []
-        for qLo, qHi in numpy.nditer([qLoEdge, qHiEdge]):
+        for qLo, qHi in numpy.nditer([qLoEdge, qHiEdge]): # TODO: optimize for speed!
             q = subarray(qVec_full, qVec_full, qLo, qHi)  # all Q where qLo < Q <= qHi
             r = subarray(rVec_full, qVec_full, qLo, qHi)  # corresponding R
             
-            qVec.append(  q.mean() )    # TODO: do it in log space
-            rVec.append(  r.mean() )    # TODO: do it in log space
-            drVec.append( r.std() )     # TODO: do it in log space (!)
+            qVec.append(  numpy.exp(numpy.mean(numpy.log(q))) ) 
+            rVec.append(  numpy.exp(numpy.mean(numpy.log(r))) )
+            drVec.append( r.std() )
 
         reduced = dict(
             qVec = numpy.array(qVec),
@@ -186,8 +189,8 @@ class UsaxsFlyScan(object):
         '''
         return a numpy masked array of detector range changes
         
-        mask_value is true during a range change when requested != actual
-        mask_value is true for first and last point
+        mask is applied during a range change when requested != actual
+        mask is applied for first and last point
         
         :param obj hdf: opened HDF5 file instance
         :param str identifier: amplifier name, as stored in the HDF5 file
@@ -224,6 +227,7 @@ class UsaxsFlyScan(object):
             assign_range_value(last['chan']+1, num_channels, last['actual'])
     
         ranges[-1] = mask_value             # assume this, for good measure
+        
         return numpy.ma.masked_less_equal(ranges, mask_value)
 
     def get_gain(self, hdf, amplifier):
@@ -254,6 +258,32 @@ class UsaxsFlyScan(object):
         bkg = map(load_bkg, range(5))
         return bkg
     
+    def apply_upd_range_change_time_mask(self, hdf, upd_ranges, channel_time_s):
+        '''
+        apply mask for specified time after a range change
+        
+        :param obj hdf: open FlyScan data file (h5py File object)
+        :param obj upd_ranges: photodiode amplifier range (numpy masked ndarray)
+        :param obj channel_time_s: measurement time in each channel, s (numpy ndarray)
+        '''
+        def get_mask_time_spec(r):
+            # /entry/metadata/upd_amp_change_mask_time4
+            return float(hdf['/entry/metadata/upd_amp_change_mask_time' + str(r)][0])
+        mask_times = map(get_mask_time_spec, range(5))
+        
+        # modify the masks on upd_ranges
+        last_range = 0
+        timer = 0
+        for i, upd_range in enumerate(upd_ranges.data): # TODO: optimize for speed!
+            if last_range != upd_range:
+                if upd_range >= 0:
+                    timer = mask_times[upd_range]
+            if timer > 0:
+                upd_ranges[i] = numpy.ma.masked         # mask this point
+                timer = max(0, timer - channel_time_s[i]) # decrement the time of this channel
+            last_range = upd_range
+        return upd_ranges
+    
     def mean_sigma(self, x, w):
         '''
         return mean and standard deviation of weighted x array
@@ -280,7 +310,7 @@ class UsaxsFlyScan(object):
 
 def main(hfile):
     ufs = UsaxsFlyScan(hfile)
-    ufs.reduce()
+    #ufs.reduce()
     ufs.save('reduced.h5', 'full')
     ufs.rebin(250)
     ufs.save('reduced.h5', str(250))
