@@ -588,13 +588,17 @@ def developer(hfile):
 
 
 if __name__ == '__main__':
+    # for hfile in ('S571_Heater_Blank.h5', 
+    #               'S563_PB_GRI_9_Nat_200C.h5', 
+    #               'S555_PB_GRI_9_Nat_175C.h5'):
+    hfile = 'S571_Heater_Blank.h5'
     sys.argv = sys.argv[0:]
     sys.argv.append('-n')
     sys.argv.append('250')
-    sys.argv.append('S555_PB_GRI_9_Nat_175C.h5')
+    sys.argv.append(hfile)
     sys.argv.append('-f')
-    sys.argv.append('-r')
-#     #sys.argv.append('-h')
+    # sys.argv.append('-r')
+    # #sys.argv.append('-h')
 
     command_line_interface()
 
