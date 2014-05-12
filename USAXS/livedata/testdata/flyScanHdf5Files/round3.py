@@ -236,8 +236,6 @@ class UsaxsFlyScan(object):
 
         bin_count = bin_count or self.bin_count
         s = str(bin_count)
-        if s in self.reduced:
-            return self.reduced[s]
         
         qVec_full = self.reduced['full']['qVec']
         rVec_full = self.reduced['full']['rVec']
@@ -528,6 +526,20 @@ def get_user_options():
                         action='version', 
                         version='$Id$')
 
+    parser.add_argument('-f', 
+                        '--recompute-full',
+                        dest='recompute_full',
+                        action='store_true',
+                        default=False,
+                        help='(re)compute full R(Q)')
+
+    parser.add_argument('-r', 
+                        '--recompute-rebinning',
+                        dest='recompute_rebinned',
+                        action='store_true',
+                        default=False,
+                        help='(re)compute rebinned R(Q)')
+
     return parser.parse_args()
 
 
@@ -546,7 +558,11 @@ def command_line_interface():
     scan = UsaxsFlyScan(cmd_args.hdf5_file)
     scan.read_reduced()
     needs_calc['full'] = not scan.has_reduced('full')
+    if cmd_args.recompute_full:
+        needs_calc['full'] = True
     needs_calc[s_num_bins] = not scan.has_reduced(s_num_bins)
+    if cmd_args.recompute_rebinned:
+        needs_calc[s_num_bins] = True
 
     if needs_calc['full']:
         print '  reducing FlyScan to R(Q)'
@@ -576,6 +592,9 @@ if __name__ == '__main__':
     sys.argv.append('-n')
     sys.argv.append('250')
     sys.argv.append('S555_PB_GRI_9_Nat_175C.h5')
+    sys.argv.append('-f')
+    sys.argv.append('-r')
+#     #sys.argv.append('-h')
 
     command_line_interface()
 
