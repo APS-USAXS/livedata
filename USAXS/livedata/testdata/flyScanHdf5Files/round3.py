@@ -1,21 +1,28 @@
+#!/usr/bin/env python
+
 '''
 third try to get the FlyScan data reduction right
 '''
 
-import os                   #@UnusedImport
-import glob                 #@UnusedImport
-import numpy                #@UnusedImport
-import h5py                 #@UnusedImport
-import math                 #@UnusedImport
 import datetime             #@UnusedImport
+import glob                 #@UnusedImport
+import h5py                 #@UnusedImport
+import numpy                #@UnusedImport
+import math                 #@UnusedImport
+import os                   #@UnusedImport
+import shutil               #@UnusedImport
+import stat                 #@UnusedImport
+import sys                  #@UnusedImport
 from spec2nexus import eznx #@UnusedImport
 import ustep                #@UnusedImport
 
 
+ARCHIVE_SUBDIR_NAME = 'archive'
+DEFAULT_BIN_COUNT   = 250       # FIXME: localConfig.REDUCED_FLY_SCAN_BINS
+FIXED_VF_GAIN       = 1e5       # FIXME: localConfig.FIXED_VF_GAIN
 MCA_CLOCK_FREQUENCY = 50e6
-FIXED_VF_GAIN = 1e5   # FIXME: there is a better way to do this!  localConfig.FIXED_VF_GAIN
-Q_MIN = 1.01e-6             # absolute minimum Q for rebinning
-UATERM = 1.2
+Q_MIN               = 1.01e-6   # absolute minimum Q for rebinning
+UATERM              = 1.2
 
 
 class UsaxsFlyScan(object):
@@ -148,11 +155,13 @@ class UsaxsFlyScan(object):
         
     def has_reduced(self, key = 'full'):
         '''
-        check if the reduced dataset ia available
+        check if the reduced dataset is available
         
         :param str|int key: name of reduced dataset (default = 'full')
         '''
-        return str(key) in self.reduced
+        if key not in self.reduced:
+            return False
+        return 'qVec' in self.reduced[key] and 'rVec' in self.reduced[key]
         
     def reduce(self):
         '''convert raw Fly Scan data to R(Q), also get other terms'''
@@ -279,7 +288,14 @@ class UsaxsFlyScan(object):
             if key.startswith('flyScan_reduced_'):
                 nxdata = entry[key]
                 nxname = key[len('flyScan_reduced_'):]
-                d = {dsname: nxdata[dsname] for dsname in fields if dsname in nxdata}
+                d = {}
+                for dsname in fields:
+                    if dsname in nxdata:
+                        value = nxdata[dsname]
+                        if value.size == 1:
+                            d[dsname] = float(value[0])
+                        else:
+                            d[dsname] = numpy.array(value)
                 reduced[nxname] = d
         hdf.close()
         self.reduced = reduced
@@ -324,18 +340,7 @@ class UsaxsFlyScan(object):
         nxentry = eznx.openGroup(hdf, 'entry', 'NXentry')
         nxdata = eznx.openGroup(nxentry, nxname, 'NXdata', timestamp=self.iso8601_datetime())
         for key in sorted(ds.keys()):
-            try:
-                eznx.write_dataset(nxdata, key, ds[key], units=self.units[key])
-            except:
-                pass
-        # TODO: consider adding something to describe the sample
-        # Problem is when multiple of these files are opened in PyMca, NeXpy, IgorPro,
-        #  the datasets all have the same (or similar) NXdata group names 
-        #  and identical dataset names.  Those tools have a tough time differentiating.
-        # Possibly, full R(W) goes into a new group with the NXdata including the file name.  Something.
-        # Similar for rebinned.  Make that change soon **before** we make a lot of files!
-        #
-        # HOW do we get that description _reliably_?
+            eznx.write_dataset(nxdata, key, ds[key], units=self.units[key])
         hdf.close()
         return hfile
 
@@ -492,33 +497,91 @@ class UsaxsFlyScan(object):
         return yyyymmdd + separator + hhmmss
 
 
-def main(hfile):
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+
+def get_user_options():
+    '''parse the command line for the user options'''
+    import argparse
+    parser = argparse.ArgumentParser(prog='reduceUsaxsFlyScan', description=__doc__)
+    parser.add_argument('hdf5_file', 
+                        action='store', 
+                        help="NeXus/HDF5 data file name")
+    msg =  'how many bins in output R(Q)?'
+    msg += '  (default = %d)' % DEFAULT_BIN_COUNT
+    parser.add_argument('-n', 
+                        '--num_bins',
+                        dest='num_bins',
+                        type=int,
+                        default=DEFAULT_BIN_COUNT,
+                        help=msg)
+    msg =  'output file name?'
+    msg += '  (default = input HDF5 file)'
+    parser.add_argument('-o', 
+                        '--output_file',
+                        dest='output_file',
+                        type=str,
+                        default='',
+                        help=msg)
+    parser.add_argument('-V', 
+                        '--version', 
+                        action='version', 
+                        version='$Id$')
+
+    return parser.parse_args()
+
+
+def command_line_interface():
+    '''standard command-line interface'''
+    cmd_args = get_user_options()
+
+    if len(cmd_args.output_file) > 0:
+        output_filename = cmd_args.output_file
+    else:
+        output_filename = cmd_args.hdf5_file
+    s_num_bins = str(cmd_args.num_bins)
+
+    needs_calc = {}
+    print "Reading USAXS FlyScan data file: " + cmd_args.hdf5_file
+    scan = UsaxsFlyScan(cmd_args.hdf5_file)
+    scan.read_reduced()
+    needs_calc['full'] = not scan.has_reduced('full')
+    needs_calc[s_num_bins] = not scan.has_reduced(s_num_bins)
+
+    if needs_calc['full']:
+        print '  reducing FlyScan to R(Q)'
+        scan.reduce()
+        print '  saving reduced R(Q) to ' + output_filename
+        scan.save(cmd_args.hdf5_file, 'full')
+        needs_calc[s_num_bins] = True
+    if needs_calc[s_num_bins]:
+        print '  rebinning R(Q) (from %d) to %d points' % (scan.reduced['full']['qVec'].size, cmd_args.num_bins)
+        scan.rebin(cmd_args.num_bins)
+        print '  saving rebinned R(Q) to ' + output_filename
+        scan.save(cmd_args.hdf5_file, s_num_bins)
+
+
+def developer(hfile):
+    '''test method for the developer'''
     ufs = UsaxsFlyScan(hfile)
-<<<<<<< .mine
     ufs.read_reduced()
     ufs.reduce()
-=======
-    #ufs.reduce()
+    ufs.rebin(DEFAULT_BIN_COUNT)
     ufs.save(hfile, 'full')
->>>>>>> .r999
-    ufs.rebin(250)
-<<<<<<< .mine
-    ufs.save(hfile, 'full')
-    ufs.save(hfile, str(250))
-=======
-    ufs.save(hfile, str(250))
->>>>>>> .r999
+    ufs.save(hfile, str(DEFAULT_BIN_COUNT))
 
 
 if __name__ == '__main__':
-    #main('S555_PB_GRI_9_Nat_175C.h5')
-    main('S563_PB_GRI_9_Nat_200C.h5')
-<<<<<<< .mine
-    main('S571_Heater_Blank.h5')
-    #main('S555_PB_GRI_9_Nat_175C.h5')
-=======
-    main('S571_Heater_Blank.h5')
->>>>>>> .r999
+    sys.argv = sys.argv[0:]
+    sys.argv.append('-n')
+    sys.argv.append('250')
+    sys.argv.append('S555_PB_GRI_9_Nat_175C.h5')
+
+    command_line_interface()
+
+    #developer('S555_PB_GRI_9_Nat_175C.h5')
+#     developer('S563_PB_GRI_9_Nat_200C.h5')
+#     developer('S571_Heater_Blank.h5')
 
 
 ########### SVN repository information ###################
