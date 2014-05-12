@@ -476,6 +476,7 @@ class UsaxsFlyScan(object):
         the subdirectory (if necessary) and copies the HDF5 to
         that subdirectory and makes the HDF5 file there to be read-only.
         '''
+        result = None
         path, hfile = os.path.split(self.hdf5_file_name)
         archive_dir = os.path.join(path, ARCHIVE_SUBDIR_NAME)
         archive_file = os.path.join(archive_dir, hfile)
@@ -485,6 +486,8 @@ class UsaxsFlyScan(object):
             shutil.copy2(self.hdf5_file_name, archive_file)      # copy hfile to archive_file
             mode = stat.S_IRUSR | stat.S_IRGRP | stat.S_IROTH
             os.chmod(archive_file, mode)           # make archive_file read-only to all
+            result = archive_file
+        return result
     
     def iso8601_datetime(self):
         '''return current date & time as modified ISO8601=compliant string'''
@@ -540,6 +543,13 @@ def get_user_options():
                         default=False,
                         help='(re)compute rebinned R(Q)')
 
+    msg = 'do NOT copy the original file to an archive directory before saving R(Q)'
+    parser.add_argument('--no-archive',
+                        dest='no_archive',
+                        action='store_true',
+                        default=False,
+                        help=msg)
+
     return parser.parse_args()
 
 
@@ -556,6 +566,15 @@ def command_line_interface():
     needs_calc = {}
     print "Reading USAXS FlyScan data file: " + cmd_args.hdf5_file
     scan = UsaxsFlyScan(cmd_args.hdf5_file)
+    
+    if cmd_args.no_archive:
+        print '  skipping check for archived original file'
+    else:
+        afile = scan.make_archive()
+        if afile is not None:
+            print '  archived original file to ' + afile
+
+    print '  checking for previously-saved R(Q)'
     scan.read_reduced()
     needs_calc['full'] = not scan.has_reduced('full')
     if cmd_args.recompute_full:
@@ -591,12 +610,13 @@ if __name__ == '__main__':
     # for hfile in ('S571_Heater_Blank.h5', 
     #               'S563_PB_GRI_9_Nat_200C.h5', 
     #               'S555_PB_GRI_9_Nat_175C.h5'):
-    hfile = 'S571_Heater_Blank.h5'
+    hfile = 'S555_PB_GRI_9_Nat_175C.h5'
     sys.argv = sys.argv[0:]
     sys.argv.append('-n')
     sys.argv.append('250')
     sys.argv.append(hfile)
     sys.argv.append('-f')
+    # sys.argv.append('--no-archive')
     # sys.argv.append('-r')
     # #sys.argv.append('-h')
 
