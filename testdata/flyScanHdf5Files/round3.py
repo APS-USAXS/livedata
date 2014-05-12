@@ -144,9 +144,15 @@ class UsaxsFlyScan(object):
         self.uaterm = UATERM
 
         self.hdf5_file_name = hdf5_file_name
-        self.reduced = self.read_reduced()
-        if 'full' not in self.reduced:
-            self.reduce()
+        self.reduced = {}
+        
+    def has_reduced(self, key = 'full'):
+        '''
+        check if the reduced dataset ia available
+        
+        :param str|int key: name of reduced dataset (default = 'full')
+        '''
+        return str(key) in self.reduced
         
     def reduce(self):
         '''convert raw Fly Scan data to R(Q), also get other terms'''
@@ -215,6 +221,9 @@ class UsaxsFlyScan(object):
             low_pass  = numpy.where(key_arr <= hi, arr,      0)
             high_pass = numpy.where(lo < key_arr,  low_pass, 0)
             return numpy.trim_zeros(high_pass)
+        
+        if not self.has_reduced():
+            self.reduce()
 
         bin_count = bin_count or self.bin_count
         s = str(bin_count)
@@ -273,6 +282,7 @@ class UsaxsFlyScan(object):
                 d = {dsname: nxdata[dsname] for dsname in fields if dsname in nxdata}
                 reduced[nxname] = d
         hdf.close()
+        self.reduced = reduced
         return reduced
     
     def save(self, hfile = None, key = None):
@@ -484,16 +494,31 @@ class UsaxsFlyScan(object):
 
 def main(hfile):
     ufs = UsaxsFlyScan(hfile)
+<<<<<<< .mine
+    ufs.read_reduced()
+    ufs.reduce()
+=======
     #ufs.reduce()
     ufs.save(hfile, 'full')
+>>>>>>> .r999
     ufs.rebin(250)
+<<<<<<< .mine
+    ufs.save(hfile, 'full')
     ufs.save(hfile, str(250))
+=======
+    ufs.save(hfile, str(250))
+>>>>>>> .r999
 
 
 if __name__ == '__main__':
     #main('S555_PB_GRI_9_Nat_175C.h5')
     main('S563_PB_GRI_9_Nat_200C.h5')
+<<<<<<< .mine
     main('S571_Heater_Blank.h5')
+    #main('S555_PB_GRI_9_Nat_175C.h5')
+=======
+    main('S571_Heater_Blank.h5')
+>>>>>>> .r999
 
 
 ########### SVN repository information ###################
