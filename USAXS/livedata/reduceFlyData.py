@@ -1,20 +1,6 @@
 #!/usr/bin/env python
 
-'''
-reduceFlyScanData: reduce the raw data from USAXS Fly Scans to R(Q)
-
-example::
-
-    hfile = 'some/HDF5/testfile.h5'
-    ufs = UsaxsFlyScan(hfile)
-    ufs.make_archive()
-    #ufs.read_reduced()
-    ufs.reduce()
-    ufs.rebin(250)
-    ufs.save(hfile, 'full')
-    ufs.save(hfile, 250)
-
-'''
+'''reduceFlyScanData: reduce the raw data from USAXS Fly Scans to R(Q)'''
 
 import datetime             #@UnusedImport
 import glob                 #@UnusedImport
@@ -144,6 +130,18 @@ class UsaxsFlyScan(object):
     :math:`B[3]`           /entry/metadata/upd_bkg3                                amplifier background count rate for range 3
     :math:`B[4]`           /entry/metadata/upd_bkg4                                amplifier background count rate for range 4
     =====================  ======================================================  ===========================================================
+
+    example::
+    
+        hfile = 'some/HDF5/testfile.h5'
+        ufs = UsaxsFlyScan(hfile)
+        ufs.make_archive()
+        #ufs.read_reduced()
+        ufs.reduce()
+        ufs.rebin(250)
+        ufs.save(hfile, 'full')
+        ufs.save(hfile, 250)
+
     '''
     
     def __init__(self, hdf5_file_name):
@@ -548,13 +546,13 @@ def get_user_options():
                         default=False,
                         help='(re)compute full R(Q): implies --recompute-rebinning')
 
-    parser.add_argument('--recompute-rebinning',
+    parser.add_argument('--recompute-rebinned',
                         dest='recompute_rebinned',
                         action='store_true',
                         default=False,
                         help='(re)compute rebinned R(Q)')
 
-    msg = 'do NOT copy the original file to an archive directory before saving R(Q)'
+    msg = 'do NOT archive the original file before saving R(Q)'
     parser.add_argument('--no-archive',
                         dest='no_archive',
                         action='store_true',
