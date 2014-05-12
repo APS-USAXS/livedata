@@ -1,11 +1,4 @@
 #!/usr/bin/env python
-########### SVN repository information ###################
-# $Date$
-# $Author$
-# $Revision$
-# $URL$
-# $Id$
-########### SVN repository information ###################
 
 '''
    define 15ID-D USAXS constants for these Python tools
@@ -79,4 +72,17 @@ LINE_ONLY_THRESHOLD = 400
 
 
 # FlyScan
-REDUCED_FLY_SCAN_BINS = 250
+REDUCED_FLY_SCAN_BINS   = 250       # sufficient to make a good plot
+MCA_CLOCK_FREQUENCY     = 50e6      # 50 MHz clock (not stored in older FlyScan files)
+FLY_SCAN_Q_MIN          = 1.01e-6   # absolute minimum Q for rebinning
+FLY_SCAN_UATERM         = 1.2       # for defining Q bins
+
+
+
+########### SVN repository information ###################
+# $Date$
+# $Author$
+# $Revision$
+# $URL$
+# $Id$
+########### SVN repository information ###################
