@@ -22,6 +22,7 @@ FIXED_VF_GAIN       = localConfig.FIXED_VF_GAIN
 MCA_CLOCK_FREQUENCY = localConfig.MCA_CLOCK_FREQUENCY
 Q_MIN               = localConfig.FLY_SCAN_Q_MIN
 UATERM              = localConfig.FLY_SCAN_UATERM
+ESD_FACTOR          = 0.01      # estimate dr = ESD_FACTOR * r  if r.std() = 0
 
 
 class UsaxsFlyScan(object):
@@ -266,9 +267,14 @@ class UsaxsFlyScan(object):
                     r = numpy.ma.masked_less_equal(r, 0)
                     q = remove_masked_data(q, r.mask)
                     r = remove_masked_data(r, r.mask)
-                qVec.append(  numpy.exp(numpy.mean(numpy.log(q))) ) 
-                rVec.append(  numpy.exp(numpy.mean(numpy.log(r))) )
-                drVec.append( r.std() )
+                if q.size > 0:
+                    qVec.append(  numpy.exp(numpy.mean(numpy.log(q))) ) 
+                    rVec.append(  numpy.exp(numpy.mean(numpy.log(r))) )
+                    dr = r.std()
+                    if dr == 0.0:
+                        drVec.append( ESD_FACTOR * rVec[-1] )
+                    else:
+                        drVec.append( r.std() )
 
         reduced = dict(
             Q  = numpy.array(qVec),
@@ -524,12 +530,14 @@ def bin_xref(x, bins):
     :param ndarray bins: new bin boundaries
     '''
     indices = numpy.digitize(x, bins)
-    xref = []
+    xref_dict = {}
     for i, v in enumerate(indices):
         if 0 < v < len(bins):
-            if len(xref) < v:
-                xref.append( [] )
-            xref[v-1].append(i)
+            if str(v) not in xref_dict:
+                xref_dict[str(v)] = []
+            xref_dict[str(v)].append(i)
+    key_list = map(int, xref_dict.keys())
+    xref = [xref_dict[str(key)] for key in sorted(key_list)]
     return numpy.array(xref)
 
 
