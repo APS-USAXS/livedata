@@ -16,8 +16,9 @@ read a SPEC data file and plot scan n using ploticus
 import os
 import sys
 import tempfile
+import numpy
 from spec2nexus import prjPySpec        # read SPEC data files
-import localConfig      # definitions for 15ID
+import localConfig                      # definitions for 15ID
 import wwwServerTransfers
 import reduceFlyData
 
@@ -32,10 +33,25 @@ def retrieve_specScanData(scan):
 def retrieve_flyScanData(scan):
     '''retrieve reduced, rebinned data from USAXS Fly Scans'''
     hdf_file_name = scan.comments[2].split()[-1].rstrip('.')
+    s_num_bins = str(localConfig.REDUCED_FLY_SCAN_BINS)
     if os.path.exists(hdf_file_name):
-        hdf = reduceFlyData.UsaxsFlyScan(hdf_file_name)   # stores data back to HDF5 file
-        hdf.rebin(localConfig.REDUCED_FLY_SCAN_BINS)      # stores data back to HDF5 file
-        plotData = zip(hdf.rebinned['Q'], hdf.rebinned['R'])
+        ufs = reduceFlyData.UsaxsFlyScan(hdf_file_name)
+        ufs.read_reduced()
+
+        needs_calc = dict(full = not ufs.has_reduced('full'))
+        needs_calc[s_num_bins] = not ufs.has_reduced(s_num_bins)
+        if needs_calc['full']:
+            ufs.reduce()
+            ufs.save(hdf_file_name, 'full')
+            needs_calc[s_num_bins] = True
+        if needs_calc[s_num_bins]:
+            ufs.rebin(localConfig.REDUCED_FLY_SCAN_BINS)
+            ufs.save(hdf_file_name, s_num_bins)
+
+        # USAXS Fly Scan plots will be ln(R) v. ln(Q), otherwise useless
+        Q = numpy.log(ufs.reduced[s_num_bins]['Q'])
+        R = numpy.log(ufs.reduced[s_num_bins]['R'])
+        plotData = zip(Q, R)
     else:
         plotData = []
     return plotData
@@ -164,4 +180,8 @@ def main():
 
 
 if __name__ == '__main__':
+    sys.argv = sys.argv[0:]
+    sys.argv.append('testdata/2014-04/04_14_Winans.dat')
+    sys.argv.append(str(563))
+    sys.argv.append('/tmp/specplot.png')
     main()
