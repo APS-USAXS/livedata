@@ -21,14 +21,18 @@ REDUCED_FLY_SCAN_BINS = localConfig.REDUCED_FLY_SCAN_BINS
 def main():
     #reduction_test()
     testpath = os.path.join('testdata', '2014-04', '04_14_Winans_fly', '*.h5')
-    testpath = os.path.join('testdata', '*.h5')
-   
-    c = 0
+    #testpath = os.path.join('testdata', '*.h5')
+    
+    # clear the test output files
+    for hfile in glob.glob(os.path.join('/tmp', 'reduced_*.h5')):
+        os.remove(hfile)
+
+    counter = 0
     for hdf_file_name in sorted(glob.glob(testpath)):
         print hdf_file_name
         ufs = reduceFlyData.UsaxsFlyScan(hdf_file_name)
-        c += 1
-        hfile = os.path.join('/tmp', 'reduced_%d.h5' % c)
+        counter += 1
+        hfile = os.path.join('/tmp', 'reduced_%04d.h5' % counter)
 
         #ufs.make_archive()
         #ufs.read_reduced()
