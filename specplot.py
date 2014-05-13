@@ -180,8 +180,8 @@ def main():
 
 
 if __name__ == '__main__':
-    sys.argv = sys.argv[0:]
-    sys.argv.append('testdata/2014-04/04_14_Winans.dat')
-    sys.argv.append(str(563))
-    sys.argv.append('/tmp/specplot.png')
+    # sys.argv = sys.argv[0:]
+    # sys.argv.append('testdata/2014-04/04_14_Winans.dat')
+    # sys.argv.append(str(563))
+    # sys.argv.append('/tmp/specplot.png')
     main()
