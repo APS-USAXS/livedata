@@ -211,16 +211,14 @@ class UsaxsFlyScan(object):
         upd_dark = numpy.array([0,] + bkg)[upd_ranges.data+1]
         upd_dark = numpy.ma.masked_less_equal(upd_dark, 0)
         rVec = (raw_upd - channel_time_s*upd_dark) / upd_gain / raw_I0 / V_f_gain
+        # TODO: also mask all rVec <= 0
+        # rMasked = numpy.ma.masked_less_equal(rVec, 0)
+        # rVec.mask = numpy.any([rVec.mask, rMasked.mask])
         
         centroid, sigma = self.mean_sigma(raw_ar, rVec)
         fwhm = sigma * 2 * math.sqrt(2*math.log(2.0))
     
         hdf.close()
-
-        def remove_masked_data(data, mask):
-            '''remove all masked data, convenience routine'''
-            arr = numpy.ma.masked_array(data=data, mask=mask)
-            return arr.compressed()
         
         full = dict(
             ar = numpy.array(remove_masked_data(raw_ar, rVec.mask)),
@@ -253,23 +251,24 @@ class UsaxsFlyScan(object):
         
         # lowest non-zero Q value > 0 or minimum acceptable Q
         Qmin = max(Q_MIN, Q_full[numpy.where(Q_full > 0)].min() )
-        Qmax = Q_full.max()
+        Qmax = 1.0001 * Q_full.max()
         
         # pick smallest Q step size from input data, scale by a factor
         minStep = self.min_step_factor * numpy.min(Q_full[1:] - Q_full[:-1])
-        # compute upper edges of bins from ustep
-        qHiEdge = numpy.array(ustep.ustep(Qmin, 0.0, Qmax, bin_count, self.uaterm, minStep).series)
-        # compute lower edges of bins from previous bin upper edge
-        qLoEdge = numpy.insert(qHiEdge[0:-1], 0, 0.0)
-        
+        # compute bin edges from ustep
+        Q_bins = numpy.array(ustep.ustep(Qmin, 0.0, Qmax, bin_count+1, self.uaterm, minStep).series)
         qVec, rVec, drVec = [], [], []
-        for qLo, qHi in numpy.nditer([qLoEdge, qHiEdge]): # TODO: optimize for speed!
-            q = subarray(Q_full, Q_full, qLo, qHi)  # all Q where qLo < Q <= qHi
-            r = subarray(R_full, Q_full, qLo, qHi)  # corresponding R
-            
-            qVec.append(  numpy.exp(numpy.mean(numpy.log(q))) ) 
-            rVec.append(  numpy.exp(numpy.mean(numpy.log(r))) )
-            drVec.append( r.std() )
+        for xref in bin_xref(Q_full, Q_bins):
+            if len(xref) > 0:
+                q = Q_full[xref]
+                r = R_full[xref]
+                if r.min() <= 0:    # TODO: fix this in reduce()
+                    r = numpy.ma.masked_less_equal(r, 0)
+                    q = remove_masked_data(q, r.mask)
+                    r = remove_masked_data(r, r.mask)
+                qVec.append(  numpy.exp(numpy.mean(numpy.log(q))) ) 
+                rVec.append(  numpy.exp(numpy.mean(numpy.log(r))) )
+                drVec.append( r.std() )
 
         reduced = dict(
             Q  = numpy.array(qVec),
@@ -340,6 +339,7 @@ class UsaxsFlyScan(object):
         :see: http://download.nexusformat.org/doc/html/classes/base_classes/NXentry.html
         :see: http://download.nexusformat.org/doc/html/classes/base_classes/NXdata.html
         '''
+        key = str(key)
         if key not in self.reduced:
             return
         nxname = 'flyScan_reduced_' + key
@@ -507,6 +507,30 @@ class UsaxsFlyScan(object):
         hhmmss = t.strftime("%H:%M:%S")
         separator = ' '         # standard ISO8601 uses 'T', this is now allowed
         return yyyymmdd + separator + hhmmss
+
+
+def remove_masked_data(data, mask):
+    '''remove all masked data, convenience routine'''
+    arr = numpy.ma.masked_array(data=data, mask=mask)
+    return arr.compressed()
+
+
+def bin_xref(x, bins):
+    '''
+    Return an array of arrays.  
+    Outer array is in bins, inner array contains indices of x in each bin,
+    
+    :param ndarray x: values to be mapped
+    :param ndarray bins: new bin boundaries
+    '''
+    indices = numpy.digitize(x, bins)
+    xref = []
+    for i, v in enumerate(indices):
+        if 0 < v < len(bins):
+            if len(xref) < v:
+                xref.append( [] )
+            xref[v-1].append(i)
+    return numpy.array(xref)
 
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
