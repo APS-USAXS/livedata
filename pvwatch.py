@@ -289,6 +289,7 @@ def buildReport():
                 scannode.set(item, str(scan[item]))
             scannode.set('specfile', specfile)
             ElementTree.SubElement(scannode, "title").text = scan['title']
+            # TODO: check if numpy.float64 content first and convert to str()?
             vec = ElementTree.SubElement(scannode, "Q")
             vec.set('units', '1/A')
             vec.text = ' '.join(scan['qVec'])

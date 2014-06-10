@@ -161,6 +161,7 @@ class UsaxsFlyScan(object):
         )
         self.min_step_factor = 1.5
         self.uaterm = UATERM
+        self.bin_count = DEFAULT_BIN_COUNT
 
         self.hdf5_file_name = hdf5_file_name
         self.reduced = {}
