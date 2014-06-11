@@ -35,7 +35,7 @@ export PLOTICUS_BASE=/home/beams/S15USAXS/Documents/ploticus/pl241src
 export PLOTICUS_PREFABS=$PLOTICUS_BASE/prefabs
 
 cd $CODE_DIR
-echo "#=--Start----------- `/bin/date`" >> $LOGFILE 2>&1
+echo "#=--Start------------------------------ `/bin/date`" >> $LOGFILE 2>&1
 
 filelist=`/bin/ls -1 $SPEC_DATA_PATTERN`
 for item in $filelist; 
@@ -43,4 +43,4 @@ for item in $filelist;
 	# echo $item >> $LOGFILE 2>&1;
 	$PYTHON $PROGRAM $item >> $LOGFILE 2>&1;
 done
-echo "#=--Done----------- `/bin/date`" >> $LOGFILE 2>&1
+echo "#=--Done---- `/bin/date`" >> $LOGFILE 2>&1

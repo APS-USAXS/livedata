@@ -208,11 +208,14 @@ class UsaxsFlyScan(object):
         gains = self.get_gain(hdf, amp_name)
         bkg   = self.get_bkg(hdf, amp_name)
         
+        I0_amp_gain = float(hdf['/entry/metadata/I0AmpGain'][0])
+        
         upd_gain = numpy.array([0,] + gains)[upd_ranges.data+1]
         upd_gain = numpy.ma.masked_less_equal(upd_gain, 0)
         upd_dark = numpy.array([0,] + bkg)[upd_ranges.data+1]
         upd_dark = numpy.ma.masked_less_equal(upd_dark, 0)
         rVec = (raw_upd - channel_time_s*upd_dark) / upd_gain / raw_I0 / V_f_gain
+        rVec *= I0_amp_gain
         # TODO: also mask all rVec <= 0
         # rMasked = numpy.ma.masked_less_equal(rVec, 0)
         # rVec.mask = numpy.any([rVec.mask, rMasked.mask])
