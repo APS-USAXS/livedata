@@ -24,6 +24,7 @@ import plot             # makes PNG files of recent USAXS scans
 import localConfig      # definitions for 15ID
 import wwwServerTransfers
 import traceback
+import numpy
 
 
 SVN_ID = "$Id$"
@@ -289,13 +290,13 @@ def buildReport():
                 scannode.set(item, str(scan[item]))
             scannode.set('specfile', specfile)
             ElementTree.SubElement(scannode, "title").text = scan['title']
-            # TODO: check if numpy.float64 content first and convert to str()?
+            # write the scan data to the XML file
             vec = ElementTree.SubElement(scannode, "Q")
             vec.set('units', '1/A')
-            vec.text = ' '.join(scan['qVec'])
+            vec.text = ' '.join(textArray(scan['qVec']))
             vec = ElementTree.SubElement(scannode, "R")
             vec.set('units', 'arbitrary')
-            vec.text = ' '.join(scan['rVec'])
+            vec.text = ' '.join(textArray(scan['rVec']))
         except Exception, e:
             logMessage('caught Exception while writing USAXS scan data to XML file')
             logMessage('  file: %s' % specfile)
@@ -315,6 +316,13 @@ def buildReport():
     xmlText = doc.toxml()       # all on one line, looks bad, who cares?
     #xmlText = doc.toprettyxml(indent = "  ") # toprettyxml() adds extra unwanted whitespace
     return xmlText
+
+
+def textArray(arr):
+    '''convert an ndarray to a text array'''
+    if isinstance(arr, numpy.ndarray):
+        return [str(_) for _ in arr]
+    return arr
 
 
 def report():
