@@ -41,6 +41,8 @@ def update_n_plots(specFile, numScans):
         return
 
     usaxs = extract_USAXS_data(sd, scanList)  # extract R(Q), ignoring errors
+    if usaxs is None:
+        return
     ploticus_data = format_as_ploticus_data(usaxs)
     if len(ploticus_data['data']) == 0:
         return
@@ -109,8 +111,18 @@ def extract_USAXS_data(specData, scanList):
     for scan in scanList:
         if scan.scanCmd.strip().split()[0] in ('FlyScan',):
             hdf5File = scan.comments[2].split()[-1][:-2]
-            fly = reduceFlyData.UsaxsFlyScan(hdf5File)
-            fly.rebin(bin_count=localConfig.REDUCED_FLY_SCAN_BINS)
+            try:
+                # this step checks that the file exists
+                fly = reduceFlyData.UsaxsFlyScan(hdf5File)
+                # this is the step that tries to open the HDF5 file
+                fly.rebin(bin_count=localConfig.REDUCED_FLY_SCAN_BINS)
+                # archive the original data (if not already archived)
+                fly.make_archive()
+                # save reduced and rebinned data back to data file
+                fly.save(hdf5File, 'full')
+                fly.save(hdf5File, localConfig.REDUCED_FLY_SCAN_BINS)
+            except IOError:
+                return None     # file may not be available yet for reading if fly scan is still going
             title = os.path.split(hdf5File)[-1] + '(fly)'
             rebinned = fly.reduced[str(localConfig.REDUCED_FLY_SCAN_BINS)]
             entry = dict(qVec=rebinned['Q'], rVec=rebinned['R'], title=title)
