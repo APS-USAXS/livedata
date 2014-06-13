@@ -35,6 +35,7 @@ def make_png(h5file, pngfile, h5path=HDF5_DATA_PATH,
     :param str h5file: name of HDF5 file (path is optional)
     :param str pngfile: name of PNG file to be written (path is optional)
     :param str h5path: path to the image dataset within the HDF5 file
+       (default = '/entry/data/data', common for some NeXus data files)
     :param int hsize: horizontal size of the PNG image (default: 7)
     :param int hsize: vertical size of the PNG image (default: 3)
     :param str cmap: colormap for the image (default: 'cubehelix'), 'jet' is another good one
