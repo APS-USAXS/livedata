@@ -10,9 +10,9 @@ import h5py
 import numpy
 import matplotlib.pyplot as plt
 
-TEST_FILE = os.path.join(os.path.abspath(os.path.split(__file__)[0]), 'waxs', 'LSM_infl_228.hdf5')
+TEST_FILE = os.path.join(os.path.abspath(os.path.split(__file__)[0]), 'waxs', 'LSM_YSZ_infl_227.hdf5')
 HDF5_DATA_PATH = '/entry/data/data'
-SCALING_FACTOR = 255        #  2**24
+SCALING_FACTOR = 1        #  2**24
 PLOT_H_INT = 7
 PLOT_V_INT = 3
 COLORMAP = 'cubehelix'        # http://matplotlib.org/api/pyplot_summary.html#matplotlib.pyplot.colormaps
