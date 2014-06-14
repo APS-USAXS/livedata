@@ -21,6 +21,7 @@ from spec2nexus import prjPySpec        # read SPEC data files
 import localConfig                      # definitions for 15ID
 import wwwServerTransfers
 import reduceFlyData
+import handle_2d
 
 
 def retrieve_specScanData(scan):
@@ -59,8 +60,20 @@ def retrieve_flyScanData(scan):
 
 def makePloticusPlot(scan, plotFile):
     '''plot scan n from the SPEC scan object'''
-    if scan.scanCmd.split()[0] == 'FlyScan':
+    scanCmd = scan.scanCmd.split()[0]
+    if scanCmd == 'FlyScan':
         plotData = retrieve_flyScanData(scan)
+    elif scanCmd == 'pinSAXS':
+        # make simple image file of the data
+        # TODO: convert the pinSAXS data to an image file
+        # includes wwwServerTransfers.execute_command()
+        # handle_2d.make_png(h5file, imgfile, h5path, log_image, hsize, vsize, cmap)
+        pass
+    elif scanCmd == 'WAXS':
+        # make simple image file of the data
+        # TODO: convert the WAXS data to an image file
+        # handle_2d.make_png(h5file, imgfile, h5path, log_image, hsize, vsize, cmap)
+        pass
     else:
         # plot last column v. first column
         plotData = retrieve_specScanData(scan)
@@ -82,7 +95,7 @@ def write_ploticus_data_file(data):
     '''
     #---- write the ploticus data file
     ext = os.extsep + "pl"
-    (f, dataFile) = tempfile.mkstemp(dir="/tmp", text=True, suffix=ext)
+    (_, dataFile) = tempfile.mkstemp(dir="/tmp", text=True, suffix=ext)
     f = open(dataFile, "w")
     f.write("\n".join(data))
     f.close()
@@ -119,7 +132,7 @@ def run_ploticus_command_script(scan, dataFile, plotData, plotFile):
     try:
         specFileName = scan.specFile
     except AttributeError:
-	# was in scan.specFile but interface changed
+        # was in scan.specFile but interface changed
         specFileName = 'USAXS FlyScan %d' % scan.scanNum
     title = "%s, %s" % (specFileName, scan.date)
     command = localConfig.PLOTICUS
