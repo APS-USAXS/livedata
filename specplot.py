@@ -58,25 +58,53 @@ def retrieve_flyScanData(scan):
     return plotData
 
 
+def process_NexusImageData(scan):
+    '''make image from raw NeXus 2-d detector data file'''
+    specFile = os.path.splitext(scan.header.parent.specFile)[0]
+    yyyy = scan.date.split()[-1]
+    mm = 'MM'       # FIXME: get the month from scan.date
+    h5file = scan.scanCmd.split()[1]
+    if h5file.startswith('/mnt'):
+        h5file = h5file[4:]
+    if not os.path.exists(h5file):
+        return
+
+    h5path = '/entry/data/data'
+    # TODO: get output path from standard source
+    imgfile = os.path.join('/', 'data', 'www', 'livedata', 'specplots')
+    imgfile += ps.path.join(imgfile, yyyy, mm, specFile)
+    imgfile += 's%04d.png' % int(scan.scanNum)
+    # handle_2d.make_png(h5file, imgfile, h5path)    # TODO: enable when ready
+
+
+def process_pinSAXSScanData(scan):
+    '''make image from raw pinSAXS data file'''
+    process_NexusImageData(scan)
+
+
+def process_WAXSScanData(scan):
+    '''make image from raw WAXS data file'''
+        # handle_2d.make_png(h5file, imgfile, h5path, log_image, hsize, vsize, cmap)
+    process_NexusImageData(scan)
+
+
 def makePloticusPlot(scan, plotFile):
     '''plot scan n from the SPEC scan object'''
+    plotData = None
     scanCmd = scan.scanCmd.split()[0]
     if scanCmd == 'FlyScan':
         plotData = retrieve_flyScanData(scan)
     elif scanCmd == 'pinSAXS':
         # make simple image file of the data
-        # TODO: convert the pinSAXS data to an image file
-        # includes wwwServerTransfers.execute_command()
-        # handle_2d.make_png(h5file, imgfile, h5path, log_image, hsize, vsize, cmap)
-        pass
+        process_pinSAXSScanData(scan)
     elif scanCmd == 'WAXS':
         # make simple image file of the data
-        # TODO: convert the WAXS data to an image file
-        # handle_2d.make_png(h5file, imgfile, h5path, log_image, hsize, vsize, cmap)
-        pass
+        process_WAXSScanData(scan)
     else:
         # plot last column v. first column
         plotData = retrieve_specScanData(scan)
+    if plotData is None:
+        return
     #------------
     # http://ploticus.sourceforge.net/doc/prefab_lines_ex.html
     #------------
@@ -195,6 +223,7 @@ def main():
 if __name__ == '__main__':
     # sys.argv = sys.argv[0:]
     # sys.argv.append('testdata/2014-04/04_14_Winans.dat')
-    # sys.argv.append(str(563))
+    # sys.argv.append('/data/USAXS_data/2014-06/06_16_NXSchool.dat')
+    # sys.argv.append(str(133))
     # sys.argv.append('/tmp/specplot.png')
     main()
