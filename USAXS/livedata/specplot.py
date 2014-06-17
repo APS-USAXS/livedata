@@ -13,10 +13,11 @@ read a SPEC data file and plot scan n using ploticus
 .. note:: does not copy any file to XSD WWW server
 '''
 
+import numpy
 import os
 import sys
 import tempfile
-import numpy
+import time
 from spec2nexus import prjPySpec        # read SPEC data files
 import localConfig                      # definitions for 15ID
 import wwwServerTransfers
@@ -61,8 +62,9 @@ def retrieve_flyScanData(scan):
 def process_NexusImageData(scan):
     '''make image from raw NeXus 2-d detector data file'''
     specFile = os.path.splitext(scan.header.parent.specFile)[0]
-    yyyy = scan.date.split()[-1]
-    mm = 'MM'       # FIXME: get the month from scan.date
+    t = time.strptime(scan.date)
+    yyyy = '%04d' % t.tm_year
+    mm = '%02d' % t.tm_mon
     h5file = scan.scanCmd.split()[1]
     if h5file.startswith('/mnt'):
         h5file = h5file[4:]
@@ -70,56 +72,46 @@ def process_NexusImageData(scan):
         return
 
     h5path = '/entry/data/data'
-    # TODO: get output path from standard source
-    imgfile = os.path.join('/', 'data', 'www', 'livedata', 'specplots')
-    imgfile += ps.path.join(imgfile, yyyy, mm, specFile)
-    imgfile += 's%04d.png' % int(scan.scanNum)
-    # handle_2d.make_png(h5file, imgfile, h5path)    # TODO: enable when ready
+    imgpath = localConfig.LOCAL_SPECPLOTS_DIR
+    
+    if not os.path.exists(imgpath):
+        return      # TODO: log this event?  It's notable.
+
+    imgpath += os.path.join(imgpath, yyyy, mm, specFile)
+    
+    if not os.path.exists(imgpath):
+        os.mkdir(imgpath)
+    
+    imgfile = os.path.join(imgpath, 's%04d.png' % int(scan.scanNum))
+    handle_2d.make_png(h5file, imgfile, h5path)
 
 
-def process_pinSAXSScanData(scan):
-    '''make image from raw pinSAXS data file'''
-    process_NexusImageData(scan)
+def makeScanImage(specFile, scan_number, plotFile):
+    '''make an image for scan n from the SPEC scan object'''
+    specData = openSpecFile(specFile)
+    scan = findScan(specData, scan_number)
 
-
-def process_WAXSScanData(scan):
-    '''make image from raw WAXS data file'''
-        # handle_2d.make_png(h5file, imgfile, h5path, log_image, hsize, vsize, cmap)
-    process_NexusImageData(scan)
-
-
-def makePloticusPlot(scan, plotFile):
-    '''plot scan n from the SPEC scan object'''
-    plotData = None
     scanCmd = scan.scanCmd.split()[0]
     if scanCmd == 'FlyScan':
         plotData = retrieve_flyScanData(scan)
+        ploticus__process_plotData(scan, plotData)
     elif scanCmd == 'pinSAXS':
         # make simple image file of the data
-        process_pinSAXSScanData(scan)
+        process_NexusImageData(scan)
     elif scanCmd == 'WAXS':
         # make simple image file of the data
-        process_WAXSScanData(scan)
+        process_NexusImageData(scan)
     else:
         # plot last column v. first column
         plotData = retrieve_specScanData(scan)
-    if plotData is None:
-        return
-    #------------
-    # http://ploticus.sourceforge.net/doc/prefab_lines_ex.html
-    #------------
-    pl = format_ploticus_data(plotData)
-    dataFile = write_ploticus_data_file(pl['data'])
-
-    #---- execute the ploticus command file using a "prefab" plot style
-    run_ploticus_command_script(scan, dataFile, plotData, plotFile)
+        ploticus__process_plotData(scan, plotData)
 
 
-def write_ploticus_data_file(data):
+def write_file_by_lines(data):
     '''
-    find x & y min & max
+    write data to a text file
     
-    :returns: dictionary
+    :param [str]: data (list of lines for the file)
     '''
     #---- write the ploticus data file
     ext = os.extsep + "pl"
@@ -130,27 +122,21 @@ def write_ploticus_data_file(data):
     return dataFile
 
 
-def format_ploticus_data(plotData):
-    '''
-    format the x&y data as ploticus text
+def ploticus__process_plotData(scan, plotData):
+    '''make line chart image from raw SPEC or FlyScan data'''
+    # see: http://ploticus.sourceforge.net/doc/prefab_lines_ex.html
     
-    also find x & y min & max
-    
-    :returns: dictionary
-    '''
+    # format the x&y data as ploticus text
     if len(plotData) == 0:
-        pl = ["   %s  %s" % (0, 0),]
+        pl_lines = ["   %s  %s" % (0, 0),]
     else:
-        pl = ["   %s  %s" % (x, y) for (x, y) in plotData]
-    x, y = zip(*plotData)
-    pl_dict = dict(data=pl, xMin=min(x), xMax=max(x), yMin=min(y), yMax=max(y))
-    return pl_dict
+        pl_lines = ["   %s  %s" % (x, y) for (x, y) in plotData]
+    #     # also find x & y min & max
+    #     x, y = zip(*plotData)
+    #     pl = dict(data=pl_lines, xMin=min(x), xMax=max(x), yMin=min(y), yMax=max(y))
+    dataFile = write_file_by_lines(pl_lines)
 
-
-def run_ploticus_command_script(scan, dataFile, plotData, plotFile):
-    '''
-    execute the ploticus command file using a "prefab" plot style
-    '''
+    #---- execute the ploticus command file using a "prefab" plot style
     # ploticus needs this
     os.environ['PLOTICUS_PREFABS'] = localConfig.PLOTICUS_PREFABS
     
@@ -196,15 +182,6 @@ def findScan(sd, n):
     return scan
 
 
-def makePloticusPlotByScanNum(specFile, scan_number, plotFile):
-    '''
-    all-in-one function
-    '''
-    specData = openSpecFile(specFile)
-    scan = findScan(specData, scan_number)
-    makePloticusPlot(scan, plotFile)
-
-
 def main():
     specFile = localConfig.TEST_SPEC_DATA
     scan_number = localConfig.TEST_SPEC_SCAN_NUMBER
@@ -215,7 +192,7 @@ def main():
         print "usage: %s specFile scan_number plotFile" % sys.argv[0]
         sys.exit()
     try:
-        makePloticusPlotByScanNum(specFile, scan_number, plotFile)
+        makeScanImage(specFile, scan_number, plotFile)
     except:
         pass
 
