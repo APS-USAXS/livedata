@@ -65,6 +65,7 @@ TEST_SPEC_DATA = os.path.join("testdata", "03_19_LLNL.dat")
 #TEST_SPEC_DATA = '/data/USAXS_data/2013-10/10_26_Course.dat'
 TEST_SPEC_DATA = '/data/USAXS_data/2014-02/02_18_artune.dat'
 TEST_SPEC_DATA = '/data/USAXS_data/2014-04/04_09_Prakash_A5.dat'
+TEST_SPEC_DATA = '/data/USAXS_data/2014-06/06_18_NXschool.dat'
 TEST_SPEC_SCAN_NUMBER = 1
 TEST_PLOTFILE = "pete.png"
 TEST_PLOTICUS_COMMAND_FILE = "pete.pl"
@@ -77,6 +78,8 @@ MCA_CLOCK_FREQUENCY     = 50e6      # 50 MHz clock (not stored in older FlyScan 
 FLY_SCAN_Q_MIN          = 1.01e-6   # absolute minimum Q for rebinning
 FLY_SCAN_UATERM         = 1.2       # for defining Q bins
 
+
+HDF5_PATH_TO_IMAGE_DATA = '/entry/data/data'
 
 
 ########### SVN repository information ###################

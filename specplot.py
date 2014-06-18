@@ -59,52 +59,40 @@ def retrieve_flyScanData(scan):
     return plotData
 
 
-def process_NexusImageData(scan):
+def process_NexusImageData(scan, imgfile):
     '''make image from raw NeXus 2-d detector data file'''
-    specFile = os.path.splitext(scan.header.parent.specFile)[0]
-    t = time.strptime(scan.date)
-    yyyy = '%04d' % t.tm_year
-    mm = '%02d' % t.tm_mon
-    h5file = scan.scanCmd.split()[1]
-    if h5file.startswith('/mnt'):
-        h5file = h5file[4:]
+    scanCmd = scan.scanCmd.split()[0]
+    h5file = os.path.split( scan.scanCmd.split()[1] )[1]
+    path = os.path.splitext(scan.header.parent.fileName)[0]
+    path += '_' + dict(pinSAXS='saxs', WAXS='waxs')[scanCmd]
+
+    if not os.path.exists(path):
+        return
+    h5file = os.path.abspath( os.path.join(path, h5file) )
     if not os.path.exists(h5file):
         return
+    if not os.path.exists(os.path.split(imgfile)[0]):
+        return
 
-    h5path = '/entry/data/data'
-    imgpath = localConfig.LOCAL_SPECPLOTS_DIR
-    
-    if not os.path.exists(imgpath):
-        return      # TODO: log this event?  It's notable.
-
-    imgpath += os.path.join(imgpath, yyyy, mm, specFile)
-    
-    if not os.path.exists(imgpath):
-        os.mkdir(imgpath)
-    
-    imgfile = os.path.join(imgpath, 's%04d.png' % int(scan.scanNum))
-    handle_2d.make_png(h5file, imgfile, h5path)
+    handle_2d.make_png(h5file, imgfile, localConfig.HDF5_PATH_TO_IMAGE_DATA)
 
 
-def makeScanImage(specFile, scan_number, plotFile):
-    '''make an image for scan n from the SPEC scan object'''
-    specData = openSpecFile(specFile)
-    scan = findScan(specData, scan_number)
-
+def makeScanImage(scan, plotFile):
+    '''make an image from the SPEC scan object'''
     scanCmd = scan.scanCmd.split()[0]
     if scanCmd == 'FlyScan':
         plotData = retrieve_flyScanData(scan)
-        ploticus__process_plotData(scan, plotData)
+        ploticus__process_plotData(scan, plotData, plotFile)
     elif scanCmd == 'pinSAXS':
         # make simple image file of the data
-        process_NexusImageData(scan)
+        process_NexusImageData(scan, plotFile)
     elif scanCmd == 'WAXS':
         # make simple image file of the data
-        process_NexusImageData(scan)
+        process_NexusImageData(scan, plotFile)
     else:
         # plot last column v. first column
         plotData = retrieve_specScanData(scan)
-        ploticus__process_plotData(scan, plotData)
+        ploticus__process_plotData(scan, plotData, plotFile)
 
 
 def write_file_by_lines(data):
@@ -122,7 +110,7 @@ def write_file_by_lines(data):
     return dataFile
 
 
-def ploticus__process_plotData(scan, plotData):
+def ploticus__process_plotData(scan, plotData, plotFile):
     '''make line chart image from raw SPEC or FlyScan data'''
     # see: http://ploticus.sourceforge.net/doc/prefab_lines_ex.html
     
@@ -192,7 +180,9 @@ def main():
         print "usage: %s specFile scan_number plotFile" % sys.argv[0]
         sys.exit()
     try:
-        makeScanImage(specFile, scan_number, plotFile)
+        specData = openSpecFile(specFile)
+        scan = findScan(specData, scan_number)
+        makeScanImage(scan, plotFile)
     except:
         pass
 
