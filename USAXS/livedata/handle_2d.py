@@ -47,7 +47,7 @@ def make_png(h5file, imgfile, h5path=HDF5_DATA_PATH, log_image=True,
         msg = 'file does not exist: ' + h5file
         raise IOError, msg
 
-    hdf5 = h5py.File(h5file)
+    hdf5 = h5py.File(h5file, 'r')
     try:
         ds = hdf5[h5path]
     except:
@@ -68,8 +68,10 @@ def make_png(h5file, imgfile, h5path=HDF5_DATA_PATH, log_image=True,
     fig = plt.figure(figsize=(hsize, vsize))
     ax = fig.add_subplot(111)
     ax.cla()
+    ax.set_title(h5file, fontsize=9)
     ax.imshow(image_data, interpolation='nearest')
     fig.savefig(imgfile)
+    plt.close(fig)
     return imgfile
 
 

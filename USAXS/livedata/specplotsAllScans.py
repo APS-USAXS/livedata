@@ -60,20 +60,17 @@ def plotAllSpecFileScans(specFile):
         #print "specplot.py %s %d %s" % (specFile, scan.scanNum, fullPlotFile)
         cmd = scan.scanCmd.strip()
         cmd = cmd[:cmd.find(' ')]
-        ignore_this_scan = cmd in ('pinSAXS', 'WAXS')
-        if needToMakePlot(fullPlotFile, mtime_specFile) and not ignore_this_scan:
+        if needToMakePlot(fullPlotFile, mtime_specFile):
             try:
-                specplot.makePloticusPlot(scan, fullPlotFile)
+                specplot.makeScanImage(scan, fullPlotFile)
                 newFileList.append(fullPlotFile)
             except:
-                exc_value = sys.exc_info()[1]
-                msg = "ERROR: '%s' %s #%d" % (exc_value, 
-                        specFile, scan.scanNum)
+                exc = sys.exc_info()[1]
+                msg = "ERROR: '%s' %s #%d" % (exc, specFile, scan.scanNum)
                 # print msg
                 plotList.pop()     # rewrite the default link
                 plotList.append("<!-- " + msg + " -->")
-                altText = "%s: #%d %s" % (exc_value, 
-                        scan.scanNum, scan.scanCmd)
+                altText = "%s: #%d %s" % (exc, scan.scanNum, scan.scanCmd)
                 href = HREF_FORMAT % (basePlotFile, basePlotFile, altText)
                 plotList.append(href)
 
