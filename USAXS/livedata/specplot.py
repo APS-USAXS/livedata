@@ -74,25 +74,37 @@ def process_NexusImageData(scan, imgfile):
     if not os.path.exists(os.path.split(imgfile)[0]):
         return
 
-    handle_2d.make_png(h5file, imgfile, localConfig.HDF5_PATH_TO_IMAGE_DATA)
+    if not os.path.exists(imgfile):
+        handle_2d.make_png(h5file, imgfile, localConfig.HDF5_PATH_TO_IMAGE_DATA)
+        print 'created: ' + imgfile
 
 
 def makeScanImage(scan, plotFile):
     '''make an image from the SPEC scan object'''
     scanCmd = scan.scanCmd.split()[0]
-    if scanCmd == 'FlyScan':
-        plotData = retrieve_flyScanData(scan)
-        ploticus__process_plotData(scan, plotData, plotFile)
-    elif scanCmd == 'pinSAXS':
+    if scanCmd == 'pinSAXS':
         # make simple image file of the data
         process_NexusImageData(scan, plotFile)
     elif scanCmd == 'WAXS':
         # make simple image file of the data
         process_NexusImageData(scan, plotFile)
+    elif scanCmd == 'FlyScan':
+        plotData = retrieve_flyScanData(scan)
+        if len(plotData) > 0:
+            ploticus__process_plotData(scan, plotData, plotFile)
     else:
         # plot last column v. first column
         plotData = retrieve_specScanData(scan)
-        ploticus__process_plotData(scan, plotData, plotFile)
+        if len(plotData) > 0:
+            # only proceed if mtime of SPEC data file is newer than plotFile
+            mtime_sdf = os.path.getmtime(scan.header.parent.fileName)
+            if os.path.exists(plotFile):
+                mtime_pf = os.path.getmtime(plotFile)
+            else:
+                mtime_pf = 0
+            if mtime_sdf > mtime_pf:
+                # TODO: check if this scan _needs_ to be updated
+                ploticus__process_plotData(scan, plotData, plotFile)
 
 
 def write_file_by_lines(data):
@@ -151,6 +163,7 @@ def ploticus__process_plotData(scan, plotData, plotFile):
 
     wwwServerTransfers.execute_command(command)
     os.remove(dataFile)
+    print 'created: ' + plotFile
 
 
 def openSpecFile(specFile):
