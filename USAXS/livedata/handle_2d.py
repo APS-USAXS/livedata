@@ -8,6 +8,8 @@ handle 2-D raw SAXS and WAXS data
 import os
 import h5py
 import numpy
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 
