@@ -23,6 +23,16 @@ def plotAllSpecFileScans(specFile):
     if not os.path.exists(specFile):
         return
 
+    # decide here if SPEC file needs to be opened for possible replot of scan data
+    mtime_specFile = getTimeFileModified(specFile)
+    png_directory = get_PngDir(specFile)
+    mtime_pngdir = getTimeFileModified(png_directory)
+    # compare mtime of data file with mtime of PNG directory
+    if mtime_pngdir > mtime_specFile:
+        # do nothing if plot directory was last updated _after_ the specFile
+        # This assumes people don't modify the png_directory
+        return
+
     try:
         sd = specplot.openSpecFile(specFile)
     except:
@@ -33,15 +43,13 @@ def plotAllSpecFileScans(specFile):
     plotList = []
     newFileList = [] # list of all new files created
 
-    mtime_specFile = getTimeFileModified(specFile)
     basename = getBaseName(specFile)
-    basedir = getBaseDir(basename, sd.headers[-1].date)
-    if not os.path.exists(basedir):
-        os.makedirs(basedir)
+    if not os.path.exists(png_directory):
+        os.makedirs(png_directory)
         
     # copy the SPEC data file to the WWW site, only if file has newer mtime
     baseSpecFile = os.path.basename(specFile)
-    wwwSpecFile = os.path.join(basedir, baseSpecFile)
+    wwwSpecFile = os.path.join(png_directory, baseSpecFile)
     if needToCopySpecDataFile(wwwSpecFile, mtime_specFile):
         # copy specFile to WWW site
         shutil.copy2(specFile,wwwSpecFile)
@@ -53,7 +61,7 @@ def plotAllSpecFileScans(specFile):
 
     for scan in sd.scans.values():
         basePlotFile = "s%05d.png" % scan.scanNum
-        fullPlotFile = os.path.join(basedir, basePlotFile)
+        fullPlotFile = os.path.join(png_directory, basePlotFile)
         altText = "#%d: %s" % (scan.scanNum, scan.scanCmd)
         href = HREF_FORMAT % (basePlotFile, basePlotFile, altText)
         plotList.append(href)
@@ -74,7 +82,7 @@ def plotAllSpecFileScans(specFile):
                 href = HREF_FORMAT % (basePlotFile, basePlotFile, altText)
                 plotList.append(href)
 
-    htmlFile = os.path.join(basedir, "index.html")
+    htmlFile = os.path.join(png_directory, "index.html")
     if len(newFileList) or not os.path.exists(htmlFile):
         html = build_index_html(baseSpecFile, specFile, plotList)
         f = open(htmlFile, "w")
@@ -102,16 +110,46 @@ def getBaseName(specFile):
 def datePath(date):
     '''convert the date into a path: yyyy/mm'''
     dateStr = time.strptime(date, "%a %b %d %H:%M:%S %Y")
-    yyyy = "%04d" % dateStr[0]
-    mm = "%02d" % dateStr[1]
-    dd = "%02d" % dateStr[2]
+    yyyy = "%04d" % dateStr.tm_year
+    mm = "%02d" % dateStr.tm_mon
     return os.path.join(yyyy, mm)
+
+
+def get_PngDir(specFile):
+    '''return the PNG directory based on the specFile'''
+    data_file_root_name = os.path.splitext(os.path.split(specFile)[1])[0]
+    date_str = get_SpecFileDate(specFile)
+    if date_str is None:
+        return
+    return getBaseDir(data_file_root_name, date_str)
+
+
+def get_SpecFileDate(specFile):
+    '''return the #D date of the SPEC data file or None'''
+    # Get that without parsing the data file, it's on the 3rd line of the file.
+    #     #F 06_19_Tony.dat
+    #     #E 1403198515
+    #     #D Thu Jun 19 12:21:55 2014
+    if not os.path.exists(specFile):
+        return None
+
+    # read the first lines of the file and validate for SPEC data file format
+    f = open(specFile, 'r')
+    line = f.readline()
+    if not line.startswith('#F '): return None
+    line = f.readline()
+    if not line.startswith('#E '): return None
+    line = f.readline()
+    if not line.startswith('#D '): return None
+    f.close()
+
+    return line[2:].strip()  # 'Thu Jun 19 12:21:55 2014'
 
 
 def getBaseDir(basename, date):
     '''find the path based on the date in the spec file'''
-    firstDir = localConfig.LOCAL_SPECPLOTS_DIR
-    return os.path.join(firstDir, datePath(date), basename)
+    path = localConfig.LOCAL_SPECPLOTS_DIR
+    return os.path.join(path, datePath(date), basename)
 
 
 def getTimeFileModified(file):
