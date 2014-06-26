@@ -26,7 +26,10 @@ def plotAllSpecFileScans(specFile):
     # decide here if SPEC file needs to be opened for possible replot of scan data
     mtime_specFile = getTimeFileModified(specFile)
     png_directory = get_PngDir(specFile)
-    mtime_pngdir = getTimeFileModified(png_directory)
+    if not os.path.exists(png_directory):
+        mtime_pngdir = 0
+    else:
+        mtime_pngdir = getTimeFileModified(png_directory)
     # compare mtime of data file with mtime of PNG directory
     if mtime_pngdir > mtime_specFile:
         # do nothing if plot directory was last updated _after_ the specFile
