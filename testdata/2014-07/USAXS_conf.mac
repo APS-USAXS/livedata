@@ -1,0 +1,507 @@
+# USAXS_conf.mac
+#####################################################
+# This file contains basic configuration
+# details for this installation of the USAXS
+# It is sourced each time from usaxs.mac
+# DO NOT USE TABS IN THIS FILE!
+#####################################################
+#### USAXS Imaging temporary stuff
+global UImg_AcquireTime
+global UImg_NumImages
+UImg_AcquireTime = 10
+UImg_NumImages = 1
+global __MythenOrderNum
+##############Fly Scan#################################
+global FSToleratePoints		# number of extra points to tolerate in FLy scan before repeating
+FSToleratePoints	= 10		# number of extra points to tolerate in FLy scan before repeating
+global FSRetryUpToFlyScans    # if =0 then every scan will be accepted and saved,
+                              # if > 0 up to that many scans will be tried, 
+                              #        if neither is succesful, none will be saved
+FSRetryUpToFlyScans = 0
+global FS_UPD_OldUpRangeChange  
+global FS_UPD_UpRangeChange  
+global FS_UPD_OldDownRangeChange  
+global FS_UPD_DownRangeChange  
+FS_UPD_OldUpRangeChange  = 3500
+FS_UPD_OldDownRangeChange = 450000
+FS_UPD_UpRangeChange  = 5500
+FS_UPD_DownRangeChange = 800000
+#################################
+
+# the next variable is 1 for USAXS scanning up and 0 for scanning down 
+
+  USAXSScanUp = 0
+
+# the next variable is 0 for slit smeared USAXS and 1 for SBUSAXS
+
+  useSBUSAXS    = 0
+  
+  addSBUSAXSColumn     #this will actually act on above set parameter, do not change
+#######################################################
+# set useMSstage to 1 if using MS stage in slit smeared USAXS
+
+  useMSstage = 0
+
+#######################################################
+# pinSAXS & USAXS transmisission PD values
+    #pinSAXS TR 
+  PinSAXS_Tr_Time            =    3    # how long to measure transmission for
+  PinSAXS_PD_Yoffset         =   20    # measured on 3/6/2014 JIL                    
+   #USAXS pin tranmsission
+  set_USAXS_MEASURE_PIN_TRANS    1     # default is no = 0
+  set_USAXSPinT_MeasurementTime  3     # seconds, default time
+  getangles
+  __tmpCalcValue67 =  (AY0  + 7.5 + 12*sin(AR_VAL_CENTER * 3.1415/180))
+  set_USAXSPinT_AyPosition  __tmpCalcValue67
+                               # how much to move in pinY from beam position to get to pinSAXS PD
+					 #at theta=0 it is 7.5mm, the distance to 1st impact is 12mm
+					 # using 3x Cu foil 25 micron to protect diode.  
+                               # tested ad fixed 2/12/2014 JIL
+
+#######################################################
+# WAXS camera settings 
+  WAXSPVprefix  = "15iddSIM"                          # PV prefix for camera, no ending ":", SIM detector: "15iddSIM"             
+  #WAXSPathPrefix = "/mnt/Sector_15/usaxscontrol2/"         ### this is detector computer specific part
+  WAXSPathPrefix = "/share1/"        			   ### this is sim detector 
+  WAXSPathPrefix = WAXSPathPrefix "USAXS_data/2014-06/"    ### this is current working directory starting at data1/ level.
+                                                           ### Changes monthly... with / at the end.               
+#######################################################
+#  here are widths of the tuning macros, may need to be changed with energy
+### these are default values set in usaxs_globals.mac
+USAXS_tune_mr_range =  0.003     # range for tune mr for Si 111 crystals, this is energy independent
+  # these numbers may change. Default for 12keV
+USAXS_tune_m2rp_range  =   0.3      # range for tune m2rp for about 12keV
+USAXS_tune_ar_range    =   0.0015   # range for tune ar for about 12keV 
+USAXS_tune_a2rp_range  =   0.4      # range for tune a2rp for about 12keV
+USAXS_tune_msr_range   =   0.3      # range for tune msr for about 12keV
+USAXS_tune_asr_range   =   0.3      # range for tune asr for about 12keV 
+
+## overwrite here for other energies
+### these are for 10.5 keV
+#USAXS_tune_m2rp_range  =   0.4      # range for tune m2rp for about 12keV
+#USAXS_tune_a2rp_range = 0.6       # range for tune a2rp for about 10.5keV
+#USAXS_tune_msr_range  = 0.5       # range for tune msr for about 10.5keV
+#USAXS_tune_asr_range  = 0.3       # range for tune asr for about 10.5keV 
+
+### these are for 17keV
+USAXS_tune_m2rp_range  =  0.4      # range for tune m2rp for about 17keV
+USAXS_tune_ar_range    =  0.001    # range for tune ar for about 17keV 
+USAXS_tune_a2rp_range  =  0.3      # range for tune a2rp for about 17keV
+
+### these are for 24keV
+#USAXS_tune_m2rp_range =  0.09     # range for tune m2rp for about 24keV
+#USAXS_tune_ar_range   =  0.0004   # range for tune ar for about 24keV 
+#USAXS_tune_a2rp_range =  0.15     # range for tune a2rp for about 24keV
+
+# for samples with multiple scattering 
+#USAXS_tune_a2rp_range  =   0.5      # range for tune a2rp for about 17keV with MSAXS
+#USAXS_tune_ar_range    =  0.002     # range for tune ar for about 17keV with MSAXS
+
+
+
+####################################################### 
+# Guard slits, this is how much more opened on each side they should be, 1.2 scaling seems good guess, 20% more than beam size
+PinSAXS_GSlitsScaleFct = 0.8     # Preliminary optimum number from 2012/12, size of the Slits wrt beam 
+PinSAXS_GSlitsScaleFct = 1.0     # seems too small, change to 1.0 
+PinSAXS_GSlitStepIn = 0.1        # 0.1mm step in the beam
+PinSAXS_GSlitStepOut = 0.3       # 0.3mm step out of beam
+
+####################################################### 
+# Overwrite waxsExp and pinholeExp here to prevent users from using the geometry 
+#def waxsExp '{
+   #nothing happens here... 
+#}'
+#def pinholeExp '{
+   #nothing happens here... 
+#}'
+# same for useModePinSAXS and useModeWAXS - needs to be done... 
+#def useModeWAXS ' '
+#def useModePinSAXS ' '
+
+
+####################################################### 
+####################################################### 
+#def GoUSAXS '{
+  ## moves from USAXS imaging to USAXS
+#  closeTiFilterShutter
+#  umv ar AR_VAL_CENTER
+#  umv waxsx 22
+#  sleep(1)  
+#  umv ax -39.5
+#  umv dy DY0
+#  umv dx DX_In
+#  umvr ar  -0.0025    ##10.34788
+#  tune_a2rp
+#  tune_ar
+#  preUSAXStune
+#}'
+
+#def GoImaging '{
+  ## moves from USAXS to USAXS imaging 
+#  closeTiFilterShutter
+#  umv ar AR_VAL_CENTER
+#  umv ax 30.40
+#  sleep(1)  
+#  umv dy 7.5
+#  umv dx DX_In
+#  umvr ar 0.0025       #10.3503
+#  tune_a2rp
+#  tune_ar
+#  preUSAXStune
+#  umv waxsx 238.8
+#}'
+
+#def preImagingTune '{
+#  closeTiFilterShutter
+#  umv ar AR_VAL_CENTER
+#  umv dy 7.5
+#  umv dx DX_In
+#  umv waxsx 22
+#  preUSAXStune
+#  umv waxsx 238.8       
+#}'
+
+## set filters using
+# set_SCAN_TI_FILTER 3
+# set_SCAN_AL_FILTER 1
+
+####################################################### 
+####################################################### 
+def MeasureAllThreeStep '{
+   if( $# != 4) {
+    	  printf ("usage: MeasureAllThree sx sy thickness \"Sample name\"\n")
+        exit;
+   }
+ 
+   preUSAXStune
+   USAXSscan        $1     $2   $3    \'$4\'
+   pinholeExp       $1     $2   $3    \'$4\' 
+   waxsExp          $1     $2   $3    \'$4\' 
+}'
+
+def MeasureAllThree '{
+   if( $# != 4) {
+    	  printf ("usage: MeasureAllThree sx sy thickness \"Sample name\"\n")
+        exit;
+   }
+ 
+   Flyscan          $1     $2   $3    \'$4\'
+   pinholeExp       $1     $2   $3    \'$4\' 
+   waxsExp          $1     $2   $3    \'$4\' 
+}'
+
+
+
+def __MoveARForQ '{
+   if( $# != 1) {
+        printf ("__CalculateARForQ Qvalue\n");
+        exit;
+   }
+   local _USAXS_Lambda, q_value
+   q_value = $1
+  _USAXS_Lambda = 12.4 / A[en]
+  AR_ImgValue = AR_VAL_CENTER - (360/PI)*asin(q_value  * _USAXS_Lambda / (4*PI))
+  A[ar] = AR_ImgValue
+  move_em;waitmove 
+}'
+
+
+def collect_Mythen '{
+   local scan_title 
+   #####################################################
+   if( $# != 1) {
+        printf ("collect_Mythen FileName\n");
+        exit;
+   }
+    scan_title = __returnSampleName("$1")
+    A[dx] = -55
+    A[dy] =  9
+    A[uslvap] = 0.050
+    A[uslhap] = 0.015
+    move_em;waitmove 
+
+   openTiFilterShutter
+   DCMfeedbackOFF
+   global __MythenOrderNum
+   local tmpStr123
+   __MythenOrderNum++
+   scan_title  = sprintf("%s_%u",scan_title, __MythenOrderNum)
+   ## clean the user name 
+   scan_title  = __get_clean_user_string(scan_title)
+   scan_title  = USAXS_CleanupFileName (scan_title, "") 
+   tmpStr123 = sprintf("Collecting XPCS Mythen data %s",  scan_title )
+   comment "%s" tmpStr123 
+   RecordLinkamTemp
+   epics_put("15iddLAX:string1", scan_title )
+   __MythenAcquire("15iddLAX:bit2.VAL")
+   closeTiFilterShutter
+   tmpStr123 = sprintf("Finished collecting XPCS Mythen data %s",  scan_title )
+   comment "%s" tmpStr123 
+   RecordLinkamTemp
+   DCMfeedbackON
+}'
+
+def __MythenAcquire(acqPV) '{
+  local shall_wait
+ epics_put(acqPV, 1)
+ sleep (5)
+ shall_wait = epics_get(acqPV, "short")
+ local _DataCollectionTimer
+ _DataCollectionTimer = 1
+ while (shall_wait> 19000 ) {
+ #  printf("shall_wait = %g\r", shall_wait)
+   # This sleep is only needed to not peg the cpu
+   sleep(1)
+   printf("Waiting for Mythen to finish for %g sec\r", _DataCollectionTimer)
+   _DataCollectionTimer++
+   shall_wait = epics_get(acqPV, "short")
+ }
+}'
+
+
+#######################################################
+# set m2rp and a2r feedback tune times, old tune are tune_m2rp_scan and tune_a2rp_scan
+# this does nto seem to work too well, may be it is nto the best way to do it.
+#  M2rpA2rpTuneTime = 20
+#######################################################
+# Modify macros here if necessary
+
+def CheckLAXmemory '{
+  p epics_get("15iddLAX:MEM_FREE")
+}'
+
+
+################################################################
+# USAXS_SAMPLE_THICKNESS : mm
+# This is the default value (do NOT change it from 1.0 mm)
+# Instead, override this in usaxs.mac
+#################################################################
+
+USAXS_SAMPLE_THICKNESS = 1
+
+#################################################################
+# Measure dark curents every scan? Can save about 1 minute per scan by skipning
+# default is to measure dark curents every scan... 
+#################################################################
+
+USAXS_MEASURE_DARK_CURENTS = 1    
+
+#################################################################
+# Autorange I0 curents every pinSAXS exposure? Can save about 1 second per scan by skipning
+# default is to autorange I0 every image... 
+#################################################################
+
+pinSAXS_AutorangeI0 = 1    
+
+#################################################################
+# Change if ar_tune does not get the peak center right...
+# removed 7/1/2012 JIL, was nto used for years now... 
+#################################################################
+
+# AR_VAL_CENTER_OFFSET  = 0.0000               
+
+#################################################################
+# Change delay time after UPD range change during usaxs scan...
+#################################################################
+
+UPD_Change_delay  = 0.0               
+
+
+##############################################################
+#  set check beam macro to right PV and set it on
+##############################################################
+
+usaxs_CheckBeamStandard
+
+#start the check beam macro
+chk_beam_on
+# to stop the check beam macro
+# chk_beam_off
+
+### this definition is needed due to obsolete python code...
+def setModeUSAXS 'useModeUSAXS'
+def setModePinhole 'useModePinSAXS'
+
+
+##################################
+#Email Notifications
+#Set list of addresses to be mailed when macro is finished or interrupted.  
+#If format below is used, unlimited number of addresses can be given.
+
+# example
+# NOTIFICATION_ADDRESSES[NOTIFICATION_ADDRESSES_COUNT++]="ilavsky@aps.anl.gov"
+
+global NOTIFICATION_ADDRESSES
+global NOTIFICATION_ADDRESSES_COUNT
+global NOTIFY_ON_RESET
+global NOTIFY_ON_SCAN_DONE
+global NOTIFY_ON_BEAM_LOSS
+
+#do not modify next line...
+NOTIFICATION_ADDRESSES_COUNT = 0
+
+NOTIFY_ON_RESET=1;
+NOTIFY_ON_SCAN_DONE=0;
+NOTIFY_ON_BEAM_LOSS=1;
+
+#NOTIFICATION_ADDRESSES[NOTIFICATION_ADDRESSES_COUNT++] = "beaucage.peter@gmail.com"
+NOTIFICATION_ADDRESSES[NOTIFICATION_ADDRESSES_COUNT++] = "ilavsky@aps.anl.gov"
+NOTIFICATION_ADDRESSES[NOTIFICATION_ADDRESSES_COUNT++] = "hammons@aps.anl.gov"
+
+# global EXPERIMENT # for pinhole, to automatically put images in proper folder
+
+###################################################################################
+##    useDynamicTime automatically changes the count time during a scan, to 1/2 the set time for the first third
+##    of the scan, to the set time for the second third, and to 2x the set time for the last third.
+##########################################
+global useDynamicTime
+global useIntelligentTime
+
+useDynamicTime = 1
+useIntelligentTime = 0
+
+CT_RANGE_1 = 0.3
+CT_RANGE_2 = 0.6
+CT_RANGE_3 = 1
+CT_RANGE_4 = 1.5
+CT_RANGE_5 = 2
+
+################################# User modifications
+###################################################################################
+###    Flow cell support. Modify below to add columns for Ph and temperature, if needed
+
+# add columns to spec:
+#-------------------------------------------------------------------------------
+#comment "---------------------%----------------------"
+#comment "adding DEGC, pH1, & Temp1 to column headers"
+# add another 3 columns to data file
+#u_column_add("DEGC",      "%g",   "DEGC",    "flowcell")
+#u_column_add("ThrOr_pH1",       "%g",   "ThrOr_pH1",     "flowcell")
+#u_column_add("ThrOr_Temp1",     "%g",   "ThrOr_Temp1",   "flowcell")
+#u_column_show
+#comment "---------------------%----------------------"
+#-------------------------------------------------------------------------------
+###################################################################################
+###   Keithley2400 support. Modify below to add columns for Voltage or current, if needed
+
+# add columns to spec:
+#-------------------------------------------------------------------------------
+#comment "---------------------%----------------------"
+#comment "adding DEGC, pH1, & Temp1 to column headers"
+# add another 3 columns to data file
+#u_column_add("KeithleyV",       "%g",   "KeithleyV",     "flowcell")
+#u_column_add("KeithleyI",       "%g",   "KeithleyI",     "flowcell")
+#u_column_show
+#comment "---------------------%----------------------"
+#-------------------------------------------------------------------------------
+###################################################################################
+##########               Add user temporary commands here                                           #####
+########## NOTE: your old commands will be moved to /share1/macros/usaxs/User_created_Commands.mac  #####
+##########       you should be able to find them there, if they were saved                          #####
+###################################################################################
+ 
+###################################################################################
+########## End of user editable area, next are only comments and information  #####
+#################################################################
+#
+#   E P I C S parameters and their explanation...
+#
+# to set the variables use set_.... commands listed below, to get the values remove the set_
+# set_CCD_DX 
+# set_CCD_DY 
+# set_DIODE_DY 
+# set_DIODE_DX 
+# set_USAXS_TIME 
+# set_NUMPNTS
+# set_UATERM 
+# set_SAMPLE_Y_STEP 
+# set_AY0 
+# set_DY0 
+# set_SAD 
+# set_SDD 
+# set_USAXS_MINSTEP 
+# set_AR_VAL_CENTER 
+# set_ASR_VAL_CENTER 
+# set_MR_VAL_CENTER 
+# set_MSR_VAL_CENTER 
+# set_IMG_AL_FILTER
+# set_IMG_TI_FILTER 
+# set_SCAN_AL_FILTER 
+# set_SCAN_TI_FILTER 
+# set_START_OFFSET
+# set_FINISH
+# set_MOTOR_PRESCALER_WAIT
+
+# Ion chamber amplifiers
+# set_I0_gain Values
+# set_I00_gain Values
+   # value can be 6, 7, 8, or 9 and this means gain 1e6, 1e7, 1e8, and 1e9
+   # using only low noise gains as those are the only which actually work
+
+
+#
+# AR_VAL_CENTER : AR motor value at top of rocking curve, degrees
+#                 !!!AR_VAL_CENTER MUST be set correctly!!!
+#                 it is used to get beam center!!!
+# USAXS_TIME    : count this many seconds per point
+# NUMPTS        : record NUMPTS points in USAXS scan
+#                 (100 to 150 points usual)
+# UATERM        : Q-binning exponent: 0.8 to 1.5
+#                 larger number means less points at high Q (more points at low Q)
+#                 dTheta = k*(theta - center)^UATERM
+#                 k is determined based on min, center, max & numpts
+#SAMPLE_Y_STEP  : sample Y movement, mm, to make after each step in the scan
+# ASRP0         = 6.925    # important only for 2-D colimated USAXS (SBUSAXS)
+# ASRP0         : AS (SBUSAXS only) drive coordinate,
+#                 tune asr so piezo is 5-7V or so, need range
+# START_OFFSET  : start USAXS scan at AR_VAL_CENTER + START_OFFSET, degrees
+# FINISH        : AR motor value to end scan, Q units
+#                 
+#                 
+#################################################################
+                
+#START_OFFSET  = 0.0015         # was 0.0015 for 12keV
+#FINISH        = AR_VAL_CENTER - 1      #about 9 degrees is up to 1 A^-1
+################################################################
+# CCD_DX,   CCD_DY   : mm, DX,DY position of CCD in A beam
+# DIODE_DX, DIODE_DY : mm, DX,DY position of photodiode in A beam
+# AY0 : degrees, analyzer stage Y position at center angle of scan
+# DY0 : mm, photodiode detector Y position in Q=0 beam
+#################################################################
+#################################################################
+# Specify the distance, mm, from:
+#   SAD : mm, sample to first reflection on A stage
+#   SDD : mm, sample to detector distance
+#
+#  Note: refer to this handy table to help that decision
+#   SAD   SDD   description
+#    90   358   solid samples on paddle
+#################################################################
+#################################################################
+# set correct number of filters for Radiography mode...
+# override these #initions from SPECD/spec_usaxs/conf.mac
+# values (0 ... 15) indicate number of foil thicknesses to insert
+#################################################################
+# 11.9keV
+# # insertCCDfilters  'mv_Al_filter 14; mv_Ti_filter  0'
+# 11.7keV, Glass in bank 1
+# # insertCCDfilters  'mv_Al_filter 12; mv_Ti_filter  0'
+# 17.5keV
+# # insertCCDfilters  'mv_Al_filter 9; mv_Ti_filter  2'
+
+
+#################################################################
+# help part, examples of various combinations of commands
+#################################################################
+# preUSAXStune; USAXSscan   sx  sy  thickness "Sample Name"
+# preUSAXStune;  USAXSscan     29.2    120.2  0.899   "W nozzle (2 Kapton)"
+# preUSAXStune;  USAXSscan     -10.0   120.2  0       "Blank"
+# liquid cell center is 8mm from edge (in X coordinate)
+# liquid cells are 38mm between holes (in Y coordinate)
+# liquid cell, shoot 1 mm above center of hole in cell
+# standard plate, samples mounted in the middle of the holes
+#################################################################
+#   SBUSAXSscan  SA   SX  SY  thickness_mm  "text description"
+#   SBUSAXSscan 166  108  31  0.889         "SA166 0pctStr center 5pct CB"
+#################################################################
+###################################################################################
