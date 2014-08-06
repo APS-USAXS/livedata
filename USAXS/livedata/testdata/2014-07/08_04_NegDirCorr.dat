@@ -1,0 +1,1009 @@
+#F 08_04_NegDirCorr.dat
+#E 1407185384
+#D Mon Aug 04 15:49:44 2014
+#C Develop Neg corrections  User = s15usaxs
+#H0  SR_current  SR_fill  SR_status  SR_mode  SR_fb  SR_fbH  SR_fbV  SR_topUp  barometer_mbar
+#H1  SR_BPM_HP  SR_BPM_VP  SR_BPM_HA  SR_BPM_VA  ID_gap  ID_E  ID_harmonic  ID_taperGap  ID_taperE
+#H2  FE_XBPM_HP  FE_XBPM_VP  FE_XBPM_HA  FE_XBPM_VA
+#H3  DCM_energy  DCM_lambda  UND_energy  UND_tracking  UND_offset  mrEnc  arEnc
+#H4  mrCenter  arCenter  msrCenter  asrCenter  Scan_Al_Filter  Scan_Ti_Filter
+#H5  I0AmpGain  I00AmpGain
+#H6  UPD2mode  UPD2range  UPD2vfc  UPD2gain  UPD2selected
+#H7  UPD2gain1  UPD2bkg1  UPD2bkgErr1
+#H8  UPD2gain2  UPD2bkg2  UPD2bkgErr2
+#H9  UPD2gain3  UPD2bkg3  UPD2bkgErr3
+#H10  UPD2gain4  UPD2bkg4  UPD2bkgErr4
+#H11  UPD2gain5  UPD2bkg5  UPD2bkgErr5
+#H12  thickness  ARenc_0  SAD  SDD  CCD_DX  CCD_DY
+#H13  DIODE_DX  DIODE_DY  UATERM  sampleYstep
+#H14  USAXSPinT_Measure  USAXSPinT_AyPosition  USAXSPinT_Time  USAXSPinT_pinCounts  USAXSPinT_pinGain  USAXSPinT_I0Counts  USAXSPinT_I0Gain
+
+#O0 unused0  mx  my  WAXS_X  ax  un5  az  unused7
+#O1 msx  msy  asx  asy  ion_ch  tcam  sa  unused15
+#O2 sx  sy  dx  un19  uslitvercen  uslithorcen  uslitverap  uslithorap
+#O3 pin_x  pin_z  GSlit_Outb  GSlit_inb  GSlit_top  GSlit_bot  unused30  pin_y
+#O4 USAXS.a2rp  USAXS.m2rp  USAXS.asrp  USAXS.msrp  mr  unused37  mst  ast
+#O5 msr  asr  unused42  unused43  ar  ay  dy  un47
+#O6 un48  un49  un50  un51  un52  en  
+#o0 un0 mx my waxsx ax un5 az un7
+#o1 msx msy asx asy ion_ch tcam sa un15
+#o2 sx sy dx un19 uslvcen uslhcen uslvap uslhap
+#o3 pin_x pin_z gslout gslinb gsltop gslbot un30 pin_y
+#o4 a2rp m2rp asrp msrp mr un37 mst ast
+#o5 msr asr un42 un43 ar ay dy un47
+#o6 un48 un49 un50 un51 un52 en 
+
+#J0 seconds  I0  I00  USAXS_PD  Monitor  I000  
+#j0 sec I0 I00 upd2 mon I000 
+
+#C Mon Aug 04 15:50:08 2014.  do usaxs.mac.
+#C Mon Aug 04 15:50:08 2014.  do USAXS_conf.mac.
+#C Mon Aug 04 15:50:08 2014.  Pu samples.
+#C Mon Aug 04 15:50:08 2014.  Ready for USAXS mode.
+#C Mon Aug 04 15:50:08 2014.  Moving USAXS slits and guard slits to correct place.
+#C Mon Aug 04 15:50:08 2014.  Moving AR motor to 10.9106 degrees (beam center).
+#C Mon Aug 04 15:50:08 2014.  for next scan: encoder ARenc_CENTER  = 10.9106.
+#C Mon Aug 04 15:50:08 2014.  Ready for USAXS mode.
+
+#S 1  FlyScan  ar 10.9128 0 7.51783 2e-05 
+#D Mon Aug 04 15:50:19 2014
+#T 0.3  (seconds)
+#G0 0
+#G1 0
+#G3 0
+#G4 0
+#Q 
+#P0 -22.29064 -97 -3.90625e-05 22 -48 -0.1 212.07773 17.075
+#P1 5.894899e-07 9.99893 0 5.00002 0.2 -30 8.00025 0.365
+#P2 -100 0 65.0975 26.355 8e-05 8e-06 0.700053 0.699992
+#P3 -0.001533 32 1.2477694 -1.2513728 0.70093544 -0.69965931 0.000245 4
+#P4 3.0925 3.2025 7.6625 2.705 10.4575 0 0 0
+#P5 17 18.17188 -8.67896 -0.351 10.910558 -8.2 25.799063 0
+#P6 0 0 0 0 0 10 
+#C FS_60s_2k_2e5
+#V0 102.275 0 1 0 1 1 1 1 987.777
+#V1 -0.0517445 -0.124975 37.0711 105.371 0 0 0 0 0
+#V2 -1.60393 0.906984 61.6189 -44.6846
+#V3 10 1.23984 10.1386 0 0 10.9461 10.910558
+#V4 10.9463 10.9106 2.70464 7.66349 0 0
+#V5 1000000000 1000000000
+#V6 2 4 100000 1.0e+12 1
+#V7 1.0e+04 5 0
+#V8 1.0e+06 5 0
+#V9 1.0e+08 5 0
+#V10 1.0e+10 188 9.74679
+#V11 1.0e+12 20135 451.539
+#V12 0 10.9105 198 885 0 40.42
+#V13 65.0975 25.7991 1 
+#V14 1 1.57125 3 314 1000000000 1 1000000000
+#N 16
+#L ar  ay  dy  ar_enc  pd_range  pd_counts  pd_rate  pd_curent  I0_gain  I00_gain  Epoch  I0  I00  USAXS_PD  I000  Monitor  seconds
+#C Mon Aug 04 15:50:19 2014.  FlyScan #1 started.
+#C Mon Aug 04 15:50:19 2014.  FlyScan file name = ./08_04_NegDirCorr_fly/S1_FS_60s_2k_2e5.h5.
+#C Mon Aug 04 15:50:19 2014.  Please wait approximately 75s to complete FlyScan..
+#C Mon Aug 04 15:51:44 2014.  Flyscan done after 85s..
+#C Mon Aug 04 15:51:51 2014.  Staff info : Flyscan ended with excess 0 points..
+#C Mon Aug 04 15:51:51 2014.  FlyScan finished.
+#C Mon Aug 04 15:51:51 2014.  Moving AR motor back to 10.9106 degrees (beam center).
+#C Mon Aug 04 15:51:59 2014.  FS_60s_2k_2e5.
+#C Mon Aug 04 15:51:59 2014.  Ready for USAXS mode.
+#C Mon Aug 04 15:51:59 2014.  Moving USAXS slits and guard slits to correct place.
+#C Mon Aug 04 15:51:59 2014.  Moving AR motor to 10.9106 degrees (beam center).
+#C Mon Aug 04 15:51:59 2014.  for next scan: encoder ARenc_CENTER  = 10.9106.
+#C Mon Aug 04 15:51:59 2014.  Ready for USAXS mode.
+
+#S 2  FlyScan  ar 10.9128 0 7.51783 2e-05 
+#D Mon Aug 04 15:52:10 2014
+#T 0.3  (seconds)
+#G0 0
+#G1 0
+#G3 0
+#G4 0
+#Q 
+#P0 -22.29064 -97 -3.90625e-05 22 -48 -0.1 212.07773 17.075
+#P1 5.894899e-07 9.99893 0 5.00002 0.2 -30 8.00025 0.365
+#P2 -100 0 65.0975 26.355 8e-05 8e-06 0.700053 0.699992
+#P3 -0.001533 32 1.2477694 -1.2513728 0.70093544 -0.69965931 0.000245 4
+#P4 3.0925 3.2025 7.6625 2.705 10.4575 0 0 0
+#P5 17 18.17188 -8.67896 -0.351 10.910558 -8.2 25.799063 0
+#P6 0 0 0 0 0 10 
+#C FS_60s_2k_2e5
+#V0 102.388 0 1 0 1 1 1 1 987.775
+#V1 -0.0513787 -0.124934 36.9831 105.417 0 0 0 0 0
+#V2 -1.60289 0.906506 61.5542 -44.6489
+#V3 10 1.23984 10.1386 0 0 10.9461 10.910558
+#V4 10.9463 10.9106 2.70464 7.66349 0 0
+#V5 1000000000 1000000000
+#V6 2 4 100000 1.0e+12 1
+#V7 1.0e+04 5 0
+#V8 1.0e+06 5 0
+#V9 1.0e+08 5 0
+#V10 1.0e+10 188 9.74679
+#V11 1.0e+12 20135 451.539
+#V12 0 10.9105 198 885 0 40.42
+#V13 65.0975 25.7991 1 
+#V14 1 1.57125 3 312 1000000000 1 1000000000
+#N 16
+#L ar  ay  dy  ar_enc  pd_range  pd_counts  pd_rate  pd_curent  I0_gain  I00_gain  Epoch  I0  I00  USAXS_PD  I000  Monitor  seconds
+#C Mon Aug 04 15:52:10 2014.  FlyScan #2 started.
+#C Mon Aug 04 15:52:10 2014.  FlyScan file name = ./08_04_NegDirCorr_fly/S2_FS_60s_2k_2e5.h5.
+#C Mon Aug 04 15:52:10 2014.  Please wait approximately 75s to complete FlyScan..
+#C Mon Aug 04 15:53:24 2014.  Flyscan done after 73s..
+#C Mon Aug 04 15:53:31 2014.  Staff info : Flyscan ended with excess 0 points..
+#C Mon Aug 04 15:53:31 2014.  FlyScan finished.
+#C Mon Aug 04 15:53:31 2014.  Moving AR motor back to 10.9106 degrees (beam center).
+#C Mon Aug 04 15:53:39 2014.  FS_60s_2k_2e5.
+#C Mon Aug 04 15:53:39 2014.  Ready for USAXS mode.
+#C Mon Aug 04 15:53:39 2014.  Moving USAXS slits and guard slits to correct place.
+#C Mon Aug 04 15:53:39 2014.  Moving AR motor to 10.9106 degrees (beam center).
+#C Mon Aug 04 15:53:39 2014.  for next scan: encoder ARenc_CENTER  = 10.9106.
+#C Mon Aug 04 15:53:39 2014.  Ready for USAXS mode.
+
+#S 3  FlyScan  ar 10.9128 0 7.51783 2e-05 
+#D Mon Aug 04 15:53:50 2014
+#T 0.3  (seconds)
+#G0 0
+#G1 0
+#G3 0
+#G4 0
+#Q 
+#P0 -22.29064 -97 -3.90625e-05 22 -48 -0.1 212.07773 17.075
+#P1 5.894899e-07 9.99893 0 5.00002 0.2 -30 8.00025 0.365
+#P2 -100 0 65.0975 26.355 8e-05 8e-06 0.700053 0.699992
+#P3 -0.001533 32 1.2477694 -1.2513728 0.70093544 -0.69965931 0.000245 4
+#P4 3.0925 3.2025 7.6625 2.705 10.4575 0 0 0
+#P5 17 18.17188 -8.67896 -0.351 10.910558 -8.2 25.799063 0
+#P6 0 0 0 0 0 10 
+#C FS_60s_2k_2e5
+#V0 102.062 0 1 0 1 1 1 1 987.768
+#V1 -0.0515444 -0.124904 36.9943 105.385 0 0 0 0 0
+#V2 -1.60196 0.90701 61.5052 -44.6785
+#V3 10 1.23984 10.1386 0 0 10.9461 10.910558
+#V4 10.9463 10.9106 2.70464 7.66349 0 0
+#V5 1000000000 1000000000
+#V6 2 4 100000 1.0e+12 1
+#V7 1.0e+04 5 0
+#V8 1.0e+06 5 0
+#V9 1.0e+08 5 0
+#V10 1.0e+10 188 9.74679
+#V11 1.0e+12 20135 451.539
+#V12 0 10.9105 198 885 0 40.42
+#V13 65.0975 25.7991 1 
+#V14 1 1.57125 3 312 1000000000 1 1000000000
+#N 16
+#L ar  ay  dy  ar_enc  pd_range  pd_counts  pd_rate  pd_curent  I0_gain  I00_gain  Epoch  I0  I00  USAXS_PD  I000  Monitor  seconds
+#C Mon Aug 04 15:53:50 2014.  FlyScan #3 started.
+#C Mon Aug 04 15:53:50 2014.  FlyScan file name = ./08_04_NegDirCorr_fly/S3_FS_60s_2k_2e5.h5.
+#C Mon Aug 04 15:53:50 2014.  Please wait approximately 75s to complete FlyScan..
+#C Mon Aug 04 15:55:04 2014.  Flyscan done after 73s..
+#C Mon Aug 04 15:55:11 2014.  Staff info : Flyscan ended with excess 0 points..
+#C Mon Aug 04 15:55:11 2014.  FlyScan finished.
+#C Mon Aug 04 15:55:11 2014.  Moving AR motor back to 10.9106 degrees (beam center).
+#C Mon Aug 04 15:55:18 2014.  FS_60s_2k_2e5.
+#C Mon Aug 04 15:55:18 2014.  Ready for USAXS mode.
+#C Mon Aug 04 15:55:19 2014.  Moving USAXS slits and guard slits to correct place.
+#C Mon Aug 04 15:55:19 2014.  Moving AR motor to 10.9106 degrees (beam center).
+#C Mon Aug 04 15:55:19 2014.  for next scan: encoder ARenc_CENTER  = 10.9106.
+
+#S 4  FlyScan  ar 10.9128 0 7.51783 2e-05 
+#D Mon Aug 04 15:55:21 2014
+#T 0.3  (seconds)
+#G0 0
+#G1 0
+#G3 0
+#G4 0
+#Q 
+#P0 -22.29064 -97 -3.90625e-05 22 -48 -0.1 212.07773 17.075
+#P1 5.894899e-07 9.99893 0 5.00002 0.2 -30 8.00025 0.365
+#P2 -100 0 65.0975 26.355 8e-05 8e-06 0.700053 0.699992
+#P3 -0.001533 32 1.2477694 -1.2513728 0.70093544 -0.69965931 0.000245 4
+#P4 3.0925 3.2025 7.6625 2.705 10.4575 0 0 0
+#P5 17 18.17188 -8.67896 -0.351 10.910558 -8.2 25.799063 0
+#P6 0 0 0 0 0 10 
+#C FS_60s_2k_2e5
+#V0 101.78 0 1 0 1 1 1 1 987.75
+#V1 -0.0515193 -0.124893 37.0111 105.388 0 0 0 0 0
+#V2 -1.60177 0.907828 61.5051 -44.7256
+#V3 10 1.23984 10.1386 0 0 10.9461 10.910558
+#V4 10.9463 10.9106 2.70464 7.66349 0 0
+#V5 1000000000 1000000000
+#V6 2 4 100000 1.0e+12 1
+#V7 1.0e+04 5 0
+#V8 1.0e+06 5 0
+#V9 1.0e+08 5 0
+#V10 1.0e+10 188 9.74679
+#V11 1.0e+12 20135 451.539
+#V12 0 10.9105 198 885 0 40.42
+#V13 65.0975 25.7991 1 
+#V14 0 1.57125 3 0 0 0 0
+#N 16
+#L ar  ay  dy  ar_enc  pd_range  pd_counts  pd_rate  pd_curent  I0_gain  I00_gain  Epoch  I0  I00  USAXS_PD  I000  Monitor  seconds
+#C Mon Aug 04 15:55:21 2014.  FlyScan #4 started.
+#C Mon Aug 04 15:55:21 2014.  FlyScan file name = ./08_04_NegDirCorr_fly/S4_FS_60s_2k_2e5.h5.
+#C Mon Aug 04 15:55:21 2014.  Please wait approximately 75s to complete FlyScan..
+#C Mon Aug 04 15:56:34 2014.  Flyscan done after 73s..
+#C Mon Aug 04 15:56:43 2014.  Staff info : Flyscan ended with excess 0 points..
+#C Mon Aug 04 15:56:43 2014.  FlyScan finished.
+#C Mon Aug 04 15:56:43 2014.  Moving AR motor back to 10.9106 degrees (beam center).
+#C Mon Aug 04 15:56:51 2014.  FS_60s_2k_2e5.
+#C Mon Aug 04 15:56:51 2014.  Ready for USAXS mode.
+#C Mon Aug 04 15:56:51 2014.  Moving USAXS slits and guard slits to correct place.
+#C Mon Aug 04 15:56:51 2014.  Moving AR motor to 10.9106 degrees (beam center).
+#C Mon Aug 04 15:56:51 2014.  for next scan: encoder ARenc_CENTER  = 10.9106.
+
+#S 5  FlyScan  ar 10.9128 0 7.51783 2e-05 
+#D Mon Aug 04 15:56:53 2014
+#T 0.3  (seconds)
+#G0 0
+#G1 0
+#G3 0
+#G4 0
+#Q 
+#P0 -22.29064 -97 -3.90625e-05 22 -48 -0.1 212.07773 17.075
+#P1 5.894899e-07 9.99893 0 5.00002 0.2 -30 8.00025 0.365
+#P2 -100 0 65.0975 26.355 8e-05 8e-06 0.700053 0.699992
+#P3 -0.001533 32 1.2477694 -1.2513728 0.70093544 -0.69965931 0.000245 4
+#P4 3.0925 3.2025 7.6625 2.705 10.4575 0 0 0
+#P5 17 18.17188 -8.67896 -0.351 10.910558 -8.2 25.799063 0
+#P6 0 0 0 0 0 10 
+#C FS_60s_2k_2e5
+#V0 101.994 0 1 0 1 1 1 1 987.74
+#V1 -0.0515116 -0.124905 37.0037 105.412 0 0 0 0 0
+#V2 -1.60315 0.907566 61.5579 -44.7132
+#V3 10 1.23984 10.1386 0 0 10.9461 10.910558
+#V4 10.9463 10.9106 2.70464 7.66349 0 0
+#V5 1000000000 1000000000
+#V6 2 4 100000 1.0e+12 1
+#V7 1.0e+04 5 0
+#V8 1.0e+06 5 0
+#V9 1.0e+08 5 0
+#V10 1.0e+10 188 9.74679
+#V11 1.0e+12 20135 451.539
+#V12 0 10.9105 198 885 0 40.42
+#V13 65.0975 25.7991 1 
+#V14 0 1.57125 3 0 0 0 0
+#N 16
+#L ar  ay  dy  ar_enc  pd_range  pd_counts  pd_rate  pd_curent  I0_gain  I00_gain  Epoch  I0  I00  USAXS_PD  I000  Monitor  seconds
+#C Mon Aug 04 15:56:53 2014.  FlyScan #5 started.
+#C Mon Aug 04 15:56:53 2014.  FlyScan file name = ./08_04_NegDirCorr_fly/S5_FS_60s_2k_2e5.h5.
+#C Mon Aug 04 15:56:53 2014.  Please wait approximately 75s to complete FlyScan..
+#C Mon Aug 04 15:58:06 2014.  Flyscan done after 73s..
+#C Mon Aug 04 15:58:14 2014.  Staff info : Flyscan ended with excess 0 points..
+#C Mon Aug 04 15:58:14 2014.  FlyScan finished.
+#C Mon Aug 04 15:58:14 2014.  Moving AR motor back to 10.9106 degrees (beam center).
+#C Mon Aug 04 15:58:21 2014.  FS_60s_2k_2e5.
+#C Mon Aug 04 15:58:21 2014.  Ready for USAXS mode.
+#C Mon Aug 04 15:58:22 2014.  Moving USAXS slits and guard slits to correct place.
+#C Mon Aug 04 15:58:22 2014.  Moving AR motor to 10.9106 degrees (beam center).
+#C Mon Aug 04 15:58:22 2014.  for next scan: encoder ARenc_CENTER  = 10.9106.
+
+#S 6  FlyScan  ar 10.9128 0 7.51783 2e-05 
+#D Mon Aug 04 15:58:24 2014
+#T 0.6  (seconds)
+#G0 0
+#G1 0
+#G3 0
+#G4 0
+#Q 
+#P0 -22.29064 -97 -3.90625e-05 22 -48 -0.1 212.07773 17.075
+#P1 5.894899e-07 9.99893 0 5.00002 0.2 -30 8.00025 0.365
+#P2 -100 0 65.0975 26.355 8e-05 8e-06 0.700053 0.699992
+#P3 -0.001533 32 1.2477694 -1.2513728 0.70093544 -0.69965931 0.000245 4
+#P4 3.0925 3.2025 7.6625 2.705 10.4575 0 0 0
+#P5 17 18.17188 -8.67896 -0.351 10.910558 -8.2 25.799063 0
+#P6 0 0 0 0 0 10 
+#C FS_120s_2k_2e5
+#V0 102.209 0 1 0 1 1 1 1 987.73
+#V1 -0.0514451 -0.124902 37.0233 105.434 0 0 0 0 0
+#V2 -1.60319 0.906606 61.5692 -44.6558
+#V3 10 1.23984 10.1386 0 0 10.9461 10.910558
+#V4 10.9463 10.9106 2.70464 7.66349 0 0
+#V5 1000000000 1000000000
+#V6 2 4 100000 1.0e+12 1
+#V7 1.0e+04 5 0
+#V8 1.0e+06 5 0
+#V9 1.0e+08 5 0
+#V10 1.0e+10 188 9.74679
+#V11 1.0e+12 20135 451.539
+#V12 0 10.9105 198 885 0 40.42
+#V13 65.0975 25.7991 1 
+#V14 0 1.57125 3 0 0 0 0
+#N 16
+#L ar  ay  dy  ar_enc  pd_range  pd_counts  pd_rate  pd_curent  I0_gain  I00_gain  Epoch  I0  I00  USAXS_PD  I000  Monitor  seconds
+#C Mon Aug 04 15:58:24 2014.  FlyScan #6 started.
+#C Mon Aug 04 15:58:24 2014.  FlyScan file name = ./08_04_NegDirCorr_fly/S6_FS_120s_2k_2e5.h5.
+#C Mon Aug 04 15:58:24 2014.  Please wait approximately 135s to complete FlyScan..
+#C Mon Aug 04 16:00:38 2014.  Flyscan done after 134s..
+#C Mon Aug 04 16:00:45 2014.  Staff info : Flyscan ended with excess 0 points..
+#C Mon Aug 04 16:00:45 2014.  FlyScan finished.
+#C Mon Aug 04 16:00:45 2014.  Moving AR motor back to 10.9106 degrees (beam center).
+#C Mon Aug 04 16:00:52 2014.  FS_120s_2k_2e5.
+#C Mon Aug 04 16:00:52 2014.  Ready for USAXS mode.
+#C Mon Aug 04 16:00:53 2014.  Moving USAXS slits and guard slits to correct place.
+#C Mon Aug 04 16:00:53 2014.  Moving AR motor to 10.9106 degrees (beam center).
+#C Mon Aug 04 16:00:53 2014.  for next scan: encoder ARenc_CENTER  = 10.9106.
+
+#S 7  FlyScan  ar 10.9128 0 7.51783 2e-05 
+#D Mon Aug 04 16:00:55 2014
+#T 0.6  (seconds)
+#G0 0
+#G1 0
+#G3 0
+#G4 0
+#Q 
+#P0 -22.29064 -97 -3.90625e-05 22 -48 -0.1 212.07773 17.075
+#P1 5.894899e-07 9.99893 0 5.00002 0.2 -30 8.00025 0.365
+#P2 -100 0 65.0975 26.355 8e-05 8e-06 0.700053 0.699992
+#P3 -0.001533 32 1.2477694 -1.2513728 0.70093544 -0.69965931 0.000245 4
+#P4 3.0925 3.2025 7.6625 2.705 10.4575 0 0 0
+#P5 17 18.17188 -8.67896 -0.351 10.910558 -8.2 25.799063 0
+#P6 0 0 0 0 0 10 
+#C FS_120s_2k_2e5
+#V0 102.222 0 1 0 1 1 1 1 987.719
+#V1 -0.0516327 -0.124843 37.0303 105.432 0 0 0 0 0
+#V2 -1.60339 0.906626 61.5797 -44.6592
+#V3 10 1.23984 10.1386 0 0 10.9461 10.910558
+#V4 10.9463 10.9106 2.70464 7.66349 0 0
+#V5 1000000000 1000000000
+#V6 2 4 100000 1.0e+12 1
+#V7 1.0e+04 5 0
+#V8 1.0e+06 5 0
+#V9 1.0e+08 5 0
+#V10 1.0e+10 188 9.74679
+#V11 1.0e+12 20135 451.539
+#V12 0 10.9105 198 885 0 40.42
+#V13 65.0975 25.7991 1 
+#V14 0 1.57125 3 0 0 0 0
+#N 16
+#L ar  ay  dy  ar_enc  pd_range  pd_counts  pd_rate  pd_curent  I0_gain  I00_gain  Epoch  I0  I00  USAXS_PD  I000  Monitor  seconds
+#C Mon Aug 04 16:00:55 2014.  FlyScan #7 started.
+#C Mon Aug 04 16:00:55 2014.  FlyScan file name = ./08_04_NegDirCorr_fly/S7_FS_120s_2k_2e5.h5.
+#C Mon Aug 04 16:00:55 2014.  Please wait approximately 135s to complete FlyScan..
+#C Mon Aug 04 16:03:07 2014.  Flyscan done after 132s..
+#C Mon Aug 04 16:03:14 2014.  Staff info : Flyscan ended with excess 0 points..
+#C Mon Aug 04 16:03:14 2014.  FlyScan finished.
+#C Mon Aug 04 16:03:14 2014.  Moving AR motor back to 10.9106 degrees (beam center).
+#C Mon Aug 04 16:03:22 2014.  FS_120s_2k_2e5.
+#C Mon Aug 04 16:03:22 2014.  Ready for USAXS mode.
+#C Mon Aug 04 16:03:22 2014.  Moving USAXS slits and guard slits to correct place.
+#C Mon Aug 04 16:03:22 2014.  Moving AR motor to 10.9106 degrees (beam center).
+#C Mon Aug 04 16:03:22 2014.  for next scan: encoder ARenc_CENTER  = 10.9106.
+
+#S 8  FlyScan  ar 10.9128 0 7.51783 2e-05 
+#D Mon Aug 04 16:03:24 2014
+#T 0.6  (seconds)
+#G0 0
+#G1 0
+#G3 0
+#G4 0
+#Q 
+#P0 -22.29064 -97 -3.90625e-05 22 -48 -0.1 212.07773 17.075
+#P1 5.894899e-07 9.99893 0 5.00002 0.2 -30 8.00025 0.365
+#P2 -100 0 65.0975 26.355 8e-05 8e-06 0.700053 0.699992
+#P3 -0.001533 32 1.2477694 -1.2513728 0.70093544 -0.69965931 0.000245 4
+#P4 3.0925 3.2025 7.6625 2.705 10.4575 0 0 0
+#P5 17 18.17188 -8.67896 -0.351 10.910558 -8.2 25.799063 0
+#P6 0 0 0 0 0 10 
+#C FS_120s_2k_2e5
+#V0 102.146 0 1 0 1 1 1 1 987.686
+#V1 -0.0517045 -0.124914 37.0176 105.443 0 0 0 0 0
+#V2 -1.6025 0.906554 61.5268 -44.6625
+#V3 10 1.23984 10.1386 0 0 10.9461 10.910558
+#V4 10.9463 10.9106 2.70464 7.66349 0 0
+#V5 1000000000 1000000000
+#V6 2 4 100000 1.0e+12 1
+#V7 1.0e+04 5 0
+#V8 1.0e+06 5 0
+#V9 1.0e+08 5 0
+#V10 1.0e+10 188 9.74679
+#V11 1.0e+12 20135 451.539
+#V12 0 10.9105 198 885 0 40.42
+#V13 65.0975 25.7991 1 
+#V14 0 1.57125 3 0 0 0 0
+#N 16
+#L ar  ay  dy  ar_enc  pd_range  pd_counts  pd_rate  pd_curent  I0_gain  I00_gain  Epoch  I0  I00  USAXS_PD  I000  Monitor  seconds
+#C Mon Aug 04 16:03:24 2014.  FlyScan #8 started.
+#C Mon Aug 04 16:03:24 2014.  FlyScan file name = ./08_04_NegDirCorr_fly/S8_FS_120s_2k_2e5.h5.
+#C Mon Aug 04 16:03:24 2014.  Please wait approximately 135s to complete FlyScan..
+#C Mon Aug 04 16:05:39 2014.  Flyscan done after 134s..
+#C Mon Aug 04 16:05:46 2014.  Staff info : Flyscan ended with excess 0 points..
+#C Mon Aug 04 16:05:46 2014.  FlyScan finished.
+#C Mon Aug 04 16:05:46 2014.  Moving AR motor back to 10.9106 degrees (beam center).
+#C Mon Aug 04 16:05:53 2014.  FS_120s_2k_2e5.
+#C Mon Aug 04 16:05:53 2014.  Ready for USAXS mode.
+#C Mon Aug 04 16:05:53 2014.  Moving USAXS slits and guard slits to correct place.
+#C Mon Aug 04 16:05:53 2014.  Moving AR motor to 10.9106 degrees (beam center).
+#C Mon Aug 04 16:05:53 2014.  for next scan: encoder ARenc_CENTER  = 10.9106.
+
+#S 9  FlyScan  ar 10.9128 0 7.51783 2e-05 
+#D Mon Aug 04 16:05:55 2014
+#T 0.6  (seconds)
+#G0 0
+#G1 0
+#G3 0
+#G4 0
+#Q 
+#P0 -22.29064 -97 -3.90625e-05 22 -48 -0.1 212.07773 17.075
+#P1 5.894899e-07 9.99893 0 5.00002 0.2 -30 8.00025 0.365
+#P2 -100 0 65.0975 26.355 8e-05 8e-06 0.700053 0.699992
+#P3 -0.001533 32 1.2477694 -1.2513728 0.70093544 -0.69965931 0.000245 4
+#P4 3.0925 3.2025 7.6625 2.705 10.4575 0 0 0
+#P5 17 18.17188 -8.67896 -0.351 10.910558 -8.2 25.799063 0
+#P6 0 0 0 0 0 10 
+#C FS_120s_2k_2e5
+#V0 101.662 0 1 0 1 1 1 1 987.646
+#V1 -0.0516408 -0.124844 37.0419 105.449 0 0 0 0 0
+#V2 -1.60082 0.907077 61.4444 -44.6864
+#V3 10 1.23984 10.1386 0 0 10.9461 10.910558
+#V4 10.9463 10.9106 2.70464 7.66349 0 0
+#V5 1000000000 1000000000
+#V6 2 4 100000 1.0e+12 1
+#V7 1.0e+04 5 0
+#V8 1.0e+06 5 0
+#V9 1.0e+08 5 0
+#V10 1.0e+10 188 9.74679
+#V11 1.0e+12 20135 451.539
+#V12 0 10.9105 198 885 0 40.42
+#V13 65.0975 25.7991 1 
+#V14 0 1.57125 3 0 0 0 0
+#N 16
+#L ar  ay  dy  ar_enc  pd_range  pd_counts  pd_rate  pd_curent  I0_gain  I00_gain  Epoch  I0  I00  USAXS_PD  I000  Monitor  seconds
+#C Mon Aug 04 16:05:56 2014.  FlyScan #9 started.
+#C Mon Aug 04 16:05:56 2014.  FlyScan file name = ./08_04_NegDirCorr_fly/S9_FS_120s_2k_2e5.h5.
+#C Mon Aug 04 16:05:56 2014.  Please wait approximately 135s to complete FlyScan..
+#C Mon Aug 04 16:08:09 2014.  Flyscan done after 133s..
+#C Mon Aug 04 16:08:16 2014.  Staff info : Flyscan ended with excess 0 points..
+#C Mon Aug 04 16:08:16 2014.  FlyScan finished.
+#C Mon Aug 04 16:08:16 2014.  Moving AR motor back to 10.9106 degrees (beam center).
+#C Mon Aug 04 16:08:24 2014.  FS_120s_2k_2e5.
+#C Mon Aug 04 16:08:24 2014.  Ready for USAXS mode.
+#C Mon Aug 04 16:08:24 2014.  Moving USAXS slits and guard slits to correct place.
+#C Mon Aug 04 16:08:24 2014.  Moving AR motor to 10.9106 degrees (beam center).
+#C Mon Aug 04 16:08:24 2014.  for next scan: encoder ARenc_CENTER  = 10.9106.
+
+#S 10  FlyScan  ar 10.9128 0 7.51783 2e-05 
+#D Mon Aug 04 16:08:26 2014
+#T 0.6  (seconds)
+#G0 0
+#G1 0
+#G3 0
+#G4 0
+#Q 
+#P0 -22.29064 -97 -3.90625e-05 22 -48 -0.1 212.07773 17.075
+#P1 5.894899e-07 9.99893 0 5.00002 0.2 -30 8.00025 0.365
+#P2 -100 0 65.0975 26.355 8e-05 8e-06 0.700053 0.699992
+#P3 -0.001533 32 1.2477694 -1.2513728 0.70093544 -0.69965931 0.000245 4
+#P4 3.0925 3.2025 7.6625 2.705 10.4575 0 0 0
+#P5 17 18.17188 -8.67896 -0.351 10.910558 -8.2 25.799063 0
+#P6 0 0 0 0 0 10 
+#C FS_120s_2k_2e5
+#V0 102.171 0 1 0 1 1 1 1 987.661
+#V1 -0.051688 -0.124938 37.0228 105.451 0 0 0 0 0
+#V2 -1.60293 0.906203 61.5352 -44.6401
+#V3 10 1.23984 10.1386 0 0 10.9461 10.910558
+#V4 10.9463 10.9106 2.70464 7.66349 0 0
+#V5 1000000000 1000000000
+#V6 2 4 100000 1.0e+12 1
+#V7 1.0e+04 5 0
+#V8 1.0e+06 5 0
+#V9 1.0e+08 5 0
+#V10 1.0e+10 188 9.74679
+#V11 1.0e+12 20135 451.539
+#V12 0 10.9105 198 885 0 40.42
+#V13 65.0975 25.7991 1 
+#V14 0 1.57125 3 0 0 0 0
+#N 16
+#L ar  ay  dy  ar_enc  pd_range  pd_counts  pd_rate  pd_curent  I0_gain  I00_gain  Epoch  I0  I00  USAXS_PD  I000  Monitor  seconds
+#C Mon Aug 04 16:08:26 2014.  FlyScan #10 started.
+#C Mon Aug 04 16:08:26 2014.  FlyScan file name = ./08_04_NegDirCorr_fly/S10_FS_120s_2k_2e5.h5.
+#C Mon Aug 04 16:08:26 2014.  Please wait approximately 135s to complete FlyScan..
+#C Mon Aug 04 16:10:40 2014.  Flyscan done after 133s..
+#C Mon Aug 04 16:10:46 2014.  Staff info : Flyscan ended with excess 0 points..
+#C Mon Aug 04 16:10:46 2014.  FlyScan finished.
+#C Mon Aug 04 16:10:46 2014.  Moving AR motor back to 10.9106 degrees (beam center).
+#C Mon Aug 04 16:10:54 2014.  FS_120s_2k_2e5.
+#C Mon Aug 04 16:10:54 2014.  Ready for USAXS mode.
+#C Mon Aug 04 16:10:54 2014.  Moving USAXS slits and guard slits to correct place.
+#C Mon Aug 04 16:10:54 2014.  Moving AR motor to 10.9106 degrees (beam center).
+#C Mon Aug 04 16:10:54 2014.  for next scan: encoder ARenc_CENTER  = 10.9106.
+
+#S 11  FlyScan  ar 10.9128 0 7.51783 2e-05 
+#D Mon Aug 04 16:10:56 2014
+#T 0.9  (seconds)
+#G0 0
+#G1 0
+#G3 0
+#G4 0
+#Q 
+#P0 -22.29064 -97 -3.90625e-05 22 -48 -0.1 212.07773 17.075
+#P1 5.894899e-07 9.99893 0 5.00002 0.2 -30 8.00025 0.365
+#P2 -100 0 65.0975 26.355 8e-05 8e-06 0.700053 0.699992
+#P3 -0.001533 32 1.2477694 -1.2513728 0.70093544 -0.69965931 0.000245 4
+#P4 3.0925 3.2025 7.6625 2.705 10.4575 0 0 0
+#P5 17 18.17188 -8.67896 -0.351 10.910558 -8.2 25.799063 0
+#P6 0 0 0 0 0 10 
+#C FS_180s_2k_2e5
+#V0 102.169 0 1 0 1 1 1 1 987.661
+#V1 -0.0516102 -0.124898 37.0227 105.458 0 0 0 0 0
+#V2 -1.6032 0.906244 61.5515 -44.6438
+#V3 10 1.23984 10.1386 0 0 10.9461 10.910558
+#V4 10.9463 10.9106 2.70464 7.66349 0 0
+#V5 1000000000 1000000000
+#V6 2 4 100000 1.0e+12 1
+#V7 1.0e+04 5 0
+#V8 1.0e+06 5 0
+#V9 1.0e+08 5 0
+#V10 1.0e+10 188 9.74679
+#V11 1.0e+12 20135 451.539
+#V12 0 10.9105 198 885 0 40.42
+#V13 65.0975 25.7991 1 
+#V14 0 1.57125 3 0 0 0 0
+#N 16
+#L ar  ay  dy  ar_enc  pd_range  pd_counts  pd_rate  pd_curent  I0_gain  I00_gain  Epoch  I0  I00  USAXS_PD  I000  Monitor  seconds
+#C Mon Aug 04 16:10:56 2014.  FlyScan #11 started.
+#C Mon Aug 04 16:10:56 2014.  FlyScan file name = ./08_04_NegDirCorr_fly/S11_FS_180s_2k_2e5.h5.
+#C Mon Aug 04 16:10:56 2014.  Please wait approximately 195s to complete FlyScan..
+#C Mon Aug 04 16:14:11 2014.  Flyscan done after 194s..
+#C Mon Aug 04 16:14:18 2014.  Staff info : Flyscan ended with excess 0 points..
+#C Mon Aug 04 16:14:18 2014.  FlyScan finished.
+#C Mon Aug 04 16:14:18 2014.  Moving AR motor back to 10.9106 degrees (beam center).
+#C Mon Aug 04 16:14:25 2014.  FS_180s_2k_2e5.
+#C Mon Aug 04 16:14:25 2014.  Ready for USAXS mode.
+#C Mon Aug 04 16:14:25 2014.  Moving USAXS slits and guard slits to correct place.
+#C Mon Aug 04 16:14:25 2014.  Moving AR motor to 10.9106 degrees (beam center).
+#C Mon Aug 04 16:14:25 2014.  for next scan: encoder ARenc_CENTER  = 10.9106.
+
+#S 12  FlyScan  ar 10.9128 0 7.51783 2e-05 
+#D Mon Aug 04 16:14:27 2014
+#T 0.9  (seconds)
+#G0 0
+#G1 0
+#G3 0
+#G4 0
+#Q 
+#P0 -22.29064 -97 -3.90625e-05 22 -48 -0.1 212.07773 17.075
+#P1 5.894899e-07 9.99893 0 5.00002 0.2 -30 8.00025 0.365
+#P2 -100 0 65.0975 26.355 8e-05 8e-06 0.700053 0.699992
+#P3 -0.001533 32 1.2477694 -1.2513728 0.70093544 -0.69965931 0.000245 4
+#P4 3.0925 3.2025 7.6625 2.705 10.4575 0 0 0
+#P5 17 18.17188 -8.67896 -0.351 10.910558 -8.2 25.799063 0
+#P6 0 0 0 0 0 10 
+#C FS_180s_2k_2e5
+#V0 101.994 0 1 0 1 1 1 1 987.631
+#V1 -0.0515357 -0.124879 37.0045 105.455 0 0 0 0 0
+#V2 -1.60219 0.906529 61.4976 -44.6589
+#V3 10 1.23984 10.1386 0 0 10.9461 10.910558
+#V4 10.9463 10.9106 2.70464 7.66349 0 0
+#V5 1000000000 1000000000
+#V6 2 4 100000 1.0e+12 1
+#V7 1.0e+04 5 0
+#V8 1.0e+06 5 0
+#V9 1.0e+08 5 0
+#V10 1.0e+10 188 9.74679
+#V11 1.0e+12 20135 451.539
+#V12 0 10.9105 198 885 0 40.42
+#V13 65.0975 25.7991 1 
+#V14 0 1.57125 3 0 0 0 0
+#N 16
+#L ar  ay  dy  ar_enc  pd_range  pd_counts  pd_rate  pd_curent  I0_gain  I00_gain  Epoch  I0  I00  USAXS_PD  I000  Monitor  seconds
+#C Mon Aug 04 16:14:28 2014.  FlyScan #12 started.
+#C Mon Aug 04 16:14:28 2014.  FlyScan file name = ./08_04_NegDirCorr_fly/S12_FS_180s_2k_2e5.h5.
+#C Mon Aug 04 16:14:28 2014.  Please wait approximately 195s to complete FlyScan..
+#C Mon Aug 04 16:17:42 2014.  Flyscan done after 194s..
+#C Mon Aug 04 16:17:51 2014.  Staff info : Flyscan ended with excess 0 points..
+#C Mon Aug 04 16:17:51 2014.  FlyScan finished.
+#C Mon Aug 04 16:17:51 2014.  Moving AR motor back to 10.9106 degrees (beam center).
+#C Mon Aug 04 16:17:59 2014.  FS_180s_2k_2e5.
+#C Mon Aug 04 16:17:59 2014.  Ready for USAXS mode.
+#C Mon Aug 04 16:17:59 2014.  Moving USAXS slits and guard slits to correct place.
+#C Mon Aug 04 16:17:59 2014.  Moving AR motor to 10.9106 degrees (beam center).
+#C Mon Aug 04 16:17:59 2014.  for next scan: encoder ARenc_CENTER  = 10.9106.
+
+#S 13  FlyScan  ar 10.9128 0 7.51783 2e-05 
+#D Mon Aug 04 16:18:01 2014
+#T 0.9  (seconds)
+#G0 0
+#G1 0
+#G3 0
+#G4 0
+#Q 
+#P0 -22.29064 -97 -3.90625e-05 22 -48 -0.1 212.07773 17.075
+#P1 5.894899e-07 9.99893 0 5.00002 0.2 -30 8.00025 0.365
+#P2 -100 0 65.0975 26.355 8e-05 8e-06 0.700053 0.699992
+#P3 -0.001533 32 1.2477694 -1.2513728 0.70093544 -0.69965931 0.000245 4
+#P4 3.0925 3.2025 7.6625 2.705 10.4575 0 0 0
+#P5 17 18.17188 -8.67896 -0.351 10.910558 -8.2 25.799063 0
+#P6 0 0 0 0 0 10 
+#C FS_180s_2k_2e5
+#V0 102.263 0 1 0 1 1 1 1 987.621
+#V1 -0.0516071 -0.12489 37.0121 105.476 0 0 0 0 0
+#V2 -1.6007 0.905678 61.4299 -44.6059
+#V3 10 1.23984 10.1386 0 0 10.9461 10.910558
+#V4 10.9463 10.9106 2.70464 7.66349 0 0
+#V5 1000000000 1000000000
+#V6 2 4 100000 1.0e+12 1
+#V7 1.0e+04 5 0
+#V8 1.0e+06 5 0
+#V9 1.0e+08 5 0
+#V10 1.0e+10 188 9.74679
+#V11 1.0e+12 20135 451.539
+#V12 0 10.9105 198 885 0 40.42
+#V13 65.0975 25.7991 1 
+#V14 0 1.57125 3 0 0 0 0
+#N 16
+#L ar  ay  dy  ar_enc  pd_range  pd_counts  pd_rate  pd_curent  I0_gain  I00_gain  Epoch  I0  I00  USAXS_PD  I000  Monitor  seconds
+#C Mon Aug 04 16:18:01 2014.  FlyScan #13 started.
+#C Mon Aug 04 16:18:01 2014.  FlyScan file name = ./08_04_NegDirCorr_fly/S13_FS_180s_2k_2e5.h5.
+#C Mon Aug 04 16:18:01 2014.  Please wait approximately 195s to complete FlyScan..
+#C Mon Aug 04 16:21:15 2014.  Flyscan done after 194s..
+#C Mon Aug 04 16:21:22 2014.  Staff info : Flyscan ended with excess 0 points..
+#C Mon Aug 04 16:21:22 2014.  FlyScan finished.
+#C Mon Aug 04 16:21:22 2014.  Moving AR motor back to 10.9106 degrees (beam center).
+#C Mon Aug 04 16:21:30 2014.  FS_180s_2k_2e5.
+#C Mon Aug 04 16:21:30 2014.  Ready for USAXS mode.
+#C Mon Aug 04 16:21:30 2014.  Moving USAXS slits and guard slits to correct place.
+#C Mon Aug 04 16:21:30 2014.  Moving AR motor to 10.9106 degrees (beam center).
+#C Mon Aug 04 16:21:30 2014.  for next scan: encoder ARenc_CENTER  = 10.9106.
+
+#S 14  FlyScan  ar 10.9128 0 7.51783 2e-05 
+#D Mon Aug 04 16:21:32 2014
+#T 0.9  (seconds)
+#G0 0
+#G1 0
+#G3 0
+#G4 0
+#Q 
+#P0 -22.29064 -97 -3.90625e-05 22 -48 -0.1 212.07773 17.075
+#P1 5.894899e-07 9.99893 0 5.00002 0.2 -30 8.00025 0.365
+#P2 -100 0 65.0975 26.355 8e-05 8e-06 0.700053 0.699992
+#P3 -0.001533 32 1.2477694 -1.2513728 0.70093544 -0.69965931 0.000245 4
+#P4 3.0925 3.2025 7.6625 2.705 10.4575 0 0 0
+#P5 17 18.17188 -8.67896 -0.351 10.910558 -8.2 25.799063 0
+#P6 0 0 0 0 0 10 
+#C FS_180s_2k_2e5
+#V0 102.072 0 1 0 1 1 1 1 987.623
+#V1 -0.0516331 -0.124948 37.0407 105.485 0 0 0 0 0
+#V2 -1.60217 0.906141 61.5081 -44.6305
+#V3 10 1.23984 10.1386 0 0 10.9461 10.910558
+#V4 10.9463 10.9106 2.70464 7.66349 0 0
+#V5 1000000000 1000000000
+#V6 2 4 100000 1.0e+12 1
+#V7 1.0e+04 5 0
+#V8 1.0e+06 5 0
+#V9 1.0e+08 5 0
+#V10 1.0e+10 188 9.74679
+#V11 1.0e+12 20135 451.539
+#V12 0 10.9105 198 885 0 40.42
+#V13 65.0975 25.7991 1 
+#V14 0 1.57125 3 0 0 0 0
+#N 16
+#L ar  ay  dy  ar_enc  pd_range  pd_counts  pd_rate  pd_curent  I0_gain  I00_gain  Epoch  I0  I00  USAXS_PD  I000  Monitor  seconds
+#C Mon Aug 04 16:21:32 2014.  FlyScan #14 started.
+#C Mon Aug 04 16:21:32 2014.  FlyScan file name = ./08_04_NegDirCorr_fly/S14_FS_180s_2k_2e5.h5.
+#C Mon Aug 04 16:21:32 2014.  Please wait approximately 195s to complete FlyScan..
+#C Mon Aug 04 16:24:51 2014.  Flyscan done after 198s..
+#C Mon Aug 04 16:24:58 2014.  Staff info : Flyscan ended with excess 0 points..
+#C Mon Aug 04 16:24:58 2014.  FlyScan finished.
+#C Mon Aug 04 16:24:58 2014.  Moving AR motor back to 10.9106 degrees (beam center).
+#C Mon Aug 04 16:25:05 2014.  FS_180s_2k_2e5.
+#C Mon Aug 04 16:25:05 2014.  Ready for USAXS mode.
+#C Mon Aug 04 16:25:06 2014.  Moving USAXS slits and guard slits to correct place.
+#C Mon Aug 04 16:25:06 2014.  Moving AR motor to 10.9106 degrees (beam center).
+#C Mon Aug 04 16:25:06 2014.  for next scan: encoder ARenc_CENTER  = 10.9106.
+
+#S 15  FlyScan  ar 10.9128 0 7.51783 2e-05 
+#D Mon Aug 04 16:25:07 2014
+#T 0.9  (seconds)
+#G0 0
+#G1 0
+#G3 0
+#G4 0
+#Q 
+#P0 -22.29064 -97 -3.90625e-05 22 -48 -0.1 212.07773 17.075
+#P1 5.894899e-07 9.99893 0 5.00002 0.2 -30 8.00025 0.365
+#P2 -100 0 65.0975 26.355 8e-05 8e-06 0.700053 0.699992
+#P3 -0.001533 32 1.2477694 -1.2513728 0.70093544 -0.69965931 0.000245 4
+#P4 3.0925 3.2025 7.6625 2.705 10.4575 0 0 0
+#P5 17 18.17188 -8.67896 -0.351 10.910558 -8.2 25.799063 0
+#P6 0 0 0 0 0 10 
+#C FS_180s_2k_2e5
+#V0 101.867 0 1 0 1 1 1 1 987.611
+#V1 -0.0514357 -0.12492 37.047 105.457 0 0 0 0 0
+#V2 -1.60184 0.906636 61.483 -44.6658
+#V3 10 1.23984 10.1386 0 0 10.9461 10.910558
+#V4 10.9463 10.9106 2.70464 7.66349 0 0
+#V5 1000000000 1000000000
+#V6 2 4 100000 1.0e+12 1
+#V7 1.0e+04 5 0
+#V8 1.0e+06 5 0
+#V9 1.0e+08 5 0
+#V10 1.0e+10 188 9.74679
+#V11 1.0e+12 20135 451.539
+#V12 0 10.9105 198 885 0 40.42
+#V13 65.0975 25.7991 1 
+#V14 0 1.57125 3 0 0 0 0
+#N 16
+#L ar  ay  dy  ar_enc  pd_range  pd_counts  pd_rate  pd_curent  I0_gain  I00_gain  Epoch  I0  I00  USAXS_PD  I000  Monitor  seconds
+#C Mon Aug 04 16:25:08 2014.  FlyScan #15 started.
+#C Mon Aug 04 16:25:08 2014.  FlyScan file name = ./08_04_NegDirCorr_fly/S15_FS_180s_2k_2e5.h5.
+#C Mon Aug 04 16:25:08 2014.  Please wait approximately 195s to complete FlyScan..
+#C Mon Aug 04 16:28:24 2014.  Flyscan done after 196s..
+#C Mon Aug 04 16:28:32 2014.  Staff info : Flyscan ended with excess 0 points..
+#C Mon Aug 04 16:28:32 2014.  FlyScan finished.
+#C Mon Aug 04 16:28:32 2014.  Moving AR motor back to 10.9106 degrees (beam center).
+#C Mon Aug 04 16:28:39 2014.  FS_180s_2k_2e5.
+#C Mon Aug 04 16:28:39 2014.  Ready for USAXS mode.
+#C Mon Aug 04 16:28:39 2014.  Moving USAXS slits and guard slits to correct place.
+#C Mon Aug 04 16:28:39 2014.  Moving AR motor to 10.9106 degrees (beam center).
+#C Mon Aug 04 16:28:39 2014.  for next scan: encoder ARenc_CENTER  = 10.9106.
+
+#S 16  FlyScan  ar 10.9128 0 7.51783 2e-05 
+#D Mon Aug 04 16:28:41 2014
+#T 1.2  (seconds)
+#G0 0
+#G1 0
+#G3 0
+#G4 0
+#Q 
+#P0 -22.29064 -97 -3.90625e-05 22 -48 -0.1 212.07773 17.075
+#P1 5.894899e-07 9.99893 0 5.00002 0.2 -30 8.00025 0.365
+#P2 -100 0 65.0975 26.355 8e-05 8e-06 0.700053 0.699992
+#P3 -0.001533 32 1.2477694 -1.2513728 0.70093544 -0.69965931 0.000245 4
+#P4 3.0925 3.2025 7.6625 2.705 10.4575 0 0 0
+#P5 17 18.17188 -8.67896 -0.351 10.910558 -8.2 25.799063 0
+#P6 0 0 0 0 0 10 
+#C FS_240s_2k_2e5
+#V0 102.172 0 1 0 1 1 1 1 987.582
+#V1 -0.0511935 -0.124941 36.9776 105.463 0 0 0 0 0
+#V2 -1.60259 0.906311 61.5321 -44.6453
+#V3 10 1.23984 10.1386 0 0 10.9461 10.910558
+#V4 10.9463 10.9106 2.70464 7.66349 0 0
+#V5 1000000000 1000000000
+#V6 2 4 100000 1.0e+12 1
+#V7 1.0e+04 5 0
+#V8 1.0e+06 5 0
+#V9 1.0e+08 5 0
+#V10 1.0e+10 188 9.74679
+#V11 1.0e+12 20135 451.539
+#V12 0 10.9105 198 885 0 40.42
+#V13 65.0975 25.7991 1 
+#V14 0 1.57125 3 0 0 0 0
+#N 16
+#L ar  ay  dy  ar_enc  pd_range  pd_counts  pd_rate  pd_curent  I0_gain  I00_gain  Epoch  I0  I00  USAXS_PD  I000  Monitor  seconds
+#C Mon Aug 04 16:28:41 2014.  FlyScan #16 started.
+#C Mon Aug 04 16:28:41 2014.  FlyScan file name = ./08_04_NegDirCorr_fly/S16_FS_240s_2k_2e5.h5.
+#C Mon Aug 04 16:28:41 2014.  Please wait approximately 255s to complete FlyScan..
+#C Mon Aug 04 16:32:59 2014.  Flyscan done after 257s..
+#C Mon Aug 04 16:33:06 2014.  Staff info : Flyscan ended with excess 0 points..
+#C Mon Aug 04 16:33:06 2014.  FlyScan finished.
+#C Mon Aug 04 16:33:06 2014.  Moving AR motor back to 10.9106 degrees (beam center).
+#C Mon Aug 04 16:33:13 2014.  FS_240s_2k_2e5.
+#C Mon Aug 04 16:33:13 2014.  Ready for USAXS mode.
+#C Mon Aug 04 16:33:13 2014.  Moving USAXS slits and guard slits to correct place.
+#C Mon Aug 04 16:33:13 2014.  Moving AR motor to 10.9106 degrees (beam center).
+#C Mon Aug 04 16:33:13 2014.  for next scan: encoder ARenc_CENTER  = 10.9106.
+
+#S 17  FlyScan  ar 10.9128 0 7.51783 2e-05 
+#D Mon Aug 04 16:33:15 2014
+#T 1.2  (seconds)
+#G0 0
+#G1 0
+#G3 0
+#G4 0
+#Q 
+#P0 -22.29064 -97 -3.90625e-05 22 -48 -0.1 212.07773 17.075
+#P1 5.894899e-07 9.99893 0 5.00002 0.2 -30 8.00025 0.365
+#P2 -100 0 65.0975 26.355 8e-05 8e-06 0.700053 0.699992
+#P3 -0.001533 32 1.2477694 -1.2513728 0.70093544 -0.69965931 0.000245 4
+#P4 3.0925 3.2025 7.6625 2.705 10.4575 0 0 0
+#P5 17 18.17188 -8.67896 -0.351 10.910558 -8.2 25.799063 0
+#P6 0 0 0 0 0 10 
+#C FS_240s_2k_2e5
+#V0 102.258 0 1 0 1 1 1 1 987.528
+#V1 -0.05135 -0.12487 37.0146 105.459 0 0 0 0 0
+#V2 -1.60251 0.905925 61.525 -44.6168
+#V3 10 1.23984 10.1386 0 0 10.9461 10.910558
+#V4 10.9463 10.9106 2.70464 7.66349 0 0
+#V5 1000000000 1000000000
+#V6 2 4 100000 1.0e+12 1
+#V7 1.0e+04 5 0
+#V8 1.0e+06 5 0
+#V9 1.0e+08 5 0
+#V10 1.0e+10 188 9.74679
+#V11 1.0e+12 20135 451.539
+#V12 0 10.9105 198 885 0 40.42
+#V13 65.0975 25.7991 1 
+#V14 0 1.57125 3 0 0 0 0
+#N 16
+#L ar  ay  dy  ar_enc  pd_range  pd_counts  pd_rate  pd_curent  I0_gain  I00_gain  Epoch  I0  I00  USAXS_PD  I000  Monitor  seconds
+#C Mon Aug 04 16:33:16 2014.  FlyScan #17 started.
+#C Mon Aug 04 16:33:16 2014.  FlyScan file name = ./08_04_NegDirCorr_fly/S17_FS_240s_2k_2e5.h5.
+#C Mon Aug 04 16:33:16 2014.  Please wait approximately 255s to complete FlyScan..
+#C Mon Aug 04 16:37:35 2014.  Flyscan done after 259s..
+#C Mon Aug 04 16:37:42 2014.  Staff info : Flyscan ended with excess 0 points..
+#C Mon Aug 04 16:37:42 2014.  FlyScan finished.
+#C Mon Aug 04 16:37:42 2014.  Moving AR motor back to 10.9106 degrees (beam center).
+#C Mon Aug 04 16:37:50 2014.  FS_240s_2k_2e5.
+#C Mon Aug 04 16:37:50 2014.  Ready for USAXS mode.
+#C Mon Aug 04 16:37:50 2014.  Moving USAXS slits and guard slits to correct place.
+#C Mon Aug 04 16:37:50 2014.  Moving AR motor to 10.9106 degrees (beam center).
+#C Mon Aug 04 16:37:50 2014.  for next scan: encoder ARenc_CENTER  = 10.9106.
+
+#S 18  FlyScan  ar 10.9128 0 7.51783 2e-05 
+#D Mon Aug 04 16:37:52 2014
+#T 1.2  (seconds)
+#G0 0
+#G1 0
+#G3 0
+#G4 0
+#Q 
+#P0 -22.29064 -97 -3.90625e-05 22 -48 -0.1 212.07773 17.075
+#P1 5.894899e-07 9.99893 0 5.00002 0.2 -30 8.00025 0.365
+#P2 -100 0 65.0975 26.355 8e-05 8e-06 0.700053 0.699992
+#P3 -0.001533 32 1.2477694 -1.2513728 0.70093544 -0.69965931 0.000245 4
+#P4 3.0925 3.2025 7.6625 2.705 10.4575 0 0 0
+#P5 17 18.17188 -8.67896 -0.351 10.910558 -8.2 25.799063 0
+#P6 0 0 0 0 0 10 
+#C FS_240s_2k_2e5
+#V0 101.78 0 1 0 1 1 1 1 987.495
+#V1 -0.0514162 -0.124948 37.026 105.431 0 0 0 0 0
+#V2 -1.60104 0.906575 61.445 -44.6524
+#V3 10 1.23984 10.1386 0 0 10.9461 10.910558
+#V4 10.9463 10.9106 2.70464 7.66349 0 0
+#V5 1000000000 1000000000
+#V6 2 4 100000 1.0e+12 1
+#V7 1.0e+04 5 0
+#V8 1.0e+06 5 0
+#V9 1.0e+08 5 0
+#V10 1.0e+10 188 9.74679
+#V11 1.0e+12 20135 451.539
+#V12 0 10.9105 198 885 0 40.42
+#V13 65.0975 25.7991 1 
+#V14 0 1.57125 3 0 0 0 0
+#N 16
+#L ar  ay  dy  ar_enc  pd_range  pd_counts  pd_rate  pd_curent  I0_gain  I00_gain  Epoch  I0  I00  USAXS_PD  I000  Monitor  seconds
+#C Mon Aug 04 16:37:52 2014.  FlyScan #18 started.
+#C Mon Aug 04 16:37:52 2014.  FlyScan file name = ./08_04_NegDirCorr_fly/S18_FS_240s_2k_2e5.h5.
+#C Mon Aug 04 16:37:52 2014.  Please wait approximately 255s to complete FlyScan..
+#C Mon Aug 04 16:42:11 2014.  Flyscan done after 258s..
+#C Mon Aug 04 16:42:18 2014.  Staff info : Flyscan ended with excess 0 points..
+#C Mon Aug 04 16:42:18 2014.  FlyScan finished.
+#C Mon Aug 04 16:42:18 2014.  Moving AR motor back to 10.9106 degrees (beam center).
+#C Mon Aug 04 16:42:25 2014.  FS_240s_2k_2e5.
+#C Mon Aug 04 16:42:25 2014.  Ready for USAXS mode.
+#C Mon Aug 04 16:42:26 2014.  Moving USAXS slits and guard slits to correct place.
+#C Mon Aug 04 16:42:26 2014.  Moving AR motor to 10.9106 degrees (beam center).
+#C Mon Aug 04 16:42:26 2014.  for next scan: encoder ARenc_CENTER  = 10.9106.
+
+#S 19  FlyScan  ar 10.9128 0 7.51783 2e-05 
+#D Mon Aug 04 16:42:27 2014
+#T 1.2  (seconds)
+#G0 0
+#G1 0
+#G3 0
+#G4 0
+#Q 
+#P0 -22.29064 -97 -3.90625e-05 22 -48 -0.1 212.07773 17.075
+#P1 5.894899e-07 9.99893 0 5.00002 0.2 -30 8.00025 0.365
+#P2 -100 0 65.0975 26.355 8e-05 8e-06 0.700053 0.699992
+#P3 -0.001533 32 1.2477694 -1.2513728 0.70093544 -0.69965931 0.000245 4
+#P4 3.0925 3.2025 7.6625 2.705 10.4575 0 0 0
+#P5 17 18.17188 -8.67896 -0.351 10.910558 -8.2 25.799063 0
+#P6 0 0 0 0 0 10 
+#C FS_240s_2k_2e5
+#V0 102.296 0 1 0 1 1 1 1 987.505
+#V1 -0.0512183 -0.124945 37.0065 105.428 0 0 0 0 0
+#V2 -1.60294 0.906318 61.5622 -44.6456
+#V3 10 1.23984 10.1386 0 0 10.9461 10.910558
+#V4 10.9463 10.9106 2.70464 7.66349 0 0
+#V5 1000000000 1000000000
+#V6 2 4 100000 1.0e+12 1
+#V7 1.0e+04 5 0
+#V8 1.0e+06 5 0
+#V9 1.0e+08 5 0
+#V10 1.0e+10 188 9.74679
+#V11 1.0e+12 20135 451.539
+#V12 0 10.9105 198 885 0 40.42
+#V13 65.0975 25.7991 1 
+#V14 0 1.57125 3 0 0 0 0
+#N 16
+#L ar  ay  dy  ar_enc  pd_range  pd_counts  pd_rate  pd_curent  I0_gain  I00_gain  Epoch  I0  I00  USAXS_PD  I000  Monitor  seconds
+#C Mon Aug 04 16:42:28 2014.  FlyScan #19 started.
+#C Mon Aug 04 16:42:28 2014.  FlyScan file name = ./08_04_NegDirCorr_fly/S19_FS_240s_2k_2e5.h5.
+#C Mon Aug 04 16:42:28 2014.  Please wait approximately 255s to complete FlyScan..
+#C Mon Aug 04 16:46:49 2014.  Flyscan done after 261s..
+#C Mon Aug 04 16:46:58 2014.  Staff info : Flyscan ended with excess 0 points..
+#C Mon Aug 04 16:46:58 2014.  FlyScan finished.
+#C Mon Aug 04 16:46:58 2014.  Moving AR motor back to 10.9106 degrees (beam center).
+#C Mon Aug 04 16:47:05 2014.  FS_240s_2k_2e5.
+#C Mon Aug 04 16:47:05 2014.  Ready for USAXS mode.
+#C Mon Aug 04 16:47:05 2014.  Moving USAXS slits and guard slits to correct place.
+#C Mon Aug 04 16:47:06 2014.  Moving AR motor to 10.9106 degrees (beam center).
+#C Mon Aug 04 16:47:06 2014.  for next scan: encoder ARenc_CENTER  = 10.9106.
+
+#S 20  FlyScan  ar 10.9128 0 7.51783 2e-05 
+#D Mon Aug 04 16:47:07 2014
+#T 1.2  (seconds)
+#G0 0
+#G1 0
+#G3 0
+#G4 0
+#Q 
+#P0 -22.29064 -97 -3.90625e-05 22 -48 -0.1 212.07773 17.075
+#P1 5.894899e-07 9.99893 0 5.00002 0.2 -30 8.00025 0.365
+#P2 -100 0 65.0975 26.355 8e-05 8e-06 0.700053 0.699992
+#P3 -0.001533 32 1.2477694 -1.2513728 0.70093544 -0.69965931 0.000245 4
+#P4 3.0925 3.2025 7.6625 2.705 10.4575 0 0 0
+#P5 17 18.17188 -8.67896 -0.351 10.910558 -8.2 25.799063 0
+#P6 0 0 0 0 0 10 
+#C FS_240s_2k_2e5
+#V0 101.866 0 1 0 1 1 1 1 987.514
+#V1 -0.0515015 -0.124963 37.0081 105.453 0 0 0 0.00028485 0.000155449
+#V2 -1.60107 0.906504 61.4589 -44.6532
+#V3 10 1.23984 10.1386 0 0 10.9461 10.910558
+#V4 10.9463 10.9106 2.70464 7.66349 0 0
+#V5 1000000000 1000000000
+#V6 2 4 100000 1.0e+12 1
+#V7 1.0e+04 5 0
+#V8 1.0e+06 5 0
+#V9 1.0e+08 5 0
+#V10 1.0e+10 188 9.74679
+#V11 1.0e+12 20135 451.539
+#V12 0 10.9105 198 885 0 40.42
+#V13 65.0975 25.7991 1 
+#V14 0 1.57125 3 0 0 0 0
+#N 16
+#L ar  ay  dy  ar_enc  pd_range  pd_counts  pd_rate  pd_curent  I0_gain  I00_gain  Epoch  I0  I00  USAXS_PD  I000  Monitor  seconds
+#C Mon Aug 04 16:47:08 2014.  FlyScan #20 started.
+#C Mon Aug 04 16:47:08 2014.  FlyScan file name = ./08_04_NegDirCorr_fly/S20_FS_240s_2k_2e5.h5.
+#C Mon Aug 04 16:47:08 2014.  Please wait approximately 255s to complete FlyScan..
+#C Mon Aug 04 16:51:25 2014.  Flyscan done after 257s..
+#C Mon Aug 04 16:51:32 2014.  Staff info : Flyscan ended with excess 0 points..
+#C Mon Aug 04 16:51:32 2014.  FlyScan finished.
+#C Mon Aug 04 16:51:32 2014.  Moving AR motor back to 10.9106 degrees (beam center).
+#C Mon Aug 04 16:51:40 2014.  FS_240s_2k_2e5.
+#C Mon Aug 04 16:51:40 2014.  End of USAXS scans.
+#C Wed Aug 06 12:37:30 2014.  Ready for pinSAXS mode.
+#C Wed Aug 06 12:43:22 2014.  Ready for USAXS mode.
+#C Wed Aug 06 12:45:26 2014.  Ready for WAXS mode.
+#C Wed Aug 06 12:48:40 2014.  Ready for pinSAXS mode.
+#C Wed Aug 06 12:59:39 2014.  Ready for pinSAXS mode.
+
+#S 21  pinSAXS  ./08_04_NegDirCorr_saxs/Test_0.hdf5    -100    0    1    0     0 
+#D Wed Aug 06 12:59:52 2014
+#T 0  (seconds)
+#G0 0
+#G1 0
+#G3 0
+#G4 0
+#Q 
+#P0 -22.29064 -97 -3.90625e-05 22 124 -0.1 212.07773 17.075
+#P1 5.894899e-07 9.99893 0 5.00002 0.2 -30 8.00025 0.365
+#P2 -100 0 -70 26.355 8e-05 8e-06 0.200058 0.199997
+#P3 -0.001533 6.999836 0.11276937 -0.11637279 0.11293544 -0.11165931 0.000245 -237.5
+#P4 3.0925 3.2025 7.6625 2.705 10.4575 0 0 0
+#P5 17 18.17188 -8.67896 -0.351 10.910558 -8.2 25.799063 0
+#P6 0 0 0 0 0 30 
+#C Test
+#V0 101.946 0 1 0 1 1 1 1 988.488
+#V1 -0.0227914 -0.127743 35.544 104.706 0 0 0 0.000569699 0.000944138
+#V2 -1.62594 0.884033 63.0948 -44.076
+#V3 30 0.413281 30.3219 0 0 10.9462 10.910558
+#V4 10.9463 10.9106 2.70464 7.66349 0 0
+#V5 1000000000 1000000000
+#V6 2 4 100000 1.0e+12 1
+#V7 1.0e+04 5 0
+#V8 1.0e+06 5 0
+#V9 1.0e+08 5 0
+#V10 1.0e+10 188 9.74679
+#V11 1.0e+12 20135 451.539
+#V12 0 10.9105 198 885 0 40.42
+#V13 65.0975 25.7991 1 
+#V14 0 1.57125 3 0 0 0 0
+#N 16
+#L ay  dy  ar_enc  pd_range  pd_counts  pd_rate  pd_curent  I0_gain  I00_gain  Epoch  I0  I00  USAXS_PD  I000  Monitor  seconds
+#C Wed Aug 06 12:59:52 2014.  *************   Started PinSAXS Exposure   **********************.
+#C Wed Aug 06 12:59:52 2014.  First Sample Name ./08_04_NegDirCorr_saxs/Test_0.hdf5.
+#C Wed Aug 06 13:00:06 2014.  Measured transmission, I0 counts:     1, with gain: 1e+09.
+#C Wed Aug 06 13:00:06 2014.            PD after sample counts:     1, with gain: 1e+09.
+#C Wed Aug 06 13:00:27 2014.  I0 value:     5.

@@ -1,0 +1,111 @@
+
+    # usaxs.mac
+    # this file is used to run usaxs and sbusaxs scans at 15ID USAXS instrument
+    # run pre-scan stuff... Do not edit next lines!!!
+         validateUsaxsDofile;   # check do file for non printable characters
+         postUsaxsDofile2WWW;   # copy this macro to the WWW page area
+         qdo USAXS_conf.mac;    # load current instrument configuration
+#         qdo usaxs_startscan.mac;  # opens the B shutter and possibly do other things       
+    
+    #####################################################################
+    #### Current experiment description
+    #####################################################################
+    EXPERIMENT = "Pu samples"
+    comment "%s" EXPERIMENT
+    
+    ########## User editable area, see following comments for instructions
+              ############################################################
+              # stop this scan with a ^C,                                #
+              #        The USAXS will be reset automatically             #
+              ############################################################
+              # (refer to file USAXS_conf.mac for definitions of things)
+              ############################################################
+              # DO NOT USE TABS IN THIS FILE!                            #
+              ############################################################
+              # PLACE ALL USER COMMANDS AFTER THIS LINE                  #
+              ############################################################
+    ###########        Examples
+    # preUSAXStune; USAXSscan    sx      sy    thickness[mm]      "Sample name (<22 chars)"
+    # preUSAXStune; USAXSscan    45.07       98.3     0      "Water Blank"
+    #
+    #          These are your current default parameters in epics:
+    # NUMPNTS    = 200.0   #  number of points to be measured to default value in epics
+    # USAXS_TIME = 0.5  #  measurement time to epics current value
+    # FINISH     = 0.3    #  end Q value in epics in A^-1
+    #
+    # use set_NUMPNTS (etc.) to change these if needed in spec or correct the CSS page
+    # change to pinSAXS mode by      :     useModePinSAXS
+    # change to USAXS mode by        :     useModeUSAXS
+    # change to Radiography mode by  :     useModeUSAXS
+    ################  USAXS/SAXS macro to run by "qdo ./usaxs.mac"...
+    #pinSAXS measurements
+chk_beam_off          
+       #   pinholeExp    -100.0      0    0      "test"
+       #   waxsExp       -100.0      0    0      "test"
+
+#       epics_put("15iddLAX:traj1:PulseMode","Array")
+
+set_FS_ScanTime 60
+__CouNter=0
+while(__CouNter<5){
+   __StartTimeFSTest=time()
+   Flyscan       -100.0      0    0      "FS_60s_2k_2e5"
+   __CouNter++
+   }
+
+set_FS_ScanTime 120
+__CouNter=0
+while(__CouNter<5){
+   __StartTimeFSTest=time()
+   Flyscan       -100.0      0    0      "FS_120s_2k_2e5"
+   __CouNter++
+   }
+
+
+set_FS_ScanTime 180
+__CouNter=0
+while(__CouNter<5){
+   __StartTimeFSTest=time()
+   Flyscan       -100.0      0    0      "FS_180s_2k_2e5"
+   __CouNter++
+   }
+
+
+
+
+set_FS_ScanTime 240
+__CouNter=0
+while(__CouNter<5){
+   __StartTimeFSTest=time()
+   Flyscan       -100.0      0    0      "FS_240s_2k_2e5"
+   __CouNter++
+   }
+
+
+
+
+#           epics_put("15iddLAX:traj1:PulseMode","Fixed")
+#__CouNter=0
+#while(__CouNter<100){
+#   __StartTimeFSTest=time()
+#   Flyscan       -100.0      0    0      "FS_Fixed_0_00002"
+#   __CouNter++
+#   }
+
+
+#       epics_put("15iddLAX:traj1:PulseMode","TrajPts")
+#__CouNter=0
+#while(__CouNter<100){
+#   __StartTimeFSTest=time()
+#   Flyscan       -100.0      0    0      "FS_TrajPts_0_00002"
+#   __CouNter++
+#   }
+
+
+# useModeRadiography
+    ###################################################################################
+          #######################################################
+          # PLACE ALL USER COMMANDS BEFORE THIS LINE
+          #######################################################
+    postMessageUSAXS_done
+    
