@@ -12,6 +12,7 @@ sys.argv.append('')
 
 testglob = 'testdata/flyscan_modes/*.h5'
 testglob = 'testdata/flyscan_modes/*S18_FS_Fixed.h5'
+testglob = 'testdata/*S563_PB_GRI_9_Nat_200C.h5'
 
 import glob
 for hdf5_file in glob.glob(testglob):

@@ -186,21 +186,30 @@ class UsaxsFlyScan(object):
         if 'config_version' in pname.attrs:
             config_version = pname.attrs['config_version']
         else:
-            config_version = '1.0'
+            config_version = '1'
 
+        AR_MODE_FIXED = 0       # values of the mbbi record
+        AR_MODE_ARRAY = 1
+        AR_MODE_TRAJECTORY = 2
         modename_xref = {      # mbbi PV should return strings but instead returns index number
                             # these are the strings the PV *should* return
-                     0: 'Fixed',   # 1: fixed pulses (same method as version 1)
-                     1: 'Array',   # 2: use PulsePositions
-                     2: 'TrajPts', # 3: use trajectory points
+                     AR_MODE_FIXED:         'Fixed',   # 1: fixed pulses (version 1)
+                     AR_MODE_ARRAY:         'Array',   # 2: use PulsePositions
+                     AR_MODE_TRAJECTORY:    'TrajPts', # 3: use trajectory points
                      }
         
-        if config_version in ('1.0', '1'):
+        if config_version in ('1', '1.0'):
             mode_number = 0
         elif config_version in ('1.1'):
             mode_number = hdf['/entry/flyScan/AR_PulseMode'][0]
+        else:
+            msg = "Unexpected /entry/program_name/@config_version = " + config_version
+            raise ValueError, msg
         if mode_number in modename_xref:
             mode_name = modename_xref[mode_number]
+        else:
+            msg = 'Unexpected /entry/flyScan/AR_PulseMode value = ' + str(mode_number)
+            raise ValueError, msg
 
         raw = hdf['entry/flyScan']
 
@@ -214,7 +223,29 @@ class UsaxsFlyScan(object):
         raw_num_points =    int(raw['AR_pulses'][0])
         AR_start =          float(raw['AR_start'][0])
         AR_increment =      float(raw['AR_increment'][0])
-        raw_ar = AR_start - numpy.arange(raw_num_points) * AR_increment
+
+        if mode_number == AR_MODE_FIXED:
+            raw_ar = AR_start - numpy.arange(raw_num_points) * AR_increment
+            PSO_oscillations_found = False
+        elif mode_number == AR_MODE_ARRAY:
+            #     Duplicate/Free AR_PulsePositions, ArValues
+            #     Redimension /D/N=(AR_pulses[0]) ArValues
+            #     ArValues[1,numpnts(ArValues)-1] = (ArValues[p]+ArValues[p-1])/2        // shift to have mean AR value for each point and not the end of the AR value, when the system advanced to next point. 
+            #     DeletePoints 0, 1, ArValues                    //the system does not report any data for first channel. HLe settings.
+            #     if(numpnts(MeasTime)!=numpnts(ArValues))
+            #         PSO_oscillations_found=1
+            #     endif
+            PSO_oscillations_found = len(raw_clock_pulses) != len(raw_ar)
+        elif mode_number == AR_MODE_TRAJECTORY:
+            #     Duplicate/Free AR_waypoints, ArValues
+            #     Redimension /D ArValues
+            #     ArValues[1,numpnts(ArValues)-1] = (ArValues[p]+ArValues[p-1])/2        // shift to have mean AR value for each point and not the end of the AR value, when the system advanced to next point. 
+            #     DeletePoints 0, 1, ArValues                    //the system does not report any data for first channel. HLe settings.
+            #     if(numpnts(MeasTime)!=numpnts(ArValues))
+            #         PSO_oscillations_found=1
+            #     endif
+            PSO_oscillations_found = len(raw_clock_pulses) != len(raw_ar)
+
         d2r = math.pi / 180
         qVec = (4*math.pi/wavelength) * numpy.sin(d2r*(ar_center - raw_ar)/2.0)
 
