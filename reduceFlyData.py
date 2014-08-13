@@ -188,14 +188,15 @@ class UsaxsFlyScan(object):
         else:
             config_version = '1'
 
-        AR_MODE_FIXED = 0       # values of the mbbi record
-        AR_MODE_ARRAY = 1
-        AR_MODE_TRAJECTORY = 2
-        modename_xref = {      # mbbi PV should return strings but instead returns index number
-                            # these are the strings the PV *should* return
-                     AR_MODE_FIXED:         'Fixed',   # 1: fixed pulses (version 1)
-                     AR_MODE_ARRAY:         'Array',   # 2: use PulsePositions
-                     AR_MODE_TRAJECTORY:    'TrajPts', # 3: use trajectory points
+        # mbbi PV should return strings but instead returns index number
+        # these are the values and a cross-reference to the name strings
+        AR_MODE_FIXED = 0       # fixed pulses (version 1)
+        AR_MODE_ARRAY = 1       # use PulsePositions
+        AR_MODE_TRAJECTORY = 2  # use trajectory points (a.k.a. waypoints)
+        modename_xref = {     # these are the strings the PV *should* return
+                     AR_MODE_FIXED:         'Fixed',
+                     AR_MODE_ARRAY:         'Array',
+                     AR_MODE_TRAJECTORY:    'TrajPts',
                      }
         
         if config_version in ('1', '1.0'):
@@ -206,6 +207,7 @@ class UsaxsFlyScan(object):
             msg = "Unexpected /entry/program_name/@config_version = " + config_version
             raise ValueError, msg
         if mode_number in modename_xref:
+            # just in case this is useful
             mode_name = modename_xref[mode_number]
         else:
             msg = 'Unexpected /entry/flyScan/AR_PulseMode value = ' + str(mode_number)
@@ -224,19 +226,19 @@ class UsaxsFlyScan(object):
         AR_start =          float(raw['AR_start'][0])
         AR_increment =      float(raw['AR_increment'][0])
 
-        if mode_number == AR_MODE_FIXED:
+        if mode_number == AR_MODE_FIXED:      # often more than ten thousand points
             raw_ar = AR_start - numpy.arange(raw_num_points) * AR_increment
             PSO_oscillations_found = False
-        elif mode_number == AR_MODE_ARRAY:
-            #     Duplicate/Free AR_PulsePositions, ArValues
-            #     Redimension /D/N=(AR_pulses[0]) ArValues
-            #     ArValues[1,numpnts(ArValues)-1] = (ArValues[p]+ArValues[p-1])/2        // shift to have mean AR value for each point and not the end of the AR value, when the system advanced to next point. 
-            #     DeletePoints 0, 1, ArValues                    //the system does not report any data for first channel. HLe settings.
-            #     if(numpnts(MeasTime)!=numpnts(ArValues))
-            #         PSO_oscillations_found=1
-            #     endif
+        elif mode_number == AR_MODE_ARRAY:      # often a few thousand points
+            raw_ar = hdf['/entry/flyScan/AR_PulsePositions']
+            if len(raw_ar) > raw_num_points:
+                raw_ar = raw_ar[0:raw_num_points]   # truncate unused bins, if needed
+            
+            # note: Aerotech HLe system does not report any data for first channel
+            # shift data to have mean AR value for each point and not the end of the AR value, when the system advanced to next point.
+            raw_ar = (raw_ar[1:] + raw_ar[:-1])/2    # midpoint of each interval
             PSO_oscillations_found = len(raw_clock_pulses) != len(raw_ar)
-        elif mode_number == AR_MODE_TRAJECTORY:
+        elif mode_number == AR_MODE_TRAJECTORY:      # often a few hundred points
             #     Duplicate/Free AR_waypoints, ArValues
             #     Redimension /D ArValues
             #     ArValues[1,numpnts(ArValues)-1] = (ArValues[p]+ArValues[p-1])/2        // shift to have mean AR value for each point and not the end of the AR value, when the system advanced to next point. 
@@ -245,6 +247,16 @@ class UsaxsFlyScan(object):
             #         PSO_oscillations_found=1
             #     endif
             PSO_oscillations_found = len(raw_clock_pulses) != len(raw_ar)
+
+        if PSO_oscillations_found:
+            #     if(OscillationsFound)
+            #         //OK, let's fix the weird PSOpulse errors we see. Not sure where these come from. 
+            #         print "Found that there were likely vibrations during scan, doing fix using PSO channel record" 
+            #         IN3_CleanUpStaleMCAChannel(AR_PSOpulse, AR_angle)
+            #         Redimension /D/N=(numpnts(MeasTime)) ArValues
+            #         IN3_LocateAndRemoveOscillations(AR_encoder,AR_PSOpulse,AR_angle)
+            #     endif
+            pass
 
         d2r = math.pi / 180
         qVec = (4*math.pi/wavelength) * numpy.sin(d2r*(ar_center - raw_ar)/2.0)
@@ -265,6 +277,13 @@ class UsaxsFlyScan(object):
         upd_gain = numpy.ma.masked_less_equal(upd_gain, 0)
         upd_dark = numpy.array([0,] + bkg)[upd_ranges.data+1]
         upd_dark = numpy.ma.masked_less_equal(upd_dark, 0)
+        
+        if mode_number in (AR_MODE_ARRAY, AR_MODE_TRAJECTORY):
+            # consequence of Aerotech HLe providing no useful data in 1st channel
+            upd_ranges = upd_ranges[1:]
+            upd_gain = upd_gain[1:]
+            upd_dark = upd_dark[1:]
+
         rVec = (raw_upd - channel_time_s*upd_dark) / upd_gain / raw_I0 / V_f_gain
         rVec *= I0_amp_gain
         # TODO: also mask all rVec <= 0
@@ -282,6 +301,7 @@ class UsaxsFlyScan(object):
     
         # TODO: only use R >= R.max()*0.001  (high Q data is skewing results)
         # or fit the peak with a Gaussian
+        # OR, pick the Q at R.max() and measure directly the dQ at R.max()/2
         centroid, sigma = self.mean_sigma(full['ar'], full['R'])
         
         full['R_max'] = full['R'].max()
