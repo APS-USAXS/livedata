@@ -249,6 +249,7 @@ class UsaxsFlyScan(object):
             PSO_oscillations_found = len(raw_clock_pulses) != len(raw_ar)
 
         if PSO_oscillations_found:
+            print "possible vibrations during scan, applying fix from PSO channel record"
             #     if(OscillationsFound)
             #         //OK, let's fix the weird PSOpulse errors we see. Not sure where these come from. 
             #         print "Found that there were likely vibrations during scan, doing fix using PSO channel record" 
@@ -256,7 +257,9 @@ class UsaxsFlyScan(object):
             #         Redimension /D/N=(numpnts(MeasTime)) ArValues
             #         IN3_LocateAndRemoveOscillations(AR_encoder,AR_PSOpulse,AR_angle)
             #     endif
-            pass
+            raise RuntimeError, "need to correct for PSO oscillations"
+#             self.IN3_CleanUpStaleMCAChannel(PSO_Wave, AnglesWave)
+#             self.IN3_LocateAndRemoveOscillations(AR_encoder, AR_PSOpulse, AR_angle)
 
         d2r = math.pi / 180
         qVec = (4*math.pi/wavelength) * numpy.sin(d2r*(ar_center - raw_ar)/2.0)
@@ -590,6 +593,134 @@ class UsaxsFlyScan(object):
         hhmmss = t.strftime("%H:%M:%S")
         separator = ' '         # standard ISO8601 uses 'T', this is now allowed
         return yyyymmdd + separator + hhmmss
+
+    def IN3_CleanUpStaleMCAChannel(self, PSO_Wave, AnglesWave):
+        pass
+        # Function IN3_CleanUpStaleMCAChannel(PSO_Wave, AnglesWave)
+        #     wave PSO_Wave, AnglesWave
+        #     
+        #     variable i, j, jstart, NumNANsRemoved, NumPointsFixed
+        #     //first remove all points which have 0 chan in them (except the last one). Any motion here is before we start moving.  
+        #     For(i=0;i<numpnts(PSO_Wave);i+=1)
+        #         if(PSO_Wave[i]==0 && PSO_Wave[i+1]==0)
+        #             PSO_Wave[i]=NaN
+        #             NumNANsRemoved+=1
+        #         else
+        #             break
+        #         endif
+        #     endfor
+        #     //note, now we may need to clean up the end of same positions in PSO pulse, which is indication, that we had failure somehwere upstream... 
+        #     For(i=numpnts(PSO_Wave)-1;i>0;i-=1)
+        #         if((PSO_Wave[i]-PSO_Wave[i-1])<0.5)
+        #             PSO_Wave[i]=NaN
+        #             NumNANsRemoved+=1
+        #         else
+        #             break
+        #         endif
+        #     endfor
+        #     IN2G_RemoveNaNsFrom2Waves(PSO_Wave, AnglesWave)
+        #     //now fix the hickups...
+        #     //Duplicate/O PSO_Wave, PSO_WaveBackup
+        #     Differentiate/METH=2 PSO_Wave/D=PSO_Wave_DIF
+        #     jstart=-1
+        #     For(i=0;i<numpnts(PSO_Wave_DIF);i+=1)
+        #         if(PSO_Wave_DIF[i]==0)
+        #             j+=1
+        #             if(jstart<0)
+        #                 jstart=i-1
+        #             endif
+        #             NumPointsFixed+=1
+        #         else            
+        #             if(j>0&& (PSO_Wave_DIF[jstart+j+1]>1))            //need to avoid counting cases when the stage is within one PSO pulse for long time.     
+        #                 PSO_Wave[jstart,jstart+j] = ceil(PSO_Wave[jstart]+ ((p-jstart)/(j+1))*(PSO_Wave_DIF[jstart+j+1]))
+        #             else
+        #                 NumPointsFixed-=j
+        #             endif
+        #             j=0
+        #             jstart=-1
+        #         endif
+        #     endfor    
+        #     //now colapse the points where multiple points are same by averaging the points. 
+        #     Duplicate/Free PSO_Wave, PSOWaveShort, AnglesWaveShort
+        #     PSOWaveShort=nan
+        #     AnglesWaveShort=nan
+        #     variable tempPSO, tempAr, NumSamePts
+        #     tempPSO=0
+        #     tempAr=0
+        #     NumSamePts=0
+        #     j=0
+        #     For(i=0;i<numpnts(PSO_Wave)-1;i+=1)
+        #         if(PSO_Wave[i]==PSO_Wave[i+1])
+        #             tempPSO+=PSO_Wave[i]
+        #             tempAr+=AnglesWave[i]
+        #             NumSamePts+=1
+        #         else
+        #             tempPSO+=PSO_Wave[i]
+        #             tempAr+=AnglesWave[i]
+        #             NumSamePts+=1
+        #             PSOWaveShort[j]  = tempPSO/NumSamePts
+        #             AnglesWaveShort[j]=  tempAr/NumSamePts
+        #             tempPSO=0
+        #             tempAr=0
+        #             NumSamePts=0
+        #             j+=1
+        #         endif
+        #     endfor
+        #     PSO_Wave=nan
+        #     AnglesWave=nan
+        #     IN2G_RemoveNaNsFrom2Waves(PSOWaveShort, AnglesWaveShort)
+        #     PSO_Wave[0,numpnts(PSOWaveShort)-1] = PSOWaveShort[p]
+        # //    PSO_Wave[numpnts(PSOWaveShort), numpnts(PSO_Wave)-1]  = PSOWaveShort[numpnts(PSOWaveShort)-1]+p-numpnts(PSOWaveShort)
+        #     AnglesWave[0,numpnts(PSOWaveShort)-1] = AnglesWaveShort[p]
+        # //    AnglesWave[numpnts(PSOWaveShort), numpnts(PSO_Wave)-1]  = AnglesWaveShort[numpnts(PSOWaveShort)-1]
+        #     IN2G_RemoveNaNsFrom2Waves(PSO_Wave, AnglesWave)
+        #     KillWaves PSO_Wave_DIF
+        # 
+        # //    variable OrgLength=numpnts(PSO_Wave)
+        # //    Duplicate/O PSO_Wave, PSO_WaveSmooth
+        # //    PSO_WaveSmooth[10,numpnts(PSO_Wave)-3] = ((PSO_Wave[p]/(PSO_Wave[p-2]+PSO_Wave[p-1]+PSO_Wave[p+1]+PSO_Wave[p+2])>2)) ? PSO_Wave[p] : (PSO_Wave[p-2]+PSO_Wave[p-1]+PSO_Wave[p+1]+PSO_Wave[p+2])/4 
+        # //    //IN2G_RemoveNaNsFrom2Waves(PSO_Wave, AnglesWave)
+        # //    NumNANsRemoved+=OrgLength - numpnts(PSO_Wave)
+        #     Print "PSO_Angles data needed to remove "+num2str(NumNANsRemoved)+" start/end points and redistribute Stale PSO pulses over "+num2str(NumPointsFixed)+" points"
+        # end 
+    
+    def IN3_LocateAndRemoveOscillations(self, AR_encoder, AR_PSOpulse, AR_angle):
+        pass
+        # Function IN3_LocateAndRemoveOscillations(AR_encoder,AR_PSOpulse,AR_angle)
+        #     wave AR_encoder,AR_PSOpulse,AR_angle
+        #     
+        #     //just fix the AR_encoder to use PSO records
+        #     //AR_encoder is angle vs PSO pulse as x coordinate
+        #     //AR_angle is angle and PSO pulse is its PSO coordinate, this is sparse data set. 
+        #     variable i, CurArVal,  curPnt, curEnc
+        #     For(i=0;i<numpnts(AR_encoder);i+=1)
+        #         curPnt = BinarySearchInterp(AR_PSOpulse, i )
+        #         if(numtype(curPnt)==0)
+        #             CurArVal = AR_angle[BinarySearchInterp(AR_PSOpulse, i )]
+        #             curEnc = AR_encoder[i]
+        #             //and fix the AR_encoder only if the value is different by mroe then "slopy" factor of 2e-5
+        #             if(abs(AR_encoder[i]-CurArVal)>1e-5)
+        #                 AR_encoder[i] = CurArVal
+        #             endif
+        #         else
+        #             AR_encoder[i] = nan
+        #         endif
+        #     endfor
+
+
+def IN2G_RemoveNaNsFrom2Waves(x, y):
+    '''
+    Removes NaNs from 2 waves, returns the new waves (does NOT edit in place as in IgorPro)
+    
+    used to clean NaNs from waves before desmearing etc.
+    '''
+    if len(x) != len(y):
+        msg = 'x and y arrays not of same length, cannot remove NaNs'
+        raise IndexError, msg
+    mask = numpy.isnan(x) + numpy.isnan(y)
+    new_x = numpy.ma.masked_array(data=x, mask=mask)
+    new_y = numpy.ma.masked_array(data=y, mask=mask)
+    return new_x.compressed(), new_y.compressed()
 
 
 def remove_masked_data(data, mask):
