@@ -34,21 +34,28 @@ def retrieve_specScanData(scan):
 
 def retrieve_flyScanData(scan):
     '''retrieve reduced, rebinned data from USAXS Fly Scans'''
-    hdf_file_name = scan.comments[2].split()[-1].rstrip('.')
-    s_num_bins = str(localConfig.REDUCED_FLY_SCAN_BINS)
-    if os.path.exists(hdf_file_name):
-        ufs = reduceFlyData.UsaxsFlyScan(hdf_file_name)
+    path = os.path.dirname(scan.header.parent.fileName)
+    #hdf_file_name = scan.comments[2].split()[-1].rstrip('.')    # fails if file name has spaces (should not have these)
+    key_string = 'FlyScan file name = '
+    comment = scan.comments[2]
+    index = comment.find(key_string) + len(key_string)
+    hdf_file_name = comment[index:-1]
+    abs_file = os.path.abspath(os.path.join(path, hdf_file_name))
+    if os.path.exists(abs_file):
+        s_num_bins = str(localConfig.REDUCED_FLY_SCAN_BINS)
+        ufs = reduceFlyData.UsaxsFlyScan(abs_file)
         ufs.read_reduced()
 
         needs_calc = dict(full = not ufs.has_reduced('full'))
         needs_calc[s_num_bins] = not ufs.has_reduced(s_num_bins)
         if needs_calc['full']:
+            ufs.make_archive()
             ufs.reduce()
-            ufs.save(hdf_file_name, 'full')
+            ufs.save(abs_file, 'full')
             needs_calc[s_num_bins] = True
         if needs_calc[s_num_bins]:
             ufs.rebin(localConfig.REDUCED_FLY_SCAN_BINS)
-            ufs.save(hdf_file_name, s_num_bins)
+            ufs.save(abs_file, s_num_bins)
 
         # USAXS Fly Scan plots will be ln(R) v. ln(Q), otherwise useless
         Q = numpy.log(ufs.reduced[s_num_bins]['Q'])
