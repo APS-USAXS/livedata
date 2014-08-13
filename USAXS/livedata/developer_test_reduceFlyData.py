@@ -10,7 +10,10 @@ sys.argv = [sys.argv[0],]
 
 sys.argv.append('')
 
+testglob = 'testdata/flyscan_modes/*.h5'
+testglob = 'testdata/flyscan_modes/*S18_FS_Fixed.h5'
+
 import glob
-for hdf5_file in glob.glob('testdata/2014-07/08_04_NegDirCorr_fly/*.h5'):
-  sys.argv[1] = hdf5_file
-  reduceFlyData.command_line_interface()
+for hdf5_file in glob.glob(testglob):
+    sys.argv[1] = hdf5_file
+    reduceFlyData.command_line_interface()
