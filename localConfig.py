@@ -66,6 +66,7 @@ TEST_SPEC_DATA = os.path.join("testdata", "03_19_LLNL.dat")
 TEST_SPEC_DATA = '/data/USAXS_data/2014-02/02_18_artune.dat'
 TEST_SPEC_DATA = '/data/USAXS_data/2014-04/04_09_Prakash_A5.dat'
 TEST_SPEC_DATA = '/data/USAXS_data/2014-06/06_19_Tony.dat'
+TEST_SPEC_DATA = '/data/USAXS_data/2014-08/08_13_setup.dat'
 TEST_SPEC_SCAN_NUMBER = 1
 TEST_PLOTFILE = "pete.png"
 TEST_PLOTICUS_COMMAND_FILE = "pete.pl"
