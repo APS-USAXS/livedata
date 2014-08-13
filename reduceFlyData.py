@@ -182,11 +182,31 @@ class UsaxsFlyScan(object):
             raise IOError, 'file not found: ' + self.hdf5_file_name
         hdf = h5py.File(self.hdf5_file_name, 'r')
     
+        pname = hdf['/entry/program_name']
+        if 'config_version' in pname.attrs:
+            config_version = pname.attrs['config_version']
+        else:
+            config_version = '1.0'
+
+        modename_xref = {      # mbbi PV should return strings but instead returns index number
+                            # these are the strings the PV *should* return
+                     0: 'Fixed',   # 1: fixed pulses (same method as version 1)
+                     1: 'Array',   # 2: use PulsePositions
+                     2: 'TrajPts', # 3: use trajectory points
+                     }
+        
+        if config_version in ('1.0', '1'):
+            mode_number = 0
+        elif config_version in ('1.1'):
+            mode_number = hdf['/entry/flyScan/AR_PulseMode'][0]
+        if mode_number in modename_xref:
+            mode_name = modename_xref[mode_number]
+
+        raw = hdf['entry/flyScan']
+
         wavelength = float(hdf['/entry/instrument/monochromator/wavelength'][0])
         ar_center  = float(hdf['/entry/metadata/AR_center'][0])
-    
-        raw = hdf['entry/flyScan']
-    
+
         raw_clock_pulses =  raw['mca1']
         raw_I0 =            raw['mca2']
         raw_upd =           raw['mca3']
@@ -220,22 +240,24 @@ class UsaxsFlyScan(object):
         # rMasked = numpy.ma.masked_less_equal(rVec, 0)
         # rVec.mask = numpy.any([rVec.mask, rMasked.mask])
         
-        centroid, sigma = self.mean_sigma(raw_ar, rVec)
-        fwhm = sigma * 2 * math.sqrt(2*math.log(2.0))
-    
-        hdf.close()
-        
         full = dict(
             ar = numpy.array(remove_masked_data(raw_ar, rVec.mask)),
             #upd_ranges = self.remove_masked_data(upd_ranges, rVec.mask),
             Q = numpy.array(remove_masked_data(qVec, rVec.mask)),
             R = numpy.array(remove_masked_data(rVec, rVec.mask)),
-            R_max = rVec.max(),
-            centroid = centroid,
-            fwhm = fwhm,
         )
+    
+        hdf.close()
+    
+        # TODO: only use R >= R.max()*0.001  (high Q data is skewing results)
+        # or fit the peak with a Gaussian
+        centroid, sigma = self.mean_sigma(full['ar'], full['R'])
+        
+        full['R_max'] = full['R'].max()
+        full['centroid'] = centroid
+        full['fwhm'] = sigma * 2 * math.sqrt(2*math.log(2.0))
         self.reduced = dict(full = full)
-
+    
     def rebin(self, bin_count = None):
         '''generate R(Q) with a bin_count bins, save in ``self.reduced[str(bin_count)]`` dict'''
 
@@ -642,19 +664,6 @@ def command_line_interface():
 
 
 if __name__ == '__main__':
-    path = os.path.join('testdata', 'flyScanHdf5Files')
-#     hfile = 'S555_PB_GRI_9_Nat_175C.h5'
-#     #hfile = 'S563_PB_GRI_9_Nat_200C.h5'
-#     #hfile = 'S555_PB_GRI_9_Nat_175C.h5'
-#     sys.argv = sys.argv[0:]
-#     sys.argv.append('-n')
-#     sys.argv.append('250')
-#     sys.argv.append(os.path.join(path,hfile))
-#     sys.argv.append('--recompute-full')
-#     # sys.argv.append('--no-archive')
-#     # sys.argv.append('-r')
-#     # #sys.argv.append('-h')
-
     command_line_interface()
 
 
