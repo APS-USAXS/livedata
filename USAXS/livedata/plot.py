@@ -110,17 +110,22 @@ def extract_USAXS_data(specData, scanList):
     usaxs = []
     for scan in scanList:
         if scan.scanCmd.strip().split()[0] in ('FlyScan',):
-            hdf5File = scan.comments[2].split()[-1][:-2]
+            #hdf5File = scan.comments[2].split()[-1][:-2]
+
+            comment = scan.comments[2]
+            key_string = 'FlyScan file name = '
+            index = comment.find(key_string) + len(key_string)
+            fname = comment[index:-1]
+            path = os.path.dirname(scan.header.parent.fileName)
+            hdf5File = os.path.abspath(os.path.join(path, fname))
+
             try:
-                # this step checks that the file exists
-                fly = reduceFlyData.UsaxsFlyScan(hdf5File)
-                # this is the step that tries to open the HDF5 file
-                fly.rebin(bin_count=localConfig.REDUCED_FLY_SCAN_BINS)
-                # archive the original data (if not already archived)
+                fly = reduceFlyData.UsaxsFlyScan(hdf5File)  # checks if file exists
                 fly.make_archive()
-                # save reduced and rebinned data back to data file
+                fly.reduce()        # open the file in this step
                 fly.save(hdf5File, 'full')
-                fly.save(hdf5File, localConfig.REDUCED_FLY_SCAN_BINS)
+                fly.rebin(localConfig.REDUCED_FLY_SCAN_BINS)
+                fly.save(hdf5File, str(localConfig.REDUCED_FLY_SCAN_BINS))
             except IOError:
                 return None     # file may not be available yet for reading if fly scan is still going
             title = os.path.split(hdf5File)[-1] + '(fly)'

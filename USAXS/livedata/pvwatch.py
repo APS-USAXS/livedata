@@ -194,15 +194,12 @@ def updatePlotImage():
         return
     spec_mtime = os.stat(specFile).st_mtime
 
-    makePlot = False
     plotFile = localConfig.LOCAL_PLOTFILE
     plotFile = os.path.join(localConfig.LOCAL_WWW_LIVEDATA_DIR, plotFile)
-    if not os.path.exists(plotFile):
-        makePlot = True        # no plot yet, let's make one!
-    else:
+    makePlot = not os.path.exists(plotFile)        # no plot yet, let's make one!
+    if os.path.exists(plotFile):
         plot_mtime = os.stat(plotFile).st_mtime
-        if spec_mtime > plot_mtime:
-            makePlot = True        #  plot only if new data
+        makePlot = spec_mtime > plot_mtime        #  plot only if new data
     if makePlot:
         #logMessage("updating the plots and gathering scan data for XML file")
         debugging_diagnostic(41)
