@@ -208,7 +208,7 @@ class UsaxsFlyScan(object):
             raise ValueError, msg
         if mode_number in modename_xref:
             # just in case this is useful
-            mode_name = modename_xref[mode_number]
+            _mode_name = modename_xref[mode_number]
         else:
             msg = 'Unexpected /entry/flyScan/AR_PulseMode value = ' + str(mode_number)
             raise ValueError, msg
@@ -229,23 +229,25 @@ class UsaxsFlyScan(object):
         if mode_number == AR_MODE_FIXED:      # often more than ten thousand points
             raw_ar = AR_start - numpy.arange(raw_num_points) * AR_increment
             PSO_oscillations_found = False
+        
         elif mode_number == AR_MODE_ARRAY:      # often a few thousand points
             raw_ar = hdf['/entry/flyScan/AR_PulsePositions']
             if len(raw_ar) > raw_num_points:
                 raw_ar = raw_ar[0:raw_num_points]   # truncate unused bins, if needed
             
-            # note: Aerotech HLe system does not report any data for first channel
-            # shift data to have mean AR value for each point and not the end of the AR value, when the system advanced to next point.
+            # note: Aerotech HLe system does not report any data for first channel.
+            #       Shift data to have mean AR value for each point,
+            #       not the end of the AR value, when the system advanced to next point.
             raw_ar = (raw_ar[1:] + raw_ar[:-1])/2    # midpoint of each interval
             PSO_oscillations_found = len(raw_clock_pulses) != len(raw_ar)
+        
         elif mode_number == AR_MODE_TRAJECTORY:      # often a few hundred points
-            #     Duplicate/Free AR_waypoints, ArValues
-            #     Redimension /D ArValues
-            #     ArValues[1,numpnts(ArValues)-1] = (ArValues[p]+ArValues[p-1])/2        // shift to have mean AR value for each point and not the end of the AR value, when the system advanced to next point. 
-            #     DeletePoints 0, 1, ArValues                    //the system does not report any data for first channel. HLe settings.
-            #     if(numpnts(MeasTime)!=numpnts(ArValues))
-            #         PSO_oscillations_found=1
-            #     endif
+            raw_ar = hdf['/entry/flyScan/AR_waypoints']
+            if len(raw_ar) > raw_num_points:
+                # FIXME: is this correct?
+                raw_ar = raw_ar[0:raw_num_points]   # truncate unused bins, if needed
+            # see note above for AR_MODE_ARRAY
+            raw_ar = (raw_ar[1:] + raw_ar[:-1])/2    # midpoint of each interval
             PSO_oscillations_found = len(raw_clock_pulses) != len(raw_ar)
 
         if PSO_oscillations_found:
@@ -258,8 +260,11 @@ class UsaxsFlyScan(object):
             #         IN3_LocateAndRemoveOscillations(AR_encoder,AR_PSOpulse,AR_angle)
             #     endif
             raise RuntimeError, "need to correct for PSO oscillations"
-#             self.IN3_CleanUpStaleMCAChannel(PSO_Wave, AnglesWave)
-#             self.IN3_LocateAndRemoveOscillations(AR_encoder, AR_PSOpulse, AR_angle)
+            AR_PSOpulse = hdf['/entry/flyScan/???']
+            PSO_Wave    = hdf['/entry/flyScan/???']
+            AnglesWave  = hdf['/entry/flyScan/???']
+            PSO_Wave, AnglesWave = self.IN3_CleanUpStaleMCAChannel(PSO_Wave, AnglesWave)
+            #     AR_encoder = self.IN3_LocateAndRemoveOscillations(AR_encoder, AR_PSOpulse, AR_angle)
 
         d2r = math.pi / 180
         qVec = (4*math.pi/wavelength) * numpy.sin(d2r*(ar_center - raw_ar)/2.0)
@@ -276,10 +281,14 @@ class UsaxsFlyScan(object):
         
         I0_amp_gain = float(hdf['/entry/metadata/I0AmpGain'][0])
         
-        upd_gain = numpy.array([0,] + gains)[upd_ranges.data+1]
-        upd_gain = numpy.ma.masked_less_equal(upd_gain, 0)
-        upd_dark = numpy.array([0,] + bkg)[upd_ranges.data+1]
-        upd_dark = numpy.ma.masked_less_equal(upd_dark, 0)
+        def builder(signal, ranges):
+            '''convert signal and upd amplifier ranges to value for channel'''
+            channels = numpy.array([0,] + signal)[ranges.data+1]
+            channels = numpy.ma.masked_less_equal(channels, 0)
+            return channels
+
+        upd_gain = builder(gains, upd_ranges)
+        upd_dark = builder(bkg,   upd_ranges)
         
         if mode_number in (AR_MODE_ARRAY, AR_MODE_TRAJECTORY):
             # consequence of Aerotech HLe providing no useful data in 1st channel
@@ -595,6 +604,8 @@ class UsaxsFlyScan(object):
         return yyyymmdd + separator + hhmmss
 
     def IN3_CleanUpStaleMCAChannel(self, PSO_Wave, AnglesWave):
+        # TODO: describe, in words, what this routine must do
+        # TODO: implement
         pass
         # Function IN3_CleanUpStaleMCAChannel(PSO_Wave, AnglesWave)
         #     wave PSO_Wave, AnglesWave
@@ -685,7 +696,18 @@ class UsaxsFlyScan(object):
         # end 
     
     def IN3_LocateAndRemoveOscillations(self, AR_encoder, AR_PSOpulse, AR_angle):
-        pass
+        '''
+        just fix the AR_encoder to use PSO records
+        
+        :param numpy.array AR_encoder: AR encoder angle 
+        :param numpy.array AR_PSOpulse: Aerotech PSO pulse as x coordinate
+        :param numpy.array AR_angle: angle and PSO pulse is its PSO coordinate, this is sparse data set. 
+        :return numpy.array: revised AR_encoder array
+        '''
+        # TODO: describe, in words, what this routine must do
+        _example = numpy.NaN
+        # TODO: implement, for now this is a no-op
+        return AR_encoder
         # Function IN3_LocateAndRemoveOscillations(AR_encoder,AR_PSOpulse,AR_angle)
         #     wave AR_encoder,AR_PSOpulse,AR_angle
         #     
@@ -712,6 +734,10 @@ def IN2G_RemoveNaNsFrom2Waves(x, y):
     '''
     Removes NaNs from 2 waves, returns the new waves (does NOT edit in place as in IgorPro)
     
+    :param numpy.array x: 1-D array of data with possible NaNs
+    :param numpy.array y: 1-D array of data with possible NaNs
+    :return (numpy.array,numpy.array): tuple of revised (x, y)
+
     used to clean NaNs from waves before desmearing etc.
     '''
     if len(x) != len(y):
