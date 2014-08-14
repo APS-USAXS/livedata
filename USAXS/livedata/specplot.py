@@ -68,17 +68,22 @@ def retrieve_flyScanData(scan):
 
 def process_NexusImageData(scan, imgfile):
     '''make image from raw NeXus 2-d detector data file'''
-    scanCmd = scan.scanCmd.split()[0]
-    h5file = os.path.split( scan.scanCmd.split()[1] )[1]
-    path = os.path.splitext(scan.header.parent.fileName)[0]
-    path += '_' + dict(pinSAXS='saxs', WAXS='waxs')[scanCmd]
-
-    if not os.path.exists(path):
+    if not os.path.exists(os.path.dirname(imgfile)):
         return
+
+    scanCmd = scan.scanCmd.split()[0]
+
+    path = os.path.splitext(scan.header.parent.fileName)[0]
+    if scanCmd in ('pinSAXS', 'WAXS'):
+        path += '_' + dict(pinSAXS='saxs', WAXS='waxs')[scanCmd]
+
+    h5file = scan.scanCmd.split()[1]
+    if h5file.find('Z:') >= 0:
+        # MS Windows file path
+        h5file = h5file.replace('Z:', '/data')  # convert mount point to Linux
+        h5file = h5file.replace('\\', '/')      # convert delimiters to Linux
     h5file = os.path.abspath( os.path.join(path, h5file) )
     if not os.path.exists(h5file):
-        return
-    if not os.path.exists(os.path.split(imgfile)[0]):
         return
 
     if not os.path.exists(imgfile):
@@ -99,6 +104,9 @@ def makeScanImage(scan, plotFile):
         plotData = retrieve_flyScanData(scan)
         if len(plotData) > 0:
             ploticus__process_plotData(scan, plotData, plotFile)
+    elif scanCmd == 'USAXSImaging':
+        # make simple image file of the data
+        process_NexusImageData(scan, plotFile)
     else:
         # plot last column v. first column
         plotData = retrieve_specScanData(scan)
@@ -191,14 +199,10 @@ def findScan(sd, n):
 
 
 def main():
-    specFile = localConfig.TEST_SPEC_DATA
-    scan_number = localConfig.TEST_SPEC_SCAN_NUMBER
-    plotFile = localConfig.TEST_PLOTFILE
-    if len(sys.argv) == 4:
-        (specFile, scan_number, plotFile) = sys.argv[1:4]
-    else:
+    if len(sys.argv) != 4:
         print "usage: %s specFile scan_number plotFile" % sys.argv[0]
         sys.exit()
+    (specFile, scan_number, plotFile) = sys.argv[1:4]
     try:
         specData = openSpecFile(specFile)
         scan = findScan(specData, scan_number)
@@ -208,9 +212,4 @@ def main():
 
 
 if __name__ == '__main__':
-    # sys.argv = sys.argv[0:]
-    # sys.argv.append('testdata/2014-04/04_14_Winans.dat')
-    # sys.argv.append('/data/USAXS_data/2014-06/06_16_NXSchool.dat')
-    # sys.argv.append(str(133))
-    # sys.argv.append('/tmp/specplot.png')
     main()
