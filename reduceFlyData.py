@@ -260,10 +260,10 @@ class UsaxsFlyScan(object):
             #         IN3_LocateAndRemoveOscillations(AR_encoder,AR_PSOpulse,AR_angle)
             #     endif
             raise RuntimeError, "need to correct for PSO oscillations"
-            AR_PSOpulse = hdf['/entry/flyScan/???']
-            PSO_Wave    = hdf['/entry/flyScan/???']
-            AnglesWave  = hdf['/entry/flyScan/???']
-            PSO_Wave, AnglesWave = self.IN3_CleanUpStaleMCAChannel(PSO_Wave, AnglesWave)
+            #     AR_PSOpulse = hdf['/entry/flyScan/???']
+            #     PSO_Wave    = hdf['/entry/flyScan/???']
+            #     AnglesWave  = hdf['/entry/flyScan/???']
+            #     PSO_Wave, AnglesWave = self.IN3_CleanUpStaleMCAChannel(PSO_Wave, AnglesWave)
             #     AR_encoder = self.IN3_LocateAndRemoveOscillations(AR_encoder, AR_PSOpulse, AR_angle)
 
         d2r = math.pi / 180
