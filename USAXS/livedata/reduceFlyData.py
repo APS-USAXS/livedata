@@ -251,6 +251,7 @@ class UsaxsFlyScan(object):
             PSO_oscillations_found = len(raw_clock_pulses) != len(raw_ar)
 
         if PSO_oscillations_found:
+            # Aerotech's Position Synchronized Output (PSO) feature
             raw_ar = self.PSO_oscillation_correction(hdf, mode_number, len(raw_clock_pulses))
 
         d2r = math.pi / 180
