@@ -8,6 +8,7 @@ import h5py                 #@UnusedImport
 import numpy                #@UnusedImport
 import math                 #@UnusedImport
 import os                   #@UnusedImport
+import scipy.interpolate    #@UnusedImport
 import shutil               #@UnusedImport
 import stat                 #@UnusedImport
 import sys                  #@UnusedImport
@@ -23,6 +24,17 @@ MCA_CLOCK_FREQUENCY = localConfig.MCA_CLOCK_FREQUENCY
 Q_MIN               = localConfig.FLY_SCAN_Q_MIN
 UATERM              = localConfig.FLY_SCAN_UATERM
 ESD_FACTOR          = 0.01      # estimate dr = ESD_FACTOR * r  if r.std() = 0
+
+# mbbi PV should return strings but instead returns index number
+# these are the values and a cross-reference to the name strings
+AR_MODE_FIXED = 0       # fixed pulses (version 1)
+AR_MODE_ARRAY = 1       # use PulsePositions
+AR_MODE_TRAJECTORY = 2  # use trajectory points (a.k.a. waypoints)
+MODENAME_XREF = {     # these are the strings the PV *should* return
+             AR_MODE_FIXED:         'Fixed',
+             AR_MODE_ARRAY:         'Array',
+             AR_MODE_TRAJECTORY:    'TrajPts',
+             }
 
 
 class UsaxsFlyScan(object):
@@ -187,17 +199,6 @@ class UsaxsFlyScan(object):
             config_version = pname.attrs['config_version']
         else:
             config_version = '1'
-
-        # mbbi PV should return strings but instead returns index number
-        # these are the values and a cross-reference to the name strings
-        AR_MODE_FIXED = 0       # fixed pulses (version 1)
-        AR_MODE_ARRAY = 1       # use PulsePositions
-        AR_MODE_TRAJECTORY = 2  # use trajectory points (a.k.a. waypoints)
-        modename_xref = {     # these are the strings the PV *should* return
-                     AR_MODE_FIXED:         'Fixed',
-                     AR_MODE_ARRAY:         'Array',
-                     AR_MODE_TRAJECTORY:    'TrajPts',
-                     }
         
         if config_version in ('1', '1.0'):
             mode_number = 0
@@ -206,9 +207,9 @@ class UsaxsFlyScan(object):
         else:
             msg = "Unexpected /entry/program_name/@config_version = " + config_version
             raise ValueError, msg
-        if mode_number in modename_xref:
+        if mode_number in MODENAME_XREF:
             # just in case this is useful
-            _mode_name = modename_xref[mode_number]
+            _mode_name = MODENAME_XREF[mode_number]
         else:
             msg = 'Unexpected /entry/flyScan/AR_PulseMode value = ' + str(mode_number)
             raise ValueError, msg
@@ -233,7 +234,7 @@ class UsaxsFlyScan(object):
         elif mode_number == AR_MODE_ARRAY:      # often a few thousand points
             raw_ar = hdf['/entry/flyScan/AR_PulsePositions']
             if len(raw_ar) > raw_num_points:
-                raw_ar = raw_ar[0:raw_num_points]   # truncate unused bins, if needed
+                raw_ar = raw_ar[:raw_num_points]   # truncate unused bins, if needed
             
             # note: Aerotech HLe system does not report any data for first channel.
             #       Shift data to have mean AR value for each point,
@@ -244,27 +245,13 @@ class UsaxsFlyScan(object):
         elif mode_number == AR_MODE_TRAJECTORY:      # often a few hundred points
             raw_ar = hdf['/entry/flyScan/AR_waypoints']
             if len(raw_ar) > raw_num_points:
-                # FIXME: is this correct?
-                raw_ar = raw_ar[0:raw_num_points]   # truncate unused bins, if needed
+                raw_ar = raw_ar[:raw_num_points]   # truncate unused bins, if needed
             # see note above for AR_MODE_ARRAY
             raw_ar = (raw_ar[1:] + raw_ar[:-1])/2    # midpoint of each interval
             PSO_oscillations_found = len(raw_clock_pulses) != len(raw_ar)
 
         if PSO_oscillations_found:
-            print "possible vibrations during scan, applying fix from PSO channel record"
-            #     if(OscillationsFound)
-            #         //OK, let's fix the weird PSOpulse errors we see. Not sure where these come from. 
-            #         print "Found that there were likely vibrations during scan, doing fix using PSO channel record" 
-            #         IN3_CleanUpStaleMCAChannel(AR_PSOpulse, AR_angle)
-            #         Redimension /D/N=(numpnts(MeasTime)) ArValues
-            #         IN3_LocateAndRemoveOscillations(AR_encoder,AR_PSOpulse,AR_angle)
-            #     endif
-            raise RuntimeError, "need to correct for PSO oscillations"
-            #     AR_PSOpulse = hdf['/entry/flyScan/???']
-            #     PSO_Wave    = hdf['/entry/flyScan/???']
-            #     AnglesWave  = hdf['/entry/flyScan/???']
-            #     PSO_Wave, AnglesWave = self.IN3_CleanUpStaleMCAChannel(PSO_Wave, AnglesWave)
-            #     AR_encoder = self.IN3_LocateAndRemoveOscillations(AR_encoder, AR_PSOpulse, AR_angle)
+            raw_ar = self.PSO_oscillation_correction(hdf, mode_number, len(raw_clock_pulses))
 
         d2r = math.pi / 180
         qVec = (4*math.pi/wavelength) * numpy.sin(d2r*(ar_center - raw_ar)/2.0)
@@ -295,6 +282,11 @@ class UsaxsFlyScan(object):
             upd_ranges = upd_ranges[1:]
             upd_gain = upd_gain[1:]
             upd_dark = upd_dark[1:]
+            # truncate in case PSO oscillations were corrected
+            n = len(raw_upd)
+            upd_ranges = upd_ranges[:n]
+            upd_gain = upd_gain[:n]
+            upd_dark = upd_dark[:n]
 
         rVec = (raw_upd - channel_time_s*upd_dark) / upd_gain / raw_I0 / V_f_gain
         rVec *= I0_amp_gain
@@ -321,6 +313,88 @@ class UsaxsFlyScan(object):
         full['fwhm'] = sigma * 2 * math.sqrt(2*math.log(2.0))
         self.reduced = dict(full = full)
     
+    def PSO_oscillation_correction(self, hdf, mode, num_AR):
+        '''
+        compute array new AR values from 10Hz encoder sampling
+        
+        :param h5py.File hdf: HDF5 file object with the fly scan data
+        :param int mode: one of these [AR_MODE_ARRAY, AR_MODE_TRAJECTORY]
+        :param int num_AR: length of new AR array
+        :return numpy.array: array of computed ar values
+        
+        The Aerotech HLe and the AR encoder together are sensitive to vibrations
+        of the USAXS table and environment.  The sensitivity appears as jitter in 
+        the PSO pulse train and renders the reported array of AR positions wrong.
+        The best fix for this, to date, is to re-compute the AR values based
+        on AR encoder values sampled at 10Hz from EPICS.  Here's how:
+
+        * get the AR encoder v. PSO pulse data from the 10 Hz arrays
+        * interpolate AR(PSO) at each desired PSO
+
+        Good luck.
+        '''
+        if mode not in (AR_MODE_ARRAY, AR_MODE_TRAJECTORY):
+            msg = 'PSO_oscillation_correction: wrong mode = ' + str(mode)
+            raise ValueError, msg
+        
+        print "  possible vibrations during scan, re-generating AR from 10Hz sampling array"
+        pso, ar = self.getAR_10Hz_Array(hdf)
+
+        linear_interpolation_func = scipy.interpolate.interp1d(pso, ar)
+        new_ar = linear_interpolation_func(range(num_AR))
+        return new_ar
+    
+    def getAR_10Hz_Array(self, hdf):
+        '''
+        return arrays of AR encoder v. PSO pulse
+
+        :param h5py.File hdf: HDF5 file object with the fly scan data
+        :return (numpy.array,numpy.array): (pso, ar) arrays
+
+        read the AR encoder positions sampled in EPICS at 10Hz
+        these are recorded with the corresponding PSO pulse number
+        '''
+        ch_angle    = hdf['/entry/flyScan/changes_AR_angle']
+        ch_PSOpulse = hdf['/entry/flyScan/changes_AR_PSOpulse']
+        
+        # for every PSO channel, make a list of all ar values
+        # use a temporary dictionary for this
+        channel = {}
+        n = len(ch_PSOpulse.value)
+        for index in range(n):
+            x = ch_PSOpulse[index]
+            y = ch_angle[index]
+            if x not in channel:
+                channel[x] = []
+            if len(channel)>1 and x == 0.0:
+                break       # all useful channels received, ignore remaining buffer
+            channel[x].append(y)
+        
+        pso = sorted(channel.keys())
+        if pso[0] != 0.0:
+            msg = '1st PSO pulse in 10Hz array is not zero'
+            raise ValueError, msg
+        # first PSO channel 0 may be repeated, keep the last one
+        channel[0.0] = channel[0.0][-1]
+        # last PSO channel may be repeated, keep the first one
+        index = pso[-1]       # index of the last channel
+        channel[index] = channel[index][0]
+        
+        # average all the other channels, x:PSO, y:AR
+        for x, y in channel.items():
+            if isinstance(y, list):     # list items have not been handled yet
+                if len(y) == 1:
+                    channel[x] = y[0]
+                else:
+                    channel[x] = numpy.array(y).mean()
+
+        def _mapping(xx):
+            return channel[xx]
+        ar = map(_mapping, pso) # map() is faster than this:  [channel[_] for _ in pso]
+        
+        return numpy.array(pso), numpy.array(ar)
+        
+
     def rebin(self, bin_count = None):
         '''generate R(Q) with a bin_count bins, save in ``self.reduced[str(bin_count)]`` dict'''
 
