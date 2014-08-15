@@ -1,11 +1,4 @@
 #!/usr/bin/env python
-########### SVN repository information ###################
-# $Date$
-# $Author$
-# $Revision$
-# $URL$
-# $Id$
-########### SVN repository information ###################
 
 '''
 read a SPEC data file and plot scan n using ploticus
@@ -66,7 +59,7 @@ def retrieve_flyScanData(scan):
     return plotData
 
 
-def process_NexusImageData(scan, imgfile):
+def process_NexusImageData(scan, imgfile, **attr):
     '''make image from raw NeXus 2-d detector data file'''
     if not os.path.exists(os.path.dirname(imgfile)):
         return
@@ -87,7 +80,7 @@ def process_NexusImageData(scan, imgfile):
         return
 
     if not os.path.exists(imgfile):
-        handle_2d.make_png(h5file, imgfile, localConfig.HDF5_PATH_TO_IMAGE_DATA)
+        handle_2d.make_png(h5file, imgfile, localConfig.HDF5_PATH_TO_IMAGE_DATA, **attr)
         print 'created: ' + imgfile
 
 
@@ -106,7 +99,7 @@ def makeScanImage(scan, plotFile):
             ploticus__process_plotData(scan, plotData, plotFile)
     elif scanCmd == 'USAXSImaging':
         # make simple image file of the data
-        process_NexusImageData(scan, plotFile)
+        process_NexusImageData(scan, plotFile, log_image=True)
     else:
         # plot last column v. first column
         plotData = retrieve_specScanData(scan)
@@ -213,3 +206,12 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+
+########### SVN repository information ###################
+# $Date$
+# $Author$
+# $Revision$
+# $URL$
+# $Id$
+########### SVN repository information ###################
