@@ -76,30 +76,28 @@ def process_NexusImageData(scan, imgfile, **attr):
         h5file = h5file.replace('Z:', '/data')  # convert mount point to Linux
         h5file = h5file.replace('\\', '/')      # convert delimiters to Linux
     h5file = os.path.abspath( os.path.join(path, h5file) )
-    if not os.path.exists(h5file):
-        return
-
-    if not os.path.exists(imgfile):
-        handle_2d.make_png(h5file, imgfile, localConfig.HDF5_PATH_TO_IMAGE_DATA, **attr)
+    if os.path.exists(h5file) and not os.path.exists(imgfile):
+        path = localConfig.HDF5_PATH_TO_IMAGE_DATA
+        handle_2d.make_png(h5file, imgfile, path, **attr)
         print 'created: ' + imgfile
 
 
 def makeScanImage(scan, plotFile):
     '''make an image from the SPEC scan object'''
     scanCmd = scan.scanCmd.split()[0]
-    if scanCmd == 'FlyScan':
-        plotData = retrieve_flyScanData(scan)
-        if len(plotData) > 0:
-            ploticus__process_plotData(scan, plotData, plotFile)
+    if scanCmd == 'USAXSImaging':
+        # make simple image file of the data
+        process_NexusImageData(scan, plotFile, log_image=False)
     elif scanCmd == 'pinSAXS':
         # make simple image file of the data
         process_NexusImageData(scan, plotFile)
     elif scanCmd == 'WAXS':
         # make simple image file of the data
         process_NexusImageData(scan, plotFile)
-    elif scanCmd == 'USAXSImaging':
-        # make simple image file of the data
-        process_NexusImageData(scan, plotFile, log_image=False)
+    elif scanCmd == 'FlyScan':
+        plotData = retrieve_flyScanData(scan)
+        if len(plotData) > 0:
+            ploticus__process_plotData(scan, plotData, plotFile)
     else:
         # plot last column v. first column
         plotData = retrieve_specScanData(scan)
