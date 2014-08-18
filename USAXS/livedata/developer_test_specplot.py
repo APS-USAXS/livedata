@@ -4,8 +4,8 @@
 import specplot
 import sys
 
-specFile = '/data/USAXS_data/2014-08/08_14_NIST_TRIP.dat'
-scan_number = 619
+specFile = '/data/USAXS_data/2014-08/08_15_Tomography.dat'
+scan_number = 21
 plotFile = "/tmp/specplot.png"
 
 
