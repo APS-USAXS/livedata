@@ -66,9 +66,9 @@ def process_NexusImageData(scan, imgfile, **attr):
 
     scanCmd = scan.scanCmd.split()[0]
 
-    path = os.path.splitext(scan.header.parent.fileName)[0]
-    if scanCmd in ('pinSAXS', 'WAXS'):
-        path += '_' + dict(pinSAXS='saxs', WAXS='waxs')[scanCmd]
+    path = os.path.dirname(scan.header.parent.fileName)
+    # if scanCmd in ('pinSAXS', 'WAXS'):
+    #     path += '_' + dict(pinSAXS='saxs', WAXS='waxs')[scanCmd]
 
     h5file = scan.scanCmd.split()[1]
     if h5file.find('Z:') >= 0:
@@ -87,19 +87,19 @@ def process_NexusImageData(scan, imgfile, **attr):
 def makeScanImage(scan, plotFile):
     '''make an image from the SPEC scan object'''
     scanCmd = scan.scanCmd.split()[0]
-    if scanCmd == 'pinSAXS':
+    if scanCmd == 'FlyScan':
+        plotData = retrieve_flyScanData(scan)
+        if len(plotData) > 0:
+            ploticus__process_plotData(scan, plotData, plotFile)
+    elif scanCmd == 'pinSAXS':
         # make simple image file of the data
         process_NexusImageData(scan, plotFile)
     elif scanCmd == 'WAXS':
         # make simple image file of the data
         process_NexusImageData(scan, plotFile)
-    elif scanCmd == 'FlyScan':
-        plotData = retrieve_flyScanData(scan)
-        if len(plotData) > 0:
-            ploticus__process_plotData(scan, plotData, plotFile)
     elif scanCmd == 'USAXSImaging':
         # make simple image file of the data
-        process_NexusImageData(scan, plotFile, log_image=True)
+        process_NexusImageData(scan, plotFile, log_image=False)
     else:
         # plot last column v. first column
         plotData = retrieve_specScanData(scan)
