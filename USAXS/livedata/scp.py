@@ -203,7 +203,7 @@ class SCPClient(object):
         try:
             msg = self.channel.recv(512)
         except SocketTimeout:
-            raise SCPException('Timout waiting for scp response')
+            raise SCPException('Timeout waiting for scp response')
         if msg and msg[0] == '\x00':
             return
         elif msg and msg[0] == '\x01':
