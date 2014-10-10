@@ -17,6 +17,7 @@ testglob = 'testdata/flyscan_modes/S39_Blank*.h5'       # 2014-08-13, fly scan m
 testglob = 'testdata/flyscan_modes/S44_GC_Adam*.h5'     # 2014-08-13, fly scan mode=1
 # testglob = 'testdata/flyscan_modes/S19_FS_Fixed*.h5'
 testglob = 'testdata/fly/08_14_NIST_TRIP_fly/S48*.h5'
+testglob = 'testdata/fly/10_09_Prisk_fly/S5_Glass_Blank.h5'
 
 import glob
 for hdf5_file in glob.glob(testglob):

@@ -288,6 +288,19 @@ class UsaxsFlyScan(object):
             upd_ranges = upd_ranges[:n]
             upd_gain = upd_gain[:n]
             upd_dark = upd_dark[:n]
+        
+        list_of_arrays = [raw_upd, channel_time_s, upd_dark, upd_gain, raw_I0]
+        min_n = min(map(len, list_of_arrays))
+        max_n = max(map(len, list_of_arrays))
+        if min_n != max_n:      # truncate arrays to shortest length
+            n = min(min_n, max_n)
+            raw_upd         = raw_upd[:n]
+            channel_time_s  = channel_time_s[:n]
+            upd_dark        = upd_dark[:n]
+            upd_gain        = upd_gain[:n]
+            raw_ar          = raw_ar[:n]
+            raw_I0          = raw_I0[:n]
+            qVec            = qVec[:n]
 
         rVec = (raw_upd - channel_time_s*upd_dark) / upd_gain / raw_I0 / V_f_gain
         rVec *= I0_amp_gain
