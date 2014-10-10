@@ -289,11 +289,13 @@ class UsaxsFlyScan(object):
             upd_gain = upd_gain[:n]
             upd_dark = upd_dark[:n]
         
+        # ensure arrays have equal lengths
         list_of_arrays = [raw_upd, channel_time_s, upd_dark, upd_gain, raw_I0]
         min_n = min(map(len, list_of_arrays))
         max_n = max(map(len, list_of_arrays))
         if min_n != max_n:      # truncate arrays to shortest length
             n = min(min_n, max_n)
+            print "  truncating all arrays to " + str(n) + " points"
             raw_upd         = raw_upd[:n]
             channel_time_s  = channel_time_s[:n]
             upd_dark        = upd_dark[:n]
