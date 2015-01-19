@@ -1,22 +1,22 @@
 #!/bin/tcsh
 #
 # chkconfig: - 98 98
-# description: 15ID USAXS WWW page update script
+# description: 9-ID USAXS WWW page update script
 #
 # processname: usaxs_update
 
-setenv SCRIPT_DIR	 /home/beams/S15USAXS/Documents/eclipse/USAXS/livedata
+setenv SCRIPT_DIR	 /home/beams/USAXS/Documents/eclipse/USAXS/livedata
 setenv MANAGE		 ${SCRIPT_DIR}/manage.csh
-setenv PLOTICUS_PREFABS  /home/beams/S15USAXS/Documents/ploticus/pl241src/prefabs
-setenv WWW_DIR		 /data/www/livedata
+setenv PLOTICUS_PREFABS  /home/beams/USAXS/Documents/ploticus/pl241src/prefabs
+setenv WWW_DIR		 /share1/www/livedata
 setenv SCRIPT		 ${SCRIPT_DIR}/pvwatch.py
 setenv LOGFILE		 ${WWW_DIR}/log.txt
 setenv PIDFILE		 ${WWW_DIR}/pid.txt
 setenv COUNTERFILE	 ${WWW_DIR}/counter.txt
-setenv PYTHON		 /APSshare/epd/rh6-x86_64/bin/python
+setenv PYTHON		 /APSshare/anaconda/x86_64/bin/python
 setenv CAGET		 /APSshare/epics/extensions-base/3.14.12.3-ext1/bin/linux-x86_64/caget
-setenv PVWATCH_PHASE_PV  15iddLAX:long18
-setenv LOOP_COUNTER_PV   15iddLAX:long20
+setenv PVWATCH_PHASE_PV  9idcLAX:long18
+setenv LOOP_COUNTER_PV   9idcLAX:long20
 
 
 switch ($1)
@@ -75,7 +75,7 @@ switch ($1)
        #      month	     1-12 (or names, see below)
        #      day of week    0-7 (0 or 7 is Sun, or use names)
        #
-       # */5 * * * * /home/beams/S15USAXS/Documents/eclipse/USAXS/livedata/manage.csh checkup 2>&1 /dev/null
+       # */5 * * * * /home/beams/USAXS/Documents/eclipse/USAXS/livedata/manage.csh checkup 2>&1 /dev/null
        #
        # 2013-10-25,prj: new cleanup part, until pvwatch.py starts getting it right again
        /bin/rm -f /tmp/tmp*.p*

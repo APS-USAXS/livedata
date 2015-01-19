@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 '''
-   define 15ID-D USAXS constants for these Python tools
+define 9-ID-C USAXS constants for these Python tools
 '''
 
 import os
@@ -9,8 +9,8 @@ import os
 
 # general use
 HOME_DIR = os.environ.get('HOME', '')
-BASE_DIR = "/data/USAXS_data/"
-LOCAL_DATA_DIR = "/data"
+BASE_DIR = "/share1/USAXS_data/"
+LOCAL_DATA_DIR = "/share1"
 LOCAL_USAXS_DATA_DIR = LOCAL_DATA_DIR + "/USAXS_data"
 LOCAL_WWW_LIVEDATA_DIR = LOCAL_DATA_DIR + "/www/livedata"
 
@@ -62,11 +62,11 @@ TEST_SPEC_DATA = os.path.join(LOCAL_USAXS_DATA_DIR, "2011-06/06_22_setup2.dat")
 TEST_SPEC_DATA = os.path.join("testdata", "03_19_LLNL.dat")
 #TEST_SPEC_DATA = os.path.join("testdata", "03_19_LLNL-problem.dat")
 #TEST_SPEC_DATA = os.path.join("testdata", "11_03_Vinod.dat")
-#TEST_SPEC_DATA = '/data/USAXS_data/2013-10/10_26_Course.dat'
-TEST_SPEC_DATA = '/data/USAXS_data/2014-02/02_18_artune.dat'
-TEST_SPEC_DATA = '/data/USAXS_data/2014-04/04_09_Prakash_A5.dat'
-TEST_SPEC_DATA = '/data/USAXS_data/2014-06/06_19_Tony.dat'
-TEST_SPEC_DATA = '/data/USAXS_data/2014-08/08_13_setup.dat'
+#TEST_SPEC_DATA = '/share1/USAXS_data/2013-10/10_26_Course.dat'
+TEST_SPEC_DATA = '/share1/USAXS_data/2014-02/02_18_artune.dat'
+TEST_SPEC_DATA = '/share1/USAXS_data/2014-04/04_09_Prakash_A5.dat'
+TEST_SPEC_DATA = '/share1/USAXS_data/2014-06/06_19_Tony.dat'
+TEST_SPEC_DATA = '/share1/USAXS_data/2014-08/08_13_setup.dat'
 TEST_SPEC_SCAN_NUMBER = 1
 TEST_PLOTFILE = "pete.png"
 TEST_PLOTICUS_COMMAND_FILE = "pete.pl"
