@@ -21,7 +21,7 @@ from xml.dom import minidom
 from xml.etree import ElementTree
 import epics            # manages EPICS (PyEpics) connections for Python 2.6+
 import plot             # makes PNG files of recent USAXS scans
-import localConfig      # definitions for 15ID
+import localConfig      # definitions for 9-ID
 import wwwServerTransfers
 import traceback
 import numpy
@@ -41,9 +41,9 @@ PVLIST_FILE = "pvlist.xml"
 MAINLOOP_COUNTER_TRIGGER = 10000  # print a log message periodically
 USAXS_DATA = None
 
-PVWATCH_INDEX_PV = '15iddLAX:long20'
-PVWATCH_PID_PV   = '15iddLAX:long19'
-PVWATCH_REF_PV   = '15iddLAX:long18'
+PVWATCH_INDEX_PV = '9idcLAX:long20'
+PVWATCH_PID_PV   = '9idcLAX:long19'
+PVWATCH_REF_PV   = '9idcLAX:long18'
 
 
 '''value for expected EPICS PV is None'''

@@ -12,7 +12,7 @@ import shutil
 import tempfile
 import time
 from spec2nexus import prjPySpec        # read SPEC data files
-import localConfig      # definitions for 15ID
+import localConfig      # definitions for 9-ID
 import wwwServerTransfers
 import reduceFlyData
 

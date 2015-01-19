@@ -11,7 +11,7 @@ import sys
 import time
 import shutil
 import specplot
-import localConfig      # definitions for 15ID
+import localConfig      # definitions for 9-ID
 import wwwServerTransfers
 
 

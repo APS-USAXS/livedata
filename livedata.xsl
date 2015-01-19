@@ -228,7 +228,7 @@
                         <td>
                             <table border="1" width="100%" bgcolor="mintcream" rules="all">
                                 <td>
-                                    <!-- TODO need to update this for 15ID-A mirror system -->
+                                    <!-- TODO need to update this for 9-ID mirror system -->
 				    <xsl:choose>
                                         <xsl:when test="//pv[@id='mirror_cr_pos']/value=1.0">
                                             <xsl:value-of select="//pv[@id='mirror_cr_pos']/description"/>

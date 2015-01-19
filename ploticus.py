@@ -8,7 +8,7 @@ receive a list of USAXS scans for the livedata WWW page and chart them with plot
 
 import math
 import os
-import localConfig      # definitions for 15ID
+import localConfig      # definitions for 9-ID
 import wwwServerTransfers
 
 SYMBOL_LIST = ("triangle", "diamond", "square", "downtriangle", "lefttriangle", "righttriangle")
