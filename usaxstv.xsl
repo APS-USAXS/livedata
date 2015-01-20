@@ -128,7 +128,7 @@ USAXS status
 
 <tr> 
     <xsl:choose>
-    	 <xsl:when test="//pv[@id='d_beam_available']/value=1">
+    	 <xsl:when test="//pv[@id='beam_available']/value=1">
     	     <td bgcolor="#22ff22" align="center"><font size="3">
     	       9-ID-C beam is available </font></td>
     	 </xsl:when>

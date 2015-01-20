@@ -215,25 +215,11 @@
   <EPICS_PV PV="9idcUSX:ath01:reg01:bo03" description="USAXS Ti shutter PF42 bit3" mne="Ti_pf42_b3"/>
   <EPICS_PV PV="9idcUSX:ath01:reg01:bo04" description="USAXS Ti shutter PF42 bit4" mne="Ti_pf42_b4"/>
 
-  <EPICS_PV PV="PA:15ID:STA_A_FES_OPEN_PL.VAL" description="15ID white shutter opened" mne="white_shtr_opened"/>
-  <EPICS_PV PV="PA:15ID:STA_B_SBS_OPEN_PL.VAL" description="15ID mono shutter opened" mne="mono_shtr_opened"/>
-  <EPICS_PV PV="PA:15ID:STA_D_NO_ACCESS.VAL" description="15ID-D doors closed and hutch searched" mne="d_doors_closed"/>
-  <EPICS_PV PV="9idcLAX:blCalc:userCalc1" description="15ID-D beam is available" mne="d_beam_available"/>
+  <EPICS_PV PV="PA:09ID:Q20:05.VAL" description="9-ID white shutter opened" mne="white_shtr_opened"/>
+  <EPICS_PV PV="PA:09ID:Q40:11.VAL" description="9-ID-C mono shutter opened" mne="mono_shtr_opened"/>
+  <EPICS_PV PV="PA:09ID:Q40:07.VAL" description="9-ID-C station searched" mne="c_station_searched"/>
+  <EPICS_PV PV="9idcLAX:blCalc:userCalc1" description="9-ID-C beam is available" mne="beam_available"/>
   <EPICS_PV PV="S:SRcurrentAI" description="APS storage ring current, mA" display_format="%.2f" mne="SR_current"/>
-
-
-  <EPICS_PV _ignore_="true" PV="32idb:AShtr:Enable.RVAL" description="32ID white shutter autoOpen" mne="white_shtr_auto"/><!-- TODO -->
-  <EPICS_PV _ignore_="true" PV="32idbMIR:alldone" description="Mirror eBrick motors moving" mne="mir_alldone"/><!-- TODO -->
-  <EPICS_PV _ignore_="true" PV="32idbMIR:ath01:ana01:ai01.VAL" description="ADC I000, VDC" display_format="%.4f" mne="I000_VDC"/><!-- TODO -->
-  <EPICS_PV _ignore_="true" PV="32idbMIR:fem01:seq01:gain" description="I000 amplifier gain, V/A" display_format="%.2e" mne="I000_amp_gain"/><!-- TODO -->
-  <EPICS_PV _ignore_="true" PV="32idbMIR:m1.DMOV" description="motor done moving mirror X" mne="mirr_x_dmov"/><!-- TODO -->
-  <EPICS_PV _ignore_="true" PV="32idbMIR:m1.RBV" description="motor mirror X, mm" display_format="%.3f" mne="mirr_x"/><!-- TODO -->
-  <EPICS_PV _ignore_="true" PV="32idbMIR:m2.DMOV" description="motor done moving mirror vertical steering" mne="mirr_vs_dmov"/><!-- TODO -->
-  <EPICS_PV _ignore_="true" PV="32idbMIR:m2.RBV" description="motor mirror vertical steering, mm" display_format="%.3f" mne="mirr_vs"/><!-- TODO -->
-  <EPICS_PV _ignore_="true" PV="32idbMIR:seq01:cr:inpos.RVAL" description="USAXS mirror Cr stripe selected" mne="mirror_cr_pos"/><!-- TODO -->
-  <EPICS_PV _ignore_="true" PV="32idbMIR:seq01:rh:inpos.RVAL" description="USAXS mirror Rh stripe selected" mne="mirror_rh_pos"/><!-- TODO -->
-  <EPICS_PV _ignore_="true" PV="32idbMIR:seq01:si:inpos.RVAL" description="USAXS mirror Si stripe selected" mne="mirror_si_pos"/><!-- TODO -->
-  <EPICS_PV _ignore_="true" PV="32idbMIR:seq01:wht:inpos.RVAL" description="USAXS mirror white beam position selected" mne="mirror_wh_pos"/><!-- TODO -->
 
 </pvwatch>
 
