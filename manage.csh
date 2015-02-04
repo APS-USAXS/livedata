@@ -82,8 +82,9 @@ switch ($1)
        # */5 * * * * /home/beams/USAXS/Documents/eclipse/USAXS/livedata/manage.csh checkup 2>&1 /dev/null
        #
 
-       # 2013-10-25,prj: new cleanup part, until pvwatch.py starts getting it right again
-       /bin/rm -f /tmp/tmp*.p*
+       #2015-02-04,prj: removed, sends nuisance emails
+       ## 2013-10-25,prj: new cleanup part, until pvwatch.py starts getting it right again
+       #/bin/rm -f /tmp/tmp*.p*
 
        set pid = `/bin/cat ${PIDFILE}`
        setenv RESPONSE `ps -p ${pid} -o comm=`
