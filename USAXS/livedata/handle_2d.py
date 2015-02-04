@@ -72,7 +72,7 @@ def make_png(h5file, imgfile, h5path=HDF5_DATA_PATH, log_image=True,
     ax.cla()
     ax.set_title(h5file, fontsize=9)
     ax.imshow(image_data, interpolation='nearest')
-    fig.savefig(imgfile)
+    fig.savefig(imgfile, bbox_inches='tight')
     plt.close(fig)
     return imgfile
 

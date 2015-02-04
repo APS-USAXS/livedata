@@ -43,6 +43,8 @@ def update_n_plots(specFile, numScans):
     usaxs = extract_USAXS_data(sd, scanList)  # extract R(Q), ignoring errors
     if usaxs is None:
         return
+    # TODO: use MatPlotLib instead
+    # see:  http://stackoverflow.com/questions/9622163/save-plot-to-image-file-instead-of-displaying-it-using-matplotlib-so-it-can-be
     ploticus_data = format_as_ploticus_data(usaxs)
     if len(ploticus_data['data']) == 0:
         return
