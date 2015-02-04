@@ -16,19 +16,20 @@ from scp import SCPClient, report_scp_progress
 
 # general use
 WWW_SERVER = 'www-i.xray.aps.anl.gov'
-WWW_SERVER_USER = 'usaxs'
+WWW_SERVER_USER = 'webusaxs'
 WWW_SERVER_ROOT = WWW_SERVER_USER + '@' + WWW_SERVER
 LIVEDATA_DIR = "www/livedata"
-SERVER_WWW_HOMEDIR = WWW_SERVER_ROOT + ":~"
-SERVER_WWW_LIVEDATA = os.path.join(SERVER_WWW_HOMEDIR, LIVEDATA_DIR)
-LOCAL_DATA_DIR = "/data"
-LOCAL_USAXS_DATA__DIR = LOCAL_DATA_DIR + "/USAXS_data"
-LOCAL_WWW = LOCAL_DATA_DIR + "/www"
-LOCAL_WWW_LIVEDATA = os.path.join(LOCAL_DATA_DIR, LIVEDATA_DIR)
-SCP_TIMEOUT_S = 30
+SERVER_WWW_LIVEDATA = os.path.join(WWW_SERVER_ROOT + ":~", LIVEDATA_DIR)
 
-SCP = "/usr/bin/scp"
+LOCAL_DATA_DIR = "/share1"
+LOCAL_WWW = os.path.join(LOCAL_DATA_DIR, 'local_www_site')
+LOCAL_WWW_LIVEDATA = os.path.join(LOCAL_DATA_DIR, LIVEDATA_DIR)
+
+LOCAL_USAXS_DATA__DIR = LOCAL_DATA_DIR + "/USAXS_data"
+
 RSYNC = "/usr/bin/rsync"
+SCP = "/usr/bin/scp"
+SCP_TIMEOUT_S = 30
 
 
 def scpToWebServer(sourceFile, targetFile = "", demo = False):
