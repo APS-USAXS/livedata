@@ -8,7 +8,7 @@
 setenv SCRIPT_DIR	 /home/beams/USAXS/Documents/eclipse/USAXS/livedata
 setenv MANAGE		 ${SCRIPT_DIR}/manage.csh
 setenv PLOTICUS_PREFABS  /home/beams/USAXS/Documents/ploticus/pl241src/prefabs
-setenv WWW_DIR		 /share1/www/livedata
+setenv WWW_DIR		 /share1/local_livedata
 setenv SCRIPT		 ${SCRIPT_DIR}/pvwatch.py
 setenv LOGFILE		 ${WWW_DIR}/log.txt
 setenv PIDFILE		 ${WWW_DIR}/pid.txt
@@ -28,6 +28,7 @@ switch ($1)
        /bin/echo "# [$0 `/bin/date`] started ${PID}: ${SCRIPT}"
        /bin/echo -5 >! ${COUNTERFILE}
        breaksw
+
   case "stop":
        cd ${SCRIPT_DIR}
        setenv PID `/bin/cat ${PIDFILE}`
@@ -59,10 +60,12 @@ switch ($1)
        /bin/echo "# [$0 `/bin/date`] pvWatch mainLoopCounter: `${CAGET} ${LOOP_COUNTER_PV}`"  >>& ${LOGFILE} &
        /bin/echo "# [$0 `/bin/date`] pvWatch phase: `${CAGET} ${PVWATCH_PHASE_PV}`"  >>& ${LOGFILE} &
        breaksw
+
   case "restart":
        $0 stop
        $0 start
        breaksw
+
   case "checkup":
        #=====================
        # call periodically (every 5 minutes) to see if livedata is running
@@ -75,34 +78,38 @@ switch ($1)
        #      month	     1-12 (or names, see below)
        #      day of week    0-7 (0 or 7 is Sun, or use names)
        #
+       # build: http://usaxs.xray.aps.anl.gov/livedata/
        # */5 * * * * /home/beams/USAXS/Documents/eclipse/USAXS/livedata/manage.csh checkup 2>&1 /dev/null
        #
+
        # 2013-10-25,prj: new cleanup part, until pvwatch.py starts getting it right again
        /bin/rm -f /tmp/tmp*.p*
-       #
+
        set pid = `/bin/cat ${PIDFILE}`
        setenv RESPONSE `ps -p ${pid} -o comm=`
        if (${RESPONSE} != "python") then
           echo "# [$0 `/bin/date`] could not identify running process ${pid}, restarting" >>& ${LOGFILE}
-	  # swallow up any console output
+	      # swallow up any console output
           echo `${MANAGE} restart` >& /dev/null
        else
- 	  # look to see if the process has stalled, then restart it
-	  set counter = `${CAGET} -t ${LOOP_COUNTER_PV}`
- 	  echo "# [$0 `/bin/date`] checkup pid=${pid}, counter=${counter}" >>& ${LOGFILE}
-	  set last_counter = `/bin/cat ${COUNTERFILE}`
-	  if ("${counter}" == "${last_counter}") then
- 	     echo "# [$0 `/bin/date`] process ${pid} appears stalled, restarting" >>& ${LOGFILE}
-	     # swallow up any console output
- 	     echo `${MANAGE} restart` >& /dev/null
- 	  else
-	     /bin/echo ${counter} >! ${COUNTERFILE}
-	  endif
+ 	      # look to see if the process has stalled, then restart it
+	      set counter = `${CAGET} -t ${LOOP_COUNTER_PV}`
+ 	      echo "# [$0 `/bin/date`] checkup pid=${pid}, counter=${counter}" >>& ${LOGFILE}
+	      set last_counter = `/bin/cat ${COUNTERFILE}`
+	      if ("${counter}" == "${last_counter}") then
+ 	         echo "# [$0 `/bin/date`] process ${pid} appears stalled, restarting" >>& ${LOGFILE}
+	         # swallow up any console output
+ 	         echo `${MANAGE} restart` >& /dev/null
+ 	      else
+	         /bin/echo ${counter} >! ${COUNTERFILE}
+	      endif
        endif
        breaksw
+
   default:
        /bin/echo "Usage: $0 {start|stop|restart|checkup}"
        breaksw
+
 endsw
 
 ########### SVN repository information ###################

@@ -22,7 +22,7 @@ LIVEDATA_DIR = "www/livedata"
 SERVER_WWW_LIVEDATA = os.path.join(WWW_SERVER_ROOT + ":~", LIVEDATA_DIR)
 
 LOCAL_DATA_DIR = "/share1"
-LOCAL_WWW = os.path.join(LOCAL_DATA_DIR, 'local_www_site')
+LOCAL_WWW = os.path.join(LOCAL_DATA_DIR, 'local_livedata')
 LOCAL_WWW_LIVEDATA = os.path.join(LOCAL_DATA_DIR, LIVEDATA_DIR)
 
 LOCAL_USAXS_DATA__DIR = LOCAL_DATA_DIR + "/USAXS_data"
