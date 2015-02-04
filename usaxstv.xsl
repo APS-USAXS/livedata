@@ -1,10 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
-<!-- 
-    $Id$
-    $URL$
--->
-
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 
 <xsl:template match="/">
@@ -232,3 +226,12 @@ USAXS status
     </xsl:template>        
 
 </xsl:stylesheet>
+<!-- 
+    ########### SVN repository information ###################
+    # $Date: 2013-04-20 00:19:52 -0500 (Sat, 20 Apr 2013) $
+    # $Author: jemian $
+    # $Revision: 803 $
+    # $URL$
+    # $Id$
+    ########### SVN repository information ###################
+-->
