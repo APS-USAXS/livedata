@@ -360,7 +360,7 @@ def report():
 
     # also copy the raw table XSLT
     xslFile = localConfig.RAWTABLE_XSL_STYLESHEET
-    wwwServerTransfers.scpToWebServer(os.path.join(localDir, xslFile), xslFile)
+    wwwServerTransfers.scpToWebServer(xslFile, xslFile)
 
     # make the usaxstv.html file
     usaxstv_html = localConfig.HTML_USAXSTV_FILE  # short name

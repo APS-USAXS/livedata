@@ -11,8 +11,8 @@ import os
 HOME_DIR = os.environ.get('HOME', '')
 BASE_DIR = "/share1/USAXS_data/"
 LOCAL_DATA_DIR = "/share1"
-LOCAL_USAXS_DATA_DIR = LOCAL_DATA_DIR + "/USAXS_data"
-LOCAL_WWW_LIVEDATA_DIR = LOCAL_DATA_DIR + "/www/livedata"
+LOCAL_USAXS_DATA_DIR = os.path.join(LOCAL_DATA_DIR, "/USAXS_data")
+LOCAL_WWW_LIVEDATA_DIR = os.path.join(LOCAL_DATA_DIR, "local_livedata")
 
 PLOT_FORMAT = "png"
 PLOTICUS = os.path.join(HOME_DIR, "bin/pl")
