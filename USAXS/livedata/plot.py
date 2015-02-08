@@ -1,24 +1,31 @@
 #!/usr/bin/env python
 
 '''
-   read a SPEC data file and plot the last n USAXS scans for the livedata WWW page
+read a SPEC data file and plot the last n USAXS scans for the livedata WWW page
 
-   .. note:: copies plot file to USAXS site on XSD WWW server
+.. note:: copies plot file to USAXS site on XSD WWW server
 '''
 
 import math
+import numpy
 import os
 import shutil
 import tempfile
 import time
+
 from spec2nexus import prjPySpec        # read SPEC data files
+
 import localConfig      # definitions for 9-ID
 import wwwServerTransfers
 import reduceFlyData
+import plot_mpl
+
 
 scanlog_mtime = None
 usaxs_scans_cache = []
 spec_file_cache = {}
+PLOT_SUPPORT = 'MatPlotLib'
+#PLOT_SUPPORT = 'ploticus'
 
 
 class Scan(object):
@@ -43,23 +50,32 @@ def update_n_plots(specFile, numScans):
     usaxs = extract_USAXS_data(sd, scanList)  # extract R(Q), ignoring errors
     if usaxs is None:
         return
-    # TODO: use MatPlotLib instead
-    # see:  http://stackoverflow.com/questions/9622163/save-plot-to-image-file-instead-of-displaying-it-using-matplotlib-so-it-can-be
-    ploticus_data = format_as_ploticus_data(usaxs)
-    if len(ploticus_data['data']) == 0:
-        return
 
-    tempDataFile = write_ploticus_data(ploticus_data['data'])
-
-    ploticus = make_ploticus_dictionary(specFile, tempDataFile, ploticus_data, usaxs)
-    command_script = ploticus_commands(ploticus, usaxs)
-
-    #---- make the plot
     local_plot = os.path.join(
                               localConfig.LOCAL_WWW_LIVEDATA_DIR, 
                               localConfig.LOCAL_PLOTFILE)
+
+    if PLOT_SUPPORT == 'MatPlotLib':
+        # use MatPlotLib to plot the USAXS livedata (BCDA_09ID-57)
+        mpl_data = format_as_mpl_data(usaxs)
+        if len(mpl_data) == 0:
+            return usaxs
+        plot_mpl.livedata_plot(mpl_data, local_plot, specFile)
+    else:
+        # use ploticus to plot the USAXS livedata
+        ploticus_data = format_as_ploticus_data(usaxs)
+        if len(ploticus_data['data']) == 0:
+            return
+    
+        tempDataFile = write_ploticus_data(ploticus_data['data'])
+    
+        ploticus = make_ploticus_dictionary(specFile, tempDataFile, ploticus_data, usaxs)
+        command_script = ploticus_commands(ploticus, usaxs)
+    
+        #---- make the plot
+        run_ploticus(command_script, local_plot)
+
     www_plot = localConfig.LOCAL_PLOTFILE
-    run_ploticus(command_script, local_plot)
     wwwServerTransfers.scpToWebServer(local_plot, www_plot)
     os.remove(tempDataFile)
     # perhaps copy the SPEC macro here, as well
@@ -140,6 +156,25 @@ def extract_USAXS_data(specData, scanList):
         entry['label'] = "%s: %s" % (entry['key'], entry['title'])
         usaxs.append( entry )
     return usaxs
+
+
+def format_as_mpl_data(usaxs):
+    '''prepare the USAXS data for plotting with MatPlotLib'''
+    mpl_datasets = []
+    for scan in usaxs:
+        Q = numpy.ma.masked_less_equal(numpy.abs(scan['qVec']), 0)
+        I = numpy.ma.masked_less_equal(scan['rVec'], 0)
+        mask = Q.mask | I.mask
+        
+        mpl_ds = plot_mpl.Plottable_USAXS_Dataset()
+        mpl_ds.Q = numpy.ma.masked_array(data=Q, mask=mask).compressed()
+        mpl_ds.I = numpy.ma.masked_array(data=I, mask=mask).compressed()
+        mpl_ds.label = scan['key']
+
+        if len(mpl_ds.Q) > 0 and len(mpl_ds.I) > 0:
+            mpl_datasets.append(mpl_ds)
+
+    return mpl_datasets
 
 
 def write_ploticus_data(data):
