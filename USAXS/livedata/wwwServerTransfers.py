@@ -36,7 +36,7 @@ def scpToWebServer(sourceFile, targetFile = "", demo = False):
     '''
     Copy the local source file to the WWW server using scp.
 
-    @param sourceFile: file in local file space relative to /data/www/livedata
+    @param sourceFile: file in local file space relative to /share1/local_livedata
     @param targetFile: destination file (default is same path as sourceFile)
     @param demo: If True, don't do the copy, just print the command
     @return: a tuple (stdoutdata,  stderrdata) -or- None (if demo=False)
@@ -70,7 +70,7 @@ def scpToWebServer_Demonstrate(sourceFile, targetFile = ""):
     ... this is useful for code development only...
     ...
 
-    @param sourceFile: file in local file space *relative* to /data/www/livedata
+    @param sourceFile: file in local file space *relative* to /share1/local_livedata
     @param targetFile: destination file (default is same path as sourceFile)
     @return: None
     '''
@@ -81,7 +81,7 @@ def scpToWebServer_subprocess(sourceFile, targetFile = "", demo = False):
     '''
     Copy the local source file to the WWW server using scp.
 
-    @param sourceFile: file in local file space relative to /data/www/livedata
+    @param sourceFile: file in local file space relative to /share1/local_livedata
     @param targetFile: destination file (default is same path as sourceFile)
     @param demo: If True, don't do the copy, just print the command
     @return: a tuple (stdoutdata,  stderrdata) -or- None (if demo=False)

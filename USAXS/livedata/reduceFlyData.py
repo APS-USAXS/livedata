@@ -202,7 +202,7 @@ class UsaxsFlyScan(object):
         
         if config_version in ('1', '1.0'):
             mode_number = 0
-        elif config_version in ('1.1'):
+        elif config_version in ('1.1', '1.2'):
             mode_number = hdf['/entry/flyScan/AR_PulseMode'][0]
         else:
             msg = "Unexpected /entry/program_name/@config_version = " + config_version
