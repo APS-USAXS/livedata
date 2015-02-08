@@ -74,10 +74,10 @@ def update_n_plots(specFile, numScans):
     
         #---- make the plot
         run_ploticus(command_script, local_plot)
+        os.remove(tempDataFile)
 
     www_plot = localConfig.LOCAL_PLOTFILE
     wwwServerTransfers.scpToWebServer(local_plot, www_plot)
-    os.remove(tempDataFile)
     # perhaps copy the SPEC macro here, as well
     
     return usaxs
@@ -92,7 +92,7 @@ def last_n_scans(scans, maxScans):
     :return: list of SpecDataFileScan objects where len() <= maxScans
     '''
     # TODO: revise to pick the last N scans from the XML scanLog instead
-    # /data/www/livedata/scanlog.xml
+    # /share1/local_livedata/scanlog.xml
     #<USAXS_SCAN_LOG version="1.0">
     # <scan id="28:/data/USAXS_data/2014-03/03_06_JanTest.dat" number="28" state="complete" type="uascan">
     #     <title>GC Adam</title>
@@ -162,14 +162,16 @@ def format_as_mpl_data(usaxs):
     '''prepare the USAXS data for plotting with MatPlotLib'''
     mpl_datasets = []
     for scan in usaxs:
-        Q = numpy.ma.masked_less_equal(numpy.abs(scan['qVec']), 0)
-        I = numpy.ma.masked_less_equal(scan['rVec'], 0)
-        mask = Q.mask | I.mask
+        Q = map(float, scan['qVec'])
+        I = map(float, scan['rVec'])
+        Q = numpy.ma.masked_less_equal(numpy.abs(Q), 0)
+        I = numpy.ma.masked_less_equal(I, 0)
+        mask = numpy.ma.mask_or(Q.mask, I.mask)
         
         mpl_ds = plot_mpl.Plottable_USAXS_Dataset()
         mpl_ds.Q = numpy.ma.masked_array(data=Q, mask=mask).compressed()
         mpl_ds.I = numpy.ma.masked_array(data=I, mask=mask).compressed()
-        mpl_ds.label = scan['key']
+        mpl_ds.label = scan['label']
 
         if len(mpl_ds.Q) > 0 and len(mpl_ds.I) > 0:
             mpl_datasets.append(mpl_ds)
@@ -437,7 +439,7 @@ def identify_last_n_scans(numScans):
     global scanlog_mtime, usaxs_scans_cache
     # optimize this to avoid reptitive file scanning and sorting
     # cache the results
-    scanlog_file = os.path.abspath('/data/www/livedata/scanlog.xml')
+    scanlog_file = os.path.abspath('/share1/local_livedata/scanlog.xml')
     if not os.path.exists(scanlog_file):
         raise IOError, 'scanlog file not found: ' + scanlog_file
     mtime = os.path.getmtime(scanlog_file)      # compare against the cache to optimize
