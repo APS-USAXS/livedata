@@ -40,6 +40,7 @@ def livedata_plot(datasets, plotfile, title=None):
     ax.set_ylabel(r'Raw Intensity ($I$), a.u.')
     ax.grid(True, which='both')
 
+    legend_handlers = {}  # to configure legend for one symbol per dataset
     for i, ds in enumerate(datasets):
         if i < len(datasets)-1:
             color = COLOR_LIST[i % len(COLOR_LIST)]
@@ -47,7 +48,8 @@ def livedata_plot(datasets, plotfile, title=None):
         else:
             color = 'red'
             symbol = 'o'
-        ax.plot(ds.Q, ds.I, symbol, label=ds.label, mfc='w', mec=color, ms=3, mew=1)
+        pl, = ax.plot(ds.Q, ds.I, symbol, label=ds.label, mfc='w', mec=color, ms=3, mew=1)
+	legend_handlers[pl] = matplotlib.legend_handler.HandlerLine2D(numpoints=1)
 
     timestamp_str = 'APS/XSD USAXS: ' + str(datetime.datetime.now())
     if title is None:
@@ -57,7 +59,7 @@ def livedata_plot(datasets, plotfile, title=None):
             fontsize=8, color='gray',
             ha='left', va='bottom', alpha=0.5)
     plt.title(title, fontsize=12)
-    plt.legend(loc='lower left', fontsize=10)   # FIXME: plots two symbols for each dataset
+    plt.legend(loc='lower left', fontsize=10, handler_map=legend_handlers)
     plt.savefig(plotfile, bbox_inches='tight', facecolor=BISQUE_RGB)
 
 
