@@ -97,8 +97,11 @@ def plotAllSpecFileScans(specFile):
     if len(newFileList):
         # use rsync to update the XSD WWW server
         # limit the rsync to just the specplots/yyyymm subdir
+
+        # FIXME: target directory is not correct!
+
         yyyymm = datePath(sd.headers[-1].date)
-        source = "./www/livedata/specplots" + "/" + yyyymm + "/"
+        source = "./local_livedata/specplots" + "/" + yyyymm + "/"
         target = wwwServerTransfers.SERVER_WWW_HOMEDIR
         command = wwwServerTransfers.RSYNC
         command += " -rRtz %s %s" % (source, target)

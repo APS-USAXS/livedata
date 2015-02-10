@@ -16,10 +16,11 @@
 # kill -9 `psg bash | awk '/buildSpecPlots.sh/ {print $2}' -`
 # kill -9 `psg python | awk '/specplotsAllScans.py/ {print $2}' -`
 
-CODE_DIR=/home/beams/S15USAXS/Documents/eclipse/USAXS/livedata
+CODE_DIR=/home/beams/USAXS/Documents/eclipse/USAXS/livedata
 PROGRAM=$CODE_DIR/specplotsAllScans.py
-LOGFILE=/data/www/livedata/specplots/specplots.log
-PYTHON=/APSshare/epd/rh6-x86_64/bin/python
+LOGFILE=/share1/local_livedata/specplots/specplots.log
+#PYTHON=/APSshare/epd/rh6-x86_64/bin/python
+PYTHON=/APSshare/anaconda/x86_64/bin/python
 
 #
 # change the SPEC_DATA_PATTERN periodically to reduce the search time
@@ -29,9 +30,10 @@ PYTHON=/APSshare/epd/rh6-x86_64/bin/python
 #SPEC_DATA_PATTERN=/data/USAXS_data/2010-04/*.dat
 #SPEC_DATA_PATTERN=/data/USAXS_data/201*-*/*.dat
 #SPEC_DATA_PATTERN=/data/USAXS_data/2013-1*/*.dat
-SPEC_DATA_PATTERN=/data/USAXS_data/2014-*/*.dat
+#SPEC_DATA_PATTERN=/data/USAXS_data/2014-*/*.dat
+SPEC_DATA_PATTERN=/data/USAXS_data/2015-*/*.dat
 
-export PLOTICUS_BASE=/home/beams/S15USAXS/Documents/ploticus/pl241src
+export PLOTICUS_BASE=/home/beams/USAXS/Documents/ploticus/pl241src
 export PLOTICUS_PREFABS=$PLOTICUS_BASE/prefabs
 
 cd $CODE_DIR

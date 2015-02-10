@@ -19,7 +19,8 @@ WWW_SERVER = 'www-i.xray.aps.anl.gov'
 WWW_SERVER_USER = 'webusaxs'
 WWW_SERVER_ROOT = WWW_SERVER_USER + '@' + WWW_SERVER
 LIVEDATA_DIR = "www/livedata"
-SERVER_WWW_LIVEDATA = os.path.join(WWW_SERVER_ROOT + ":~", LIVEDATA_DIR)
+SERVER_WWW_HOMEDIR = WWW_SERVER_ROOT + ":~"
+SERVER_WWW_LIVEDATA = os.path.join(SERVER_WWW_HOMEDIR, LIVEDATA_DIR)
 
 LOCAL_DATA_DIR = "/share1"
 LOCAL_WWW = os.path.join(LOCAL_DATA_DIR, 'local_livedata')

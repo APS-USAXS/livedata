@@ -6,12 +6,13 @@ read a SPEC data file and plot scan n using ploticus
 .. note:: does not copy any file to XSD WWW server
 '''
 
+import argparse
 import numpy
 import os
 import sys
 import tempfile
 import time
-from spec2nexus import prjPySpec        # read SPEC data files
+from spec2nexus import spec             # read SPEC data files
 import localConfig                      # definitions for 9-ID
 import wwwServerTransfers
 import reduceFlyData
@@ -50,9 +51,8 @@ def retrieve_flyScanData(scan):
             ufs.rebin(localConfig.REDUCED_FLY_SCAN_BINS)
             ufs.save(abs_file, s_num_bins)
 
-        # USAXS Fly Scan plots will be ln(R) v. ln(Q), otherwise useless
-        Q = numpy.log(ufs.reduced[s_num_bins]['Q'])
-        R = numpy.log(ufs.reduced[s_num_bins]['R'])
+        Q = ufs.reduced[s_num_bins]['Q']
+        R = ufs.reduced[s_num_bins]['R']
         plotData = zip(Q, R)
     else:
         plotData = []
@@ -97,7 +97,8 @@ def makeScanImage(scan, plotFile):
     elif scanCmd == 'FlyScan':
         plotData = retrieve_flyScanData(scan)
         if len(plotData) > 0:
-            ploticus__process_plotData(scan, plotData, plotFile)
+            #ploticus__process_plotData(scan, plotData, plotFile)
+            mpl__process_plotData(scan, plotData, plotFile)
     else:
         # plot last column v. first column
         plotData = retrieve_specScanData(scan)
@@ -110,7 +111,8 @@ def makeScanImage(scan, plotFile):
                 mtime_pf = 0
             if mtime_sdf > mtime_pf:
                 # TODO: check if this scan _needs_ to be updated
-                ploticus__process_plotData(scan, plotData, plotFile)
+                #ploticus__process_plotData(scan, plotData, plotFile)
+                mpl__process_plotData(scan, plotData, plotFile)
 
 
 def write_file_by_lines(data):
@@ -128,8 +130,33 @@ def write_file_by_lines(data):
     return dataFile
 
 
+def mpl__process_plotData(scan, plotData, plotFile):
+    '''make MatPlotLib line chart image from raw SPEC or FlyScan data'''
+    import plot_mpl
+    x, y = zip(*plotData)
+    scan_macro = scan.scanCmd.split()[0]
+    if scan_macro in ('uascan', 'sbuascan'):
+        xlog = False
+        ylog = True
+    elif scan_macro in ('FlyScan', ):
+        xlog = True
+        ylog = True
+    else:
+        xlog = False
+        ylog = False
+    title = scan.specFile
+    subtitle = "#%d: %s" % (scan.scanNum, scan.scanCmd)
+    plot_mpl.spec_plot(x, y, 
+                       plotFile, 
+                       title=title, 
+                       subtitle=subtitle, 
+                       xtitle=scan.column_first, 
+                       ytitle=scan.column_last, 
+                       xlog=xlog, ylog=ylog)
+
+
 def ploticus__process_plotData(scan, plotData, plotFile):
-    '''make line chart image from raw SPEC or FlyScan data'''
+    '''make Ploticus line chart image from raw SPEC or FlyScan data'''
     # see: http://ploticus.sourceforge.net/doc/prefab_lines_ex.html
     
     # format the x&y data as ploticus text
@@ -174,9 +201,9 @@ def ploticus__process_plotData(scan, plotData, plotFile):
 
 def openSpecFile(specFile):
     '''
-    convenience routine so that others do not have to import prjPySpec
+    convenience routine so that others do not have to import spec2nexus.spec
     '''
-    sd = prjPySpec.SpecDataFile(specFile)
+    sd = spec.SpecDataFile(specFile)
     return sd
 
 
@@ -190,16 +217,16 @@ def findScan(sd, n):
 
 
 def main():
-    if len(sys.argv) != 4:
-        print "usage: %s specFile scan_number plotFile" % sys.argv[0]
-        sys.exit()
-    (specFile, scan_number, plotFile) = sys.argv[1:4]
-    try:
-        specData = openSpecFile(specFile)
-        scan = findScan(specData, scan_number)
-        makeScanImage(scan, plotFile)
-    except:
-        pass
+    doc = __doc__.strip().splitlines()[0]
+    parser = argparse.ArgumentParser(description=doc)
+    parser.add_argument('specFile',    help="SPEC data file name")
+    parser.add_argument('scan_number', help="scan number in SPEC file", type=int)
+    parser.add_argument('plotFile',    help="output plot file name")
+    results = parser.parse_args()
+
+    specData = openSpecFile(results.specFile)
+    scan = findScan(specData, results.scan_number)
+    makeScanImage(scan, results.plotFile)
 
 
 if __name__ == '__main__':
