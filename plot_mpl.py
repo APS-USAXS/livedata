@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-'''use MatPlotLib for the USAXS livedata plots'''
+'''use MatPlotLib for the USAXS livedata and generic SPEC scan plots'''
 
 
 import datetime
@@ -17,6 +17,11 @@ COLOR_LIST = ("green", "purple", "blue", "black", "orange") # red is NOT in the 
 
 CHART_FILE = 'livedata.png'
 
+# MatPlotLib advises to re-use the figure() object rather create new ones
+# http://stackoverflow.com/questions/21884271/warning-about-too-many-open-figures
+LIVEDATA_PLOT_FIG = plt.figure(figsize=(7.5, 8), dpi=300)
+SPEC_PLOT_FIG = plt.figure(figsize=(9, 5))
+
 
 class Plottable_USAXS_Dataset(object):
     Q = None
@@ -31,7 +36,7 @@ def livedata_plot(datasets, plotfile, title=None):
     :param [Plottable_USAXS_Dataset] datasets: USAXS data to be plotted, newest data last
     :param str plotfile: file name to write plot image
     '''
-    fig = plt.figure(figsize=(7.5, 8), dpi=300)
+    fig = LIVEDATA_PLOT_FIG
 
     ax = fig.add_subplot('111', axisbg=MINTCREAM_RGB)
     ax.set_xscale('log')
@@ -49,7 +54,7 @@ def livedata_plot(datasets, plotfile, title=None):
             color = 'red'
             symbol = 'o'
         pl, = ax.plot(ds.Q, ds.I, symbol, label=ds.label, mfc='w', mec=color, ms=3, mew=1)
-	legend_handlers[pl] = matplotlib.legend_handler.HandlerLine2D(numpoints=1)
+    legend_handlers[pl] = matplotlib.legend_handler.HandlerLine2D(numpoints=1)
 
     timestamp_str = 'APS/XSD USAXS: ' + str(datetime.datetime.now())
     if title is None:
@@ -61,6 +66,52 @@ def livedata_plot(datasets, plotfile, title=None):
     plt.title(title, fontsize=12)
     plt.legend(loc='lower left', fontsize=10, handler_map=legend_handlers)
     plt.savefig(plotfile, bbox_inches='tight', facecolor=BISQUE_RGB)
+
+
+def spec_plot(x, y, 
+              plotfile, 
+              title=None, subtitle=None, 
+              xtitle=None, ytitle=None, 
+              xlog=False, ylog=False):
+    '''
+    generate a plot of a scan from a SPEC file
+    
+    :param [float] x: horizontal axis data
+    :param [float] y: vertical axis data
+    :param str plotfile: file name to write plot image
+    :param str xtitle: horizontal axis label (default: not shown)
+    :param str ytitle: vertical axis label (default: not shown)
+    :param str title: title for plot (defaults to date time)
+    :param bool xlog: should X axis be log (defaults to False=linear)
+    :param bool ylog: should Y axis be log (defaults to False=linear)
+    '''
+    fig = SPEC_PLOT_FIG
+    fig.clf()
+
+    ax = fig.add_subplot('111')
+    if ylog:
+        ax.set_yscale('log')
+    if xlog:
+        ax.set_xscale('log')
+    if xtitle is not None:
+        ax.set_xlabel(xtitle)
+    if ytitle is not None:
+        ax.set_ylabel(ytitle)
+    ax.ticklabel_format(style='plain', axis='both', useOffset=False)
+
+    pl = ax.plot(x, y, 'o-')
+    if subtitle is not None:
+        plt.title(subtitle, fontsize=9)
+
+    timestamp_str = str(datetime.datetime.now())
+    if title is None:
+        title = timestamp_str
+    else:
+        fig.text(0.02, 0., timestamp_str,
+            fontsize=8, color='gray',
+            ha='left', va='bottom', alpha=0.5)
+    plt.suptitle(title, fontsize=10)
+    plt.savefig(plotfile, bbox_inches='tight')
 
 
 def main():
