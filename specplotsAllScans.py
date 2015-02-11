@@ -95,17 +95,30 @@ def plotAllSpecFileScans(specFile):
         
     #------------------
     if len(newFileList):
-        # use rsync to update the XSD WWW server
-        # limit the rsync to just the specplots/yyyymm subdir
+        cwd = os.getcwd()
+        os.chdir(wwwServerTransfers.LOCAL_WWW)
+        try:
+            upload(newFileList, sd)
+        except Exception, exc:
+            pass        # TODO: what now?
+        os.chdir(cwd)
 
-        # FIXME: target directory is not correct!
 
-        yyyymm = datePath(sd.headers[-1].date)
-        source = "./local_livedata/specplots" + "/" + yyyymm + "/"
-        target = wwwServerTransfers.SERVER_WWW_HOMEDIR
-        command = wwwServerTransfers.RSYNC
-        command += " -rRtz %s %s" % (source, target)
-        wwwServerTransfers.execute_command(command)
+def upload(newFileList, sdf):
+    '''
+    upload the list of files to the XSD WWW server
+    
+    limit the rsync to just the specplots/yyyymm subdir
+    
+    :param [str] newFileList: list of local files (absolute path reference) to be uploaded
+    :param obj sdf: instance of SpecDataFile
+    '''
+    yyyymm = datePath(sdf.headers[-1].date)
+    source = os.path.join('specplots', yyyymm + '/')
+    target = wwwServerTransfers.SERVER_WWW_HOMEDIR + '/' + os.path.join('www', 'livedata')
+    command = wwwServerTransfers.RSYNC
+    command += " -rRtz %s %s" % (source, target)
+    wwwServerTransfers.execute_command(command)
 
 
 def getBaseName(specFile):

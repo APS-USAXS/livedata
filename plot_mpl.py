@@ -41,8 +41,8 @@ def livedata_plot(datasets, plotfile, title=None):
     ax = fig.add_subplot('111', axisbg=MINTCREAM_RGB)
     ax.set_xscale('log')
     ax.set_yscale('log')
-    ax.set_xlabel(r'$|Q|, 1/\AA$')
-    ax.set_ylabel(r'Raw Intensity ($I$), a.u.')
+    ax.set_xlabel(r'$|\vec{Q}|, 1/\AA$')
+    ax.set_ylabel(r'Raw Intensity ($R(|\vec{Q}|)$), a.u.')
     ax.grid(True, which='both')
 
     legend_handlers = {}  # to configure legend for one symbol per dataset
@@ -72,7 +72,8 @@ def spec_plot(x, y,
               plotfile, 
               title=None, subtitle=None, 
               xtitle=None, ytitle=None, 
-              xlog=False, ylog=False):
+              xlog=False, ylog=False,
+              timestamp_str=None):
     '''
     generate a plot of a scan from a SPEC file
     
@@ -84,26 +85,29 @@ def spec_plot(x, y,
     :param str title: title for plot (defaults to date time)
     :param bool xlog: should X axis be log (defaults to False=linear)
     :param bool ylog: should Y axis be log (defaults to False=linear)
+    :param str timestamp_str: date to use on plot (defaults to now)
     '''
     fig = SPEC_PLOT_FIG
     fig.clf()
 
     ax = fig.add_subplot('111')
-    if ylog:
-        ax.set_yscale('log')
     if xlog:
         ax.set_xscale('log')
+    if ylog:
+        ax.set_yscale('log')
+    if not xlog and not ylog:
+        ax.ticklabel_format(useOffset=False)
     if xtitle is not None:
         ax.set_xlabel(xtitle)
     if ytitle is not None:
         ax.set_ylabel(ytitle)
-    ax.ticklabel_format(style='plain', axis='both', useOffset=False)
 
     pl = ax.plot(x, y, 'o-')
     if subtitle is not None:
         plt.title(subtitle, fontsize=9)
 
-    timestamp_str = str(datetime.datetime.now())
+    if timestamp_str is None:
+        timestamp_str = str(datetime.datetime.now())
     if title is None:
         title = timestamp_str
     else:

@@ -1,20 +1,19 @@
 #!/bin/bash
-########### SVN repository information ###################
-# $Date$
-# $Author$
-# $Revision$
-# $URL$
-# $Id$
-########### SVN repository information ###################
 
-# script to crawl directories for SPEC data files and build default plots for all scans
+# crawl directories for SPEC data files and build default plots for all scans
+
+#--------------------------------------------------------------------
 # This script could be called from cron such as
 #
 #   # every five minutes (generates no output from outer script)
 #   0-59/5 * * * *  $HOME/Documents/eclipse/USAXS/livedata/buildSpecPlots.sh
+#--------------------------------------------------------------------
 
+#--------------------------------------------------------------------
+# tips for when too many process have been started:
 # kill -9 `psg bash | awk '/buildSpecPlots.sh/ {print $2}' -`
 # kill -9 `psg python | awk '/specplotsAllScans.py/ {print $2}' -`
+#--------------------------------------------------------------------
 
 CODE_DIR=/home/beams/USAXS/Documents/eclipse/USAXS/livedata
 PROGRAM=$CODE_DIR/specplotsAllScans.py
@@ -31,10 +30,10 @@ PYTHON=/APSshare/anaconda/x86_64/bin/python
 #SPEC_DATA_PATTERN=/data/USAXS_data/201*-*/*.dat
 #SPEC_DATA_PATTERN=/data/USAXS_data/2013-1*/*.dat
 #SPEC_DATA_PATTERN=/data/USAXS_data/2014-*/*.dat
-SPEC_DATA_PATTERN=/data/USAXS_data/2015-*/*.dat
+SPEC_DATA_PATTERN=/share1/USAXS_data/2015-*/*.dat
 
-export PLOTICUS_BASE=/home/beams/USAXS/Documents/ploticus/pl241src
-export PLOTICUS_PREFABS=$PLOTICUS_BASE/prefabs
+#export PLOTICUS_BASE=/home/beams/USAXS/Documents/ploticus/pl241src
+#export PLOTICUS_PREFABS=$PLOTICUS_BASE/prefabs
 
 cd $CODE_DIR
 echo "#=--Start--- `/bin/date`" >> $LOGFILE 2>&1
@@ -46,3 +45,12 @@ for item in $filelist;
 	$PYTHON $PROGRAM $item >> $LOGFILE 2>&1;
 done
 echo "#=--Done---------------------------------- `/bin/date`" >> $LOGFILE 2>&1
+
+
+########### SVN repository information ###################
+# $Date$
+# $Author$
+# $Revision$
+# $URL$
+# $Id$
+########### SVN repository information ###################

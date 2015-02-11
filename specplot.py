@@ -23,7 +23,7 @@ def retrieve_specScanData(scan):
     '''retrieve default data from spec data file'''
     x = scan.data[scan.column_first]
     y = scan.data[scan.column_last]
-    return zip(x, y)
+    return (x, y)
 
 
 def retrieve_flyScanData(scan):
@@ -53,7 +53,7 @@ def retrieve_flyScanData(scan):
 
         Q = ufs.reduced[s_num_bins]['Q']
         R = ufs.reduced[s_num_bins]['R']
-        plotData = zip(Q, R)
+        plotData = (Q, R)
     else:
         plotData = []
     return plotData
@@ -133,26 +133,31 @@ def write_file_by_lines(data):
 def mpl__process_plotData(scan, plotData, plotFile):
     '''make MatPlotLib line chart image from raw SPEC or FlyScan data'''
     import plot_mpl
-    x, y = zip(*plotData)
+    x, y = plotData
     scan_macro = scan.scanCmd.split()[0]
     if scan_macro in ('uascan', 'sbuascan'):
         xlog = False
         ylog = True
+        xtitle = scan.column_first
+        ytitle = scan.column_last
     elif scan_macro in ('FlyScan', ):
         xlog = True
         ylog = True
+        xtitle = r'$|\vec{Q}|, 1/\AA$'
+        ytitle = r'USAXS $R(|\vec{Q}|)$, a.u.'
     else:
         xlog = False
         ylog = False
+        xtitle = scan.column_first
+        ytitle = scan.column_last
     title = scan.specFile
     subtitle = "#%d: %s" % (scan.scanNum, scan.scanCmd)
-    plot_mpl.spec_plot(x, y, 
-                       plotFile, 
-                       title=title, 
-                       subtitle=subtitle, 
-                       xtitle=scan.column_first, 
-                       ytitle=scan.column_last, 
-                       xlog=xlog, ylog=ylog)
+    #timestamp_str = scan.date                REMOVE ME
+    plot_mpl.spec_plot(x, y,  plotFile, 
+                       title=title,  subtitle=subtitle, 
+                       xtitle=xtitle,  ytitle=ytitle, 
+                       xlog=xlog, ylog=ylog,
+                       timestamp_str=scan.date)
 
 
 def ploticus__process_plotData(scan, plotData, plotFile):
@@ -163,9 +168,9 @@ def ploticus__process_plotData(scan, plotData, plotFile):
     if len(plotData) == 0:
         pl_lines = ["   %s  %s" % (0, 0),]
     else:
-        pl_lines = ["   %s  %s" % (x, y) for (x, y) in plotData]
+        pl_lines = ["   %s  %s" % (x, y) for (x, y) in zip(*plotData)]
     #     # also find x & y min & max
-    #     x, y = zip(*plotData)
+    #     x, y = plotData
     #     pl = dict(data=pl_lines, xMin=min(x), xMax=max(x), yMin=min(y), yMax=max(y))
     dataFile = write_file_by_lines(pl_lines)
 
