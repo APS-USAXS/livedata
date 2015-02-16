@@ -33,12 +33,12 @@ def is_mtime_changed(fname):
 
     def readCacheFile(cache_file):
         cache = {}
-	if os.path.exists(cache_file):
+        if os.path.exists(cache_file):
             for line in open(cache_file, 'r').readlines():
-	      key = line.split('\t')[0]
-	      val = float(line.strip().split('\t')[1])
-	      cache[key] = val
-	return cache
+                key = line.split('\t')[0]
+                val = float(line.strip().split('\t')[1])
+                cache[key] = val
+        return cache
 
     def saveCacheFile(cache_file, cache):
         f = open(cache_file, 'w')
@@ -50,15 +50,15 @@ def is_mtime_changed(fname):
     mtime = getTimeFileModified(fname)
     if MTIME_CACHE is None:
         # only read this file once
-	MTIME_CACHE = readCacheFile(localConfig.MTIME_CACHE_FILE)
+        MTIME_CACHE = readCacheFile(localConfig.MTIME_CACHE_FILE)
 
-    if fname in MTIME_CACHE and mtime > MTIME_CACHE[fname]:
+    if (fname in MTIME_CACHE and mtime > MTIME_CACHE[fname]) or fname not in MTIME_CACHE:
         MTIME_CACHE[fname] = mtime
         changed = True
   
     if changed:
         logger('  SPEC data file updated: ' + fname)
-	saveCacheFile(localConfig.MTIME_CACHE_FILE, MTIME_CACHE)
+        saveCacheFile(localConfig.MTIME_CACHE_FILE, MTIME_CACHE)
       
     return changed
 
@@ -83,7 +83,7 @@ def plotAllSpecFileScans(specFile):
         return
     if not is_mtime_changed(specFile): 
         # don't update plots if spec file has not changed since last check
-	return
+        return
     logger('updating plots in directory: ' + png_directory)
     logger('  mtime_specFile: ' + str(mtime_specFile))
     logger('  mtime_pngdir:   ' + str(mtime_pngdir))
@@ -150,6 +150,9 @@ def plotAllSpecFileScans(specFile):
         f.close()
         newFileList.append(htmlFile)
         
+    # touch to update the mtime on the png_directory
+    os.utime(png_directory, None)
+    
     #------------------
     if len(newFileList):
         cwd = os.getcwd()
