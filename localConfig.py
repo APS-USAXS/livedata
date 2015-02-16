@@ -31,7 +31,7 @@ LOCAL_SPECPLOTS_DIR = os.path.join(LOCAL_WWW_LIVEDATA_DIR, "specplots")
 WWW_SPECPLOTS_DIR = "specplots"
 SPEC_FILE = os.path.join(LOCAL_USAXS_DATA_DIR, "2010-03/03_27.dat")
 TIMESTAMP_FORMAT = "%Y-%m-%d %H:%M:%S"
-MTIME_CACHE_FILE = os.path.join(WWW_SPECPLOTS_DIR, 'mtime_cache.txt')
+MTIME_CACHE_FILE = os.path.join(LOCAL_SPECPLOTS_DIR, 'mtime_cache.txt')
 
 # plot.py
 A_keV = 12.3984244
@@ -58,15 +58,16 @@ SPECMACRO_TXT_FILE = "specmacro.txt"
 
 
 # specplot.py
-TEST_SPEC_DATA = os.path.join(LOCAL_USAXS_DATA_DIR, "2011-06/06_22_setup2.dat")
-TEST_SPEC_DATA = os.path.join("testdata", "03_19_LLNL.dat")
-#TEST_SPEC_DATA = os.path.join("testdata", "03_19_LLNL-problem.dat")
-#TEST_SPEC_DATA = os.path.join("testdata", "11_03_Vinod.dat")
-#TEST_SPEC_DATA = '/share1/USAXS_data/2013-10/10_26_Course.dat'
-TEST_SPEC_DATA = '/share1/USAXS_data/2014-02/02_18_artune.dat'
-TEST_SPEC_DATA = '/share1/USAXS_data/2014-04/04_09_Prakash_A5.dat'
-TEST_SPEC_DATA = '/share1/USAXS_data/2014-06/06_19_Tony.dat'
-TEST_SPEC_DATA = '/share1/USAXS_data/2014-08/08_13_setup.dat'
+# TEST_SPEC_DATA = os.path.join(LOCAL_USAXS_DATA_DIR, "2011-06/06_22_setup2.dat")
+# TEST_SPEC_DATA = os.path.join("testdata", "03_19_LLNL.dat")
+# TEST_SPEC_DATA = os.path.join("testdata", "03_19_LLNL-problem.dat")
+# TEST_SPEC_DATA = os.path.join("testdata", "11_03_Vinod.dat")
+# TEST_SPEC_DATA = '/share1/USAXS_data/2013-10/10_26_Course.dat'
+# TEST_SPEC_DATA = '/share1/USAXS_data/2014-02/02_18_artune.dat'
+# TEST_SPEC_DATA = '/share1/USAXS_data/2014-04/04_09_Prakash_A5.dat'
+# TEST_SPEC_DATA = '/share1/USAXS_data/2014-06/06_19_Tony.dat'
+# TEST_SPEC_DATA = '/share1/USAXS_data/2014-08/08_13_setup.dat'
+TEST_SPEC_DATA = '/share1/USAXS_data/2015-01/02_08_Samples.dat'
 TEST_SPEC_SCAN_NUMBER = 1
 TEST_PLOTFILE = "pete.png"
 TEST_PLOTICUS_COMMAND_FILE = "pete.pl"
