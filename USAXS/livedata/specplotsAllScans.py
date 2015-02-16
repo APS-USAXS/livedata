@@ -76,13 +76,9 @@ def plotAllSpecFileScans(specFile):
     else:
         mtime_pngdir = getTimeFileModified(png_directory)
     # compare mtime of data file with mtime of PNG directory
-    if mtime_pngdir > mtime_specFile:
+    if mtime_pngdir > mtime_specFile or not is_mtime_changed(specFile):
         # do nothing if plot directory was last updated _after_ the specFile
         # This assumes people don't modify the png_directory
-	# FIXME: this test does not as expected, when some scans fail to make a plot file.  Need to cache mtime_specFile
-        return
-    if not is_mtime_changed(specFile): 
-        # don't update plots if spec file has not changed since last check
         return
     logger('updating plots in directory: ' + png_directory)
     logger('  mtime_specFile: ' + str(mtime_specFile))
