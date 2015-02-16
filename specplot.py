@@ -7,12 +7,14 @@ read a SPEC data file and plot scan n using ploticus
 '''
 
 import argparse
+import logging
 import numpy
 import os
 import sys
 import tempfile
 import time
 from spec2nexus import spec             # read SPEC data files
+
 import localConfig                      # definitions for 9-ID
 import wwwServerTransfers
 import reduceFlyData
