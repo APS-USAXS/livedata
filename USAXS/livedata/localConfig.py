@@ -31,7 +31,7 @@ LOCAL_SPECPLOTS_DIR = os.path.join(LOCAL_WWW_LIVEDATA_DIR, "specplots")
 WWW_SPECPLOTS_DIR = "specplots"
 SPEC_FILE = os.path.join(LOCAL_USAXS_DATA_DIR, "2010-03/03_27.dat")
 TIMESTAMP_FORMAT = "%Y-%m-%d %H:%M:%S"
-
+MTIME_CACHE_FILE = os.path.join(WWW_SPECPLOTS_DIR, 'mtime_cache.txt')
 
 # plot.py
 A_keV = 12.3984244

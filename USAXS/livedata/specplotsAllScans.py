@@ -6,6 +6,9 @@
    .. note:: also copies files to USAXS site on XSD WWW server using rsync
 '''
 
+
+import datetime
+import logging
 import os
 import sys
 import time
@@ -16,6 +19,48 @@ import wwwServerTransfers
 
 
 SVN_ID = "$Id$"
+
+MTIME_CACHE = None
+
+def is_mtime_changed(fname):
+    '''
+    compare the file modified time of fname with a file cache
+    
+    This is used to avoid redundant scanning of data files when no new data is available.
+    The fname file has already been verified to exist.
+    '''
+    global MTIME_CACHE
+
+    def readCacheFile(cache_file):
+        cache = {}
+	if os.path.exists(cache_file):
+            for line in open(cache_file, 'r').readlines():
+	      key = line.split('\t')[0]
+	      val = float(line.strip().split('\t')[1])
+	      cache[key] = val
+	return cache
+
+    def saveCacheFile(cache_file, cache):
+        f = open(cache_file, 'w')
+        for key, val in sorted(cache.items()):
+            f.write('%s\t%f\n' % (key, val))
+        f.close()
+
+    changed = False
+    mtime = getTimeFileModified(fname)
+    if MTIME_CACHE is None:
+        # only read this file once
+	MTIME_CACHE = readCacheFile(localConfig.MTIME_CACHE_FILE)
+
+    if fname in MTIME_CACHE and mtime > MTIME_CACHE[fname]:
+        MTIME_CACHE[fname] = mtime
+        changed = True
+  
+    if changed:
+        logger('  SPEC data file updated: ' + fname)
+	saveCacheFile(localConfig.MTIME_CACHE_FILE, MTIME_CACHE)
+      
+    return changed
 
 
 def plotAllSpecFileScans(specFile):
@@ -34,9 +79,17 @@ def plotAllSpecFileScans(specFile):
     if mtime_pngdir > mtime_specFile:
         # do nothing if plot directory was last updated _after_ the specFile
         # This assumes people don't modify the png_directory
+	# FIXME: this test does not as expected, when some scans fail to make a plot file.  Need to cache mtime_specFile
         return
+    if not is_mtime_changed(specFile): 
+        # don't update plots if spec file has not changed since last check
+	return
+    logger('updating plots in directory: ' + png_directory)
+    logger('  mtime_specFile: ' + str(mtime_specFile))
+    logger('  mtime_pngdir:   ' + str(mtime_pngdir))
 
     try:
+        logger('opening SPEC data file: ' + specFile)
         sd = specplot.openSpecFile(specFile)
     except:
         return    # could not open file, be silent about it
@@ -49,12 +102,14 @@ def plotAllSpecFileScans(specFile):
     basename = getBaseName(specFile)
     if not os.path.exists(png_directory):
         os.makedirs(png_directory)
+        logger('creating directory: ' + png_directory)
         
     # copy the SPEC data file to the WWW site, only if file has newer mtime
     baseSpecFile = os.path.basename(specFile)
     wwwSpecFile = os.path.join(png_directory, baseSpecFile)
     if needToCopySpecDataFile(wwwSpecFile, mtime_specFile):
         # copy specFile to WWW site
+        logger('  copying SPEC data file to web directory: ' + wwwSpecFile)
         shutil.copy2(specFile,wwwSpecFile)
         newFileList.append(wwwSpecFile)
 
@@ -73,6 +128,7 @@ def plotAllSpecFileScans(specFile):
         cmd = cmd[:cmd.find(' ')]
         if needToMakePlot(fullPlotFile, mtime_specFile):
             try:
+                logger('  creating SPEC data scan image: ' + fullPlotFile)
                 specplot.makeScanImage(scan, fullPlotFile)
                 newFileList.append(fullPlotFile)
             except:
@@ -87,6 +143,7 @@ def plotAllSpecFileScans(specFile):
 
     htmlFile = os.path.join(png_directory, "index.html")
     if len(newFileList) or not os.path.exists(htmlFile):
+        logger('  creating/updating index.html file')
         html = build_index_html(baseSpecFile, specFile, plotList)
         f = open(htmlFile, "w")
         f.write(html)
@@ -98,6 +155,7 @@ def plotAllSpecFileScans(specFile):
         cwd = os.getcwd()
         os.chdir(wwwServerTransfers.LOCAL_WWW)
         try:
+            logger('  uploading files to WWW server: ' + ', '.join(newFileList))
             upload(newFileList, sd)
         except Exception, exc:
             pass        # TODO: what now?
@@ -243,11 +301,31 @@ def build_index_html(baseSpecFile, specFile, plotList):
     return html
 
 
+def logger(message):
+    '''
+    log a message or report from this module
+
+    :param str message: words to be logged
+    '''
+    #print message
+    now = datetime.datetime.now()
+    name = os.path.basename(sys.argv[0])
+    pid = os.getpid()
+    text = "(%d,%s,%s) %s" % (pid, name, now, message)
+    #print text
+    logging.info(text)
+
+
 if __name__ == '__main__':
     if len(sys.argv) > 1:
         filelist = sys.argv[1:]                     # usual command-line use
     else:
         filelist = [localConfig.TEST_SPEC_DATA]     # developer use
+
+    log_file = os.path.join(localConfig.LOCAL_SPECPLOTS_DIR, 'processing.log')
+    logging.basicConfig(filename=log_file, level=logging.INFO)
+    logger('file list: ' + ', '.join(filelist))
+
     for specFile in filelist:
         plotAllSpecFileScans(specFile)
 
