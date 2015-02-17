@@ -22,6 +22,10 @@ PLOT_V_INT = 3
 COLORMAP = 'cubehelix'        # http://matplotlib.org/api/pyplot_summary.html#matplotlib.pyplot.colormaps
 IMG_FILE = 'image.png'
 
+# MatPlotLib advises to re-use the figure() object rather create new ones
+# http://stackoverflow.com/questions/21884271/warning-about-too-many-open-figures
+MPL_FIG = None
+
 
 def make_png(h5file, imgfile, h5path=HDF5_DATA_PATH, log_image=True,
              hsize=PLOT_H_INT, vsize=PLOT_V_INT, cmap=COLORMAP):
@@ -45,6 +49,7 @@ def make_png(h5file, imgfile, h5path=HDF5_DATA_PATH, log_image=True,
     :return str: *imgfile*
     :raises: IOError if either *h5file* or *h5path* are not found
     '''
+    global MPL_FIG
     if not os.path.exists(h5file):
         msg = 'file does not exist: ' + h5file
         raise IOError, msg
@@ -61,19 +66,23 @@ def make_png(h5file, imgfile, h5path=HDF5_DATA_PATH, log_image=True,
     image_data = numpy.ma.masked_less_equal(ds.value, 0)
     # replace masked data with min good value
     image_data = image_data.filled(image_data.min())
-    if log_image:
+    
+    if log_image and image_data.max() != 0:
         image_data = numpy.log(image_data)
         image_data -= image_data.min()
         image_data *= SCALING_FACTOR / image_data.max()
 
     plt.set_cmap(cmap)
-    fig = plt.figure(figsize=(hsize, vsize))
-    ax = fig.add_subplot(111)
+    if MPL_FIG is None:
+        MPL_FIG = plt.figure(figsize=(hsize, vsize))
+    else:
+        MPL_FIG.clf()
+    ax = MPL_FIG.add_subplot(111)
     ax.cla()
     ax.set_title(h5file, fontsize=9)
     ax.imshow(image_data, interpolation='nearest')
-    fig.savefig(imgfile, bbox_inches='tight')
-    plt.close(fig)
+    MPL_FIG.savefig(imgfile, bbox_inches='tight')
+    plt.close(MPL_FIG)
     return imgfile
 
 
