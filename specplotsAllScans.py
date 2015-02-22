@@ -124,7 +124,7 @@ def plotAllSpecFileScans(specFile):
         cmd = cmd[:cmd.find(' ')]
         if needToMakePlot(fullPlotFile, mtime_specFile):
             try:
-                logger('  creating SPEC data scan image: ' + fullPlotFile)
+                logger('  creating SPEC data scan image: ' + basePlotFile)
                 specplot.makeScanImage(scan, fullPlotFile)
                 newFileList.append(fullPlotFile)
             except:
@@ -323,10 +323,12 @@ if __name__ == '__main__':
 
     log_file = os.path.join(localConfig.LOCAL_SPECPLOTS_DIR, 'processing.log')
     logging.basicConfig(filename=log_file, level=logging.INFO)
+    logger('>'*10 + ' starting')
     logger('file list: ' + ', '.join(filelist))
 
     for specFile in filelist:
         plotAllSpecFileScans(specFile)
+    logger('<'*10 + ' finished')
 
 
 ########### SVN repository information ###################
