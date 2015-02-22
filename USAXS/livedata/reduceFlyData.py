@@ -353,7 +353,8 @@ class UsaxsFlyScan(object):
             msg = 'PSO_oscillation_correction: wrong mode = ' + str(mode)
             raise ValueError, msg
         
-        print "  possible vibrations during scan, re-generating AR from 10Hz sampling array"
+        # TODO: find better way to report this information
+        #print "  possible vibrations during scan, re-generating AR from 10Hz sampling array"
         pso, ar = self.getAR_10Hz_Array(hdf)
 
         linear_interpolation_func = scipy.interpolate.interp1d(pso, ar)
