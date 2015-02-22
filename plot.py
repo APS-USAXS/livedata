@@ -162,21 +162,47 @@ def format_as_mpl_data(usaxs):
     '''prepare the USAXS data for plotting with MatPlotLib'''
     mpl_datasets = []
     for scan in usaxs:
+        if scan is not None:
+            mpl_ds = format_as_mpl_data_one(scan)
+            if len(mpl_ds.Q) > 0 and len(mpl_ds.I) > 0:
+                mpl_datasets.append(mpl_ds)
+    return mpl_datasets
+
+
+def format_as_mpl_data_one(scan):
+    '''prepare one USAXS scan for plotting with MatPlotLib'''
+    if False:
         Q = map(float, scan['qVec'])
         I = map(float, scan['rVec'])
-        Q = numpy.ma.masked_less_equal(numpy.abs(Q), 0)
-        I = numpy.ma.masked_less_equal(I, 0)
-        mask = numpy.ma.mask_or(Q.mask, I.mask)
-        
-        mpl_ds = plot_mpl.Plottable_USAXS_Dataset()
-        mpl_ds.Q = numpy.ma.masked_array(data=Q, mask=mask).compressed()
-        mpl_ds.I = numpy.ma.masked_array(data=I, mask=mask).compressed()
-        mpl_ds.label = scan['label']
+    else:
+        Q = scan['qVec']
+        I = scan['rVec']
+        '''
+[pvwatch.py 14510 2015-02-22 17:16:41.162328] problem with updatePlotImage():
+[pvwatch.py 14510 2015-02-22 17:16:41.164319]     Traceback (most recent call last):
+[pvwatch.py 14510 2015-02-22 17:16:41.164336]       File "/home/beams11/USAXS/Documents/eclipse/USAXS/livedata/pvwatch.py", line 428, in _periodic_reporting_task
+[pvwatch.py 14510 2015-02-22 17:16:41.164346]         try: updatePlotImage()                          # update the plot
+[pvwatch.py 14510 2015-02-22 17:16:41.164353]       File "/home/beams11/USAXS/Documents/eclipse/USAXS/livedata/pvwatch.py", line 218, in updatePlotImage
+[pvwatch.py 14510 2015-02-22 17:16:41.164360]         scanplots.main(n=localConfig.NUM_SCANS_PLOTTED, cp=True)
+[pvwatch.py 14510 2015-02-22 17:16:41.164366]       File "/home/beams11/USAXS/Documents/eclipse/USAXS/livedata/scanplots.py", line 342, in main
+[pvwatch.py 14510 2015-02-22 17:16:41.164373]         mpl_datasets = get_USAXS_data(scan_cache)
+[pvwatch.py 14510 2015-02-22 17:16:41.164379]       File "/home/beams11/USAXS/Documents/eclipse/USAXS/livedata/scanplots.py", line 322, in get_USAXS_data
+[pvwatch.py 14510 2015-02-22 17:16:41.164385]         mpl_ds = plot.format_as_mpl_data_one(entry)
+[pvwatch.py 14510 2015-02-22 17:16:41.164392]       File "/home/beams11/USAXS/Documents/eclipse/USAXS/livedata/plot.py", line 177, in format_as_mpl_data_one
+[pvwatch.py 14510 2015-02-22 17:16:41.164398]         Q = scan['qVec']
+[pvwatch.py 14510 2015-02-22 17:16:41.164404]     TypeError: 'NoneType' object has no attribute '__getitem__'
+        '''
+    Q = numpy.ma.masked_less_equal(numpy.abs(Q), 0)
+    I = numpy.ma.masked_less_equal(I, 0)
+    mask = numpy.ma.mask_or(Q.mask, I.mask)
+    
+    mpl_ds = plot_mpl.Plottable_USAXS_Dataset()
+    mpl_ds.Q = numpy.ma.masked_array(data=Q, mask=mask).compressed()
+    mpl_ds.I = numpy.ma.masked_array(data=I, mask=mask).compressed()
+    mpl_ds.label = scan['title']
 
-        if len(mpl_ds.Q) > 0 and len(mpl_ds.I) > 0:
-            mpl_datasets.append(mpl_ds)
-
-    return mpl_datasets
+    if len(mpl_ds.Q) > 0 and len(mpl_ds.I) > 0:
+        return mpl_ds
 
 
 def write_ploticus_data(data):
@@ -496,7 +522,7 @@ def get_spec_data():
         sfd = spec_file_cache[usaxs_scan.file]
         # search by exhaustion for the scan data
         found = False
-        for specscan in sfd.scans:
+        for specscan in sfd.scans.values():
             if specscan.scanNum == usaxs_scan.number:
                 found = True
                 break

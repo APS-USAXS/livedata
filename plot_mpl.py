@@ -36,15 +36,24 @@ def livedata_plot(datasets, plotfile, title=None):
     :param [Plottable_USAXS_Dataset] datasets: USAXS data to be plotted, newest data last
     :param str plotfile: file name to write plot image
     '''
-    fig = LIVEDATA_PLOT_FIG
+    fig = plt.figure(figsize=(7.5, 8), dpi=300)
     fig.clf()
 
     ax = fig.add_subplot('111', axisbg=MINTCREAM_RGB)
     ax.set_xscale('log')
     ax.set_yscale('log')
     ax.set_xlabel(r'$|\vec{Q}|, 1/\AA$')
-    ax.set_ylabel(r'Raw Intensity ($R(|\vec{Q}|)$), a.u.')
+    ax.set_ylabel(r'$R(|\vec{Q}|)$, Raw Intensity, a.u.')
     ax.grid(True, which='both')
+
+    timestamp_str = 'APS/XSD USAXS: ' + str(datetime.datetime.now())
+    if title is None:
+        title = timestamp_str
+    else:
+        fig.text(0.02, 0., timestamp_str,
+            fontsize=8, color='gray',
+            ha='left', va='bottom', alpha=0.5)
+    plt.title(title, fontsize=12)
 
     legend_handlers = {}  # to configure legend for one symbol per dataset
     for i, ds in enumerate(datasets):
@@ -55,21 +64,7 @@ def livedata_plot(datasets, plotfile, title=None):
             color = 'red'
             symbol = 'o'
         pl, = ax.plot(ds.Q, ds.I, symbol, label=ds.label, mfc='w', mec=color, ms=3, mew=1)
-    # FIXME:
-    '''
-/APSshare/anaconda/x86_64/lib/python2.7/site-packages/matplotlib/axes/_axes.py:475: UserWarning: No labelled objects found. Use label='...' kwarg on individual plots.
-  warnings.warn("No labelled objects found. "
-    '''
-    legend_handlers[pl] = matplotlib.legend_handler.HandlerLine2D(numpoints=1)
-
-    timestamp_str = 'APS/XSD USAXS: ' + str(datetime.datetime.now())
-    if title is None:
-        title = timestamp_str
-    else:
-        fig.text(0.02, 0., timestamp_str,
-            fontsize=8, color='gray',
-            ha='left', va='bottom', alpha=0.5)
-    plt.title(title, fontsize=12)
+        legend_handlers[pl] = matplotlib.legend_handler.HandlerLine2D(numpoints=1)
     plt.legend(loc='lower left', fontsize=10, handler_map=legend_handlers)
     plt.savefig(plotfile, bbox_inches='tight', facecolor=BISQUE_RGB)
 
