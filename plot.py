@@ -521,7 +521,8 @@ def developer_main():
     import ploticus
     specFile = localConfig.TEST_SPEC_DATA
     numScans = 5
-    identify_last_n_scans(numScans)
+    cache = identify_last_n_scans(numScans)
+    # note: cache is the same as usaxs_scans_cache
     get_spec_data()
     pl = ploticus.Ploticus()
     for scan in usaxs_scans_cache:
