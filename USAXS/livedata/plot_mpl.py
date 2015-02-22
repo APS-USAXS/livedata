@@ -37,6 +37,7 @@ def livedata_plot(datasets, plotfile, title=None):
     :param str plotfile: file name to write plot image
     '''
     fig = LIVEDATA_PLOT_FIG
+    fig.clf()
 
     ax = fig.add_subplot('111', axisbg=MINTCREAM_RGB)
     ax.set_xscale('log')
@@ -54,6 +55,11 @@ def livedata_plot(datasets, plotfile, title=None):
             color = 'red'
             symbol = 'o'
         pl, = ax.plot(ds.Q, ds.I, symbol, label=ds.label, mfc='w', mec=color, ms=3, mew=1)
+    # FIXME:
+    '''
+/APSshare/anaconda/x86_64/lib/python2.7/site-packages/matplotlib/axes/_axes.py:475: UserWarning: No labelled objects found. Use label='...' kwarg on individual plots.
+  warnings.warn("No labelled objects found. "
+    '''
     legend_handlers[pl] = matplotlib.legend_handler.HandlerLine2D(numpoints=1)
 
     timestamp_str = 'APS/XSD USAXS: ' + str(datetime.datetime.now())
