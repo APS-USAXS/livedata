@@ -36,7 +36,7 @@ SPEC_DATA_PATTERN=/share1/USAXS_data/2015-*/*.dat
 #export PLOTICUS_PREFABS=$PLOTICUS_BASE/prefabs
 
 cd $CODE_DIR
-echo "#=--Start--- `/bin/date`" >> $LOGFILE 2>&1
+echo "#= $$ --Start--- `/bin/date`" >> $LOGFILE 2>&1
 
 filelist=`/bin/ls -1 $SPEC_DATA_PATTERN`
 # for item in $filelist; 
@@ -45,7 +45,7 @@ filelist=`/bin/ls -1 $SPEC_DATA_PATTERN`
 # 	$PYTHON $PROGRAM $item >> $LOGFILE 2>&1;
 # done
 $PYTHON $PROGRAM $filelist >> $LOGFILE 2>&1;
-echo "#=--Done---------------------------------- `/bin/date`" >> $LOGFILE 2>&1
+echo "#= $$ --Done---------------------------------- `/bin/date`" >> $LOGFILE 2>&1
 
 
 ########### SVN repository information ###################
