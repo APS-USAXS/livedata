@@ -642,6 +642,25 @@ class UsaxsFlyScan(object):
             if timer > 0:
                 upd_ranges[i] = numpy.ma.masked         # mask this point
                 timer = max(0, timer - channel_time_s[i]) # decrement the time of this channel
+                '''
+[pvwatch.py 11800 2015-02-22 16:55:58.389503] problem with updatePlotImage():
+[pvwatch.py 11800 2015-02-22 16:55:58.390231]     Traceback (most recent call last):
+[pvwatch.py 11800 2015-02-22 16:55:58.390321]       File "/home/beams11/USAXS/Documents/eclipse/USAXS/livedata/pvwatch.py", line 428, in _periodic_reporting_task
+[pvwatch.py 11800 2015-02-22 16:55:58.390410]         try: updatePlotImage()                          # update the plot
+[pvwatch.py 11800 2015-02-22 16:55:58.390450]       File "/home/beams11/USAXS/Documents/eclipse/USAXS/livedata/pvwatch.py", line 218, in updatePlotImage
+[pvwatch.py 11800 2015-02-22 16:55:58.390489]         scanplots.main(n=localConfig.NUM_SCANS_PLOTTED, cp=True)
+[pvwatch.py 11800 2015-02-22 16:55:58.390527]       File "/home/beams11/USAXS/Documents/eclipse/USAXS/livedata/scanplots.py", line 342, in main
+[pvwatch.py 11800 2015-02-22 16:55:58.390564]         mpl_datasets = get_USAXS_data(scan_cache)
+[pvwatch.py 11800 2015-02-22 16:55:58.390601]       File "/home/beams11/USAXS/Documents/eclipse/USAXS/livedata/scanplots.py", line 321, in get_USAXS_data
+[pvwatch.py 11800 2015-02-22 16:55:58.390690]         entry = getscandata[scanMacro](scan_obj)
+[pvwatch.py 11800 2015-02-22 16:55:58.390783]       File "/home/beams11/USAXS/Documents/eclipse/USAXS/livedata/scanplots.py", line 299, in get_USAXS_FlyScan_Data
+[pvwatch.py 11800 2015-02-22 16:55:58.390829]         fly.reduce()        # open the file in this step
+[pvwatch.py 11800 2015-02-22 16:55:58.390863]       File "/home/beams11/USAXS/Documents/eclipse/USAXS/livedata/reduceFlyData.py", line 266, in reduce
+[pvwatch.py 11800 2015-02-22 16:55:58.390896]         upd_ranges = self.apply_upd_range_change_time_mask(hdf, upd_ranges, channel_time_s)
+[pvwatch.py 11800 2015-02-22 16:55:58.390933]       File "/home/beams11/USAXS/Documents/eclipse/USAXS/livedata/reduceFlyData.py", line 644, in apply_upd_range_change_time_mask
+[pvwatch.py 11800 2015-02-22 16:55:58.390966]         timer = max(0, timer - channel_time_s[i]) # decrement the time of this channel
+[pvwatch.py 11800 2015-02-22 16:55:58.390999]     IndexError: index 7984 is out of bounds for axis 0 with size 7983
+                '''
             last_range = upd_range
         return upd_ranges
     

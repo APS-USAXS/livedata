@@ -11,20 +11,23 @@ Start this with the shell command::
 
 
 import datetime         # date/time stamps
+import epics            # manages EPICS (PyEpics) connections for Python 2.6+
+import numpy
 import os.path          # testing if a file exists
 import shlex            # parsing command lines (for xsltproc)
 import shutil           # file copies
 import subprocess       # calling other software (xsltproc)
 import sys              # for flushing log output
 import time             # provides sleep()
+import traceback
 from xml.dom import minidom
 from xml.etree import ElementTree
-import epics            # manages EPICS (PyEpics) connections for Python 2.6+
+
 import plot             # makes PNG files of recent USAXS scans
 import localConfig      # definitions for 9-ID
 import wwwServerTransfers
-import traceback
-import numpy
+
+import scanplots
 
 
 SVN_ID = "$Id$"
@@ -203,13 +206,16 @@ def updatePlotImage():
     if makePlot:
         #logMessage("updating the plots and gathering scan data for XML file")
         debugging_diagnostic(41)
-        usaxs = plot.update_n_plots(specFile, localConfig.NUM_SCANS_PLOTTED)
-        debugging_diagnostic(42)
-        global USAXS_DATA
-        USAXS_DATA = {
-            'file': specFile,
-            'usaxs': usaxs,
-        }
+        if False:
+            usaxs = plot.update_n_plots(specFile, localConfig.NUM_SCANS_PLOTTED)
+            debugging_diagnostic(42)
+            global USAXS_DATA
+            USAXS_DATA = {
+                'file': specFile,
+                'usaxs': usaxs,
+            }
+        else:
+            scanplots.main(n=localConfig.NUM_SCANS_PLOTTED, cp=True)
         debugging_diagnostic(43)
 
 
