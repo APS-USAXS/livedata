@@ -240,6 +240,8 @@ class UsaxsFlyScan(object):
             #       Shift data to have mean AR value for each point,
             #       not the end of the AR value, when the system advanced to next point.
             raw_ar = (raw_ar[1:] + raw_ar[:-1])/2    # midpoint of each interval
+            ar_adjustment = ar_center - raw_ar[0]
+            raw_ar += ar_adjustment
             PSO_oscillations_found = len(raw_clock_pulses) != len(raw_ar)
         
         elif mode_number == AR_MODE_TRAJECTORY:      # often a few hundred points
@@ -248,6 +250,8 @@ class UsaxsFlyScan(object):
                 raw_ar = raw_ar[:raw_num_points]   # truncate unused bins, if needed
             # see note above for AR_MODE_ARRAY
             raw_ar = (raw_ar[1:] + raw_ar[:-1])/2    # midpoint of each interval
+            ar_adjustment = ar_center - raw_ar[0]
+            raw_ar += ar_adjustment
             PSO_oscillations_found = len(raw_clock_pulses) != len(raw_ar)
 
         if PSO_oscillations_found:
