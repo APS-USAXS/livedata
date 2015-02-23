@@ -4,9 +4,8 @@
 
 
 import datetime
+from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 import matplotlib
-matplotlib.use('Agg') # Must be before importing matplotlib.pyplot or pylab!
-import matplotlib.pyplot as plt
 import numpy as np
 
 BISQUE_RGB    = (255./255, 228./255, 196./255)  # 255 228 196 bisque
@@ -17,13 +16,15 @@ COLOR_LIST = ("green", "purple", "blue", "black", "orange") # red is NOT in the 
 
 CHART_FILE = 'livedata.png'
 
-# MatPlotLib advises to re-use the figure() object rather create new ones
-# http://stackoverflow.com/questions/21884271/warning-about-too-many-open-figures
-LIVEDATA_PLOT_FIG = plt.figure(figsize=(7.5, 8), dpi=300)
-SPEC_PLOT_FIG = plt.figure(figsize=(9, 5))
 
+# MatPlotLib has several interfaces for plotting
+# Since this module runs as part of a background job generating lots of plots,
+# the standard plt code is not the right model.  It warns after 20 plots
+# and will eventually run out of memory.  Here's the fix used in this module:
+# http://stackoverflow.com/questions/16334588/create-a-figure-that-is-reference-counted/16337909#16337909
 
 class Plottable_USAXS_Dataset(object):
+    '''data model for the plots below'''
     Q = None
     I = None
     label = None
@@ -36,7 +37,7 @@ def livedata_plot(datasets, plotfile, title=None):
     :param [Plottable_USAXS_Dataset] datasets: USAXS data to be plotted, newest data last
     :param str plotfile: file name to write plot image
     '''
-    fig = plt.figure(figsize=(7.5, 8), dpi=300)
+    fig = matplotlib.figure.Figure(figsize=(7.5, 8), dpi=300)
     fig.clf()
 
     ax = fig.add_subplot('111', axisbg=MINTCREAM_RGB)
@@ -44,16 +45,12 @@ def livedata_plot(datasets, plotfile, title=None):
     ax.set_yscale('log')
     ax.set_xlabel(r'$|\vec{Q}|, 1/\AA$')
     ax.set_ylabel(r'$R(|\vec{Q}|)$, Raw Intensity, a.u.')
-    ax.grid(True, which='both')
+    ax.grid(True)
 
     timestamp_str = 'APS/XSD USAXS: ' + str(datetime.datetime.now())
-    if title is None:
-        title = timestamp_str
-    else:
-        fig.text(0.02, 0., timestamp_str,
-            fontsize=8, color='gray',
-            ha='left', va='bottom', alpha=0.5)
-    plt.title(title, fontsize=12)
+    fig.suptitle(timestamp_str, fontsize=10)
+    if title is not None:
+        ax.set_title(title, fontsize=12)
 
     legend_handlers = {}  # to configure legend for one symbol per dataset
     for i, ds in enumerate(datasets):
@@ -65,8 +62,9 @@ def livedata_plot(datasets, plotfile, title=None):
             symbol = 'o'
         pl, = ax.plot(ds.Q, ds.I, symbol, label=ds.label, mfc='w', mec=color, ms=3, mew=1)
         legend_handlers[pl] = matplotlib.legend_handler.HandlerLine2D(numpoints=1)
-    plt.legend(loc='lower left', fontsize=10, handler_map=legend_handlers)
-    plt.savefig(plotfile, bbox_inches='tight', facecolor=BISQUE_RGB)
+
+    ax.legend(loc='lower left', fontsize=9, handler_map=legend_handlers)
+    FigureCanvas(fig).print_figure(plotfile, bbox_inches='tight', facecolor=BISQUE_RGB)
 
 
 def spec_plot(x, y, 
@@ -83,12 +81,13 @@ def spec_plot(x, y,
     :param str plotfile: file name to write plot image
     :param str xtitle: horizontal axis label (default: not shown)
     :param str ytitle: vertical axis label (default: not shown)
-    :param str title: title for plot (defaults to date time)
-    :param bool xlog: should X axis be log (defaults to False=linear)
-    :param bool ylog: should Y axis be log (defaults to False=linear)
-    :param str timestamp_str: date to use on plot (defaults to now)
+    :param str title: title for plot (default: date time)
+    :param str subtitle: subtitle for plot (default: not shown)
+    :param bool xlog: should X axis be log (default: False=linear)
+    :param bool ylog: should Y axis be log (default: False=linear)
+    :param str timestamp_str: date to use on plot (default: now)
     '''
-    fig = SPEC_PLOT_FIG
+    fig = matplotlib.figure.Figure(figsize=(9, 5))
     fig.clf()
 
     ax = fig.add_subplot('111')
@@ -103,9 +102,8 @@ def spec_plot(x, y,
     if ytitle is not None:
         ax.set_ylabel(ytitle)
 
-    pl = ax.plot(x, y, 'o-')
     if subtitle is not None:
-        plt.title(subtitle, fontsize=9)
+        ax.set_title(subtitle, fontsize=9)
 
     if timestamp_str is None:
         timestamp_str = str(datetime.datetime.now())
@@ -115,8 +113,11 @@ def spec_plot(x, y,
         fig.text(0.02, 0., timestamp_str,
             fontsize=8, color='gray',
             ha='left', va='bottom', alpha=0.5)
-    plt.suptitle(title, fontsize=10)
-    plt.savefig(plotfile, bbox_inches='tight')
+    fig.suptitle(title, fontsize=10)
+
+    ax.plot(x, y, 'o-')
+
+    FigureCanvas(fig).print_figure(plotfile, bbox_inches='tight')
 
 
 def main():
