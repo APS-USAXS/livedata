@@ -27,8 +27,6 @@ import plot             # makes PNG files of recent USAXS scans
 import localConfig      # definitions for 9-ID
 import wwwServerTransfers
 
-import scanplots
-
 
 SVN_ID = "$Id$"
 
@@ -58,10 +56,7 @@ class PvNotRegistered(Exception): pass
 
 def logMessage(msg):
     '''write a message with a timestamp and pid to the log file'''
-    try:
-        scriptName
-    except:
-        scriptName = os.path.basename(sys.argv[0])
+    scriptName = os.path.basename(sys.argv[0])
     print "[%s %d %s] %s" % (scriptName, os.getpid(), getTime(), msg)
     sys.stdout.flush()
 
