@@ -249,9 +249,6 @@ class UsaxsFlyScan(object):
             # Aerotech's Position Synchronized Output (PSO) feature
             raw_ar = self.PSO_oscillation_correction(hdf, mode_number, len(raw_clock_pulses))
 
-        d2r = math.pi / 180
-        qVec = (4*math.pi/wavelength) * numpy.sin(d2r*(ar_center - raw_ar)/2.0)
-
         V_f_gain = FIXED_VF_GAIN
         pulse_frequency = raw['mca_clock_frequency'][0] or  MCA_CLOCK_FREQUENCY
         channel_time_s = raw_clock_pulses / pulse_frequency
@@ -285,7 +282,7 @@ class UsaxsFlyScan(object):
             upd_dark = upd_dark[:n]
         
         # ensure arrays have equal lengths
-        list_of_arrays = [raw_upd, channel_time_s, upd_dark, upd_gain, raw_ar, raw_I0, qVec]
+        list_of_arrays = [raw_upd, channel_time_s, upd_dark, upd_gain, raw_ar, raw_I0]
         min_n = min(map(len, list_of_arrays))
         max_n = max(map(len, list_of_arrays))
         if min_n != max_n:      # truncate arrays to shortest length
@@ -297,13 +294,18 @@ class UsaxsFlyScan(object):
             upd_gain        = upd_gain[:n]
             raw_ar          = raw_ar[:n]
             raw_I0          = raw_I0[:n]
-            qVec            = qVec[:n]
 
         rVec = (raw_upd - channel_time_s*upd_dark) / upd_gain / raw_I0 / V_f_gain
         rVec *= I0_amp_gain
         # TODO: also mask all rVec <= 0
         # rMasked = numpy.ma.masked_less_equal(rVec, 0)
         # rVec.mask = numpy.any([rVec.mask, rMasked.mask])
+
+        # TODO: make better estimate than ar_center
+        # max(rVec) or peak fitting
+        # save some example data and try it out separately
+        d2r = math.pi / 180
+        qVec = (4*math.pi/wavelength) * numpy.sin(d2r*(ar_center - raw_ar)/2.0)
         
         full = dict(
             ar = numpy.array(remove_masked_data(raw_ar, rVec.mask)),
