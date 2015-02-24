@@ -262,7 +262,7 @@ def extract_USAXS_data(specData, scanList):
 
             try:
                 fly = reduceFlyData.UsaxsFlyScan(hdf5File)  # checks if file exists
-                fly.make_archive()
+                #fly.make_archive()
                 fly.reduce()        # open the file in this step
                 fly.save(hdf5File, 'full')
                 fly.rebin(localConfig.REDUCED_FLY_SCAN_BINS)
@@ -296,7 +296,7 @@ def get_USAXS_FlyScan_Data(scan_obj):
 
     try:
         fly = reduceFlyData.UsaxsFlyScan(hdf5File)  # checks if file exists
-        fly.make_archive()
+        #fly.make_archive()
         fly.reduce()        # open the file in this step
         fly.save(hdf5File, 'full')
         fly.rebin(localConfig.REDUCED_FLY_SCAN_BINS)

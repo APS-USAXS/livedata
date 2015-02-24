@@ -45,7 +45,7 @@ def retrieve_flyScanData(scan):
         needs_calc = dict(full = not ufs.has_reduced('full'))
         needs_calc[s_num_bins] = not ufs.has_reduced(s_num_bins)
         if needs_calc['full']:
-            ufs.make_archive()
+            #ufs.make_archive()
             ufs.reduce()
             ufs.save(abs_file, 'full')
             needs_calc[s_num_bins] = True
