@@ -9,6 +9,7 @@ import os
 import spec2nexus.spec
 
 import localConfig
+import plot
 import plot_mpl
 import reduceFlyData
 import wwwServerTransfers

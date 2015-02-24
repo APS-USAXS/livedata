@@ -1,11 +1,11 @@
-#!/APSshare/epd/rh6-x86_64/bin/python
+#!/APSshare/anaconda/x86_64/bin/python
 
 '''
 watch the USAXS EPICS process variables and periodically write them to a file
 
 Start this with the shell command::
 
-    /APSshare/epd/rh6-x86_64/bin/python ./pvwatch.py >>& log.txt
+    /APSshare/anaconda/x86_64/bin/python ./pvwatch.py >>& log.txt
 
 '''
 
@@ -25,6 +25,7 @@ from xml.etree import ElementTree
 
 import plot             # makes PNG files of recent USAXS scans
 import localConfig      # definitions for 9-ID
+import scanplots
 import wwwServerTransfers
 
 
