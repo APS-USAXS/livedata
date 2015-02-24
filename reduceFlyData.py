@@ -234,7 +234,8 @@ class UsaxsFlyScan(object):
         elif mode_number in (AR_MODE_ARRAY, AR_MODE_TRAJECTORY):
             keymap = {AR_MODE_ARRAY: '/entry/flyScan/AR_PulsePositions',    # a few thousand points
                       AR_MODE_TRAJECTORY: '/entry/flyScan/AR_waypoints'}    # a few hundred points
-            raw_ar = ar_center - (hdf[keymap[mode_number]] - raw_ar[0] + AR_start)
+            raw_ar = numpy.array(hdf[keymap[mode_number]])
+            raw_ar = raw_ar - raw_ar[0] + AR_start
             if len(raw_ar) > raw_num_points:
                 raw_ar = raw_ar[:raw_num_points]   # truncate unused bins, if needed
             
