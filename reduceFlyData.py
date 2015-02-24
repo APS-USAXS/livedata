@@ -231,8 +231,12 @@ class UsaxsFlyScan(object):
             raw_ar = AR_start - numpy.arange(raw_num_points) * AR_increment
             PSO_oscillations_found = False
         
-        elif mode_number == AR_MODE_ARRAY:      # often a few thousand points
-            raw_ar = hdf['/entry/flyScan/AR_PulsePositions']
+        elif mode_number in (AR_MODE_ARRAY, AR_MODE_TRAJECTORY):
+            keymap = {AR_MODE_ARRAY: '/entry/flyScan/AR_PulsePositions',    # a few thousand points
+                      AR_MODE_TRAJECTORY: '/entry/flyScan/AR_waypoints'}    # a few hundred points
+            raw_ar = hdf[keymap[mode_number]]
+            ar_adjustment = ar_center - raw_ar[0]
+            raw_ar += ar_adjustment
             if len(raw_ar) > raw_num_points:
                 raw_ar = raw_ar[:raw_num_points]   # truncate unused bins, if needed
             
@@ -240,18 +244,6 @@ class UsaxsFlyScan(object):
             #       Shift data to have mean AR value for each point,
             #       not the end of the AR value, when the system advanced to next point.
             raw_ar = (raw_ar[1:] + raw_ar[:-1])/2    # midpoint of each interval
-            ar_adjustment = ar_center - raw_ar[0]
-            raw_ar += ar_adjustment
-            PSO_oscillations_found = len(raw_clock_pulses) != len(raw_ar)
-        
-        elif mode_number == AR_MODE_TRAJECTORY:      # often a few hundred points
-            raw_ar = hdf['/entry/flyScan/AR_waypoints']
-            if len(raw_ar) > raw_num_points:
-                raw_ar = raw_ar[:raw_num_points]   # truncate unused bins, if needed
-            # see note above for AR_MODE_ARRAY
-            raw_ar = (raw_ar[1:] + raw_ar[:-1])/2    # midpoint of each interval
-            ar_adjustment = ar_center - raw_ar[0]
-            raw_ar += ar_adjustment
             PSO_oscillations_found = len(raw_clock_pulses) != len(raw_ar)
 
         if PSO_oscillations_found:
@@ -539,7 +531,10 @@ class UsaxsFlyScan(object):
         nxentry = eznx.openGroup(hdf, 'entry', 'NXentry')
         nxdata = eznx.openGroup(nxentry, nxname, 'NXdata', timestamp=self.iso8601_datetime())
         for key in sorted(ds.keys()):
-            eznx.write_dataset(nxdata, key, ds[key], units=self.units[key])
+            try:
+                eznx.write_dataset(nxdata, key, ds[key], units=self.units[key])
+            except RuntimeError, e:
+                pass        # TODO: reporting
         hdf.close()
         return hfile
 

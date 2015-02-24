@@ -171,27 +171,12 @@ def format_as_mpl_data(usaxs):
 
 def format_as_mpl_data_one(scan):
     '''prepare one USAXS scan for plotting with MatPlotLib'''
-    if False:
+    try:
         Q = map(float, scan['qVec'])
         I = map(float, scan['rVec'])
-    else:
+    except TypeError, _e:
         Q = scan['qVec']
         I = scan['rVec']
-        '''
-[pvwatch.py 14510 2015-02-22 17:16:41.162328] problem with updatePlotImage():
-[pvwatch.py 14510 2015-02-22 17:16:41.164319]     Traceback (most recent call last):
-[pvwatch.py 14510 2015-02-22 17:16:41.164336]       File "/home/beams11/USAXS/Documents/eclipse/USAXS/livedata/pvwatch.py", line 428, in _periodic_reporting_task
-[pvwatch.py 14510 2015-02-22 17:16:41.164346]         try: updatePlotImage()                          # update the plot
-[pvwatch.py 14510 2015-02-22 17:16:41.164353]       File "/home/beams11/USAXS/Documents/eclipse/USAXS/livedata/pvwatch.py", line 218, in updatePlotImage
-[pvwatch.py 14510 2015-02-22 17:16:41.164360]         scanplots.main(n=localConfig.NUM_SCANS_PLOTTED, cp=True)
-[pvwatch.py 14510 2015-02-22 17:16:41.164366]       File "/home/beams11/USAXS/Documents/eclipse/USAXS/livedata/scanplots.py", line 342, in main
-[pvwatch.py 14510 2015-02-22 17:16:41.164373]         mpl_datasets = get_USAXS_data(scan_cache)
-[pvwatch.py 14510 2015-02-22 17:16:41.164379]       File "/home/beams11/USAXS/Documents/eclipse/USAXS/livedata/scanplots.py", line 322, in get_USAXS_data
-[pvwatch.py 14510 2015-02-22 17:16:41.164385]         mpl_ds = plot.format_as_mpl_data_one(entry)
-[pvwatch.py 14510 2015-02-22 17:16:41.164392]       File "/home/beams11/USAXS/Documents/eclipse/USAXS/livedata/plot.py", line 177, in format_as_mpl_data_one
-[pvwatch.py 14510 2015-02-22 17:16:41.164398]         Q = scan['qVec']
-[pvwatch.py 14510 2015-02-22 17:16:41.164404]     TypeError: 'NoneType' object has no attribute '__getitem__'
-        '''
     Q = numpy.ma.masked_less_equal(numpy.abs(Q), 0)
     I = numpy.ma.masked_less_equal(I, 0)
     mask = numpy.ma.mask_or(Q.mask, I.mask)
