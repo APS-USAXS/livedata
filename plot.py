@@ -164,6 +164,7 @@ def format_as_mpl_data(usaxs):
     for scan in usaxs:
         if scan is not None:
             mpl_ds = format_as_mpl_data_one(scan)
+            if mpl_ds is None: continue
             if len(mpl_ds.Q) > 0 and len(mpl_ds.I) > 0:
                 mpl_datasets.append(mpl_ds)
     return mpl_datasets
@@ -175,6 +176,7 @@ def format_as_mpl_data_one(scan):
         Q = map(float, scan['qVec'])
         I = map(float, scan['rVec'])
     except TypeError, _e:
+        if scan is None: return None
         Q = scan['qVec']
         I = scan['rVec']
     Q = numpy.ma.masked_less_equal(numpy.abs(Q), 0)

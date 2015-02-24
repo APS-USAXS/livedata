@@ -319,8 +319,10 @@ def get_USAXS_data(cache):
         scan_obj = cache.get(key)
         scanMacro = scan_obj.spec_scan.scanCmd.strip().split()[0]
         if scanMacro in getscandata.keys():
+            if scan_obj is None: continue
             entry = getscandata[scanMacro](scan_obj)
             mpl_ds = plot.format_as_mpl_data_one(entry)
+            if mpl_ds is None: continue
             if len(mpl_ds.Q) > 0 and len(mpl_ds.I) > 0:
                 mpl_datasets.append(mpl_ds)
         # print key, scanMacro
