@@ -168,7 +168,7 @@ class UsaxsFlyScan(object):
             R = 'none',
             dR = 'none', 
             R_max = 'none',
-            centroid = 'degrees',
+            AR_R_peak = 'degrees',
             fwhm = 'degrees',
         )
         self.min_step_factor = 1.5
@@ -297,33 +297,25 @@ class UsaxsFlyScan(object):
 
         rVec = (raw_upd - channel_time_s*upd_dark) / upd_gain / raw_I0 / V_f_gain
         rVec *= I0_amp_gain
-        # TODO: also mask all rVec <= 0
-        # rMasked = numpy.ma.masked_less_equal(rVec, 0)
-        # rVec.mask = numpy.any([rVec.mask, rMasked.mask])
-
-        # TODO: make better estimate than ar_center
-        # max(rVec) or peak fitting
-        # save some example data and try it out separately
-        d2r = math.pi / 180
-        qVec = (4*math.pi/wavelength) * numpy.sin(d2r*(ar_center - raw_ar)/2.0)
+        rVec = numpy.ma.masked_less_equal(rVec, 0)
         
-        full = dict(
-            ar = numpy.array(remove_masked_data(raw_ar, rVec.mask)),
-            #upd_ranges = self.remove_masked_data(upd_ranges, rVec.mask),
-            Q = numpy.array(remove_masked_data(qVec, rVec.mask)),
-            R = numpy.array(remove_masked_data(rVec, rVec.mask)),
-        )
+        ar = numpy.array(remove_masked_data(raw_ar, rVec.mask))
+        r  = numpy.array(remove_masked_data(rVec, rVec.mask))
+        center = ar[numpy.argmax(r)]
+
+        d2r = math.pi / 180
+        #qVec = (4*math.pi/wavelength) * numpy.sin(d2r*(ar_center - raw_ar)/2.0)
+        qVec = (4*math.pi/wavelength) * numpy.sin(d2r*(center - ar)/2.0)
+        
+        full = dict(ar = ar, Q = qVec, R = r)
     
         hdf.close()
-    
-        # TODO: only use R >= R.max()*0.001  (high Q data is skewing results)
-        # or fit the peak with a Gaussian
-        # OR, pick the Q at R.max() and measure directly the dQ at R.max()/2
-        centroid, sigma = self.mean_sigma(full['ar'], full['R'])
         
         full['R_max'] = full['R'].max()
-        full['centroid'] = centroid
-        full['fwhm'] = sigma * 2 * math.sqrt(2*math.log(2.0))
+        full['AR_R_peak'] = center
+        #centroid, sigma = self.mean_sigma(full['ar'], full['R'])
+        #full['centroid'] = centroid
+        #full['fwhm'] = sigma * 2 * math.sqrt(2*math.log(2.0))
         self.reduced = dict(full = full)
     
     def PSO_oscillation_correction(self, hdf, mode, num_AR):
