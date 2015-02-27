@@ -20,7 +20,7 @@ SCALING_FACTOR = 1        #  2**24
 PLOT_H_INT = 7
 PLOT_V_INT = 3
 COLORMAP = 'cubehelix'        # http://matplotlib.org/api/pyplot_summary.html#matplotlib.pyplot.colormaps
-IMG_FILE = 'image.png'
+IMG_FILE = os.path.join(PATH_TO_HERE, 'image.png')
 
 # MatPlotLib advises to re-use the figure() object rather create new ones
 # http://stackoverflow.com/questions/21884271/warning-about-too-many-open-figures
