@@ -233,12 +233,14 @@ def last_n_scans(xml_log_file, number_scans):
     xml_doc = xmlSupport.openScanLogFile(xml_log_file)
 
     scans = []
-    for scan_node in reversed(xml_doc.findall('scan')):
-        scan_object = plottable_scan(scan_node)
-        if scan_object is not None:
-            scans.append(scan_object)
-            if len(scans) == number_scans:
-                break
+    node_list = xml_doc.findall('scan')
+    if node_list is not None:
+        for scan_node in reversed(node_list):
+            scan_object = plottable_scan(scan_node)
+            if scan_object is not None:
+                scans.append(scan_object)
+                if len(scans) == number_scans:
+                    break
     return list(reversed(scans))
 
 
