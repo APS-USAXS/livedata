@@ -114,6 +114,11 @@ def plotAllSpecFileScans(specFile):
     HREF_FORMAT += "</a>"
 
     for scan in sd.scans.values():
+        # TODO: was the data in _this_ scan changed since the last time the SPEC file was modified?
+        #  Check the scan's date/time stamp and also if the plot exists.
+        #  For a scan N, the plot may exist if the scan was in progress at the last update.
+        #  For sure, if a plot for N+1 exists, no need to remake plot for scan N.  Thus:
+        #    Always remake if plot for scan N+1 does not exist
         basePlotFile = "s%05d.png" % scan.scanNum
         fullPlotFile = os.path.join(png_directory, basePlotFile)
         altText = "#%d: %s" % (scan.scanNum, scan.scanCmd)
@@ -235,8 +240,8 @@ def getTimeFileModified(file):
 
 def needToMakePlot(fullPlotFile, mtime_specFile):
     '''
-    Determine if a plot needs to be (re)made
-    Use mtime as the basis
+    Determine if a plot needs to be (re)made.  Use mtime as the basis.
+
     @return: True or False
     '''
     remake_plot = True
@@ -245,7 +250,6 @@ def needToMakePlot(fullPlotFile, mtime_specFile):
         if mtime_plotFile > mtime_specFile:
             # plot was made after the data file was updated
             remake_plot = False     # don't remake the plot
-    # TODO: was the data in _this_ plot changed since the last time the SPEC file was modified?
     return remake_plot
 
 

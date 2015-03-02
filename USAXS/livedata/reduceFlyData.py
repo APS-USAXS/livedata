@@ -194,6 +194,9 @@ class UsaxsFlyScan(object):
             raise IOError, 'file not found: ' + self.hdf5_file_name
         hdf = h5py.File(self.hdf5_file_name, 'r')
     
+        if 'program_name' not in  hdf['/entry']:
+            msg = 'no /entry/program_name in file: ' + self.hdf5_file_name
+            raise KeyError(msg)
         pname = hdf['/entry/program_name']
         if 'config_version' in pname.attrs:
             config_version = pname.attrs['config_version']
@@ -205,6 +208,7 @@ class UsaxsFlyScan(object):
         elif config_version in ('1.1', '1.2'):
             mode_number = hdf['/entry/flyScan/AR_PulseMode'][0]
         else:
+            hdf.close()
             msg = "Unexpected /entry/program_name/@config_version = " + config_version
             raise ValueError, msg
         if mode_number in MODENAME_XREF:
@@ -313,6 +317,7 @@ class UsaxsFlyScan(object):
         
         full['R_max'] = full['R'].max()
         full['AR_R_peak'] = center
+        # TODO: measure centroid, FWHM on data just at/near the peak
         #centroid, sigma = self.mean_sigma(full['ar'], full['R'])
         #full['centroid'] = centroid
         #full['fwhm'] = sigma * 2 * math.sqrt(2*math.log(2.0))
