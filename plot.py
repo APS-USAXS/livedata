@@ -14,6 +14,7 @@ import tempfile
 import time
 
 from spec2nexus import prjPySpec        # read SPEC data files
+# TODO: refactor with spec2nexus.spec
 
 import localConfig      # definitions for 9-ID
 import wwwServerTransfers
@@ -91,22 +92,6 @@ def last_n_scans(scans, maxScans):
     :param int maxScans: maximum number of scans to find
     :return: list of SpecDataFileScan objects where len() <= maxScans
     '''
-    # TODO: revise to pick the last N scans from the XML scanLog instead
-    # /share1/local_livedata/scanlog.xml
-    #<USAXS_SCAN_LOG version="1.0">
-    # <scan id="28:/data/USAXS_data/2014-03/03_06_JanTest.dat" number="28" state="complete" type="uascan">
-    #     <title>GC Adam</title>
-    #     <file>/data/USAXS_data/2014-03/03_06_JanTest.dat</file>
-    #     <started date="2014-03-06" time="08:43:22"/>
-    #     <ended date="2014-03-06" time="08:46:54"/>
-    # </scan>
-    # <scan id="29:/data/USAXS_data/2014-03/03_06_JanTest.dat" number="29" state="complete" type="uascan">
-    #     <title>GC Adam</title>
-    #     <file>/data/USAXS_data/2014-03/03_06_JanTest.dat</file>
-    #     <started date="2014-03-06" time="08:47:16"/>
-    #     <ended date="2014-03-06" time="08:49:27"/>
-    # </scan>
-    #</USAXS_SCAN_LOG>
     scanList = []
     for scan in scans.values():
         cmd = scan.scanCmd.split()[0]
@@ -416,13 +401,14 @@ def calc_usaxs_data(specScan):
     :params obj specScan: prjPySpec.SpecDataFileScan object
     :returns: dictionary of title and R(Q)
     '''
+    # TODO: refactor with numpy
     d2r = math.pi / 180
     sampleTitle = specScan.comments[0]
     arCenter = specScan.positioner['ar']
     wavelength = specScan.metadata['DCM_lambda']
     if wavelength == 0:      # TODO: development ONLY
         wavelength = localConfig.A_keV/specScan.metadata['DCM_energy']
-    numData = len(specScan.data['Epoch'])
+    numData = len(specScan.data['pd_counts'])
     USAXS_Q = []
     USAXS_I = []
     V_f_gain = localConfig.FIXED_VF_GAIN
