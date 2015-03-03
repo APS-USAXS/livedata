@@ -31,6 +31,10 @@ LOCAL_USAXS_DATA__DIR = LOCAL_DATA_DIR + "/USAXS_data"
 RSYNC = "/usr/bin/rsync"
 SCP = "/usr/bin/scp"
 SCP_TIMEOUT_S = 30
+RETRY_COUNT = 3
+
+
+class WwwServerScpException(Exception): pass
 
 
 def scpToWebServer(sourceFile, targetFile = "", demo = False):
@@ -60,8 +64,16 @@ def scpToWebServer(sourceFile, targetFile = "", demo = False):
     #report = report_scp_progress    # debugging
     scp = SCPClient(ssh.get_transport(), progress=report)
     pvwatch.debugging_diagnostic(213)
-    scp.put(sourceFile, remote_path=LIVEDATA_DIR)
-    pvwatch.debugging_diagnostic(214)
+    for retry in range(RETRY_COUNT):
+        try:
+            scp.put(sourceFile, remote_path=LIVEDATA_DIR)
+            pvwatch.debugging_diagnostic(214)
+            return
+        except SCPException, _exception_message:
+            pass
+    pvwatch.debugging_diagnostic(215)
+    msg = 'tried %d times: scp %s %s, last message: %s' % (RETRY_COUNT, sourceFile, targetFile, _exception_message)
+    WwwServerScpException(msg)
 
 
 def scpToWebServer_Demonstrate(sourceFile, targetFile = ""):
