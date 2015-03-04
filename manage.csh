@@ -22,6 +22,7 @@ setenv LOOP_COUNTER_PV   9idcLAX:long20
 switch ($1)
   case "start":
        cd ${SCRIPT_DIR}
+       /bin/echo "# [$0 `/bin/date`] start ======================================================"  >>& ${LOGFILE}
        ${PYTHON} ${SCRIPT} >>& ${LOGFILE} &
        setenv PID $!
        /bin/echo ${PID} >! ${PIDFILE}
@@ -38,27 +39,28 @@ switch ($1)
        /bin/ps ${PID} >! /dev/null
        setenv NOT_EXISTS $?
        if (${NOT_EXISTS}) then
-            /bin/echo "# not running ${PID}: ${SCRIPT}" >>& ${LOGFILE} &
+            /bin/echo "# not running ${PID}: ${SCRIPT}" >>& ${LOGFILE}
        else
             kill ${PID}
-            /bin/echo "# [$0 `/bin/date`] stopped ${PID}: ${SCRIPT}" >>& ${LOGFILE} &
+            /bin/echo "# [$0 `/bin/date`] stopped ${PID}: ${SCRIPT}" >>& ${LOGFILE}
             /bin/echo "# [$0 `/bin/date`] stopped ${PID}: ${SCRIPT}"
        endif
-       # the python code starts a 2nd PID which also needs to be stopped
-       setenv PID `expr "${pidlist}" : '[0-9]*\( [0-9]*\)'`
-       /bin/ps ${PID} >! /dev/null
-       setenv NOT_EXISTS $?
-       if (${NOT_EXISTS}) then
-            /bin/echo "# [$0 `/bin/date`] not running ${PID}: ${SCRIPT}" >>& ${LOGFILE} &
-       else
-            if (${PID} != "") then
-		 kill ${PID}
- 		 /bin/echo "# [$0 `/bin/date`] stopped ${PID}: ${SCRIPT}" >>& ${LOGFILE} &
- 		 /bin/echo "# [$0 `/bin/date`] stopped ${PID}: ${SCRIPT}"
-	    endif
-       endif
-       /bin/echo "# [$0 `/bin/date`] pvWatch mainLoopCounter: `${CAGET} ${LOOP_COUNTER_PV}`"  >>& ${LOGFILE} &
-       /bin/echo "# [$0 `/bin/date`] pvWatch phase: `${CAGET} ${PVWATCH_PHASE_PV}`"  >>& ${LOGFILE} &
+       #?archaic?#  # the python code starts a 2nd PID which also needs to be stopped
+       #?archaic?#  setenv PID `expr "${pidlist}" : '[0-9]*\( [0-9]*\)'`
+       #?archaic?#  /bin/ps ${PID} >! /dev/null
+       #?archaic?#  setenv NOT_EXISTS $?
+       #?archaic?#  if (${NOT_EXISTS}) then
+       #?archaic?#	 /bin/echo "# [$0 `/bin/date`] not running ${PID}: ${SCRIPT}" >>& ${LOGFILE}
+       #?archaic?#  else
+       #?archaic?#	 if (${PID} != "") then
+       #?archaic?#	      kill ${PID}
+       #?archaic?#	      /bin/echo "# [$0 `/bin/date`] stopped ${PID}: ${SCRIPT}" >>& ${LOGFILE}
+       #?archaic?#	      /bin/echo "# [$0 `/bin/date`] stopped ${PID}: ${SCRIPT}"
+       #?archaic?#	 endif
+       #?archaic?#  endif
+       /bin/echo "# [$0 `/bin/date`] pvWatch mainLoopCounter: `${CAGET} ${LOOP_COUNTER_PV}`"  >>& ${LOGFILE}
+       /bin/echo "# [$0 `/bin/date`] pvWatch phase: `${CAGET} ${PVWATCH_PHASE_PV}`"  >>& ${LOGFILE}
+       /bin/echo "# [$0 `/bin/date`] stop ======================================================"  >>& ${LOGFILE}
        breaksw
 
   case "restart":

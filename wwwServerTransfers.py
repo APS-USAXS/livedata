@@ -11,7 +11,7 @@ import shlex
 import shutil
 import datetime
 import paramiko
-from scp import SCPClient, report_scp_progress
+from scp import SCPClient, report_scp_progress, SCPException
 
 
 # general use
