@@ -36,6 +36,13 @@
 
   <EPICS_PV PV="ID09:Energy"    mne="Und_E" description="ID E, keV"  display_format="%.4f"/>
   <EPICS_PV PV="9ida:BraggEAO" mne="DCM_E" description="DCM E, keV" display_format="%.4f"/>
+  
+  <EPICS_PV PV="9idcLAX:userCalcOut10.A" mne="calc10_A" description="DCM temperature now, C"/>
+  <EPICS_PV PV="9idcLAX:userCalcOut10.B" mne="calc10_B" description="DCM temperature alarm value, C"/>
+  <EPICS_PV PV="9idcLAX:userCalcOut10.CALC" mne="calc10_CALC" description="DCM temperature calculation"/>
+  <EPICS_PV PV="9idcLAX:userCalcOut10.VAL" mne="calc10_VAL" description="DCM temperature alarm state"/>
+  <EPICS_PV PV="9idcLAX:userStringCalc10.SVAL" mne="stringcalc10_SVAL" description="DCM temperature alarm pvMail message"/>
+  <EPICS_PV PV="9idcLAX:bit20.VAL" mne="dcmTempTrigPV" description="DCM temperature alarm trigger PV"/>
 
   <EPICS_PV _ignore_="true" PV="15IDA:m5.DMOV"  description="motor done moving VDM_Stripe" mne="VDM_Stripe_dmov"/>
   <EPICS_PV _ignore_="true" PV="15IDA:m5.RBV" description="motor VDM_Stripe, mm" display_format="%.3f" mne="VDM_Stripe"/>
