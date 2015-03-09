@@ -455,7 +455,8 @@ def main():
     epics.caput(PVWATCH_INDEX_PV+'.DESC', 'pvwatch mainLoopCounter')
     epics.caput(PVWATCH_PID_PV+'.DESC', 'pvwatch PID')
     epics.caput(PVWATCH_REF_PV+'.DESC', 'pvwatch reference')
-    epics.caput(PVWATCH_INDEX_PV, -1)
+    pvwatch_index_pv = epics.PV(PVWATCH_INDEX_PV)
+    pvwatch_index_pv.put(-1)
     epics.caput(PVWATCH_PID_PV, os.getpid())
     debugging_diagnostic(-1)
 
@@ -469,7 +470,7 @@ def main():
         mainLoopCount = (mainLoopCount + 1) % MAINLOOP_COUNTER_TRIGGER
         nextReport, nextLog = _periodic_reporting_task(mainLoopCount,
                                        nextReport, nextLog, delta_report, delta_log)
-        epics.caput(PVWATCH_INDEX_PV, mainLoopCount)
+        pvwatch_index_pv.put(mainLoopCount)
         time.sleep(localConfig.SLEEP_INTERVAL_S)
 
     # this exit handling will never be called
