@@ -13,6 +13,16 @@ import os
 import sys
 import time
 import shutil
+
+try:
+    # better reporting of SEGFAULT
+    # http://faulthandler.readthedocs.org
+    import faulthandler
+    faulthandler.enable()
+    print "#= %d --faulthandler" % os.getpid() + "-"*10 + " module enabled"
+except ImportError, exc:
+    print "#= %d --faulthandler" % os.getpid() + "-"*10 + " module not imported"
+
 import specplot
 import localConfig      # definitions for 9-ID
 import wwwServerTransfers
