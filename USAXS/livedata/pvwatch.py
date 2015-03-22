@@ -28,6 +28,15 @@ import localConfig      # definitions for 9-ID
 import scanplots
 import wwwServerTransfers
 
+try:
+    # better reporting of SEGFAULT
+    # http://faulthandler.readthedocs.org
+    import faulthandler
+    faulthandler.enable()
+    print "#= %d --faulthandler" % os.getpid() + "-"*10 + " module enabled"
+except ImportError, exc:
+    print "#= %d --faulthandler" % os.getpid() + "-"*10 + " module not imported"
+
 
 SVN_ID = "$Id$"
 
@@ -43,9 +52,9 @@ PVLIST_FILE = "pvlist.xml"
 MAINLOOP_COUNTER_TRIGGER = 10000  # print a log message periodically
 USAXS_DATA = None
 
-PVWATCH_INDEX_PV = '9idcLAX:long20'
-PVWATCH_PID_PV   = '9idcLAX:long19'
-PVWATCH_REF_PV   = '9idcLAX:long18'
+#PVWATCH_INDEX_PV = '9idcLAX:long20'
+#PVWATCH_PID_PV   = '9idcLAX:long19'
+#PVWATCH_REF_PV   = '9idcLAX:long18'
 
 
 '''value for expected EPICS PV is None'''
@@ -245,7 +254,8 @@ def shellCommandToFile(command, outFile):
 
 
 def debugging_diagnostic(code):
-    epics.caput(PVWATCH_REF_PV, code)
+    #epics.caput(PVWATCH_REF_PV, code)
+    pass
 
 
 def buildReport():
@@ -452,12 +462,12 @@ def main():
     _initiate_PV_connections()
 
     logMessage("Connected %d EPICS PVs" % len(pvdb))
-    epics.caput(PVWATCH_INDEX_PV+'.DESC', 'pvwatch mainLoopCounter')
-    epics.caput(PVWATCH_PID_PV+'.DESC', 'pvwatch PID')
-    epics.caput(PVWATCH_REF_PV+'.DESC', 'pvwatch reference')
-    pvwatch_index_pv = epics.PV(PVWATCH_INDEX_PV)
-    pvwatch_index_pv.put(-1)
-    epics.caput(PVWATCH_PID_PV, os.getpid())
+    #epics.caput(PVWATCH_INDEX_PV+'.DESC', 'pvwatch mainLoopCounter')
+    #epics.caput(PVWATCH_PID_PV+'.DESC', 'pvwatch PID')
+    #epics.caput(PVWATCH_REF_PV+'.DESC', 'pvwatch reference')
+    #pvwatch_index_pv = epics.PV(PVWATCH_INDEX_PV)
+    #pvwatch_index_pv.put(-1)
+    #epics.caput(PVWATCH_PID_PV, os.getpid())
     debugging_diagnostic(-1)
 
     nextReport = getTime()
@@ -470,7 +480,7 @@ def main():
         mainLoopCount = (mainLoopCount + 1) % MAINLOOP_COUNTER_TRIGGER
         nextReport, nextLog = _periodic_reporting_task(mainLoopCount,
                                        nextReport, nextLog, delta_report, delta_log)
-        pvwatch_index_pv.put(mainLoopCount)
+        #pvwatch_index_pv.put(mainLoopCount)
         time.sleep(localConfig.SLEEP_INTERVAL_S)
 
     # this exit handling will never be called
