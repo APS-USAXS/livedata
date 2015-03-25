@@ -104,7 +104,7 @@
                         </td>
                     </tr>
                     <tr bgcolor="lightblue">
-		        <td>
+		                <td>
                             <table border="1" width="100%" rules="all" bgcolor="lightblue">
                                 <tr>
                                     <td>webcams</td>
@@ -129,7 +129,7 @@
                         				    M stage camera
                         				</a>
                     			    </td>
-                                    <td align="center"
+                                    <td align="center">
                                         <a href="http://a-stage-camera.xray.aps.anl.gov">
                         				    A stage camera
                         				</a>
