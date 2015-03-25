@@ -88,22 +88,33 @@
 <table border="0" width="100%" bgcolor="mintcream" rules="all"><tr>
 <td width="56%">
  <xsl:choose>
-                                        <xsl:when test="contains(//pv[@id='state']/value,'Radiography Mode')">
-					    <script language="javascript">
-					    
-						if (navigator.userAgent.match(/like Mac OS X/i)) {
-                document.write('<img src="http://usaxsaxis1.cars.aps.anl.gov/axis-cgi/jpg/image.cgi?resolution=vga&amp;amp;camera=4" width="100%" />');
+        <xsl:when test="contains(//pv[@id='state']/value,'Radiography Mode')">
+		    <!--
+            <script language="javascript">
+		    
+    			if (navigator.userAgent.match(/like Mac OS X/i)) {
+    			    document.write('<img src="http://axis-server.xray.aps.anl.gov/axis-cgi/jpg/image.cgi?resolution=vga&amp;amp;camera=4" width="100%" />');
                 }
-	else {
-		document.write('<img src="http://usaxsaxis1.cars.aps.anl.gov/axis-cgi/mjpg/video.cgi?resolution=VGA&amp;amp;camera=4" width="100%" />');
-        }
-        
-                                        </script>
-					</xsl:when>
-                                        <xsl:otherwise>
-											<img src="http://usaxs.xray.aps.anl.gov/livedata/livedata.png" width="100%" />
-                                        </xsl:otherwise>
-                                    </xsl:choose>
+                else {
+                    document.write('<img src="http://axis-server.xray.aps.anl.gov/axis-cgi/mjpg/video.cgi?resolution=VGA&amp;amp;camera=4" width="100%" />');
+                }
+
+            </script>
+            -->
+            <script language="javascript">
+                
+                if (navigator.userAgent.match(/like Mac OS X/i)) {
+                    document.write('<img src="http://axis-server.xray.aps.anl.gov/axis-cgi/jpg/image.cgi?camera=4" width="100%" />');
+                } else {
+                    document.write('<img src="http://axis-server.xray.aps.anl.gov/axis-cgi/mjpg/video.cgi?camera=4" width="100%" />');
+                }
+                
+            </script>
+        </xsl:when>
+        <xsl:otherwise>
+			<img src="http://usaxs.xray.aps.anl.gov/livedata/livedata.png" width="100%" />
+        </xsl:otherwise>
+    </xsl:choose>
 
 </td>
 
@@ -226,6 +237,7 @@ USAXS status
     </xsl:template>        
 
 </xsl:stylesheet>
+
 <!-- 
     ########### SVN repository information ###################
     # $Date: 2013-04-20 00:19:52 -0500 (Sat, 20 Apr 2013) $

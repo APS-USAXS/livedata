@@ -108,33 +108,35 @@
                             <table border="1" width="100%" rules="all" bgcolor="lightblue">
                                 <tr>
                                     <td>webcams</td>
-				    <td align="center">
- 					Axis Server:	    <!-- 164.54.162.185 -->
-					<a href="http://usaxsaxis1.cars.aps.anl.gov">
-					    http://usaxsaxis1.cars.aps.anl.gov
-					</a>
-				    </td>
-				    <td align="center">
- 					IP Camera back:   <!--webcam front-->
-					<a href="http://webcam15.cars.aps.anl.gov">
-					    http://webcam15.cars.aps.anl.gov
-					</a>
-				    </td>
-				    <td align="center">
- 					IP Camera side:   <!-- webcam back -->
-					<a href="http://webcam1.cars.aps.anl.gov">
-					    http://webcam1.cars.aps.anl.gov
-					</a>
-				    </td>
-				    <td align="center">
- 					IP Camera back:   <!-- webcam side -->
-					<a href="http://webcam2.cars.aps.anl.gov">
-					    http://webcam2.cars.aps.anl.gov
-					</a>
-				    </td>
+                                    <!--
+                axis server     164.54.143.40   axis-server.xray.aps.anl.gov
+                Front camera    164.54.143.43   front-camera.xray.aps.anl.gov
+                M stage camera  164.54.143.44   m-stage-camera.xray.aps.anl.gov
+                A stage camera  164.54.143.41   a-stage-camera.xray.aps.anl.gov
+                                    -->
+                                    <td align="center">
+                    			        <a href="http://axis-server.xray.aps.anl.gov">
+                    			            Axis Server
+                    				    </a>
+                    			    </td>
+                    			    <td align="center">
+                    			        <a href="http://front-camera.xray.aps.anl.gov">
+                        				    Front camera
+                        				</a>
+                    			    </td>
+                    			    <td align="center">
+                    			        <a href="http://m-stage-camera.xray.aps.anl.gov">
+                        				    M stage camera
+                        				</a>
+                    			    </td>
+                                    <td align="center"
+                                        <a href="http://a-stage-camera.xray.aps.anl.gov">
+                        				    A stage camera
+                        				</a>
+                    			    </td>
                                 </tr>
                             </table>
-			</td>
+                    	</td>
                     </tr>
                 </table>
                 <table border="1" width="96%" rules="all">
