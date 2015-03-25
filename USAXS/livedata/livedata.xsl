@@ -120,17 +120,17 @@
                     				    </a>
                     			    </td>
                     			    <td align="center">
-                    			        <a href="http://front-camera.xray.aps.anl.gov">
+                    			        <a href="http://164.54.143.43">
                         				    Front camera
                         				</a>
                     			    </td>
                     			    <td align="center">
-                    			        <a href="http://m-stage-camera.xray.aps.anl.gov">
+                    			        <a href="http://164.54.143.44">
                         				    M stage camera
                         				</a>
                     			    </td>
                                     <td align="center">
-                                        <a href="http://a-stage-camera.xray.aps.anl.gov">
+                                        <a href="http://164.54.143.41">
                         				    A stage camera
                         				</a>
                     			    </td>
