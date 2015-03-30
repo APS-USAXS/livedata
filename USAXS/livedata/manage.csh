@@ -58,8 +58,8 @@ switch ($1)
        #?archaic?#	      /bin/echo "# [$0 `/bin/date`] stopped ${PID}: ${SCRIPT}"
        #?archaic?#	 endif
        #?archaic?#  endif
-       /bin/echo "# [$0 `/bin/date`] pvWatch mainLoopCounter: `${CAGET} ${LOOP_COUNTER_PV}`"  >>& ${LOGFILE}
-       /bin/echo "# [$0 `/bin/date`] pvWatch phase: `${CAGET} ${PVWATCH_PHASE_PV}`"  >>& ${LOGFILE}
+       #/bin/echo "# [$0 `/bin/date`] pvWatch mainLoopCounter: `${CAGET} ${LOOP_COUNTER_PV}`"  >>& ${LOGFILE}
+       #/bin/echo "# [$0 `/bin/date`] pvWatch phase: `${CAGET} ${PVWATCH_PHASE_PV}`"  >>& ${LOGFILE}
        /bin/echo "# [$0 `/bin/date`] stop ======================================================"  >>& ${LOGFILE}
        breaksw
 
@@ -96,16 +96,16 @@ switch ($1)
           echo `${MANAGE} restart` >& /dev/null
        else
  	      # look to see if the process has stalled, then restart it
-	      set counter = `${CAGET} -t ${LOOP_COUNTER_PV}`
- 	      echo "# [$0 `/bin/date`] checkup pid=${pid}, counter=${counter}" >>& ${LOGFILE}
-	      set last_counter = `/bin/cat ${COUNTERFILE}`
-	      if ("${counter}" == "${last_counter}") then
- 	         echo "# [$0 `/bin/date`] process ${pid} appears stalled, restarting" >>& ${LOGFILE}
-	         # swallow up any console output
- 	         echo `${MANAGE} restart` >& /dev/null
- 	      else
-	         /bin/echo ${counter} >! ${COUNTERFILE}
-	      endif
+	      #set counter = `${CAGET} -t ${LOOP_COUNTER_PV}`
+ 	      #echo "# [$0 `/bin/date`] checkup pid=${pid}, counter=${counter}" >>& ${LOGFILE}
+	      #set last_counter = `/bin/cat ${COUNTERFILE}`
+	      #if ("${counter}" == "${last_counter}") then
+ 	      #   echo "# [$0 `/bin/date`] process ${pid} appears stalled, restarting" >>& ${LOGFILE}
+	      #   # swallow up any console output
+ 	      #   echo `${MANAGE} restart` >& /dev/null
+ 	      #else
+	      #   /bin/echo ${counter} >! ${COUNTERFILE}
+	      #endif
        endif
        breaksw
 
