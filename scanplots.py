@@ -4,7 +4,6 @@
 
 
 import datetime
-import glob
 import os
 import spec2nexus.spec
 
@@ -20,12 +19,6 @@ SCANLOG = '/share1/local_livedata/scanlog.xml'
 NUMBER_SCANS_TO_PLOT = 5
 scan_cache = None
 spec_file_cache = None
-
-
-###########
-###########  THIS MODULE IS BEING DEVELOPED
-###########  IT IS NOT READY FOR PRODUCTION USE
-###########
 
 
 class ScanCache(object):
@@ -214,6 +207,7 @@ def plottable_scan(scan_node):
                 if line.find('FlyScan file name = ') > 1:
                     hdf5_file = line.split('=')[-1].strip().rstrip('.')
                     hdf5_file = os.path.abspath(os.path.join(specfiledir, hdf5_file))
+                    # FIXME: indentation or logic is off in this *if* block
                     if os.path.exists(hdf5_file):
                         # actual data file
                         scan_node.data_file = hdf5_file
@@ -276,7 +270,7 @@ def extract_USAXS_data(specData, scanList):
             rebinned = fly.reduced[str(localConfig.REDUCED_FLY_SCAN_BINS)]
             entry = dict(qVec=rebinned['Q'], rVec=rebinned['R'], title=title)
         else:
-            entry = calc_usaxs_data(scan)
+            entry = plot.calc_usaxs_data(scan)
         entry['scan'] = scan.scanNum
         entry['key'] = "S%d" % scan.scanNum
         entry['label'] = "%s: %s" % (entry['key'], entry['title'])
@@ -313,7 +307,6 @@ def get_USAXS_FlyScan_Data(scan_obj):
 
 
 def get_USAXS_data(cache):
-    import plot
     getscandata = dict(uascan=get_USAXS_Uascan_ScanData, 
                        sbuascan=get_USAXS_Uascan_ScanData, 
                        FlyScan=get_USAXS_FlyScan_Data)
@@ -339,7 +332,7 @@ def main(n = None, cp=False):
     spec_file_cache = SpecFileCache()
     if n is None:
         n = NUMBER_SCANS_TO_PLOT
-    scans = last_n_scans(SCANLOG, n)
+    #scans = last_n_scans(SCANLOG, n)
 
     local_plot = os.path.join(
                               localConfig.LOCAL_WWW_LIVEDATA_DIR, 

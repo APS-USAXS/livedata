@@ -86,6 +86,7 @@ def extractScans(cmdArgs):
 
     print "program: " + sys.argv[0]
     # now open the file and read it
+    # FIXME: PyDev reports that prjPySpec.specDataFile is undefined
     specData = prjPySpec.specDataFile(specFile)
     print "read: " + specFile
     
