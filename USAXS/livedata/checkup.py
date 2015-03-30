@@ -26,8 +26,7 @@ def basePVname(pv):
     '''' return the base part of the PV name '''
     return pv.split(".")[0]
 
-t = pyRestTable.Table()
-t.labels = ( "EPICS PV", "mnemonic", "RTYP", "pv.DESC", "pvlist.xml description" )
+d = {}
 for key in tree.findall(".//EPICS_PV"):
     if key.get("_ignore_", "false").lower() == "true":
         continue
@@ -35,10 +34,16 @@ for key in tree.findall(".//EPICS_PV"):
     base = basePVname(pv)
     if pv == base + ".RBV":
         rtyp = epics.caget(base + ".RTYP")
-        #if rtyp == "motor":
+        if rtyp not in ("motor", ):
+	    continue
         mne = key.get("mne")
         desc = key.get("description")
         #fmt = key.get("display_format", "%s")  # default format
         text = epics.caget(base + ".DESC")
-        t.rows += (base, mne, rtyp, text, desc)
+	d[mne.lower()] = (rtyp, base, mne, text, desc)
+
+t = pyRestTable.Table()
+t.labels = ( "RTYP", "EPICS PV", "mnemonic", "pv.DESC", "pvlist.xml description" )
+for mne in sorted(d.keys()):
+    t.rows.append( d[mne] )
 print t.reST()
