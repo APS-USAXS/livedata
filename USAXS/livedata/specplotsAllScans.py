@@ -105,7 +105,6 @@ def plotAllSpecFileScans(specFile):
     plotList = []
     newFileList = [] # list of all new files created
 
-    basename = getBaseName(specFile)
     if not os.path.exists(png_directory):
         os.makedirs(png_directory)
         logger('creating directory: ' + png_directory)
@@ -243,9 +242,9 @@ def getBaseDir(basename, date):
     return os.path.join(path, datePath(date), basename)
 
 
-def getTimeFileModified(file):
-    '''@return: time (float) file was last modified'''
-    return os.path.getmtime(file)
+def getTimeFileModified(filename):
+    '''@return: time (float) filename was last modified'''
+    return os.path.getmtime(filename)
 
 
 def needToMakePlot(fullPlotFile, mtime_specFile):

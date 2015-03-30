@@ -14,16 +14,14 @@ import datetime         # date/time stamps
 import epics            # manages EPICS (PyEpics) connections for Python 2.6+
 import numpy
 import os.path          # testing if a file exists
-import shlex            # parsing command lines (for xsltproc)
 import shutil           # file copies
-import subprocess       # calling other software (xsltproc)
 import sys              # for flushing log output
 import time             # provides sleep()
 import traceback
 from xml.dom import minidom
 from xml.etree import ElementTree
 
-import plot             # makes PNG files of recent USAXS scans
+#import plot             # makes PNG files of recent USAXS scans
 import localConfig      # definitions for 9-ID
 import scanplots
 import wwwServerTransfers
@@ -52,10 +50,6 @@ PVLIST_FILE = "pvlist.xml"
 MAINLOOP_COUNTER_TRIGGER = 10000  # print a log message periodically
 USAXS_DATA = None
 
-#PVWATCH_INDEX_PV = '9idcLAX:long20'
-#PVWATCH_PID_PV   = '9idcLAX:long19'
-#PVWATCH_REF_PV   = '9idcLAX:long18'
-
 
 '''value for expected EPICS PV is None'''
 class NoneEpicsValue(Exception): pass
@@ -80,68 +74,6 @@ def logException(troublemaker):
         logMessage('\t' + _)
 
 
-def update_pvdb(pv, raw_value):
-    if pv not in pvdb:
-        msg = '!!!ERROR!!! %s was not found in pvdb!' % pv
-        raise PvNotRegistered, msg
-    entry = pvdb[pv]
-    ch = entry['ch']
-    entry['timestamp'] = getTime()
-    entry['counter'] += 1
-    entry['raw_value'] = raw_value
-    entry['value'] = entry['format'] % raw_value
-
-
-def EPICS_monitor_receiver(*args, **kws):
-    '''Response to an EPICS (PyEpics) monitor on the channel'''
-    global GLOBAL_MONITOR_COUNTER
-    pv = kws['pvname']
-    if pv not in pvdb:
-        msg = '!!!ERROR!!! %s was not found in pvdb!' % pv
-        raise PvNotRegistered, msg
-    update_pvdb(pv, kws['value'])   # cache the last known good value
-    GLOBAL_MONITOR_COUNTER += 1
-
-
-def add_pv(mne, pv, desc, fmt):
-    '''Connect to another EPICS (PyEpics) process variable'''
-    if pv in pvdb:
-        raise Exception("%s already defined by id=%s" % (pv, pvdb[pv]['id']))
-    ch = epics.PV(pv)
-    #ch.connect()
-    entry = {
-        'name': pv,           # EPICS PV name
-        'id': mne,            # symbolic name used in the python code
-        'description': desc,  # text description for humans
-        'timestamp': None,    # client time last monitor was received
-        'counter': 0,         # number of monitor events received
-        'units': "",          # engineering units
-        'ch': ch,             # EPICS PV channel
-        'format': fmt,        # format for display
-        'value': None,        # formatted value
-        'raw_value': None     # unformatted value
-    }
-    pvdb[pv] = entry
-    xref[mne] = pv            # mne is local mnemonic, define actual PV in pvlist.xml
-    ch.add_callback(EPICS_monitor_receiver)  # start callbacks now
-    cv = ch.get_ctrlvars()
-    unit_renames = {		# handle some non SI unit names
-        # old      new
-        'millime': 'mm',
-        'millira': 'mr',
-        'degrees': 'deg',
-        'Volts':   'V',
-        'VDC':     'V',
-        'eng':     '',
-    }
-    if 'units' in cv:
-        units = cv['units']
-        if units in unit_renames:
-            units = unit_renames[units]
-	entry['units'] = units
-    update_pvdb(pv, ch.get())   # initialize the cache
-
-
 def getSpecFileName(pv):
     '''construct the name of the file, based on a PV'''
     dir_pv = xref['spec_dir']
@@ -157,7 +89,6 @@ def getSpecFileName(pv):
 
 def updateSpecMacroFile():
     '''copy the current SPEC macro file to the WWW page space'''
-    debugging_diagnostic(3)
 
     #@TODO: What if the specFile is actually a directory?
     if len(pvdb[xref['spec_macro_file']]['value'].strip()) == 0:
@@ -190,10 +121,8 @@ def updateSpecMacroFile():
 
 def updatePlotImage():
     '''make a new PNG file with the most recent USAXS scans'''
-    debugging_diagnostic(4)
 
     specFile = getSpecFileName(xref['spec_data_file'])
-    debugging_diagnostic(40)
     if not os.path.exists(specFile):
         logMessage(specFile + " does not exist")
         return
@@ -210,23 +139,12 @@ def updatePlotImage():
         makePlot = spec_mtime > plot_mtime        #  plot only if new data
     if makePlot:
         #logMessage("updating the plots and gathering scan data for XML file")
-        debugging_diagnostic(41)
-        if False:
-            usaxs = plot.update_n_plots(specFile, localConfig.NUM_SCANS_PLOTTED)
-            debugging_diagnostic(42)
-            global USAXS_DATA
-            USAXS_DATA = {
-                'file': specFile,
-                'usaxs': usaxs,
-            }
-        else:
-            scanplots.main(n=localConfig.NUM_SCANS_PLOTTED, cp=True)
-        debugging_diagnostic(43)
+        scanplots.main(n=localConfig.NUM_SCANS_PLOTTED, cp=True)
 
 
-def writeFile(file, contents):
+def writeFile(filename, contents):
     '''write contents to file'''
-    f = open(file, 'w')
+    f = open(filename, 'w')
     f.write(contents)
     f.close()
 
@@ -243,19 +161,11 @@ def xslt_transformation(xslt_file, src_xml_file, result_xml_file):
     writeFile(result_xml_file, buf)
 
 
-def shellCommandToFile(command, outFile):
-    '''execute a shell command and write its output to a file'''
-    p = subprocess.Popen(shlex.split(command), stdout=subprocess.PIPE)
-    f = p.stdout
-    p.wait()
-    buf = f.read()
-    f.close()
-    writeFile(outFile, buf)
-
-
-def debugging_diagnostic(code):
-    #epics.caput(PVWATCH_REF_PV, code)
-    pass
+def textArray(arr):
+    '''convert an ndarray to a text array'''
+    if isinstance(arr, numpy.ndarray):
+        return [str(_) for _ in arr]
+    return arr
 
 
 def buildReport():
@@ -327,19 +237,10 @@ def buildReport():
     return xmlText
 
 
-def textArray(arr):
-    '''convert an ndarray to a text array'''
-    if isinstance(arr, numpy.ndarray):
-        return [str(_) for _ in arr]
-    return arr
-
-
 def report():
     '''write the values out to files'''
-    debugging_diagnostic(2)
 
     xmlText = buildReport()
-    debugging_diagnostic(20)
 
     # WWW directory for livedata (absolute path)
     localDir = localConfig.LOCAL_WWW_LIVEDATA_DIR
@@ -348,9 +249,7 @@ def report():
     raw_xml = localConfig.XML_REPORT_FILE
     abs_raw_xml = os.path.join(localDir, raw_xml)
     writeFile(abs_raw_xml, xmlText)
-    debugging_diagnostic(21)
     wwwServerTransfers.scpToWebServer(abs_raw_xml, raw_xml)
-    debugging_diagnostic(22)
 
     #--- xslt transforms from XML to HTML
 
@@ -358,17 +257,13 @@ def report():
     index_html = localConfig.HTML_INDEX_FILE  # short name
     abs_index_html = os.path.join(localDir, index_html)  # absolute path
     xslt_transformation(localConfig.LIVEDATA_XSL_STYLESHEET, abs_raw_xml, abs_index_html)
-    debugging_diagnostic(23)
     wwwServerTransfers.scpToWebServer(abs_index_html, index_html)  # copy to XSD
-    debugging_diagnostic(24)
 
     # display the raw data (but pre-convert it in an html page)
     raw_html = localConfig.HTML_RAWREPORT_FILE
     abs_raw_html = os.path.join(localDir, raw_html)
     xslt_transformation(localConfig.RAWTABLE_XSL_STYLESHEET, abs_raw_xml, abs_raw_html)
-    debugging_diagnostic(25)
     wwwServerTransfers.scpToWebServer(abs_raw_html, raw_html)
-    debugging_diagnostic(26)
 
     # also copy the raw table XSLT
     xslFile = localConfig.RAWTABLE_XSL_STYLESHEET
@@ -378,9 +273,7 @@ def report():
     usaxstv_html = localConfig.HTML_USAXSTV_FILE  # short name
     abs_usaxstv_html = os.path.join(localDir, usaxstv_html)  # absolute path
     xslt_transformation(localConfig.USAXSTV_XSL_STYLESHEET, abs_raw_xml, abs_usaxstv_html)
-    debugging_diagnostic(27)
     wwwServerTransfers.scpToWebServer(abs_usaxstv_html, usaxstv_html)  # copy to XSD
-    debugging_diagnostic(28)
 
 
 def getTime():
@@ -389,7 +282,69 @@ def getTime():
     return dt
 
 
-def _initiate_PV_connections():
+def update_pvdb(pv, raw_value):
+    if pv not in pvdb:
+        msg = '!!!ERROR!!! %s was not found in pvdb!' % pv
+        raise PvNotRegistered, msg
+    entry = pvdb[pv]
+    #ch = entry['ch']
+    entry['timestamp'] = getTime()
+    entry['counter'] += 1
+    entry['raw_value'] = raw_value
+    entry['value'] = entry['format'] % raw_value
+
+
+def EPICS_monitor_receiver(*args, **kws):
+    '''Response to an EPICS (PyEpics) monitor on the channel'''
+    global GLOBAL_MONITOR_COUNTER
+    pv = kws['pvname']
+    if pv not in pvdb:
+        msg = '!!!ERROR!!! %s was not found in pvdb!' % pv
+        raise PvNotRegistered, msg
+    update_pvdb(pv, kws['value'])   # cache the last known good value
+    GLOBAL_MONITOR_COUNTER += 1
+
+
+def add_pv(mne, pv, desc, fmt):
+    '''Connect to another EPICS (PyEpics) process variable'''
+    if pv in pvdb:
+        raise Exception("%s already defined by id=%s" % (pv, pvdb[pv]['id']))
+    ch = epics.PV(pv)
+    #ch.connect()
+    entry = {
+        'name': pv,           # EPICS PV name
+        'id': mne,            # symbolic name used in the python code
+        'description': desc,  # text description for humans
+        'timestamp': None,    # client time last monitor was received
+        'counter': 0,         # number of monitor events received
+        'units': "",          # engineering units
+        'ch': ch,             # EPICS PV channel
+        'format': fmt,        # format for display
+        'value': None,        # formatted value
+        'raw_value': None     # unformatted value
+    }
+    pvdb[pv] = entry
+    xref[mne] = pv            # mne is local mnemonic, define actual PV in pvlist.xml
+    ch.add_callback(EPICS_monitor_receiver)  # start callbacks now
+    cv = ch.get_ctrlvars()
+    unit_renames = {        # handle some non SI unit names
+        # old      new
+        'millime': 'mm',
+        'millira': 'mr',
+        'degrees': 'deg',
+        'Volts':   'V',
+        'VDC':     'V',
+        'eng':     '',
+    }
+    if 'units' in cv:
+        units = cv['units']
+        if units in unit_renames:
+            units = unit_renames[units]
+    entry['units'] = units
+    update_pvdb(pv, ch.get())   # initialize the cache
+
+
+def initiate_PV_connections():
     '''create connections to all defined PVs'''
     if not os.path.exists(PVLIST_FILE):
         logMessage('could not find file: ' + PVLIST_FILE)
@@ -413,7 +368,8 @@ def _initiate_PV_connections():
                 logException(msg)
 
 
-def _periodic_reporting_task(mainLoopCount, nextReport, nextLog, delta_report, delta_log):
+def periodic_reporting_task(mainLoopCount, nextReport, nextLog, delta_report, delta_log):
+    '''run the main event loop'''
     global GLOBAL_MONITOR_COUNTER
     global MAINLOOP_COUNTER_TRIGGER
     dt = getTime()
@@ -435,7 +391,6 @@ def _periodic_reporting_task(mainLoopCount, nextReport, nextLog, delta_report, d
         except Exception as exc: logException("updatePlotImage()")
 
     if dt >= nextLog:
-        debugging_diagnostic(1)
         nextLog = dt + delta_log
         msg = "checkpoint, %d EPICS monitor events received" % GLOBAL_MONITOR_COUNTER
         logMessage(msg)
@@ -459,16 +414,9 @@ def main():
         return
 
     logMessage("starting pvwatch.py")
-    _initiate_PV_connections()
+    initiate_PV_connections()
 
     logMessage("Connected %d EPICS PVs" % len(pvdb))
-    #epics.caput(PVWATCH_INDEX_PV+'.DESC', 'pvwatch mainLoopCounter')
-    #epics.caput(PVWATCH_PID_PV+'.DESC', 'pvwatch PID')
-    #epics.caput(PVWATCH_REF_PV+'.DESC', 'pvwatch reference')
-    #pvwatch_index_pv = epics.PV(PVWATCH_INDEX_PV)
-    #pvwatch_index_pv.put(-1)
-    #epics.caput(PVWATCH_PID_PV, os.getpid())
-    debugging_diagnostic(-1)
 
     nextReport = getTime()
     nextLog = nextReport
@@ -476,11 +424,9 @@ def main():
     delta_log = datetime.timedelta(seconds=localConfig.LOG_INTERVAL_S)
     mainLoopCount = 0
     while True:
-        debugging_diagnostic(0)
         mainLoopCount = (mainLoopCount + 1) % MAINLOOP_COUNTER_TRIGGER
-        nextReport, nextLog = _periodic_reporting_task(mainLoopCount,
+        nextReport, nextLog = periodic_reporting_task(mainLoopCount,
                                        nextReport, nextLog, delta_report, delta_log)
-        #pvwatch_index_pv.put(mainLoopCount)
         time.sleep(localConfig.SLEEP_INTERVAL_S)
 
     # this exit handling will never be called

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 '''
-read a SPEC data file and plot scan n using ploticus
+read a SPEC data file and plot scan n
 
 .. note:: does not copy any file to XSD WWW server
 '''
@@ -10,13 +10,9 @@ import argparse
 import logging
 import numpy
 import os
-import sys
-import tempfile
-import time
 from spec2nexus import spec             # read SPEC data files
 
 import localConfig                      # definitions for 9-ID
-import wwwServerTransfers
 import reduceFlyData
 import handle_2d
 
@@ -31,7 +27,6 @@ def retrieve_specScanData(scan):
 def retrieve_flyScanData(scan):
     '''retrieve reduced, rebinned data from USAXS Fly Scans'''
     path = os.path.dirname(scan.header.parent.fileName)
-    #hdf_file_name = scan.comments[2].split()[-1].rstrip('.')    # fails if file name has spaces (should not have these)
     key_string = 'FlyScan file name = '
     comment = scan.comments[2]
     index = comment.find(key_string) + len(key_string)
@@ -66,11 +61,7 @@ def process_NexusImageData(scan, imgfile, **attr):
     if not os.path.exists(os.path.dirname(imgfile)):
         return
 
-    scanCmd = scan.scanCmd.split()[0]
-
     path = os.path.dirname(scan.header.parent.fileName)
-    # if scanCmd in ('pinSAXS', 'WAXS'):
-    #     path += '_' + dict(pinSAXS='saxs', WAXS='waxs')[scanCmd]
 
     h5file = scan.scanCmd.split()[1]
     if h5file.find('Z:') >= 0:
@@ -106,7 +97,6 @@ def makeScanImage(scan, plotFile):
     elif scanCmd == 'FlyScan':
         plotData = retrieve_flyScanData(scan)
         if len(plotData) > 0:
-            #ploticus__process_plotData(scan, plotData, plotFile)
             mpl__process_plotData(scan, plotData, plotFile)
     else:
         # plot last column v. first column
@@ -120,23 +110,7 @@ def makeScanImage(scan, plotFile):
                 mtime_pf = 0
             if mtime_sdf > mtime_pf:
                 # TODO: check if this scan _needs_ to be updated
-                #ploticus__process_plotData(scan, plotData, plotFile)
                 mpl__process_plotData(scan, plotData, plotFile)
-
-
-def write_file_by_lines(data):
-    '''
-    write data to a text file
-    
-    :param [str]: data (list of lines for the file)
-    '''
-    #---- write the ploticus data file
-    ext = os.extsep + "pl"
-    (_, dataFile) = tempfile.mkstemp(dir="/tmp", text=True, suffix=ext)
-    f = open(dataFile, "w")
-    f.write("\n".join(data))
-    f.close()
-    return dataFile
 
 
 def mpl__process_plotData(scan, plotData, plotFile):
@@ -167,50 +141,6 @@ def mpl__process_plotData(scan, plotData, plotFile):
                        xtitle=xtitle,  ytitle=ytitle, 
                        xlog=xlog, ylog=ylog,
                        timestamp_str=scan.date)
-
-
-def ploticus__process_plotData(scan, plotData, plotFile):
-    '''make Ploticus line chart image from raw SPEC or FlyScan data'''
-    # see: http://ploticus.sourceforge.net/doc/prefab_lines_ex.html
-    
-    # format the x&y data as ploticus text
-    if len(plotData) == 0:
-        pl_lines = ["   %s  %s" % (0, 0),]
-    else:
-        pl_lines = ["   %s  %s" % (x, y) for (x, y) in zip(*plotData)]
-    #     # also find x & y min & max
-    #     x, y = plotData
-    #     pl = dict(data=pl_lines, xMin=min(x), xMax=max(x), yMin=min(y), yMax=max(y))
-    dataFile = write_file_by_lines(pl_lines)
-
-    #---- execute the ploticus command file using a "prefab" plot style
-    # ploticus needs this
-    os.environ['PLOTICUS_PREFABS'] = localConfig.PLOTICUS_PREFABS
-    
-    name = "#%d: %s" % (scan.scanNum, scan.scanCmd)
-    if len(plotData) == 0:
-        name += ' (no data to plot)'
-    try:
-        specFileName = scan.specFile
-    except AttributeError:
-        # was in scan.specFile but interface changed
-        specFileName = 'USAXS FlyScan %d' % scan.scanNum
-    title = "%s, %s" % (specFileName, scan.date)
-    command = localConfig.PLOTICUS
-    command += " -prefab lines"
-    command += " data=%s x=1 y=2" % dataFile
-    command += " xlbl=\"%s\"" % scan.column_first
-    command += " ylbl=\"%s\"" % scan.column_last
-    if len(plotData) >= localConfig.LINE_ONLY_THRESHOLD:
-        command += " pointsym=\"none\""
-    command += " name=\"%s\"" % name
-    command += " title=\"%s\"" % title
-    command += " -" + localConfig.PLOT_FORMAT
-    command += " -o " + plotFile
-
-    wwwServerTransfers.execute_command(command)
-    os.remove(dataFile)
-    print 'created: ' + plotFile
 
 
 def openSpecFile(specFile):

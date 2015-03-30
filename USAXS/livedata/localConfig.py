@@ -15,8 +15,6 @@ LOCAL_USAXS_DATA_DIR = os.path.join(LOCAL_DATA_DIR, "/USAXS_data")
 LOCAL_WWW_LIVEDATA_DIR = os.path.join(LOCAL_DATA_DIR, "local_livedata")
 
 PLOT_FORMAT = "png"
-PLOTICUS = os.path.join(HOME_DIR, "bin/pl")
-PLOTICUS_PREFABS = os.path.join(HOME_DIR, "Documents/ploticus/pl241src/prefabs")
 
 
 # dirWatch.py
@@ -70,7 +68,6 @@ SPECMACRO_TXT_FILE = "specmacro.txt"
 TEST_SPEC_DATA = '/share1/USAXS_data/2015-01/02_08_Samples.dat'
 TEST_SPEC_SCAN_NUMBER = 1
 TEST_PLOTFILE = "pete.png"
-TEST_PLOTICUS_COMMAND_FILE = "pete.pl"
 LINE_ONLY_THRESHOLD = 400
 
 

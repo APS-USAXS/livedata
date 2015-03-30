@@ -8,7 +8,6 @@ manage file transfers with the USAXS account on the XSD WWW server
 import os, sys
 import subprocess
 import shlex
-import shutil
 import datetime
 import paramiko
 from scp import SCPClient, report_scp_progress, SCPException
@@ -46,7 +45,6 @@ def scpToWebServer(sourceFile, targetFile = "", demo = False):
     @param demo: If True, don't do the copy, just print the command
     @return: a tuple (stdoutdata,  stderrdata) -or- None (if demo=False)
     '''
-    import pvwatch
     if not os.path.exists(sourceFile):
         raise Exception("Local file not found: " + sourceFile)
     if len(targetFile) == 0:
@@ -57,21 +55,16 @@ def scpToWebServer(sourceFile, targetFile = "", demo = False):
         return None
 
     # TODO: handle exceptions
-    pvwatch.debugging_diagnostic(211)
     ssh = createSSHClient(WWW_SERVER, user=WWW_SERVER_USER)
-    pvwatch.debugging_diagnostic(212)
     report = None
     #report = report_scp_progress    # debugging
     scp = SCPClient(ssh.get_transport(), progress=report)
-    pvwatch.debugging_diagnostic(213)
-    for retry in range(RETRY_COUNT):
+    for _retry in range(RETRY_COUNT):
         try:
             scp.put(sourceFile, remote_path=LIVEDATA_DIR)
-            pvwatch.debugging_diagnostic(214)
             return
         except SCPException, _exception_message:
             pass
-    pvwatch.debugging_diagnostic(215)
     msg = 'tried %d times: scp %s %s, last message: %s' % (RETRY_COUNT, sourceFile, targetFile, _exception_message)
     WwwServerScpException(msg)
 
@@ -115,10 +108,8 @@ def scpToWebServer_subprocess(sourceFile, targetFile = "", demo = False):
         return None
     else:
         lex = shlex.split(command)
-        pvwatch.debugging_diagnostic(211)
         timeout_time = pvwatch.getTime() + datetime.timedelta(seconds=SCP_TIMEOUT_S)
         p = subprocess.Popen(lex)
-        pvwatch.debugging_diagnostic(212)
         finished = False
         while pvwatch.getTime() < timeout_time and not finished:
             code = p.poll()
@@ -140,10 +131,7 @@ def execute_command(command):
     @return: a tuple (stdoutdata,  stderrdata)
     '''
     # run the command but gobble up stdout (make it less noisy)
-    import pvwatch
-    pvwatch.debugging_diagnostic(8110)
     p = subprocess.Popen(shlex.split(command), stdout=subprocess.PIPE)
-    pvwatch.debugging_diagnostic(8111)
     #p.wait()
     return p.communicate(None)
 

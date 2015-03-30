@@ -176,13 +176,13 @@ class SCPClient(object):
                 self._send_files([base])
                 continue
             last_dir = base
-            for root, dirs, fls in os.walk(base):
+            for root, _dirs, fls in os.walk(base):
                 self._chdir(last_dir, root)
                 self._send_files([os.path.join(root, f) for f in fls])
                 last_dir = root
 
     def _send_pushd(self, directory):
-        (mode, size, mtime, atime) = self._read_stats(directory)
+        (mode, _size, mtime, atime) = self._read_stats(directory)
         basename = os.path.basename(directory)
         if self.preserve_times:
             self._send_time(mtime, atime)
