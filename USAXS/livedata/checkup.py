@@ -11,7 +11,7 @@ usage::
 
 '''
 
-# $Id $
+# $Id$
 
 from xml.etree import ElementTree
 import epics
