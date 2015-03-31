@@ -340,7 +340,7 @@ def add_pv(mne, pv, desc, fmt):
         units = cv['units']
         if units in unit_renames:
             units = unit_renames[units]
-    entry['units'] = units
+        entry['units'] = units
     update_pvdb(pv, ch.get())   # initialize the cache
 
 
