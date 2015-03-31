@@ -114,26 +114,26 @@
                 M stage camera  164.54.143.44   m-stage-camera.xray.aps.anl.gov
                 A stage camera  164.54.143.41   a-stage-camera.xray.aps.anl.gov
                                     -->
-                                    <td align="center">
-                    			        <a href="http://axis-server.xray.aps.anl.gov">
-                    			            Axis Server
-                    				    </a>
-                    			    </td>
-                    			    <td align="center">
-                    			        <a href="http://164.54.143.43">
-                        				    Front camera
-                        				</a>
-                    			    </td>
-                    			    <td align="center">
-                    			        <a href="http://164.54.143.44">
-                        				    M stage camera
-                        				</a>
-                    			    </td>
-                                    <td align="center">
-                                        <a href="http://164.54.143.41">
-                        				    A stage camera
-                        				</a>
-                    			    </td>
+                    		    <td align="center">
+                    		        <a href="http://axis-server.xray.aps.anl.gov">
+                    		            Axis Server
+                    		        </a>
+                    		    </td>
+                    		    <td align="center">
+                    		        <a href="http://164.54.143.43">
+                    		            Front camera
+                    		        </a>
+                    		    </td>
+                    		    <td align="center">
+                    		        <a href="http://164.54.143.44">
+                    		            M stage camera
+                    		        </a>
+                    		    </td>
+                    		    <td align="center">
+                    		        <a href="http://164.54.143.41">
+                    		            A stage camera
+                    		        </a>
+                    		    </td>
                                 </tr>
                             </table>
                     	</td>

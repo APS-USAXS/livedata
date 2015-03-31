@@ -300,6 +300,9 @@ def get_USAXS_FlyScan_Data(scan_obj):
         fly.save(hdf5File, str(localConfig.REDUCED_FLY_SCAN_BINS))
     except IOError:
         return None     # file may not be available yet for reading if fly scan is still going
+    except KeyError, exc:
+        print 'HDF5 file:', hdf5File
+	raise KeyError(exc)
     title = os.path.split(hdf5File)[-1] + '(fly)'
     rebinned = fly.reduced[str(localConfig.REDUCED_FLY_SCAN_BINS)]
     entry = dict(qVec=rebinned['Q'], rVec=rebinned['R'], title=title)
