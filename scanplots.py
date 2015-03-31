@@ -278,10 +278,6 @@ def extract_USAXS_data(specData, scanList):
     return usaxs
 
 
-def get_USAXS_Uascan_ScanData(scan):
-    return plot.calc_usaxs_data(scan.spec_scan)
-
-
 def get_USAXS_FlyScan_Data(scan_obj):
     scan = scan_obj.spec_scan
     comment = scan.comments[2]
@@ -310,8 +306,10 @@ def get_USAXS_FlyScan_Data(scan_obj):
 
 
 def get_USAXS_data(cache):
-    getscandata = dict(uascan=get_USAXS_Uascan_ScanData, 
-                       sbuascan=get_USAXS_Uascan_ScanData, 
+    def wrap_get_USAXS_Uascan_ScanData(scan):
+        return plot.calc_usaxs_data(scan.spec_scan)
+    getscandata = dict(uascan=wrap_get_USAXS_Uascan_ScanData, 
+                       sbuascan=wrap_get_USAXS_Uascan_ScanData, 
                        FlyScan=get_USAXS_FlyScan_Data)
     mpl_datasets = []
     for key in sorted(cache.get_keys()):
