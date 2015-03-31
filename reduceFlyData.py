@@ -3,7 +3,6 @@
 '''reduceFlyScanData: reduce the raw data from USAXS Fly Scans to R(Q)'''
 
 import datetime             #@UnusedImport
-import glob                 #@UnusedImport
 import h5py                 #@UnusedImport
 import numpy                #@UnusedImport
 import math                 #@UnusedImport
@@ -11,10 +10,10 @@ import os                   #@UnusedImport
 import scipy.interpolate    #@UnusedImport
 import shutil               #@UnusedImport
 import stat                 #@UnusedImport
-import sys                  #@UnusedImport
 from spec2nexus import eznx #@UnusedImport
 import ustep                #@UnusedImport
 import localConfig          #@UnusedImport
+import calc
 
 
 ARCHIVE_SUBDIR_NAME = 'archive'
@@ -187,36 +186,17 @@ class UsaxsFlyScan(object):
         if key not in self.reduced:
             return False
         return 'Q' in self.reduced[key] and 'R' in self.reduced[key]
-        
+
     def reduce(self):
         '''convert raw Fly Scan data to R(Q), also get other terms'''
         if not os.path.exists(self.hdf5_file_name):
             raise IOError, 'file not found: ' + self.hdf5_file_name
         hdf = h5py.File(self.hdf5_file_name, 'r')
     
-        if 'program_name' not in  hdf['/entry']:
-            msg = 'no /entry/program_name in file: ' + self.hdf5_file_name
-            raise KeyError(msg)
-        pname = hdf['/entry/program_name']
-        if 'config_version' in pname.attrs:
-            config_version = pname.attrs['config_version']
-        else:
-            config_version = '1'
-        
-        if config_version in ('1', '1.0'):
-            mode_number = 0
-        elif config_version in ('1.1', '1.2'):
-            mode_number = hdf['/entry/flyScan/AR_PulseMode'][0]
-        else:
-            hdf.close()
-            msg = "Unexpected /entry/program_name/@config_version = " + config_version
-            raise ValueError, msg
-        if mode_number in MODENAME_XREF:
-            # just in case this is useful
-            _mode_name = MODENAME_XREF[mode_number]
-        else:
-            msg = 'Unexpected /entry/flyScan/AR_PulseMode value = ' + str(mode_number)
-            raise ValueError, msg
+        pname = self.get_program_name(hdf)
+        config_version = self.get_config_version(pname)
+        mode_number = self.get_mode_number(hdf, config_version)
+        _mode_name = self.get_mode_name(mode_number)
 
         raw = hdf['entry/flyScan']
 
@@ -231,27 +211,8 @@ class UsaxsFlyScan(object):
         AR_start =          float(raw['AR_start'][0])
         AR_increment =      float(raw['AR_increment'][0])
 
-        if mode_number == AR_MODE_FIXED:      # often more than ten thousand points
-            raw_ar = AR_start - numpy.arange(raw_num_points) * AR_increment
-            PSO_oscillations_found = False
-        
-        elif mode_number in (AR_MODE_ARRAY, AR_MODE_TRAJECTORY):
-            keymap = {AR_MODE_ARRAY: '/entry/flyScan/AR_PulsePositions',    # a few thousand points
-                      AR_MODE_TRAJECTORY: '/entry/flyScan/AR_waypoints'}    # a few hundred points
-            raw_ar = numpy.array(hdf[keymap[mode_number]])
-            raw_ar = raw_ar - raw_ar[0] + AR_start
-            if len(raw_ar) > raw_num_points:
-                raw_ar = raw_ar[:raw_num_points]   # truncate unused bins, if needed
-            
-            # note: Aerotech HLe system does not report any data for first channel.
-            #       Shift data to have mean AR value for each point,
-            #       not the end of the AR value, when the system advanced to next point.
-            raw_ar = (raw_ar[1:] + raw_ar[:-1])/2    # midpoint of each interval
-            PSO_oscillations_found = len(raw_clock_pulses) != len(raw_ar)
-
-        if PSO_oscillations_found:
-            # Aerotech's Position Synchronized Output (PSO) feature
-            raw_ar = self.PSO_oscillation_correction(hdf, mode_number, len(raw_clock_pulses))
+        # compute the AR values from the MCA waveforms
+        raw_ar = self.get_raw_ar(hdf, mode_number)
 
         V_f_gain = FIXED_VF_GAIN
         pulse_frequency = raw['mca_clock_frequency'][0] or  MCA_CLOCK_FREQUENCY
@@ -262,17 +223,11 @@ class UsaxsFlyScan(object):
         upd_ranges = self.apply_upd_range_change_time_mask(hdf, upd_ranges, channel_time_s)
         gains = self.get_gain(hdf, amp_name)
         bkg   = self.get_bkg(hdf, amp_name)
+
+        upd_gain = get_channels_from_signals_and_ranges(gains, upd_ranges)
+        upd_dark = get_channels_from_signals_and_ranges(bkg,   upd_ranges)
         
         I0_amp_gain = float(hdf['/entry/metadata/I0AmpGain'][0])
-        
-        def builder(signal, ranges):
-            '''convert signal and upd amplifier ranges to value for channel'''
-            channels = numpy.array([0,] + signal)[ranges.data+1]
-            channels = numpy.ma.masked_less_equal(channels, 0)
-            return channels
-
-        upd_gain = builder(gains, upd_ranges)
-        upd_dark = builder(bkg,   upd_ranges)
         
         if mode_number in (AR_MODE_ARRAY, AR_MODE_TRAJECTORY):
             # consequence of Aerotech HLe providing no useful data in 1st channel
@@ -298,29 +253,14 @@ class UsaxsFlyScan(object):
             upd_gain        = upd_gain[:n]
             raw_ar          = raw_ar[:n]
             raw_I0          = raw_I0[:n]
-
-        rVec = (raw_upd - channel_time_s*upd_dark) / upd_gain / raw_I0 / V_f_gain
-        rVec *= I0_amp_gain
-        rVec = numpy.ma.masked_less_equal(rVec, 0)
-        
-        ar = numpy.array(remove_masked_data(raw_ar, rVec.mask))
-        r  = numpy.array(remove_masked_data(rVec, rVec.mask))
-        center = ar[numpy.argmax(r)]
-
-        d2r = math.pi / 180
-        #qVec = (4*math.pi/wavelength) * numpy.sin(d2r*(ar_center - raw_ar)/2.0)
-        qVec = (4*math.pi/wavelength) * numpy.sin(d2r*(center - ar)/2.0)
-        
-        full = dict(ar = ar, Q = qVec, R = r)
     
+        full = calc.calc_R_Q(wavelength, raw_ar, channel_time_s, raw_upd, upd_dark, upd_gain, 
+                             raw_I0, I0_gain=I0_amp_gain)
+        center = full['ar_0']
+
         hdf.close()
         
         full['R_max'] = full['R'].max()
-        full['AR_R_peak'] = center
-        # TODO: measure centroid, FWHM on data just at/near the peak
-        #centroid, sigma = self.mean_sigma(full['ar'], full['R'])
-        #full['centroid'] = centroid
-        #full['fwhm'] = sigma * 2 * math.sqrt(2*math.log(2.0))
         self.reduced = dict(full = full)
     
     def PSO_oscillation_correction(self, hdf, mode, num_AR):
@@ -354,57 +294,6 @@ class UsaxsFlyScan(object):
         linear_interpolation_func = scipy.interpolate.interp1d(pso, ar)
         new_ar = linear_interpolation_func(range(num_AR))
         return new_ar
-    
-    def getAR_10Hz_Array(self, hdf):
-        '''
-        return arrays of AR encoder v. PSO pulse
-
-        :param h5py.File hdf: HDF5 file object with the fly scan data
-        :return (numpy.array,numpy.array): (pso, ar) arrays
-
-        read the AR encoder positions sampled in EPICS at 10Hz
-        these are recorded with the corresponding PSO pulse number
-        '''
-        ch_angle    = hdf['/entry/flyScan/changes_AR_angle']
-        ch_PSOpulse = hdf['/entry/flyScan/changes_AR_PSOpulse']
-        
-        # for every PSO channel, make a list of all ar values
-        # use a temporary dictionary for this
-        channel = {}
-        n = len(ch_PSOpulse.value)
-        for index in range(n):
-            x = ch_PSOpulse[index]
-            y = ch_angle[index]
-            if x not in channel:
-                channel[x] = []
-            if len(channel)>1 and x == 0.0:
-                break       # all useful channels received, ignore remaining buffer
-            channel[x].append(y)
-        
-        pso = sorted(channel.keys())
-        if pso[0] != 0.0:
-            msg = '1st PSO pulse in 10Hz array is not zero'
-            raise ValueError, msg
-        # first PSO channel 0 may be repeated, keep the last one
-        channel[0.0] = channel[0.0][-1]
-        # last PSO channel may be repeated, keep the first one
-        index = pso[-1]       # index of the last channel
-        channel[index] = channel[index][0]
-        
-        # average all the other channels, x:PSO, y:AR
-        for x, y in channel.items():
-            if isinstance(y, list):     # list items have not been handled yet
-                if len(y) == 1:
-                    channel[x] = y[0]
-                else:
-                    channel[x] = numpy.array(y).mean()
-
-        def _mapping(xx):
-            return channel[xx]
-        ar = map(_mapping, pso) # map() is faster than this:  [channel[_] for _ in pso]
-        
-        return numpy.array(pso), numpy.array(ar)
-        
 
     def rebin(self, bin_count = None):
         '''generate R(Q) with a bin_count bins, save in ``self.reduced[str(bin_count)]`` dict'''
@@ -439,8 +328,8 @@ class UsaxsFlyScan(object):
                 r = R_full[xref]
                 if r.min() <= 0:    # TODO: fix this in reduce()
                     r = numpy.ma.masked_less_equal(r, 0)
-                    q = remove_masked_data(q, r.mask)
-                    r = remove_masked_data(r, r.mask)
+                    q = calc.remove_masked_data(q, r.mask)
+                    r = calc.remove_masked_data(r, r.mask)
                 if q.size > 0:
                     qVec.append(  numpy.exp(numpy.mean(numpy.log(q))) ) 
                     rVec.append(  numpy.exp(numpy.mean(numpy.log(r))) )
@@ -535,6 +424,118 @@ class UsaxsFlyScan(object):
                 pass        # TODO: reporting
         hdf.close()
         return hfile
+        
+    def get_program_name(self, hdf):
+        if 'program_name' not in  hdf['/entry']:
+            msg = 'no /entry/program_name in file: ' + self.hdf5_file_name
+            raise KeyError(msg)
+        return hdf['/entry/program_name']
+        
+    def get_config_version(self, pname):
+        if 'config_version' in pname.attrs:
+            config_version = pname.attrs['config_version']
+        else:
+            config_version = '1'
+        return config_version
+        
+    def get_mode_number(self, hdf, config_version):
+        if config_version in ('1', '1.0'):
+            mode_number = 0
+        elif config_version in ('1.1', '1.2'):
+            mode_number = hdf['/entry/flyScan/AR_PulseMode'][0]
+        else:
+            hdf.close()
+            msg = "Unexpected /entry/program_name/@config_version = " + config_version
+            raise ValueError, msg
+        return mode_number
+        
+    def get_mode_name(self, mode_number):
+        if mode_number in MODENAME_XREF:
+            # just in case this is useful
+            _mode_name = MODENAME_XREF[mode_number]
+        else:
+            msg = 'Unexpected /entry/flyScan/AR_PulseMode value = ' + str(mode_number)
+            raise ValueError, msg
+        return _mode_name
+    
+    def get_raw_ar(self, hdf, mode_number):
+        raw = hdf['entry/flyScan']
+        raw_num_points = int(raw['AR_pulses'][0])
+        AR_start =       float(raw['AR_start'][0])
+
+        if mode_number == AR_MODE_FIXED:      # often more than ten thousand points
+            AR_increment = float(raw['AR_increment'][0])
+            raw_ar = AR_start - numpy.arange(raw_num_points) * AR_increment
+            PSO_oscillations_found = False
+        
+        elif mode_number in (AR_MODE_ARRAY, AR_MODE_TRAJECTORY):
+            keymap = {AR_MODE_ARRAY: '/entry/flyScan/AR_PulsePositions',    # a few thousand points
+                      AR_MODE_TRAJECTORY: '/entry/flyScan/AR_waypoints'}    # a few hundred points
+            raw_ar = numpy.array(hdf[keymap[mode_number]])
+            raw_ar = raw_ar - raw_ar[0] + AR_start
+            if len(raw_ar) > raw_num_points:
+                raw_ar = raw_ar[:raw_num_points]   # truncate unused bins, if needed
+            
+            # note: Aerotech HLe system does not report any data for first channel.
+            #       Shift data to have mean AR value for each point,
+            #       not the end of the AR value, when the system advanced to next point.
+            raw_ar = (raw_ar[1:] + raw_ar[:-1])/2    # midpoint of each interval
+            raw_clock_pulses =  raw['mca1']
+            PSO_oscillations_found = len(raw_clock_pulses) != len(raw_ar)
+
+        if PSO_oscillations_found:
+            # Aerotech's Position Synchronized Output (PSO) feature
+            raw_ar = self.PSO_oscillation_correction(hdf, mode_number, len(raw_clock_pulses))
+        
+        return raw_ar
+    
+    def getAR_10Hz_Array(self, hdf):
+        '''
+        return arrays of AR encoder v. PSO pulse
+
+        :param h5py.File hdf: HDF5 file object with the fly scan data
+        :return (numpy.array,numpy.array): (pso, ar) arrays
+
+        read the AR encoder positions sampled in EPICS at 10Hz
+        these are recorded with the corresponding PSO pulse number
+        '''
+        ch_angle    = hdf['/entry/flyScan/changes_AR_angle']
+        ch_PSOpulse = hdf['/entry/flyScan/changes_AR_PSOpulse']
+        
+        # for every PSO channel, make a list of all ar values
+        # use a temporary dictionary for this
+        channel = {}
+        n = len(ch_PSOpulse.value)
+        for index in range(n):
+            x = ch_PSOpulse[index]
+            y = ch_angle[index]
+            if x not in channel:
+                channel[x] = []
+            if len(channel)>1 and x == 0.0:
+                break       # all useful channels received, ignore remaining buffer
+            channel[x].append(y)
+        
+        pso = sorted(channel.keys())
+        if pso[0] != 0.0:
+            msg = '1st PSO pulse in 10Hz array is not zero'
+            raise ValueError, msg
+        # first PSO channel 0 may be repeated, keep the last one
+        channel[0.0] = channel[0.0][-1]
+        # last PSO channel may be repeated, keep the first one
+        index = pso[-1]       # index of the last channel
+        channel[index] = channel[index][0]
+        
+        # average all the other channels, x:PSO, y:AR
+        for x, y in channel.items():
+            if isinstance(y, list):     # list items have not been handled yet
+                if len(y) == 1:
+                    channel[x] = y[0]
+                else:
+                    channel[x] = numpy.array(y).mean()
+
+        ar = map(lambda xx: channel[xx], pso) # map() is faster than this:  [channel[_] for _ in pso]
+        
+        return numpy.array(pso), numpy.array(ar)
 
     def get_USAXS_PD_amplifier_name(self, hdf):
         '''return the name of the chosen USAXS photodiode amplifier'''
@@ -595,11 +596,8 @@ class UsaxsFlyScan(object):
         :param obj hdf: opened HDF5 file instance
         :param str amplifier: amplifier name, as stored in the HDF5 file
         '''
-        def load_gain(x):
-            return hdf[base+str(x)][0]
         base = '/entry/metadata/' + amplifier + '_gain'
-    #     gain = [hdf[base+str(_)][0] for _ in range(5)]
-        gain = map(load_gain, range(5))
+        gain = map(lambda x: hdf[base+str(x)][0], range(5))
         return gain
     
     
@@ -610,10 +608,8 @@ class UsaxsFlyScan(object):
         :param obj hdf: opened HDF5 file instance
         :param str amplifier: amplifier name, as stored in the HDF5 file
         '''
-        def load_bkg(x):
-            return hdf[base+str(x)][0]
         base = '/entry/metadata/' + amplifier + '_bkg'
-        bkg = map(load_bkg, range(5))
+        bkg = map(lambda x: hdf[base+str(x)][0], range(5))
         return bkg
     
     def apply_upd_range_change_time_mask(self, hdf, upd_ranges, channel_time_s):
@@ -624,10 +620,9 @@ class UsaxsFlyScan(object):
         :param obj upd_ranges: photodiode amplifier range (numpy masked ndarray)
         :param obj channel_time_s: measurement time in each channel, s (numpy ndarray)
         '''
-        def get_mask_time_spec(r):
-            # /entry/metadata/upd_amp_change_mask_time4
-            return float(hdf['/entry/metadata/upd_amp_change_mask_time' + str(r)][0])
-        mask_times = map(get_mask_time_spec, range(5))
+        # /entry/metadata/upd_amp_change_mask_time4
+        base = '/entry/metadata/upd_amp_change_mask_time'
+        mask_times = map(lambda r: float(hdf[base + str(r)][0]), range(5))
         
         # modify the masks on upd_ranges
         last_range = 0
@@ -705,161 +700,16 @@ class UsaxsFlyScan(object):
     def iso8601_datetime(self):
         '''return current date & time as modified ISO8601=compliant string'''
         t = datetime.datetime.now()
-        yyyymmdd = t.strftime("%Y-%m-%d")
-        hhmmss = t.strftime("%H:%M:%S")
-        separator = ' '         # standard ISO8601 uses 'T', this is now allowed
-        return yyyymmdd + separator + hhmmss
+        # standard ISO8601 uses 'T', blank space instead is now allowed
+        s = str(t).split('.')[0]
+        return s
 
-    def IN3_CleanUpStaleMCAChannel(self, PSO_Wave, AnglesWave):
-        # TODO: describe, in words, what this routine must do
-        # TODO: implement
-        pass
-        # Function IN3_CleanUpStaleMCAChannel(PSO_Wave, AnglesWave)
-        #     wave PSO_Wave, AnglesWave
-        #     
-        #     variable i, j, jstart, NumNANsRemoved, NumPointsFixed
-        #     //first remove all points which have 0 chan in them (except the last one). Any motion here is before we start moving.  
-        #     For(i=0;i<numpnts(PSO_Wave);i+=1)
-        #         if(PSO_Wave[i]==0 && PSO_Wave[i+1]==0)
-        #             PSO_Wave[i]=NaN
-        #             NumNANsRemoved+=1
-        #         else
-        #             break
-        #         endif
-        #     endfor
-        #     //note, now we may need to clean up the end of same positions in PSO pulse, which is indication, that we had failure somehwere upstream... 
-        #     For(i=numpnts(PSO_Wave)-1;i>0;i-=1)
-        #         if((PSO_Wave[i]-PSO_Wave[i-1])<0.5)
-        #             PSO_Wave[i]=NaN
-        #             NumNANsRemoved+=1
-        #         else
-        #             break
-        #         endif
-        #     endfor
-        #     IN2G_RemoveNaNsFrom2Waves(PSO_Wave, AnglesWave)
-        #     //now fix the hickups...
-        #     //Duplicate/O PSO_Wave, PSO_WaveBackup
-        #     Differentiate/METH=2 PSO_Wave/D=PSO_Wave_DIF
-        #     jstart=-1
-        #     For(i=0;i<numpnts(PSO_Wave_DIF);i+=1)
-        #         if(PSO_Wave_DIF[i]==0)
-        #             j+=1
-        #             if(jstart<0)
-        #                 jstart=i-1
-        #             endif
-        #             NumPointsFixed+=1
-        #         else            
-        #             if(j>0&& (PSO_Wave_DIF[jstart+j+1]>1))            //need to avoid counting cases when the stage is within one PSO pulse for long time.     
-        #                 PSO_Wave[jstart,jstart+j] = ceil(PSO_Wave[jstart]+ ((p-jstart)/(j+1))*(PSO_Wave_DIF[jstart+j+1]))
-        #             else
-        #                 NumPointsFixed-=j
-        #             endif
-        #             j=0
-        #             jstart=-1
-        #         endif
-        #     endfor    
-        #     //now colapse the points where multiple points are same by averaging the points. 
-        #     Duplicate/Free PSO_Wave, PSOWaveShort, AnglesWaveShort
-        #     PSOWaveShort=nan
-        #     AnglesWaveShort=nan
-        #     variable tempPSO, tempAr, NumSamePts
-        #     tempPSO=0
-        #     tempAr=0
-        #     NumSamePts=0
-        #     j=0
-        #     For(i=0;i<numpnts(PSO_Wave)-1;i+=1)
-        #         if(PSO_Wave[i]==PSO_Wave[i+1])
-        #             tempPSO+=PSO_Wave[i]
-        #             tempAr+=AnglesWave[i]
-        #             NumSamePts+=1
-        #         else
-        #             tempPSO+=PSO_Wave[i]
-        #             tempAr+=AnglesWave[i]
-        #             NumSamePts+=1
-        #             PSOWaveShort[j]  = tempPSO/NumSamePts
-        #             AnglesWaveShort[j]=  tempAr/NumSamePts
-        #             tempPSO=0
-        #             tempAr=0
-        #             NumSamePts=0
-        #             j+=1
-        #         endif
-        #     endfor
-        #     PSO_Wave=nan
-        #     AnglesWave=nan
-        #     IN2G_RemoveNaNsFrom2Waves(PSOWaveShort, AnglesWaveShort)
-        #     PSO_Wave[0,numpnts(PSOWaveShort)-1] = PSOWaveShort[p]
-        # //    PSO_Wave[numpnts(PSOWaveShort), numpnts(PSO_Wave)-1]  = PSOWaveShort[numpnts(PSOWaveShort)-1]+p-numpnts(PSOWaveShort)
-        #     AnglesWave[0,numpnts(PSOWaveShort)-1] = AnglesWaveShort[p]
-        # //    AnglesWave[numpnts(PSOWaveShort), numpnts(PSO_Wave)-1]  = AnglesWaveShort[numpnts(PSOWaveShort)-1]
-        #     IN2G_RemoveNaNsFrom2Waves(PSO_Wave, AnglesWave)
-        #     KillWaves PSO_Wave_DIF
-        # 
-        # //    variable OrgLength=numpnts(PSO_Wave)
-        # //    Duplicate/O PSO_Wave, PSO_WaveSmooth
-        # //    PSO_WaveSmooth[10,numpnts(PSO_Wave)-3] = ((PSO_Wave[p]/(PSO_Wave[p-2]+PSO_Wave[p-1]+PSO_Wave[p+1]+PSO_Wave[p+2])>2)) ? PSO_Wave[p] : (PSO_Wave[p-2]+PSO_Wave[p-1]+PSO_Wave[p+1]+PSO_Wave[p+2])/4 
-        # //    //IN2G_RemoveNaNsFrom2Waves(PSO_Wave, AnglesWave)
-        # //    NumNANsRemoved+=OrgLength - numpnts(PSO_Wave)
-        #     Print "PSO_Angles data needed to remove "+num2str(NumNANsRemoved)+" start/end points and redistribute Stale PSO pulses over "+num2str(NumPointsFixed)+" points"
-        # end 
-    
-    def IN3_LocateAndRemoveOscillations(self, AR_encoder, AR_PSOpulse, AR_angle):
-        '''
-        just fix the AR_encoder to use PSO records
         
-        :param numpy.array AR_encoder: AR encoder angle 
-        :param numpy.array AR_PSOpulse: Aerotech PSO pulse as x coordinate
-        :param numpy.array AR_angle: angle and PSO pulse is its PSO coordinate, this is sparse data set. 
-        :return numpy.array: revised AR_encoder array
-        '''
-        # TODO: describe, in words, what this routine must do
-        _example = numpy.NaN
-        # TODO: implement, for now this is a no-op
-        return AR_encoder
-        # Function IN3_LocateAndRemoveOscillations(AR_encoder,AR_PSOpulse,AR_angle)
-        #     wave AR_encoder,AR_PSOpulse,AR_angle
-        #     
-        #     //just fix the AR_encoder to use PSO records
-        #     //AR_encoder is angle vs PSO pulse as x coordinate
-        #     //AR_angle is angle and PSO pulse is its PSO coordinate, this is sparse data set. 
-        #     variable i, CurArVal,  curPnt, curEnc
-        #     For(i=0;i<numpnts(AR_encoder);i+=1)
-        #         curPnt = BinarySearchInterp(AR_PSOpulse, i )
-        #         if(numtype(curPnt)==0)
-        #             CurArVal = AR_angle[BinarySearchInterp(AR_PSOpulse, i )]
-        #             curEnc = AR_encoder[i]
-        #             //and fix the AR_encoder only if the value is different by mroe then "slopy" factor of 2e-5
-        #             if(abs(AR_encoder[i]-CurArVal)>1e-5)
-        #                 AR_encoder[i] = CurArVal
-        #             endif
-        #         else
-        #             AR_encoder[i] = nan
-        #         endif
-        #     endfor
-
-
-def IN2G_RemoveNaNsFrom2Waves(x, y):
-    '''
-    Removes NaNs from 2 waves, returns the new waves (does NOT edit in place as in IgorPro)
-    
-    :param numpy.array x: 1-D array of data with possible NaNs
-    :param numpy.array y: 1-D array of data with possible NaNs
-    :return (numpy.array,numpy.array): tuple of revised (x, y)
-
-    used to clean NaNs from waves before desmearing etc.
-    '''
-    if len(x) != len(y):
-        msg = 'x and y arrays not of same length, cannot remove NaNs'
-        raise IndexError, msg
-    mask = numpy.isnan(x) + numpy.isnan(y)
-    new_x = numpy.ma.masked_array(data=x, mask=mask)
-    new_y = numpy.ma.masked_array(data=y, mask=mask)
-    return new_x.compressed(), new_y.compressed()
-
-
-def remove_masked_data(data, mask):
-    '''remove all masked data, convenience routine'''
-    arr = numpy.ma.masked_array(data=data, mask=mask)
-    return arr.compressed()
+def get_channels_from_signals_and_ranges(signal, ranges):
+    '''convert signal and upd amplifier ranges to value for channel'''
+    channels = numpy.array([0,] + signal)[ranges.data+1]
+    channels = numpy.ma.masked_less_equal(channels, 0)
+    return channels
 
 
 def bin_xref(x, bins):
