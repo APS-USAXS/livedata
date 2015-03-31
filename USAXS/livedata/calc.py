@@ -184,3 +184,12 @@ def developer_main():
 
 if __name__ == '__main__':
     developer_main()
+
+
+########### SVN repository information ###################
+# $Date$
+# $Author$
+# $Revision$
+# $URL$
+# $Id$
+########### SVN repository information ###################
