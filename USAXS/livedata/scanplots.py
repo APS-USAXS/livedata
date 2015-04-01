@@ -8,7 +8,6 @@ import os
 import spec2nexus.spec
 
 import localConfig
-import plot
 import plot_mpl
 import reduceFlyData
 import wwwServerTransfers
@@ -229,53 +228,15 @@ def last_n_scans(xml_log_file, number_scans):
 
     scans = []
     node_list = xml_doc.findall('scan')
-    if node_list is not None:
-        for scan_node in reversed(node_list):
-            scan_object = plottable_scan(scan_node)
-            if scan_object is not None:
-                scans.append(scan_object)
-                if len(scans) == number_scans:
-                    break
+    if node_list is None:
+        return scans
+    for scan_node in reversed(node_list):
+        scan_object = plottable_scan(scan_node)
+        if scan_object is not None:
+            scans.append(scan_object)
+            if len(scans) == number_scans:
+                break
     return list(reversed(scans))
-
-
-def extract_USAXS_data(specData, scanList):
-    '''
-    extract the USAXS R(Q) profiles (ignoring error estimates)
-
-    :param specData: as returned by prjPySpec.SpecDataFile(specFile)
-    :param scanList: list of SpecDataFileScan objects
-    :return: list of dictionaries with reduced USAXS R(Q)
-    '''
-    usaxs = []
-    for scan in scanList:
-        if scan.scanCmd.strip().split()[0] in ('FlyScan',):
-            comment = scan.comments[2]
-            key_string = 'FlyScan file name = '
-            index = comment.find(key_string) + len(key_string)
-            fname = comment[index:-1]
-            path = os.path.dirname(scan.header.parent.fileName)
-            hdf5File = os.path.abspath(os.path.join(path, fname))
-
-            try:
-                fly = reduceFlyData.UsaxsFlyScan(hdf5File)  # checks if file exists
-                #fly.make_archive()
-                fly.reduce()        # open the file in this step
-                fly.save(hdf5File, 'full')
-                fly.rebin(localConfig.REDUCED_FLY_SCAN_BINS)
-                fly.save(hdf5File, str(localConfig.REDUCED_FLY_SCAN_BINS))
-            except IOError:
-                return None     # file may not be available yet for reading if fly scan is still going
-            title = os.path.split(hdf5File)[-1] + '(fly)'
-            rebinned = fly.reduced[str(localConfig.REDUCED_FLY_SCAN_BINS)]
-            entry = dict(qVec=rebinned['Q'], rVec=rebinned['R'], title=title)
-        else:
-            entry = plot.calc_usaxs_data(scan)
-        entry['scan'] = scan.scanNum
-        entry['key'] = "S%d" % scan.scanNum
-        entry['label'] = "%s: %s" % (entry['key'], entry['title'])
-        usaxs.append( entry )
-    return usaxs
 
 
 def get_USAXS_FlyScan_Data(scan_obj):
@@ -298,18 +259,20 @@ def get_USAXS_FlyScan_Data(scan_obj):
         return None     # file may not be available yet for reading if fly scan is still going
     except KeyError, exc:
         print 'HDF5 file:', hdf5File
-	raise KeyError(exc)
+        raise KeyError(exc)
     title = os.path.split(hdf5File)[-1] + '(fly)'
     rebinned = fly.reduced[str(localConfig.REDUCED_FLY_SCAN_BINS)]
     entry = dict(qVec=rebinned['Q'], rVec=rebinned['R'], title=title)
     return entry
 
+    
+def get_USAXS_uascan_ScanData(scan):
+    return plot.calc_usaxs_data(scan.spec_scan)
+
 
 def get_USAXS_data(cache):
-    def wrap_get_USAXS_Uascan_ScanData(scan):
-        return plot.calc_usaxs_data(scan.spec_scan)
-    getscandata = dict(uascan=wrap_get_USAXS_Uascan_ScanData, 
-                       sbuascan=wrap_get_USAXS_Uascan_ScanData, 
+    getscandata = dict(uascan=get_USAXS_uascan_ScanData, 
+                       sbuascan=get_USAXS_uascan_ScanData, 
                        FlyScan=get_USAXS_FlyScan_Data)
     mpl_datasets = []
     for key in sorted(cache.get_keys()):
@@ -325,6 +288,7 @@ def get_USAXS_data(cache):
         # print key, scanMacro
     return mpl_datasets
 
+
 def main(n = None, cp=False):
     global scan_cache
     global spec_file_cache
@@ -333,7 +297,7 @@ def main(n = None, cp=False):
     spec_file_cache = SpecFileCache()
     if n is None:
         n = NUMBER_SCANS_TO_PLOT
-    #scans = last_n_scans(SCANLOG, n)
+    scans = last_n_scans(SCANLOG, n)
 
     local_plot = os.path.join(
                               localConfig.LOCAL_WWW_LIVEDATA_DIR, 
@@ -362,6 +326,7 @@ def main(n = None, cp=False):
 #**************************************************************************
 
 if __name__ == "__main__":
+    #last_n_scans(SCANLOG, NUMBER_SCANS_TO_PLOT)
     main()
 
 
