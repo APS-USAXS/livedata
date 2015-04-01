@@ -10,6 +10,7 @@ import subprocess
 import shlex
 import datetime
 import paramiko
+import socket
 from scp import SCPClient, report_scp_progress, SCPException
 
 
@@ -63,9 +64,9 @@ def scpToWebServer(sourceFile, targetFile = "", demo = False):
         try:
             scp.put(sourceFile, remote_path=LIVEDATA_DIR)
             return
-        except SCPException, _exception_message:
-            pass
-    msg = 'tried %d times: scp %s %s, last message: %s' % (RETRY_COUNT, sourceFile, targetFile, _exception_message)
+        except (SCPException, SSHException, socket.error), exc:
+            print '# retry %d: %e' % ((_retry+1), exc)
+    msg = 'tried %d times: scp %s %s' % (RETRY_COUNT, sourceFile, targetFile)
     WwwServerScpException(msg)
 
 
