@@ -168,6 +168,9 @@ class UsaxsFlyScan(object):
             dR = 'none', 
             R_max = 'none',
             AR_R_peak = 'degrees',
+            ar_r_peak = 'degrees',
+            r_peak = 'none',
+            ar_0 = 'degrees',
             fwhm = 'degrees',
         )
         self.min_step_factor = 1.5
@@ -419,7 +422,9 @@ class UsaxsFlyScan(object):
         nxdata = eznx.openGroup(nxentry, nxname, 'NXdata', timestamp=self.iso8601_datetime())
         for key in sorted(ds.keys()):
             try:
-                eznx.write_dataset(nxdata, key, ds[key], units=self.units[key])
+                _ds = eznx.write_dataset(nxdata, key, ds[key])
+                if key in self.units:
+                    eznx.addAttributes(_ds, units=self.units[key])
             except RuntimeError, e:
                 pass        # TODO: reporting
         hdf.close()
