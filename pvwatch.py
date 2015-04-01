@@ -21,7 +21,6 @@ import traceback
 from xml.dom import minidom
 from xml.etree import ElementTree
 
-#import plot             # makes PNG files of recent USAXS scans
 import localConfig      # definitions for 9-ID
 import scanplots
 import wwwServerTransfers
@@ -137,6 +136,7 @@ def updatePlotImage():
     if os.path.exists(plotFile):
         plot_mtime = os.stat(plotFile).st_mtime
         makePlot = spec_mtime > plot_mtime        #  plot only if new data
+
     if makePlot:
         #logMessage("updating the plots and gathering scan data for XML file")
         scanplots.main(n=localConfig.NUM_SCANS_PLOTTED, cp=True)
@@ -368,8 +368,8 @@ def initiate_PV_connections():
                 logException(msg)
 
 
-def periodic_reporting_task(mainLoopCount, nextReport, nextLog, delta_report, delta_log):
-    '''run the main event loop'''
+def main_event_loop_checks(mainLoopCount, nextReport, nextLog, delta_report, delta_log):
+    '''check events for the main event loop'''
     global GLOBAL_MONITOR_COUNTER
     global MAINLOOP_COUNTER_TRIGGER
     dt = getTime()
@@ -401,7 +401,7 @@ def periodic_reporting_task(mainLoopCount, nextReport, nextLog, delta_report, de
 
 def main():
     '''
-    run the main loop
+    run the main event loop
     '''
     global GLOBAL_MONITOR_COUNTER
     test_pv = 'S:SRcurrentAI'
@@ -422,10 +422,14 @@ def main():
     nextLog = nextReport
     delta_report = datetime.timedelta(seconds=localConfig.REPORT_INTERVAL_S)
     delta_log = datetime.timedelta(seconds=localConfig.LOG_INTERVAL_S)
+    
+    # !!!!!!!!!!!!!!!!!!!!!!! #
+    # run the main event loop #
+    # !!!!!!!!!!!!!!!!!!!!!!! #
     mainLoopCount = 0
-    while True:
+    while True:     
         mainLoopCount = (mainLoopCount + 1) % MAINLOOP_COUNTER_TRIGGER
-        nextReport, nextLog = periodic_reporting_task(mainLoopCount,
+        nextReport, nextLog = main_event_loop_checks(mainLoopCount,
                                        nextReport, nextLog, delta_report, delta_log)
         time.sleep(localConfig.SLEEP_INTERVAL_S)
 
