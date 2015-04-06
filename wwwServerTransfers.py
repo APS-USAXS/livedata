@@ -64,8 +64,8 @@ def scpToWebServer(sourceFile, targetFile = "", demo = False):
         try:
             scp.put(sourceFile, remote_path=LIVEDATA_DIR)
             return
-        except (SCPException, SSHException, socket.error), exc:
-            print '# retry %d: %e' % ((_retry+1), exc)
+        except (SCPException, paramiko.SSHException, socket.error), exc:
+            print '# retry %d: %s' % ((_retry+1), str(exc))
     msg = 'tried %d times: scp %s %s' % (RETRY_COUNT, sourceFile, targetFile)
     WwwServerScpException(msg)
 
