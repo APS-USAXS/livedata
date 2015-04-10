@@ -11,7 +11,9 @@ import shlex
 import datetime
 import paramiko
 import socket
+
 from scp import SCPClient, report_scp_progress, SCPException
+import pvwatch
 
 
 # general use
@@ -63,9 +65,13 @@ def scpToWebServer(sourceFile, targetFile = "", demo = False):
     for _retry in range(RETRY_COUNT):
         try:
             scp.put(sourceFile, remote_path=LIVEDATA_DIR)
+            if _retry > 0:
+                msg = "scp was successful after %d tries" % (_retry+1)
+                pvwatch.logMessage(msg)
             return
         except (SCPException, paramiko.SSHException, socket.error), exc:
-            print '# retry %d: %s' % ((_retry+1), str(exc))
+            msg = 'scp attempt %d: %s' % ((_retry+1), str(exc))
+            pvwatch.logMessage(msg)
     msg = 'tried %d times: scp %s %s' % (RETRY_COUNT, sourceFile, targetFile)
     WwwServerScpException(msg)
 
@@ -93,7 +99,6 @@ def scpToWebServer_subprocess(sourceFile, targetFile = "", demo = False):
     @param demo: If True, don't do the copy, just print the command
     @return: a tuple (stdoutdata,  stderrdata) -or- None (if demo=False)
     '''
-    import pvwatch
     # Can we replace scpToWebServer() with Python package capabilities?
     #  No major improvement.
     # see: http://stackoverflow.com/questions/250283/how-to-scp-in-python
