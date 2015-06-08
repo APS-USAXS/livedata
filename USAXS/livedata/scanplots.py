@@ -9,6 +9,7 @@ import numpy
 import os
 import spec2nexus.spec
 
+import calc
 import localConfig
 import plot_mpl
 import reduceFlyData
@@ -274,6 +275,9 @@ def calc_usaxs_data(specScan):
     :params obj specScan: prjPySpec.SpecDataFileScan object
     :returns: dictionary of title and R(Q)
     '''
+    #
+    # TODO: compare with calc.test_uascan()
+    #
     d2r = math.pi / 180
     sampleTitle = specScan.comments[0]
     arCenter = specScan.positioner['ar']
@@ -301,10 +305,12 @@ def calc_usaxs_data(specScan):
         return vector
     diode_gain = mapMetadataArrayToChannels(specScan.metadata, 'UPD2gain', pd_range)
     dark_curr = mapMetadataArrayToChannels(specScan.metadata, 'UPD2bkg', pd_range)
-
-    # --- refactored above this line ---
-    qVec = (4 * math.pi / wavelength) * numpy.sin(d2r*(arCenter - ar_enc)/2)
     rVec = (pd_counts - seconds*dark_curr) / diode_gain / I0 / V_f_gain
+
+    #center = arCenter        # from the SPEC scan metadata
+    ar_center = calc.centroid(ar_enc, numpy.ma.masked_array(rVec))      # centroid of central peak
+    center = ar_center      # from the R(q) centroid
+    qVec = (4 * math.pi / wavelength) * numpy.sin(d2r*(center - ar_enc)/2)
 
     USAXS_Q = qVec
     USAXS_I = rVec
