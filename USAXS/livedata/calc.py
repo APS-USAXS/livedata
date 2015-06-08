@@ -127,7 +127,15 @@ def test_uascan(filename):
     sdf_object = spec2nexus.spec.SpecDataFile(filename)
     sds = sdf_object.getScan(TEST_UASCAN_SCAN_NUMBER)
     sds.interpret()
+    return reduce_uascan(sds)
 
+
+def reduce_uascan(sds):
+    '''data reduction of an uascan (in a SPEC file)
+    
+    :params obj sds: spec2nexus.spec.SpecDataFileScan object
+    :returns: dictionary of title and R(Q)
+    '''
     # get the raw data from the data file
     wavelength       = float(sds.metadata['DCM_lambda'])
     ar               = numpy.array(sds.data['ar'])
