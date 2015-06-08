@@ -4,6 +4,8 @@
 
 
 import datetime
+import math
+import numpy
 import os
 import spec2nexus.spec
 
@@ -264,9 +266,77 @@ def get_USAXS_FlyScan_Data(scan_obj):
     entry = dict(qVec=rebinned['Q'], rVec=rebinned['R'], title=title)
     return entry
 
+
+def calc_usaxs_data(specScan):
+    '''
+    calculate USAXS R(Q) from raw SPEC scan data, return as a dict
     
+    :params obj specScan: prjPySpec.SpecDataFileScan object
+    :returns: dictionary of title and R(Q)
+    '''
+    d2r = math.pi / 180
+    sampleTitle = specScan.comments[0]
+    arCenter = specScan.positioner['ar']
+    wavelength = specScan.metadata['DCM_lambda']
+    if wavelength == 0:      # TODO: development ONLY
+        wavelength = localConfig.A_keV/specScan.metadata['DCM_energy']
+    numData = len(specScan.data['pd_counts'])
+    USAXS_Q = []
+    USAXS_I = []
+    V_f_gain = localConfig.FIXED_VF_GAIN
+
+    pd_counts = numpy.array(specScan.data['pd_counts'])
+    pd_range = numpy.array(specScan.data['pd_range'], dtype=int)
+    ar_enc = numpy.array(specScan.data['ar_enc'])
+    seconds = numpy.array(specScan.data['seconds'])
+    I0_gain = numpy.array(specScan.data['I0_gain'])
+    # TODO: if I0_gain <= 0:  I0_gain = 1            # safeguard
+    I0 = numpy.array(specScan.data['I0']) / I0_gain
+
+    def mapMetadataArrayToChannels(metadata, prefix, ranges, length=5):
+        '''map value of gains or backgrounds to channels, based on range indices'''
+        arr = numpy.array(map(lambda i: metadata[prefix + str(i+1)], range(length)))
+        mapping_function = numpy.frompyfunc(lambda i: arr[i-1], 1, 1)
+        vector = mapping_function(ranges)
+        return vector
+    diode_gain = mapMetadataArrayToChannels(specScan.metadata, 'UPD2gain', pd_range)
+    dark_curr = mapMetadataArrayToChannels(specScan.metadata, 'UPD2bkg', pd_range)
+
+    # --- refactored above this line ---
+    qVec = (4 * math.pi / wavelength) * numpy.sin(d2r*(arCenter - ar_enc)/2)
+    rVec = (pd_counts - seconds*dark_curr) / diode_gain / I0 / V_f_gain
+
+    USAXS_Q = qVec
+    USAXS_I = rVec
+    return dict(title=sampleTitle, qVec=USAXS_Q, rVec=USAXS_I)
+
+
+def format_as_mpl_data_one(scan):
+    '''prepare one USAXS scan for plotting with MatPlotLib'''
+    try:
+        Q = map(float, scan['qVec'])
+        I = map(float, scan['rVec'])
+    except TypeError, _e:
+        if scan is None: return None
+        Q = scan['qVec']
+        I = scan['rVec']
+    Q = numpy.ma.masked_less_equal(numpy.abs(Q), 0)
+    I = numpy.ma.masked_less_equal(I, 0)
+    mask = numpy.ma.mask_or(Q.mask, I.mask)
+    
+    mpl_ds = plot_mpl.Plottable_USAXS_Dataset()
+    mpl_ds.Q = numpy.ma.masked_array(data=Q, mask=mask).compressed()
+    mpl_ds.I = numpy.ma.masked_array(data=I, mask=mask).compressed()
+    mpl_ds.label = scan['title']
+
+    if len(mpl_ds.Q) > 0 and len(mpl_ds.I) > 0:
+        return mpl_ds
+
+
 def get_USAXS_uascan_ScanData(scan):
-    return plot.calc_usaxs_data(scan.spec_scan)
+    # function = plot.calc_usaxs_data
+    function = calc_usaxs_data
+    return function(scan.spec_scan)
 
 
 def get_USAXS_data(cache):
@@ -279,8 +349,9 @@ def get_USAXS_data(cache):
         scanMacro = scan_obj.spec_scan.scanCmd.strip().split()[0]
         if scanMacro in getscandata.keys():
             if scan_obj is None: continue
+            #     entry = dict(qVec=rebinned['Q'], rVec=rebinned['R'], title=title)
             entry = getscandata[scanMacro](scan_obj)
-            mpl_ds = plot.format_as_mpl_data_one(entry)
+            mpl_ds = format_as_mpl_data_one(entry)
             if mpl_ds is None: continue
             if len(mpl_ds.Q) > 0 and len(mpl_ds.I) > 0:
                 mpl_datasets.append(mpl_ds)
@@ -321,8 +392,6 @@ def main(n = None, cp=False):
             www_plot = localConfig.LOCAL_PLOTFILE
             wwwServerTransfers.scpToWebServer(local_plot, www_plot)
 
-
-#**************************************************************************
 
 if __name__ == "__main__":
     #last_n_scans(SCANLOG, NUMBER_SCANS_TO_PLOT)
