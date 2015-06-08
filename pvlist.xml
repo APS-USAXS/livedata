@@ -221,6 +221,7 @@
 
   <EPICS_PV PV="9idcUSX:ath01:reg01:bo03" description="USAXS Ti shutter PF42 bit3" mne="Ti_pf42_b3"/>
   <EPICS_PV PV="9idcUSX:ath01:reg01:bo04" description="USAXS Ti shutter PF42 bit4" mne="Ti_pf42_b4"/>
+  <EPICS_PV PV="9idb:BioEnc2B3"         description="USAXS Ti shutter, B station" mne="Ti_shutter"/>
 
   <EPICS_PV PV="PA:09ID:Q20:05.VAL" description="9-ID white shutter opened" mne="white_shtr_opened"/>
   <EPICS_PV PV="PA:09ID:Q40:11.VAL" description="9-ID-C mono shutter opened" mne="mono_shtr_opened"/>
