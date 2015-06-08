@@ -268,54 +268,6 @@ def get_USAXS_FlyScan_Data(scan_obj):
     return entry
 
 
-def calc_usaxs_data(specScan):
-    '''
-    calculate USAXS R(Q) from raw SPEC scan data, return as a dict
-    
-    :params obj specScan: spec2nexus.spec.SpecDataFileScan object
-    :returns: dictionary of title and R(Q)
-    '''
-    #
-    # TODO: compare with calc.test_uascan()
-    #
-    d2r = math.pi / 180
-    sampleTitle = specScan.comments[0]
-    arCenter = specScan.positioner['ar']
-    wavelength = specScan.metadata['DCM_lambda']
-    if wavelength == 0:      # TODO: development ONLY
-        wavelength = localConfig.A_keV/specScan.metadata['DCM_energy']
-    numData = len(specScan.data['pd_counts'])
-    USAXS_Q = []
-    USAXS_I = []
-    V_f_gain = localConfig.FIXED_VF_GAIN
-
-    pd_counts = numpy.array(specScan.data['pd_counts'])
-    pd_range = numpy.array(specScan.data['pd_range'], dtype=int)
-    ar_enc = numpy.array(specScan.data['ar_enc'])
-    seconds = numpy.array(specScan.data['seconds'])
-    I0_gain = numpy.array(specScan.data['I0_gain'])
-    # TODO: if I0_gain <= 0:  I0_gain = 1            # safeguard
-    I0 = numpy.array(specScan.data['I0']) / I0_gain
-
-    def mapMetadataArrayToChannels(metadata, prefix, pd_range):
-        '''map value of gains (or backgrounds) to channels, based on range indices'''
-        arr = [0, ] + map(lambda _: metadata[prefix + str(_)], range(1,6))
-        vector = map(lambda _: arr[_], pd_range)
-        return numpy.array(vector)
-    diode_gain = mapMetadataArrayToChannels(specScan.metadata, 'UPD2gain', pd_range)
-    dark_curr = mapMetadataArrayToChannels(specScan.metadata, 'UPD2bkg', pd_range)
-    rVec = (pd_counts - seconds*dark_curr) / diode_gain / I0 / V_f_gain
-
-    #center = arCenter        # from the SPEC scan metadata
-    ar_center = calc.centroid(ar_enc, numpy.ma.masked_array(rVec))      # centroid of central peak
-    center = ar_center      # from the R(q) centroid
-    qVec = (4 * math.pi / wavelength) * numpy.sin(d2r*(center - ar_enc)/2)
-
-    USAXS_Q = qVec
-    USAXS_I = rVec
-    return dict(title=sampleTitle, qVec=USAXS_Q, rVec=USAXS_I)
-
-
 def format_as_mpl_data_one(scan):
     '''prepare one USAXS scan for plotting with MatPlotLib'''
     try:
@@ -341,10 +293,9 @@ def format_as_mpl_data_one(scan):
 def get_USAXS_uascan_ScanData(scan):
     #usaxs = calc_usaxs_data(scan.spec_scan)
     usaxs = calc.reduce_uascan(scan.spec_scan)
-    usaxs['qVec'] = usaxs['Q']
-    usaxs['rVec'] = usaxs['R']
+    usaxs['qVec'] = usaxs.pop('Q')
+    usaxs['rVec'] = usaxs.pop('R')
     usaxs['title'] = scan.spec_scan.comments[0]
-    del usaxs['Q'], usaxs['R']
     return usaxs
 
 
