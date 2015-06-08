@@ -209,8 +209,7 @@ class UsaxsFlyScan(object):
         raw_clock_pulses =  raw['mca1']
         raw_I0 =            raw['mca2']
         raw_upd =           raw['mca3']
-    
-        raw_num_points =    int(raw['AR_pulses'][0])
+
         AR_start =          float(raw['AR_start'][0])
         AR_increment =      float(raw['AR_increment'][0])
 
@@ -565,7 +564,8 @@ class UsaxsFlyScan(object):
             if end - start >= 0:    # define the valid range
                 ranges[start:end] = numpy.zeros((end - start,)) + range_value
     
-        num_channels = hdf['/entry/flyScan/AR_pulses'][0]
+        #num_channels = hdf['/entry/flyScan/AR_pulses'][0]    # planned length
+        num_channels = len(hdf['/entry/flyScan/mca1'])        # actual length
         base = '/entry/flyScan/changes_' + identifier + '_'
         arr_channel   = hdf[base + 'mcsChan']
         arr_requested = hdf[base + 'ampReqGain']
@@ -637,27 +637,10 @@ class UsaxsFlyScan(object):
                 if upd_range >= 0:
                     timer = mask_times[upd_range]
             if timer > 0:
+                if i == len(channel_time_s):
+                    pass
                 upd_ranges[i] = numpy.ma.masked         # mask this point
                 timer = max(0, timer - channel_time_s[i]) # decrement the time of this channel
-                '''
-[pvwatch.py 11800 2015-02-22 16:55:58.389503] problem with updatePlotImage():
-[pvwatch.py 11800 2015-02-22 16:55:58.390231]     Traceback (most recent call last):
-[pvwatch.py 11800 2015-02-22 16:55:58.390321]       File "/home/beams11/USAXS/Documents/eclipse/USAXS/livedata/pvwatch.py", line 428, in _periodic_reporting_task
-[pvwatch.py 11800 2015-02-22 16:55:58.390410]         try: updatePlotImage()                          # update the plot
-[pvwatch.py 11800 2015-02-22 16:55:58.390450]       File "/home/beams11/USAXS/Documents/eclipse/USAXS/livedata/pvwatch.py", line 218, in updatePlotImage
-[pvwatch.py 11800 2015-02-22 16:55:58.390489]         scanplots.main(n=localConfig.NUM_SCANS_PLOTTED, cp=True)
-[pvwatch.py 11800 2015-02-22 16:55:58.390527]       File "/home/beams11/USAXS/Documents/eclipse/USAXS/livedata/scanplots.py", line 342, in main
-[pvwatch.py 11800 2015-02-22 16:55:58.390564]         mpl_datasets = get_USAXS_data(scan_cache)
-[pvwatch.py 11800 2015-02-22 16:55:58.390601]       File "/home/beams11/USAXS/Documents/eclipse/USAXS/livedata/scanplots.py", line 321, in get_USAXS_data
-[pvwatch.py 11800 2015-02-22 16:55:58.390690]         entry = getscandata[scanMacro](scan_obj)
-[pvwatch.py 11800 2015-02-22 16:55:58.390783]       File "/home/beams11/USAXS/Documents/eclipse/USAXS/livedata/scanplots.py", line 299, in get_USAXS_FlyScan_Data
-[pvwatch.py 11800 2015-02-22 16:55:58.390829]         fly.reduce()        # open the file in this step
-[pvwatch.py 11800 2015-02-22 16:55:58.390863]       File "/home/beams11/USAXS/Documents/eclipse/USAXS/livedata/reduceFlyData.py", line 266, in reduce
-[pvwatch.py 11800 2015-02-22 16:55:58.390896]         upd_ranges = self.apply_upd_range_change_time_mask(hdf, upd_ranges, channel_time_s)
-[pvwatch.py 11800 2015-02-22 16:55:58.390933]       File "/home/beams11/USAXS/Documents/eclipse/USAXS/livedata/reduceFlyData.py", line 644, in apply_upd_range_change_time_mask
-[pvwatch.py 11800 2015-02-22 16:55:58.390966]         timer = max(0, timer - channel_time_s[i]) # decrement the time of this channel
-[pvwatch.py 11800 2015-02-22 16:55:58.390999]     IndexError: index 7984 is out of bounds for axis 0 with size 7983
-                '''
             last_range = upd_range
         return upd_ranges
     
@@ -804,12 +787,13 @@ def command_line_interface():
     print "Reading USAXS FlyScan data file: " + cmd_args.hdf5_file
     scan = UsaxsFlyScan(cmd_args.hdf5_file)
     
-    if cmd_args.no_archive:
-        print '  skipping check for archived original file'
-    else:
-        afile = scan.make_archive()
-        if afile is not None:
-            print '  archived original file to ' + afile
+    # 2015-06-08,prj: no need for archives now
+    #if cmd_args.no_archive:
+    #    print '  skipping check for archived original file'
+    #else:
+    #    afile = scan.make_archive()
+    #    if afile is not None:
+    #        print '  archived original file to ' + afile
 
     print '  checking for previously-saved R(Q)'
     scan.read_reduced()
