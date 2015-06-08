@@ -336,7 +336,7 @@ def add_pv(mne, pv, desc, fmt):
         'VDC':     'V',
         'eng':     '',
     }
-    if 'units' in cv:
+    if cv is not None and 'units' in cv:
         units = cv['units']
         if units in unit_renames:
             units = unit_renames[units]
