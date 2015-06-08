@@ -92,8 +92,9 @@ def centroid(x, y):
     import scipy.integrate
     a = remove_masked_data(x, y.mask)
     b = remove_masked_data(y, y.mask)
-    top    = scipy.integrate.simps(a*b, a)
-    bottom = scipy.integrate.simps(b, a)
+    weight = b*b
+    top    = scipy.integrate.simps(a*weight, a)
+    bottom = scipy.integrate.simps(weight, a)
     center = top/bottom
     return center
 
