@@ -272,7 +272,7 @@ def calc_usaxs_data(specScan):
     '''
     calculate USAXS R(Q) from raw SPEC scan data, return as a dict
     
-    :params obj specScan: prjPySpec.SpecDataFileScan object
+    :params obj specScan: spec2nexus.spec.SpecDataFileScan object
     :returns: dictionary of title and R(Q)
     '''
     #
@@ -339,8 +339,13 @@ def format_as_mpl_data_one(scan):
 
 
 def get_USAXS_uascan_ScanData(scan):
-    function = calc_usaxs_data
-    return function(scan.spec_scan)
+    #usaxs = calc_usaxs_data(scan.spec_scan)
+    usaxs = calc.reduce_uascan(scan.spec_scan)
+    usaxs['qVec'] = usaxs['Q']
+    usaxs['rVec'] = usaxs['R']
+    usaxs['title'] = scan.spec_scan.comments[0]
+    del usaxs['Q'], usaxs['R']
+    return usaxs
 
 
 def get_USAXS_data(cache):
