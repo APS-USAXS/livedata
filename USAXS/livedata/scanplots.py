@@ -198,7 +198,7 @@ def plottable_scan(scan_node):
                 scan_node.attrib['id'],
             )
             scan.getData()
-
+            
             # get the HDF5 file name from the SPEC file (no search needed)
             spec = spec_file_cache.get(filename)
             spec_scan = spec.getScan(int(scan_node.attrib['number']))
@@ -206,7 +206,6 @@ def plottable_scan(scan_node):
                 if line.find('FlyScan file name = ') > 1:
                     hdf5_file = line.split('=')[-1].strip().rstrip('.')
                     hdf5_file = os.path.abspath(os.path.join(specfiledir, hdf5_file))
-                    # FIXME: indentation or logic is off in this *if* block
                     if os.path.exists(hdf5_file):
                         # actual data file
                         scan_node.data_file = hdf5_file
