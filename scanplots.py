@@ -297,12 +297,11 @@ def calc_usaxs_data(specScan):
     # TODO: if I0_gain <= 0:  I0_gain = 1            # safeguard
     I0 = numpy.array(specScan.data['I0']) / I0_gain
 
-    def mapMetadataArrayToChannels(metadata, prefix, ranges, length=5):
-        '''map value of gains or backgrounds to channels, based on range indices'''
-        arr = numpy.array(map(lambda i: metadata[prefix + str(i+1)], range(length)))
-        mapping_function = numpy.frompyfunc(lambda i: arr[i-1], 1, 1)
-        vector = mapping_function(ranges)
-        return vector
+    def mapMetadataArrayToChannels(metadata, prefix, pd_range):
+        '''map value of gains (or backgrounds) to channels, based on range indices'''
+        arr = [0, ] + map(lambda _: metadata[prefix + str(_)], range(1,6))
+        vector = map(lambda _: arr[_], pd_range)
+        return numpy.array(vector)
     diode_gain = mapMetadataArrayToChannels(specScan.metadata, 'UPD2gain', pd_range)
     dark_curr = mapMetadataArrayToChannels(specScan.metadata, 'UPD2bkg', pd_range)
     rVec = (pd_counts - seconds*dark_curr) / diode_gain / I0 / V_f_gain
@@ -340,7 +339,6 @@ def format_as_mpl_data_one(scan):
 
 
 def get_USAXS_uascan_ScanData(scan):
-    # function = plot.calc_usaxs_data
     function = calc_usaxs_data
     return function(scan.spec_scan)
 
