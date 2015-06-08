@@ -625,7 +625,6 @@ class UsaxsFlyScan(object):
         :param obj upd_ranges: photodiode amplifier range (numpy masked ndarray)
         :param obj channel_time_s: measurement time in each channel, s (numpy ndarray)
         '''
-        # /entry/metadata/upd_amp_change_mask_time4
         base = '/entry/metadata/upd_amp_change_mask_time'
         mask_times = map(lambda r: float(hdf[base + str(r)][0]), range(5))
         
