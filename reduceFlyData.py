@@ -547,6 +547,15 @@ class UsaxsFlyScan(object):
         amp_index = hdf[base][0]
         labels = {0: base+'_ZNAM', 1: base+'_ONAM'}
         return str(hdf[labels[amp_index]][0])
+    
+    def get_range_changes(self, hdf, ampName):
+        '''get the arrays of range change information for the named amplifier'''
+        #num_channels = hdf['/entry/flyScan/AR_pulses'][0]    # planned length
+        base = '/entry/flyScan/changes_' + ampName + '_'
+        arr_channel   = hdf[base + 'mcsChan']
+        arr_requested = hdf[base + 'ampReqGain']
+        arr_actual    = hdf[base + 'ampGain']
+        return arr_channel, arr_requested, arr_actual
 
     def get_ranges(self, hdf, identifier):
         '''
@@ -566,10 +575,7 @@ class UsaxsFlyScan(object):
     
         #num_channels = hdf['/entry/flyScan/AR_pulses'][0]    # planned length
         num_channels = len(hdf['/entry/flyScan/mca1'])        # actual length
-        base = '/entry/flyScan/changes_' + identifier + '_'
-        arr_channel   = hdf[base + 'mcsChan']
-        arr_requested = hdf[base + 'ampReqGain']
-        arr_actual    = hdf[base + 'ampGain']
+        arr_channel, arr_requested, arr_actual = self.get_range_changes(hdf, identifier)
     
         ranges = numpy.arange(int(num_channels))
         mask_value = -1
@@ -625,22 +631,29 @@ class UsaxsFlyScan(object):
         :param obj upd_ranges: photodiode amplifier range (numpy masked ndarray)
         :param obj channel_time_s: measurement time in each channel, s (numpy ndarray)
         '''
+        # :param [float] mask_times: elapsed time after after range change 
+        #                            in which data should be masked
+        # mask is applied to pd_ranges
         base = '/entry/metadata/upd_amp_change_mask_time'
         mask_times = map(lambda r: float(hdf[base + str(r)][0]), range(5))
-        
-        # modify the masks on upd_ranges
-        last_range = 0
-        timer = 0
-        for i, upd_range in enumerate(upd_ranges.data): # TODO: optimize for speed!
-            if last_range != upd_range:
-                if upd_range >= 0:
-                    timer = mask_times[upd_range]
-            if timer > 0:
-                if i == len(channel_time_s):
-                    pass
-                upd_ranges[i] = numpy.ma.masked         # mask this point
-                timer = max(0, timer - channel_time_s[i]) # decrement the time of this channel
-            last_range = upd_range
+        amp_name = self.get_USAXS_PD_amplifier_name(hdf)
+        changes = self.get_range_changes(hdf, amp_name)
+
+        # modify the masks on upd_ranges at start of each range change
+        length = len(channel_time_s)
+        for channel, requested, actual in zip(*changes):
+            i = int(channel)
+            if i == 0:
+                continue
+            if requested != actual:
+                upd_ranges[i] = numpy.ma.masked               # mask this point
+                continue
+            timer = mask_times[int(actual)]
+            while timer > 0 and channel < length:
+                upd_ranges[i] = numpy.ma.masked               # mask this point
+                timer = max(0, timer - channel_time_s[i])     # decrement the time of this channel
+                i += 1
+
         return upd_ranges
     
     def mean_sigma(self, x, w):
@@ -802,6 +815,7 @@ def command_line_interface():
     needs_calc[s_num_bins] = not scan.has_reduced(s_num_bins)
     if cmd_args.recompute_rebinned:
         needs_calc[s_num_bins] = True
+    needs_calc['250'] = True    # FIXME: developer only
 
     if needs_calc['full']:
         print '  reducing FlyScan to R(Q)'
