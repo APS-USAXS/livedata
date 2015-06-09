@@ -30,10 +30,12 @@ try:
     # http://faulthandler.readthedocs.org
     import faulthandler
     faulthandler.enable()
-    print "#= %d --faulthandler" % os.getpid() + "-"*10 + " module enabled"
+    msg = "PID: %d --faulthandler" % os.getpid() + "-"*10 + " module enabled"
+    logMessage(msg)
 except ImportError, exc:
-    print "#= %d --faulthandler" % os.getpid() + "-"*10 + " module not imported"
-
+    msg = "PID: %d --faulthandler" % os.getpid() + "-"*10 + " module not imported"
+    logMessage(msg)
+ 
 
 SVN_ID = "$Id$"
 
@@ -410,7 +412,8 @@ def main():
     epics.ca.poll()
     connected = ch.connect(timeout=5.0)
     if not connected:
-        print 'Did not connect PV:', ch, '  program has exited'
+        logMessage('Did not connect PV: ' + str(ch))
+	logMessage('program will exit')
         return
 
     logMessage("starting pvwatch.py")

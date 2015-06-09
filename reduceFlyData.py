@@ -4,16 +4,17 @@
 
 import datetime             #@UnusedImport
 import h5py                 #@UnusedImport
-import numpy                #@UnusedImport
 import math                 #@UnusedImport
+import numpy                #@UnusedImport
 import os                   #@UnusedImport
 import scipy.interpolate    #@UnusedImport
 import shutil               #@UnusedImport
 import stat                 #@UnusedImport
 from spec2nexus import eznx #@UnusedImport
-import ustep                #@UnusedImport
-import localConfig          #@UnusedImport
 import calc
+import localConfig          #@UnusedImport
+import pvwatch
+import ustep                #@UnusedImport
 
 
 ARCHIVE_SUBDIR_NAME = 'archive'
@@ -248,7 +249,7 @@ class UsaxsFlyScan(object):
         max_n = max(map(len, list_of_arrays))
         if min_n != max_n:      # truncate arrays to shortest length
             n = min(min_n, max_n)
-            print "  truncating all arrays to " + str(n) + " points"
+            pvwatch.logMessage( "  truncating all arrays to " + str(n) + " points" )
             raw_upd         = raw_upd[:n]
             channel_time_s  = channel_time_s[:n]
             upd_dark        = upd_dark[:n]
@@ -796,7 +797,7 @@ def command_line_interface():
     s_num_bins = str(cmd_args.num_bins)
 
     needs_calc = {}
-    print "Reading USAXS FlyScan data file: " + cmd_args.hdf5_file
+    pvwatch.logMessage( "Reading USAXS FlyScan data file: " + cmd_args.hdf5_file )
     scan = UsaxsFlyScan(cmd_args.hdf5_file)
     
     # 2015-06-08,prj: no need for archives now
@@ -807,7 +808,7 @@ def command_line_interface():
     #    if afile is not None:
     #        print '  archived original file to ' + afile
 
-    print '  checking for previously-saved R(Q)'
+    pvwatch.logMessage( '  checking for previously-saved R(Q)' )
     scan.read_reduced()
     needs_calc['full'] = not scan.has_reduced('full')
     if cmd_args.recompute_full:
@@ -818,15 +819,15 @@ def command_line_interface():
     needs_calc['250'] = True    # FIXME: developer only
 
     if needs_calc['full']:
-        print '  reducing FlyScan to R(Q)'
+        pvwatch.logMessage('  reducing FlyScan to R(Q)')
         scan.reduce()
-        print '  saving reduced R(Q) to ' + output_filename
+        pvwatch.logMessage( '  saving reduced R(Q) to ' + output_filename)
         scan.save(cmd_args.hdf5_file, 'full')
         needs_calc[s_num_bins] = True
     if needs_calc[s_num_bins]:
-        print '  rebinning R(Q) (from %d) to %d points' % (scan.reduced['full']['Q'].size, cmd_args.num_bins)
+        pvwatch.logMessage( '  rebinning R(Q) (from %d) to %d points' % (scan.reduced['full']['Q'].size, cmd_args.num_bins) )
         scan.rebin(cmd_args.num_bins)
-        print '  saving rebinned R(Q) to ' + output_filename
+        pvwatch.logMessage( '  saving rebinned R(Q) to ' + output_filename )
         scan.save(cmd_args.hdf5_file, s_num_bins)
 
 
