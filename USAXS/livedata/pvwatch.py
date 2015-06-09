@@ -25,16 +25,27 @@ import localConfig      # definitions for 9-ID
 import scanplots
 import wwwServerTransfers
 
+
+def getTime():
+    '''return a datetime value'''
+    dt = datetime.datetime.now()
+    return dt
+
+
+def logMessage(msg):
+    '''write a message with a timestamp and pid to the log file'''
+    scriptName = os.path.basename(sys.argv[0])
+    print "[%s %d %s] %s" % (scriptName, os.getpid(), getTime(), msg)
+    sys.stdout.flush()
+
 try:
     # better reporting of SEGFAULT
     # http://faulthandler.readthedocs.org
     import faulthandler
     faulthandler.enable()
-    msg = "PID: %d --faulthandler" % os.getpid() + "-"*10 + " module enabled"
-    logMessage(msg)
+    logMessage("faulthandler: module enabled")
 except ImportError, exc:
-    msg = "PID: %d --faulthandler" % os.getpid() + "-"*10 + " module not imported"
-    logMessage(msg)
+    logMessage("faulthandler: module not imported")
  
 
 SVN_ID = "$Id$"
@@ -57,13 +68,6 @@ class NoneEpicsValue(Exception): pass
 
 '''pv not in pvdb'''
 class PvNotRegistered(Exception): pass
-
-
-def logMessage(msg):
-    '''write a message with a timestamp and pid to the log file'''
-    scriptName = os.path.basename(sys.argv[0])
-    print "[%s %d %s] %s" % (scriptName, os.getpid(), getTime(), msg)
-    sys.stdout.flush()
 
 
 def logException(troublemaker):
@@ -276,12 +280,6 @@ def report():
     abs_usaxstv_html = os.path.join(localDir, usaxstv_html)  # absolute path
     xslt_transformation(localConfig.USAXSTV_XSL_STYLESHEET, abs_raw_xml, abs_usaxstv_html)
     wwwServerTransfers.scpToWebServer(abs_usaxstv_html, usaxstv_html)  # copy to XSD
-
-
-def getTime():
-    '''return a datetime value'''
-    dt = datetime.datetime.now()
-    return dt
 
 
 def update_pvdb(pv, raw_value):
