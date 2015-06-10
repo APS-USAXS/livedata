@@ -4,8 +4,9 @@
 
 
 import datetime
-from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 import matplotlib
+matplotlib.use('Agg')
+from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 import numpy as np
 
 BISQUE_RGB    = (255./255, 228./255, 196./255)  # 255 228 196 bisque
