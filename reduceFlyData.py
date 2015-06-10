@@ -249,7 +249,7 @@ class UsaxsFlyScan(object):
         max_n = max(map(len, list_of_arrays))
         if min_n != max_n:      # truncate arrays to shortest length
             n = min(min_n, max_n)
-            pvwatch.logMessage( "  truncating all arrays to " + str(n) + " points" )
+            # pvwatch.logMessage( "  truncating all arrays to " + str(n) + " points" )
             raw_upd         = raw_upd[:n]
             channel_time_s  = channel_time_s[:n]
             upd_dark        = upd_dark[:n]
