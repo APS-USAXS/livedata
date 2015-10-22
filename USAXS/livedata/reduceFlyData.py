@@ -650,7 +650,7 @@ class UsaxsFlyScan(object):
                 upd_ranges[i] = numpy.ma.masked               # mask this point
                 continue
             timer = mask_times[int(actual)]
-            while timer > 0 and channel < length:
+            while timer > 0 and i < length:
                 upd_ranges[i] = numpy.ma.masked               # mask this point
                 timer = max(0, timer - channel_time_s[i])     # decrement the time of this channel
                 i += 1
