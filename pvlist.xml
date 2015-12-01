@@ -183,6 +183,7 @@
   <EPICS_PV PV="9idcLAX:USAXS:state" description="SPEC what is happening?" mne="state"/>
   <EPICS_PV PV="9idcLAX:USAXS:timeStamp" description="USAXS macro timeStamp" mne="timeStamp"/>
   <EPICS_PV PV="9idcLAX:USAXS:userDir" description="SPEC data directory" mne="spec_dir"/>
+  <EPICS_PV PV="9idcLAX:USAXS:UPDsize" description="photodiode size" mne="UPDsize"/>
   <EPICS_PV PV="9idcLAX:userCalc10" description="I000 computed current, A" display_format="%.3e" mne="I000_amp_current"/>
   <EPICS_PV PV="9idcLAX:userCalc7" description="photodiode computed current, A" display_format="%.3e" mne="diode_amp_current"/>
   <EPICS_PV PV="9idcLAX:userCalc8" description="I0 computed current, A" display_format="%.3e" mne="I0_amp_current"/>
