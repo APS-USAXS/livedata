@@ -22,7 +22,7 @@ testglob = 'testdata/fly/10_09_Prisk2D1_fly/S*.h5'
 testglob = '/share1/USAXS_data/2015-02/02_22_StressTest12keV_fly/S10*_*.h5'
 testglob = 'testdata/2015-02-24-flyScan/S*.h5'
 testglob = 'testdata/S*.h5'
-
+testglob = '/share1/USAXS_data/2015-12/12_2_Kariuki_fly/S28_TestAmplifierA.h5'
 
 import glob
 for hdf5_file in glob.glob(testglob):

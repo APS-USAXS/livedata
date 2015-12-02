@@ -589,6 +589,14 @@ class UsaxsFlyScan(object):
                     assign_range_value(last['chan'], chan, mask_value)
                 else:                       # mark the range for these channels
                     assign_range_value(last['chan']+1, chan, last['actual'])
+            if chan >= len(ranges):
+                chan = len(ranges)-1        # FIXME: this is a hack
+                '''
+                chan = 7997 and len(ranges)=7997
+                arr_channel: [    0.    18.    18.    37.    38.    92.    93.   115.   115.   649.
+                   651.  7271.  7274.  7286.  7293.  7568.  7568.  7586.  7591.  7997.
+                  7997.     0.     0.     0.     0.     0.     0.     0.     0.     0.]
+                '''
             ranges[chan] = mask_value
             last = dict(chan=chan, requested=requested, actual=actual)
             if chan == arr_channel.value.max():               # end of Fly Scan range change data
@@ -647,6 +655,15 @@ class UsaxsFlyScan(object):
             if i == 0:
                 continue
             if requested != actual:
+                if i >= len(upd_ranges):
+                    i = len(upd_ranges) - 1                 # FIXME: this is a hack, like in get_ranges()
+                    '''
+                    i = 7997
+                    changes[changes_DDPCA300_mcsChan] = 
+                    [    0.    18.    18.    37.    38.    92.    93.   115.   115.   649.
+                       651.  7271.  7274.  7286.  7293.  7568.  7568.  7586.  7591.  7997.
+                      7997.     0.     0.     0.     0.     0.     0.     0.     0.     0.]
+                    '''
                 upd_ranges[i] = numpy.ma.masked               # mask this point
                 continue
             timer = mask_times[int(actual)]
