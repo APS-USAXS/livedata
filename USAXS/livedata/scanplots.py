@@ -7,7 +7,6 @@ import datetime
 import math
 import numpy
 import os
-import spec2nexus.spec
 
 import calc
 import localConfig
@@ -53,11 +52,12 @@ class SpecFileObject(object):
     
     def __init__(self, specfile):
         if os.path.exists(specfile):
+            from spec2nexus.spec import SpecDataFile
             self.filename = specfile
             stat = os.stat(specfile)
             self.size = stat.st_size
             self.mtime = stat.st_mtime
-            self.sdf_object = spec2nexus.spec.SpecDataFile(specfile)
+            self.sdf_object = SpecDataFile(specfile)
 
 
 class SpecFileCache(object):
@@ -126,6 +126,8 @@ class Scan(object):
         if self.spec_scan is None:
             self.getData()
 
+        if self.spec_scan is None:
+            pass
         epoch = datetime.datetime.strptime(self.spec_scan.date, '%c')
         fmt = '%Y_%m_%d__%H_%M_%S'
         scan_date_time_stamp = datetime.datetime.strftime(epoch, fmt)
@@ -143,7 +145,7 @@ class Scan(object):
             if self.spec_scan is None:
                 # to get scan from the file cache
                 spec = spec_file_cache.get(self.data_file)
-                self.spec_scan = spec.getScan(self.scan_number)
+                self.spec_scan = spec.getScan(str(self.scan_number))
         return self.spec_scan
 
     def getData(self):
@@ -204,7 +206,7 @@ def plottable_scan(scan_node):
             
             # get the HDF5 file name from the SPEC file (no search needed)
             spec = spec_file_cache.get(filename)
-            spec_scan = spec.getScan(int(scan_node.attrib['number']))
+            spec_scan = spec.getScan(str(scan_node.attrib['number']))
             for line in spec_scan.comments:
                 if line.find('FlyScan file name = ') > 1:
                     hdf5_file = line.split('=')[-1].strip().rstrip('.')

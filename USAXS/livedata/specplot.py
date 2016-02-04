@@ -156,7 +156,7 @@ def findScan(sd, n):
     return the first scan with scan number "n"
     from the spec data file object or None
     '''
-    scan = sd.getScan(int(n))
+    scan = sd.getScan(str(n))
     return scan
 
 
@@ -164,7 +164,7 @@ def main():
     doc = __doc__.strip().splitlines()[0]
     parser = argparse.ArgumentParser(description=doc)
     parser.add_argument('specFile',    help="SPEC data file name")
-    parser.add_argument('scan_number', help="scan number in SPEC file", type=int)
+    parser.add_argument('scan_number', help="scan number in SPEC file", type=str)
     parser.add_argument('plotFile',    help="output plot file name")
     results = parser.parse_args()
 
