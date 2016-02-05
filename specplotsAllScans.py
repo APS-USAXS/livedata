@@ -122,18 +122,19 @@ def plotAllSpecFileScans(specFile):
     HREF_FORMAT += "<img src=\"%s\" width=\"150\" height=\"75\" alt=\"%s\"/>"
     HREF_FORMAT += "</a>"
 
-    for scan in sd.scans.values():
+    for scan_number in sd.getScanNumbers():
         # TODO: was the data in _this_ scan changed since the last time the SPEC file was modified?
         #  Check the scan's date/time stamp and also if the plot exists.
         #  For a scan N, the plot may exist if the scan was in progress at the last update.
         #  For sure, if a plot for N+1 exists, no need to remake plot for scan N.  Thus:
         #    Always remake if plot for scan N+1 does not exist
-        basePlotFile = "s%05d.png" % scan.scanNum
+        scan = sd.getScan(scan_number)
+	basePlotFile = "s%s.png" % scan.scanNum
         fullPlotFile = os.path.join(png_directory, basePlotFile)
-        altText = "#%d: %s" % (scan.scanNum, scan.scanCmd)
+        altText = "#%s: %s" % (scan.scanNum, scan.scanCmd)
         href = HREF_FORMAT % (basePlotFile, basePlotFile, altText)
         plotList.append(href)
-        #print "specplot.py %s %d %s" % (specFile, scan.scanNum, fullPlotFile)
+        #print "specplot.py %s %s %s" % (specFile, scan.scanNum, fullPlotFile)
         cmd = scan.scanCmd.strip()
         cmd = cmd[:cmd.find(' ')]
         if needToMakePlot(fullPlotFile, mtime_specFile):
@@ -143,11 +144,11 @@ def plotAllSpecFileScans(specFile):
                 newFileList.append(fullPlotFile)
             except:
                 exc = sys.exc_info()[1]
-                msg = "ERROR: '%s' %s #%d" % (exc, specFile, scan.scanNum)
+                msg = "ERROR: '%s' %s #%s" % (exc, specFile, scan.scanNum)
                 # print msg
                 plotList.pop()     # rewrite the default link
                 plotList.append("<!-- " + msg + " -->")
-                altText = "%s: #%d %s" % (exc, scan.scanNum, scan.scanCmd)
+                altText = "%s: #%s %s" % (exc, scan.scanNum, scan.scanCmd)
                 href = HREF_FORMAT % (basePlotFile, basePlotFile, altText)
                 plotList.append(href)
 
