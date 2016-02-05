@@ -30,7 +30,8 @@ PYTHON=/APSshare/anaconda/x86_64/bin/python
 #SPEC_DATA_PATTERN=/data/USAXS_data/201*-*/*.dat
 #SPEC_DATA_PATTERN=/data/USAXS_data/2013-1*/*.dat
 #SPEC_DATA_PATTERN=/data/USAXS_data/2014-*/*.dat
-SPEC_DATA_PATTERN=/share1/USAXS_data/2015-*/*.dat
+#SPEC_DATA_PATTERN=/share1/USAXS_data/2015-*/*.dat
+SPEC_DATA_PATTERN=/share1/USAXS_data/2016-*/*.dat
 
 #export PLOTICUS_BASE=/home/beams/USAXS/Documents/ploticus/pl241src
 #export PLOTICUS_PREFABS=$PLOTICUS_BASE/prefabs

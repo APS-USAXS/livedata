@@ -79,7 +79,7 @@ def process_NexusImageData(scan, imgfile, **attr):
     if os.path.exists(h5file) and not os.path.exists(imgfile):
         path = localConfig.HDF5_PATH_TO_IMAGE_DATA
         handle_2d.make_png(h5file, imgfile, path, **attr)
-        print 'created: ' + imgfile
+        print '(' + str(os.getpid()) + ') created: ' + imgfile
 
 
 def makeScanImage(scan, plotFile):
@@ -134,7 +134,7 @@ def mpl__process_plotData(scan, plotData, plotFile):
         xtitle = scan.column_first
         ytitle = scan.column_last
     title = scan.specFile
-    subtitle = "#%d: %s" % (scan.scanNum, scan.scanCmd)
+    subtitle = "#%s: %s" % (scan.scanNum, scan.scanCmd)
     #timestamp_str = scan.date                REMOVE ME
     plot_mpl.spec_plot(x, y,  plotFile, 
                        title=title,  subtitle=subtitle, 
