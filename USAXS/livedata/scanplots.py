@@ -327,7 +327,7 @@ def main(n = None, cp=False):
     spec_file_cache = SpecFileCache()
     if n is None:
         n = NUMBER_SCANS_TO_PLOT
-    # scans = last_n_scans(SCANLOG, n)
+    _scans = last_n_scans(SCANLOG, n)    # updates scan_cache & spec_file_cache
 
     local_plot = os.path.join(
                               localConfig.LOCAL_WWW_LIVEDATA_DIR, 
