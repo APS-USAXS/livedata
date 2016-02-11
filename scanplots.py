@@ -292,8 +292,7 @@ def format_as_mpl_data_one(scan):
         return mpl_ds
 
 
-def get_USAXS_uascan_ScanData(scan):
-    #usaxs = calc_usaxs_data(scan.spec_scan)
+def get_USAXS_uascan_ScanData(scan, ar_center=None):
     usaxs = calc.reduce_uascan(scan.spec_scan)
     usaxs['qVec'] = usaxs.pop('Q')
     usaxs['rVec'] = usaxs.pop('R')
@@ -311,7 +310,6 @@ def get_USAXS_data(cache):
         scanMacro = scan_obj.spec_scan.scanCmd.strip().split()[0]
         if scanMacro in getscandata.keys():
             if scan_obj is None: continue
-            #     entry = dict(qVec=rebinned['Q'], rVec=rebinned['R'], title=title)
             entry = getscandata[scanMacro](scan_obj)
             mpl_ds = format_as_mpl_data_one(entry)
             if mpl_ds is None: continue
