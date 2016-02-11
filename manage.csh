@@ -18,6 +18,13 @@ setenv CAGET		 /APSshare/epics/extensions-base/3.14.12.3-ext1/bin/linux-x86_64/c
 setenv PVWATCH_PHASE_PV  9idcLAX:long18
 setenv LOOP_COUNTER_PV   9idcLAX:long20
 
+# a little bit of protection here ...
+setenv HOSTNAME `/bin/hostname`
+if ("${HOSTNAME}" != "usaxscontrol.xray.aps.anl.gov") then
+            /bin/echo "hostname = ${HOSTNAME} : not intended to run on this host"
+       exit
+endif
+
 
 switch ($1)
   case "start":
