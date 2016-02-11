@@ -127,23 +127,24 @@ def test_uascan(filename):
     sdf_object = spec2nexus.spec.SpecDataFile(filename)
     sds = sdf_object.getScan(TEST_UASCAN_SCAN_NUMBER)
     sds.interpret()
-    return reduce_uascan(sds)
+    ar_center=None      # TODO: float(hdf['/entry/metadata/AR_center'][0])
+    return reduce_uascan(sds, ar_center=ar_center)
 
 
-def reduce_uascan(sds):
+def reduce_uascan(sds, ar_center=None):
     '''data reduction of an uascan (in a SPEC file)
     
     :params obj sds: spec2nexus.spec.SpecDataFileScan object
     :returns: dictionary of title and R(Q)
     '''
     # get the raw data from the data file
-    wavelength       = float(sds.metadata['DCM_lambda'])
-    ar               = numpy.array(sds.data['ar'])
-    seconds          = numpy.array(sds.data['seconds'])
-    pd               = numpy.array(sds.data['pd_counts'])
-    I0               = numpy.array(sds.data['I0'])
-    I0_constant_gain = numpy.array(sds.metadata['I0AmpGain'])
-    pd_range         = numpy.array(sds.data['pd_range'], dtype=int)
+    wavelength        = float(sds.metadata['DCM_lambda'])
+    ar                = numpy.array(sds.data['ar'])
+    seconds           = numpy.array(sds.data['seconds'])
+    pd                = numpy.array(sds.data['pd_counts'])
+    I0                = numpy.array(sds.data['I0'])
+    I0_amplifier_gain = numpy.array(sds.metadata['I0AmpGain'])
+    pd_range          = numpy.array(sds.data['pd_range'], dtype=int)
 
     # gain & dark are stored as 1-offset, pad here with 0-offset to simplify list handling
     gain = [0, ] + map(lambda _: sds.metadata["UPD2gain" + str(_)], range(1,6))
@@ -154,7 +155,16 @@ def reduce_uascan(sds):
     pd_dark = map(lambda _: dark[_], pd_range)
 
     # compute the R(Q) profile
-    usaxs = calc_R_Q(wavelength, ar, seconds, pd, pd_dark, pd_gain, I0)
+    usaxs = calc_R_Q(wavelength,    # wavelength
+                     ar,            # ar
+                     seconds,       # seconds
+                     pd,            # pd
+                     pd_dark,       # pd_bkg
+                     pd_gain,       # pd_gain
+                     I0,            # I0
+                     I0_gain=I0_amplifier_gain,
+                     ar_center=ar_center,
+                     )
     return usaxs
 
 
