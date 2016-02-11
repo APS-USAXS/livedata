@@ -127,11 +127,10 @@ def test_uascan(filename):
     sdf_object = spec2nexus.spec.SpecDataFile(filename)
     sds = sdf_object.getScan(TEST_UASCAN_SCAN_NUMBER)
     sds.interpret()
-    ar_center=None      # TODO: float(hdf['/entry/metadata/AR_center'][0])
-    return reduce_uascan(sds, ar_center=ar_center)
+    return reduce_uascan(sds)
 
 
-def reduce_uascan(sds, ar_center=None):
+def reduce_uascan(sds):
     '''data reduction of an uascan (in a SPEC file)
     
     :params obj sds: spec2nexus.spec.SpecDataFileScan object
@@ -145,6 +144,7 @@ def reduce_uascan(sds, ar_center=None):
     I0                = numpy.array(sds.data['I0'])
     I0_amplifier_gain = numpy.array(sds.metadata['I0AmpGain'])
     pd_range          = numpy.array(sds.data['pd_range'], dtype=int)
+    ar_center         = float(sds.metadata['arCenter'])      
 
     # gain & dark are stored as 1-offset, pad here with 0-offset to simplify list handling
     gain = [0, ] + map(lambda _: sds.metadata["UPD2gain" + str(_)], range(1,6))
