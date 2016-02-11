@@ -430,8 +430,19 @@ class UsaxsFlyScan(object):
         hfile = hfile or self.hdf5_file_name
         ds = self.reduced[key]
         hdf = h5py.File(hfile, 'a')
+        if 'default' not in hdf.attrs:
+            hdf.attrs['default'] = 'entry'
         nxentry = eznx.openGroup(hdf, 'entry', 'NXentry')
-        nxdata = eznx.openGroup(nxentry, nxname, 'NXdata', timestamp=self.iso8601_datetime())
+        if 'default' not in nxentry.attrs:
+            nxentry.attrs['default'] = nxname
+        nxdata = eznx.openGroup(nxentry, 
+                                nxname, 
+                                'NXdata', 
+                                signal='R',
+                                axes='Q',
+                                Q_indices=0,
+                                timestamp=self.iso8601_datetime(),
+                                )
         for key in sorted(ds.keys()):
             try:
                 _ds = eznx.write_dataset(nxdata, key, ds[key])
