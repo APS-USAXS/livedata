@@ -211,13 +211,14 @@ class UsaxsFlyScan(object):
         raw_I0 =            raw['mca2']
         raw_upd =           raw['mca3']
 
-        AR_start =          float(raw['AR_start'][0])
-        AR_increment =      float(raw['AR_increment'][0])
+        # unused
+        # AR_start =          float(raw['AR_start'][0])
+        # AR_increment =      float(raw['AR_increment'][0])
 
         # compute the AR values from the MCA waveforms
         raw_ar = self.get_raw_ar(hdf, mode_number)
 
-        V_f_gain = FIXED_VF_GAIN
+        # V_f_gain = FIXED_VF_GAIN    # unused
         pulse_frequency = raw['mca_clock_frequency'][0] or  MCA_CLOCK_FREQUENCY
         channel_time_s = raw_clock_pulses / pulse_frequency
         
@@ -257,13 +258,24 @@ class UsaxsFlyScan(object):
             raw_ar          = raw_ar[:n]
             raw_I0          = raw_I0[:n]
     
-        full = calc.calc_R_Q(wavelength, raw_ar, channel_time_s, raw_upd, upd_dark, upd_gain, 
-                             raw_I0, I0_gain=I0_amp_gain)
-        center = full['ar_0']
+        full = calc.calc_R_Q(wavelength,            # wavelength
+                             raw_ar,                # ar
+                             channel_time_s,        # seconds
+                             raw_upd,               # pd
+                             upd_dark,              # pd_bkg
+                             upd_gain,              # pd_gain
+                             raw_I0,                # I0
+                             I0_gain=I0_amp_gain,
+                             ar_center=ar_center,
+                             )
+#         center = full['ar_0']
+#         if center != ar_center:
+#             pass
 
         hdf.close()
         
         full['R_max'] = full['R'].max()
+        
         self.reduced = dict(full = full)
     
     def PSO_oscillation_correction(self, hdf, mode, num_AR):
@@ -551,11 +563,13 @@ class UsaxsFlyScan(object):
     
     def get_range_changes(self, hdf, ampName):
         '''get the arrays of range change information for the named amplifier'''
+        def get_key(key):
+            return map(int, hdf[base + key].value)
         #num_channels = hdf['/entry/flyScan/AR_pulses'][0]    # planned length
         base = '/entry/flyScan/changes_' + ampName + '_'
-        arr_channel   = hdf[base + 'mcsChan']
-        arr_requested = hdf[base + 'ampReqGain']
-        arr_actual    = hdf[base + 'ampGain']
+        arr_channel   = get_key('mcsChan')
+        arr_requested = get_key('ampReqGain')
+        arr_actual    = get_key('ampGain')
         return arr_channel, arr_requested, arr_actual
 
     def get_ranges(self, hdf, identifier):
@@ -571,36 +585,30 @@ class UsaxsFlyScan(object):
     
         def assign_range_value(start, end, range_value):
             '''short-hand assignment'''
-            if end - start >= 0:    # define the valid range
-                ranges[start:end] = numpy.zeros((end - start,)) + range_value
+            num_values = end - start
+            if num_values >= 0:    # define the valid range
+                ranges[start:end] = numpy.zeros((num_values,)) + range_value
     
+        changes = self.get_range_changes(hdf, identifier)
         #num_channels = hdf['/entry/flyScan/AR_pulses'][0]    # planned length
         num_channels = len(hdf['/entry/flyScan/mca1'])        # actual length
-        arr_channel, arr_requested, arr_actual = self.get_range_changes(hdf, identifier)
-    
         ranges = numpy.arange(int(num_channels))
+    
         mask_value = -1
         last = None
-        for key, chan  in enumerate(arr_channel):
-            requested = arr_requested[key]
-            actual = arr_actual[key]
+        for chan, requested, actual in zip(*changes):
             if last is not None:
-                if requested == actual:     # mark a range change as invalid
+                if chan < last['chan']:               # end of Fly Scan range change data
+                    break
+                if requested == actual:
+                    # last range change complete -- mark the range change as invalid
                     assign_range_value(last['chan'], chan, mask_value)
-                else:                       # mark the range for these channels
+                else:
+                    # next range change starting -- mark the range for these channels
                     assign_range_value(last['chan']+1, chan, last['actual'])
-            if chan >= len(ranges):
-                chan = len(ranges)-1        # FIXME: this is a hack
-                '''
-                chan = 7997 and len(ranges)=7997
-                arr_channel: [    0.    18.    18.    37.    38.    92.    93.   115.   115.   649.
-                   651.  7271.  7274.  7286.  7293.  7568.  7568.  7586.  7591.  7997.
-                  7997.     0.     0.     0.     0.     0.     0.     0.     0.     0.]
-                '''
-            ranges[chan] = mask_value
+            if chan < num_channels:
+                ranges[chan] = mask_value
             last = dict(chan=chan, requested=requested, actual=actual)
-            if chan == arr_channel.value.max():               # end of Fly Scan range change data
-                break
     
         if last is not None:                # mark the final range
             assign_range_value(last['chan']+1, num_channels, last['actual'])
@@ -647,6 +655,7 @@ class UsaxsFlyScan(object):
         mask_times = map(lambda r: float(hdf[base + str(r)][0]), range(5))
         amp_name = self.get_USAXS_PD_amplifier_name(hdf)
         changes = self.get_range_changes(hdf, amp_name)
+        num_channels = len(upd_ranges)
 
         # modify the masks on upd_ranges at start of each range change
         length = len(channel_time_s)
@@ -655,16 +664,8 @@ class UsaxsFlyScan(object):
             if i == 0:
                 continue
             if requested != actual:
-                if i >= len(upd_ranges):
-                    i = len(upd_ranges) - 1                 # FIXME: this is a hack, like in get_ranges()
-                    '''
-                    i = 7997
-                    changes[changes_DDPCA300_mcsChan] = 
-                    [    0.    18.    18.    37.    38.    92.    93.   115.   115.   649.
-                       651.  7271.  7274.  7286.  7293.  7568.  7568.  7586.  7591.  7997.
-                      7997.     0.     0.     0.     0.     0.     0.     0.     0.     0.]
-                    '''
-                upd_ranges[i] = numpy.ma.masked               # mask this point
+                if i < num_channels:
+                    upd_ranges[i] = numpy.ma.masked               # mask this point
                 continue
             timer = mask_times[int(actual)]
             while timer > 0 and i < length:
@@ -846,6 +847,7 @@ def command_line_interface():
         scan.rebin(cmd_args.num_bins)
         pvwatch.logMessage( '  saving rebinned R(Q) to ' + output_filename )
         scan.save(cmd_args.hdf5_file, s_num_bins)
+    return scan
 
 
 if __name__ == '__main__':

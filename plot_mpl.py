@@ -75,7 +75,7 @@ def spec_plot(x, y,
               xlog=False, ylog=False,
               timestamp_str=None):
     '''
-    generate a plot of a scan from a SPEC file
+    generate a plot of a scan (as if data from a scan in a SPEC file)
     
     :param [float] x: horizontal axis data
     :param [float] y: vertical axis data

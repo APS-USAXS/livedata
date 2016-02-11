@@ -50,9 +50,9 @@ def calc_R_Q(wavelength, ar, seconds, pd, pd_bkg, pd_gain, I0,
         rVec /= V_f_gain
     rVec = numpy.ma.masked_less_equal(rVec, 0)
     
+    ar_r_peak = ar[numpy.argmax(rVec)]  # ar value at peak R
+    rMax = rVec.max()
     if ar_center is None:       # compute ar_center from rVec and ar
-        ar_r_peak = ar[numpy.argmax(rVec)]  # ar value at peak R
-        rMax = rVec.max()
         ar_center = centroid(ar, rVec)      # centroid of central peak
 
     d2r = math.pi / 180
