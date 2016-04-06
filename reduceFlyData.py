@@ -36,6 +36,9 @@ MODENAME_XREF = {     # these are the strings the PV *should* return
              AR_MODE_TRAJECTORY:    'TrajPts',
              }
 
+# raised when HDF5 file exists but length of raw data is zero
+class NoFlyScanData(IndexError): pass
+
 
 class UsaxsFlyScan(object):
     '''
@@ -210,6 +213,8 @@ class UsaxsFlyScan(object):
         raw_clock_pulses =  raw['mca1']
         raw_I0 =            raw['mca2']
         raw_upd =           raw['mca3']
+        if len(raw_clock_pulses) == 0:
+            raise NoFlyScanData('no data found in file: ' + str(self.hdf5_file_name))
 
         # unused
         # AR_start =          float(raw['AR_start'][0])
