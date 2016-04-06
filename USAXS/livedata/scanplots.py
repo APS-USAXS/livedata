@@ -266,7 +266,7 @@ def get_USAXS_FlyScan_Data(scan_obj):
         raise KeyError(exc)
     except reduceFlyData.NoFlyScanData, _exc:
         print str(_exc)
-        return None     # file may not be available yet for reading if fly scan is still going
+        return None     # HDF5 file exists but length of raw data is zero
     title = os.path.split(hdf5File)[-1] + '(fly)'
     rebinned = fly.reduced[str(localConfig.REDUCED_FLY_SCAN_BINS)]
     entry = dict(qVec=rebinned['Q'], rVec=rebinned['R'], title=title)
@@ -299,7 +299,7 @@ def get_USAXS_uascan_ScanData(scan, ar_center=None):
     usaxs = calc.reduce_uascan(scan.spec_scan)
     usaxs['qVec'] = usaxs.pop('Q')
     usaxs['rVec'] = usaxs.pop('R')
-    usaxs['title'] = scan.spec_scan.comments[0]
+    usaxs['title'] = 'S' + str(scan.scan_number) + ' ' + scan.spec_scan.comments[0]
     return usaxs
 
 
