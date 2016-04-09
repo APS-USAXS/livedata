@@ -275,6 +275,10 @@ def report():
     xslFile = localConfig.RAWTABLE_XSL_STYLESHEET
     wwwServerTransfers.scpToWebServer(xslFile, xslFile)
 
+    # also copy the php pager software
+    phpFile = localConfig.LIVEDATA_PHP_PAGER
+    wwwServerTransfers.scpToWebServer(phpFile, phpFile)
+
     # make the usaxstv.html file
     usaxstv_html = localConfig.HTML_USAXSTV_FILE  # short name
     abs_usaxstv_html = os.path.join(localDir, usaxstv_html)  # absolute path
