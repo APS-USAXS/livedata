@@ -27,12 +27,16 @@
     // TODO: allow user to pick any page
     // TODO: allow user to search
 
+    echo "<!-- DEBUG: including Pager support -->\n";
     // include class
-    include_once 'Pager/Pager.php';
+    include_once 'Pager/Pager.php' or die('asks sysAdmin to: pear install Pager');
+    echo "<!-- DEBUG: Pager support was loaded -->\n";
 
     $xmlFile = "scanlog.xml";
     $xml=simplexml_load_file($xmlFile) or die("Error: Cannot create object");
+    echo "<!-- DEBUG: XML data was loaded -->\n";
     $data = json_decode(json_encode($xml),TRUE);
+    echo "<!-- DEBUG: data array was created -->\n";
 
     // set pager options
     $params = array(
@@ -46,6 +50,7 @@
 	'lastPageText' => 'current',
   	//'currentPage'  => 20000,
     );
+    echo "<!-- DEBUG: pager params defined -->\n";
     
     function item_datetime_str($item) {
       //print_r($item);
@@ -54,9 +59,11 @@
       $str .= $item["@attributes"]["time"];
       return $str;
     }
+     echo "<!-- DEBUG: function defined -->\n";
 
     // generate pager object
     $pager =& Pager::factory($params);
+    echo "<!-- DEBUG: pager object was created -->\n";
 
     // get links for current page and print
     $links = $pager->getLinks();
