@@ -1,5 +1,5 @@
 <?php
- //  http://jemian.org/scans/scanpager.php?pageID=99999
+ //  http://usaxs.xray.aps.anl.gov/livedata/scanpager.php?pageID=99999
  //
  //  http://www.w3schools.com/php/php_ref_simplexml.asp
  //  http://pear.php.net/package/Pager
