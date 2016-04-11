@@ -12,6 +12,40 @@
  //  _any_ pager is better than loading the entire XML file
  //  through an XSLT when most folks just want to see the most 
  //  recent scan information.
+
+    $xmlFile = "scanlog.xml";
+    $xml = simplexml_load_file($xmlFile) or die("Error: Cannot create object");
+    $indices = range(0, count($xml->scan)-1 );
+
+    // TODO: allow user to sort by column (alternate between up or down sorts)
+    // TODO: allow user to select number per page
+    // TODO: allow user to pick any page
+    // TODO: allow user to search
+
+    require_once "Pager.php";
+
+    // set pager options
+    $params = array(
+  	'mode'     => 'Sliding',
+  	'perPage'  => 20,
+  	'delta'    => 3,
+  	'itemData' => $indices,
+ 	'spacesBeforeSeparator' => 2,
+ 	'spacesAfterSeparator'  => 2,
+	'firstPageText' => 'oldest',
+	'lastPageText' => 'current',
+  	//'currentPage'  => 20000,
+    );
+    
+    function item_datetime_str($item) {
+      $str = $item->attributes()->date;
+      $str .= ' ';
+      $str .= $item->attributes()->time;
+      return $str;
+    }
+
+    // generate pager object
+    $pager =& Pager::factory($params);
 ?>
 
 <html>
@@ -22,52 +56,10 @@
 
     <?php
 
-    // TODO: allow user to sort by column (alternate between up or down sorts)
-    // TODO: allow user to select number per page
-    // TODO: allow user to pick any page
-    // TODO: allow user to search
-
-    echo "<!-- DEBUG: including Pager support -->\n";
-    // include class
-    include_once 'Pager/Pager.php' or die('asks sysAdmin to: pear install Pager');
-    echo "<!-- DEBUG: Pager support was loaded -->\n";
-
-    $xmlFile = "scanlog.xml";
-    $xml=simplexml_load_file($xmlFile) or die("Error: Cannot create object");
-    echo "<!-- DEBUG: XML data was loaded -->\n";
-    $data = json_decode(json_encode($xml),TRUE);
-    echo "<!-- DEBUG: data array was created -->\n";
-
-    // set pager options
-    $params = array(
-  	'mode'     => 'Sliding',
-  	'perPage'  => 20,
-  	'delta'    => 3,
-  	'itemData' => $data["scan"],
- 	'spacesBeforeSeparator' => 2,
- 	'spacesAfterSeparator'  => 2,
-	'firstPageText' => 'oldest',
-	'lastPageText' => 'current',
-  	//'currentPage'  => 20000,
-    );
-    echo "<!-- DEBUG: pager params defined -->\n";
-    
-    function item_datetime_str($item) {
-      //print_r($item);
-      $str = $item["@attributes"]["date"];
-      $str .= ' ';
-      $str .= $item["@attributes"]["time"];
-      return $str;
-    }
-     echo "<!-- DEBUG: function defined -->\n";
-
-    // generate pager object
-    $pager =& Pager::factory($params);
-    echo "<!-- DEBUG: pager object was created -->\n";
-
     // get links for current page and print
     $links = $pager->getLinks();
     echo $links['all'];
+    echo $pager->linkTags, "\n";
 
     ?>
     
@@ -85,25 +77,25 @@
 
     // get data for current page and make a table
     $count = ($pager->getCurrentPageID()-1) * $params["perPage"];
-    foreach ($pager->getPageData() as $item) {
-	//print_r($item);
+    foreach ($pager->getPageData() as $id) {
+	$item = $xml->scan[$id];
 	$count += 1;
 	if ($count % 2)
 	  echo "      <tr>\n";
 	else
 	  echo "      <tr bgcolor=\"Azure\">\n";
   	echo "        <td>" . $count . "</td>\n";
-  	echo "        <td>" . $item["title"] . "</td>\n";
+  	echo "        <td>" . $item->title . "</td>\n";
 	// TODO: make an href to the SPEC plot
-  	echo "        <td>" . $item["@attributes"]["type"] . "</td>\n";
-  	echo "        <td>" . $item["@attributes"]["number"] . "</td>\n";
-  	echo "        <td>" . $item["file"] . "</td>\n";
-  	echo "        <td>" . item_datetime_str($item["started"]) . "</td>\n";
-	if ("complete" == $item["@attributes"]["state"])
-  	    echo "        <td>" . item_datetime_str($item["ended"]) . "</td>\n";
-	else
-  	    echo "        <td>" . $item["@attributes"]["state"] . "</td>\n";
-	echo "      </tr>\n";
+	echo "        <td>" . $item->attributes()->type . "</td>\n";
+ 	echo "        <td>" . $item->attributes()->number . "</td>\n";
+ 	echo "        <td>" . $item->file . "</td>\n";
+ 	echo "        <td>" . item_datetime_str($item->started) . "</td>\n";
+ 	if ("complete" == $item->attributes()->state)
+	    echo "	  <td>" . item_datetime_str($item->ended) . "</td>\n";
+ 	else
+	    echo "	  <td>" . $item->attributes()->state . "</td>\n";
+ 	echo "      </tr>\n";
     }
     ?>
     </table>
@@ -111,8 +103,8 @@
     <?php
 
     // get links for current page and print
-    $links = $pager->getLinks();
     echo $links['all'];
+    echo $pager->linkTags, "\n";
     
     ?>
 
