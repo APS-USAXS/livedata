@@ -96,7 +96,7 @@
  					<xsl:value-of select="/usaxs_pvs/datetime"/>
 				    </td>
                                     <td align="center"><a href="raw-report.html">raw info</a> </td>
-                                    <td align="center"><a href="scanlog.xml">scan log</a></td>
+                                    <td align="center"><a href="scanpager.php?pageID=99999">scan log</a></td>
                                     <td align="center"><a href="specplots">SPEC plots</a></td>
                                     <td align="center"><a href="usaxstv.html">iPad/TV view</a></td>
 				</tr>
