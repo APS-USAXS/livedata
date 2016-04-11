@@ -86,7 +86,7 @@
 	  echo "      <tr bgcolor=\"Azure\">\n";
   	echo "        <td>" . $count . "</td>\n";
   	echo "        <td>" . $item->title . "</td>\n";
-	// TODO: make an href to the SPEC plot
+	// TODO: make an href to the corresponding SPEC plot
 	echo "        <td>" . $item->attributes()->type . "</td>\n";
  	echo "        <td>" . $item->attributes()->number . "</td>\n";
  	echo "        <td>" . $item->file . "</td>\n";

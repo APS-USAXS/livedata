@@ -79,6 +79,10 @@ FLY_SCAN_Q_MIN          = 1.01e-6   # absolute minimum Q for rebinning
 FLY_SCAN_UATERM         = 1.2       # for defining Q bins
 
 
+# Area Detector images
+REDUCED_AD_IMAGE_BINS   = 250       # sufficient to make a good plot
+
+
 HDF5_PATH_TO_IMAGE_DATA = '/entry/data/data'
 
 
