@@ -91,7 +91,7 @@ class Reduce(object):
           '5000': dict(Q, R, dR)
         }
         '''
-        pass
+        pass    # TODO: re-implement
 
 
 def get_user_options():
