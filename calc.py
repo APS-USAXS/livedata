@@ -168,6 +168,34 @@ def reduce_uascan(sds):
     return usaxs
 
 
+def iso8601_datetime():
+    '''return current date & time as modified ISO8601=compliant string'''
+    t = datetime.datetime.now()
+    # standard ISO8601 uses 'T', blank space instead is now allowed
+    s = str(t).split('.')[0]
+    return s
+
+
+def bin_xref(x, bins):
+    '''
+    Return an array of arrays.  
+    Outer array is in bins, inner array contains indices of x in each bin,
+    
+    :param ndarray x: values to be mapped
+    :param ndarray bins: new bin boundaries
+    '''
+    indices = numpy.digitize(x, bins)
+    xref_dict = {}
+    for i, v in enumerate(indices):
+        if 0 < v < len(bins):
+            if str(v) not in xref_dict:
+                xref_dict[str(v)] = []
+            xref_dict[str(v)].append(i)
+    key_list = map(int, xref_dict.keys())
+    xref = [xref_dict[str(key)] for key in sorted(key_list)]
+    return numpy.array(xref)
+
+
 def developer_main():
     path = os.path.dirname(__file__)
     hdf5FileName = os.path.abspath(os.path.join(path, TEST_FILE_FLYSCAN))
