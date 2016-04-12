@@ -57,3 +57,12 @@ for hdf5_file in testfiles:
         plot_mpl.livedata_plot([ds_full, ds_250], 
                                plotfile, 
                                'test: ' + os.path.basename(hdf5_file))
+
+
+########### SVN repository information ###################
+# $Date$
+# $Author$
+# $Revision$
+# $URL$
+# $Id$
+########### SVN repository information ###################
