@@ -31,7 +31,7 @@ from radialprofile import azimuthalAverage
 # [x] write results back to original HDF5 file
 # [x] integrate with routine data reduction code
 # [x] plot on livedata page
-# [ ] resolve problem with h5py, cannot append reduced data to existing file
+# [x] resolve problem with h5py, cannot append reduced data to existing file
 
 
 DEFAULT_BIN_COUNT   = localConfig.REDUCED_AD_IMAGE_BINS
@@ -280,6 +280,10 @@ class AD_ScatteringImage(object):
             # with IOError that is improperly caught on next and then:
             # fid = h5f.create(name, h5f.ACC_EXCL, fapl=fapl, fcpl=fcpl) fails with IOError
             # since the second call has "name" with all lower case
+            #
+            # real problem is that these HDF5 files have the wrong uid/gid, as set by the Pilatus computer
+            # TODO: fix each Pilatus and this problem will go away
+            # TODO: change uid/gid on all the acquired HDF5 files (*.h5, *.hdf) under usaxscontrol:/share1/USAXS_data/2*
             pvwatch.logMessage( "Problem writing reduced data back to file: " + hfile )
             return
         if 'default' not in hdf.attrs:
