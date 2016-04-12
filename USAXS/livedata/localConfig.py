@@ -40,7 +40,7 @@ LOCAL_PLOTFILE = "livedata" + os.extsep + PLOT_FORMAT
 # pvwatch.py
 SOURCECODE_BASE = os.path.join(HOME_DIR, "Documents/eclipse/USAXS/livedata")
 LOG_INTERVAL_S = 60*5
-NUM_SCANS_PLOTTED = 5
+NUM_SCANS_PLOTTED = 9
 REPORT_INTERVAL_S = 10
 SLEEP_INTERVAL_S = 0.1
 XML_REPORT_FILE = "report.xml"
