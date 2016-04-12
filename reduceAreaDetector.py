@@ -26,9 +26,10 @@ from radialprofile import azimuthalAverage
 # [x] integrate canned routine into reduction code
 # [x] create developer code to test reduction code
 # [x] write results to temporary HDF5 file
-# [ ] resolve problem with wrong-looking std dev calc
-# [ ] write results back to original HDF5 file
+# [~] resolve problem with wrong-looking std dev calc
+# [ ] construct and apply image mask
 # [ ] refactor developer code for regular use
+# [ ] write results back to original HDF5 file
 # [ ] integrate with routine data reduction code
 # [ ] plot on livedata page
 
@@ -44,6 +45,7 @@ AD_HDF5_PINSAXS_MAP = {
     'image'                 : '/entry/data/data',
     'wavelength'            : '/entry/EPICS_PV_metadata/wavelength',
     'SDD'                   : '/entry/EPICS_PV_metadata/SDD',
+    'SAXS_or_WAXS'          : 'SAXS',
     # image is transposed, consider that here
     'y_image_center_pixels' : '/entry/EPICS_PV_metadata/pin_ccd_center_x_pixel',
     'x_image_center_pixels' : '/entry/EPICS_PV_metadata/pin_ccd_center_y_pixel',
@@ -59,6 +61,7 @@ AD_HDF5_WAXS_MAP = {
     'image'                 : '/entry/data/data',
     'wavelength'            : '/entry/EPICS_PV_metadata/dcm_wavelength',
     'SDD'                   : '/entry/EPICS_PV_metadata/SDD',
+    'SAXS_or_WAXS'          : 'WAXS',
     # image is transposed, consider that here
     'y_image_center_pixels' : '/entry/EPICS_PV_metadata/waxs_ccd_center_x_pixel',
     'x_image_center_pixels' : '/entry/EPICS_PV_metadata/waxs_ccd_center_y_pixel',
@@ -79,7 +82,17 @@ class Reduce(object):
         if not os.path.exists(hdf5_file_name):
             raise IOError, 'file not found: ' + hdf5_file_name
         self.hdf5_file_name = hdf5_file_name
-        self.hdf5_map = AD_HDF5_PINSAXS_MAP
+        self.image = None
+        
+    def read_image_data(self):
+        '''
+        read image data from the HDF5 file, return as instance of :class:`Image`
+        '''
+        fp = h5py.File(self.hdf5_file_name)
+        self.image = Image(fp)
+        self.image.read_image_data()
+        fp.close()
+        return self.image
         
     def read_reduced(self):
         '''
@@ -91,7 +104,9 @@ class Reduce(object):
           '5000': dict(Q, R, dR)
         }
         '''
-        pass    # TODO: re-implement
+        if self.image is None:      # TODO: make this conditional on need to reduce image data
+            self.read_image_data()
+        developer(self.image)   # TODO: not for production use
 
 
 def get_user_options():
@@ -148,20 +163,12 @@ def command_line_interface():
     s_num_bins = str(cmd_args.num_bins)
 
     needs_calc = {}
-    pvwatch.logMessage( "Reading Area Detector data file: " + cmd_args.hdf5_file )
-    scan = Reduce(cmd_args.hdf5_file)
-    
-    # 2015-06-08,prj: no need for archives now
-    #if cmd_args.no_archive:
-    #    print '  skipping check for archived original file'
-    #else:
-    #    afile = scan.make_archive()
-    #    if afile is not None:
-    #        print '  archived original file to ' + afile
+    pvwatch.logMessage( "Area Detector data file: " + cmd_args.hdf5_file )
+    scan = Reduce(cmd_args.hdf5_file)   # initialize the object
 
     pvwatch.logMessage( '  checking for previously-saved R(Q)' )
     scan.read_reduced()
-    needs_calc['full'] = not scan.has_reduced('full')
+    needs_calc['full'] = not scan.has_reduced('full')   # TODO: needs method scan.has_reduced()
     if cmd_args.recompute_full:
         needs_calc['full'] = True
     needs_calc[s_num_bins] = not scan.has_reduced(s_num_bins)
@@ -188,23 +195,28 @@ class Image(object):
     def __init__(self, fp):
         self.fp = fp
 
-        self.filename    = None
-        self.image       = None
-        self.wavelength  = None
-        self.SDD         = None
-        self.x0          = None
-        self.y0          = None
-        self.xsize       = None
-        self.ysize       = None
-        self.I0          = None
-        self.I0_gain     = None
+        self.filename       = None
+        self.image          = None
+        self.wavelength     = None
+        self.SDD            = None
+        self.x0             = None
+        self.y0             = None
+        self.xsize          = None
+        self.ysize          = None
+        self.I0             = None
+        self.I0_gain        = None
+        self.hdf5_addr_map  = None
     
-    def get_data(self):
+    def read_image_data(self):
+        '''
+        get the image from the HDF5 file
+        
+        determine if SAXS or WAXS based on detector name as coded into the hdf5_map
+        '''
         for hdf5_map in (AD_HDF5_PINSAXS_MAP, AD_HDF5_WAXS_MAP):
             detector_name = self.fp.get(hdf5_map['local_name'], None)[0]
-            if detector_name is None:
-                continue
             if detector_name == hdf5_map['local_name_match']:
+                self.hdf5_addr_map = hdf5_map
                 self.filename    = self.fp.filename
                 self.image       = numpy.array(self.fp[hdf5_map['image']])
                 self.wavelength  = self.fp[hdf5_map['wavelength']][0]
@@ -215,16 +227,17 @@ class Image(object):
                 self.ysize       = self.fp[hdf5_map['y_pixel_size_mm']][0]
                 self.I0          = self.fp[hdf5_map['I0_counts']][0]
                 self.I0_gain     = self.fp[hdf5_map['I0_gain']][0]
-                # scale each image by metadata I0_cts_gated and I0_gain
+                # later, scale each image by metadata I0_cts_gated and I0_gain
+                # TODO: get image mask specifications
                 return
             
 
-def developer(testfile):
-    # get data from the file
-    fp = h5py.File(testfile)
-    hdf5 = Image(fp)
-    hdf5.get_data()
-    fp.close()
+def developer(hdf5, output_filename=None):
+    '''
+    data reduction: development version
+    
+    :param obj hdf5: instance of :class:`Image`
+    '''
     if hdf5 is None:
         return
     if abs(hdf5.xsize - hdf5.ysize) > PIXEL_SIZE_TOLERANCE:
@@ -236,25 +249,25 @@ def developer(testfile):
         radii, rAvg = azimuthalAverage(hdf5.image, 
                                        center=(hdf5.x0, hdf5.y0), 
                                        returnradii=True)
-    with numpy.errstate(invalid='ignore'):
-        with warnings.catch_warnings():
-            # sift out this RuntimeWarning warning from numpy
-            warnings.filterwarnings('ignore', r'Degrees of freedom <= 0 for slice')
-            rAvgDev = azimuthalAverage(hdf5.image, 
-                                           center=(hdf5.x0, hdf5.y0), 
-                                           stddev=True)
+    # with numpy.errstate(invalid='ignore'):
+    #     with warnings.catch_warnings():
+    #         # sift out this RuntimeWarning warning from numpy
+    #         warnings.filterwarnings('ignore', r'Degrees of freedom <= 0 for slice')
+    #         rAvgDev = azimuthalAverage(hdf5.image, 
+    #                                        center=(hdf5.x0, hdf5.y0), 
+    #                                        stddev=True)
 
     radii *= hdf5.xsize
     Q = (4*math.pi / hdf5.wavelength) * numpy.sin(0.5*numpy.arctan2(radii, hdf5.SDD))
     scale_factor = hdf5.I0_gain / hdf5.I0     # TODO: verify the equation
     rAvg = rAvg * scale_factor
-    rAvgDev = rAvgDev * scale_factor
-
-    # TODO: Find out why rAvgDev > rAvg
+    # rAvgDev = rAvgDev * scale_factor        # TODO: Find out why rAvgDev > rAvg
     # TODO: remove NaNs from output data
     
-    path = os.path.dirname(testfile)
-    fp = eznx.makeFile(os.path.join(path, 'testfile.hdf5'), default='entry')
+    if output_filename is None:
+        path = os.path.dirname(hdf5.filename)
+        output_filename = os.path.join(path, 'testfile.hdf5')
+    fp = eznx.makeFile(output_filename, default='entry')
 
     nxentry = eznx.makeGroup(fp, 'entry', 'NXentry', default='reduced_full')
     eznx.makeDataset(nxentry, 'title', hdf5.filename)
@@ -268,26 +281,14 @@ def developer(testfile):
                           long_name='|Q|, 1/A')
     eznx.makeDataset(nxdata, 'R', rAvg, units='counts',
                           long_name='radially-averaged data')
-    eznx.makeDataset(nxdata, 'Rdev', rAvgDev, units='counts',
-                          long_name='standard deviation of radially-averaged data')
+    # eznx.makeDataset(nxdata, 'Rdev', rAvgDev, units='counts',
+    #                       long_name='standard deviation of radially-averaged data')
     fp.close()
 
 
 if __name__ == '__main__':
     #command_line_interface()
-    
-    path = os.environ.get('HOMEPATH', None)
-    if path is None:
-        testfiles = None     # not on Pete's windows laptop
-    else:
-        path = os.path.join(path, 'Desktop', 'USAXS-data', )
-        testfiles = [
-                     os.path.join(path, '02_27_AlCe_saxs', 'A_AlCe_3433.hdf'), 
-                     os.path.join(path, '02_27_AlCe_waxs', 'A_AlCe_2849.hdf'), 
-                    ]
-
-    for tf in testfiles:
-        developer(tf)
+    pass    # TODO: remove for production use
 
 
 ########### SVN repository information ###################

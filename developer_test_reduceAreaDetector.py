@@ -20,6 +20,7 @@ path = os.path.abspath(os.path.dirname(__file__))
 path = os.path.join(path, 'testdata')
 
 testfiles = []
+path = os.path.join(path, '2016-02-27')
 testfiles.append(os.path.join(path, '02_27_AlCe_saxs', 'A_AlCe_3433.hdf'))
 testfiles.append(os.path.join(path, '02_27_AlCe_waxs', 'A_AlCe_2849.hdf'))
 
@@ -29,7 +30,7 @@ for hdf5_file in testfiles:
     sys.argv = list(argv)
     sys.argv.append( hdf5_file )
     path = os.path.dirname(hdf5_file)
-    scan = reduceFlyData.command_line_interface()
+    scan = reduceAreaDetector.command_line_interface()
 
     plotfile = os.path.join(path, 'test_reduceAreaDetector_I__' + os.path.basename(hdf5_file) + '_.png')
     
