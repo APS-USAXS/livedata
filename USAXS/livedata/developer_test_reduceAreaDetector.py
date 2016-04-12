@@ -12,6 +12,7 @@ import pvwatch
 # sys.argv = [sys.argv[0],]
 #sys.argv.append( '-h' )
 #sys.argv.append( '-V' )
+#sys.argv.append( '-n 250' )
 sys.argv.append( '--recompute-full' )
 sys.argv.append( '--recompute-rebinned' )
 
@@ -32,7 +33,7 @@ for hdf5_file in testfiles:
     path = os.path.dirname(hdf5_file)
     scan = reduceAreaDetector.command_line_interface()
 
-    plotfile = os.path.join(path, 'test_reduceAreaDetector_I__' + os.path.basename(hdf5_file) + '_.png')
+    plotfile = os.path.join(path, 'test_specplot__' + os.path.basename(hdf5_file) + '_.png')
     
     if True:
         plot_mpl.spec_plot(scan.reduced['full']['Q'], scan.reduced['full']['R'], 
@@ -41,7 +42,7 @@ for hdf5_file in testfiles:
                            ylog=True,
                            )
 
-    plotfile = os.path.join(path, 'test_reduceAreaDetector_II_' + os.path.basename(hdf5_file) + '_.png')
+    plotfile = os.path.join(path, 'test_usaxsplot_' + os.path.basename(hdf5_file) + '_.png')
     if True:
         ds_full = plot_mpl.Plottable_USAXS_Dataset()
         ds_full.label = 'full data'
