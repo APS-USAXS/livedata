@@ -11,6 +11,7 @@ import os
 import calc
 import localConfig
 import plot_mpl
+import reduceAreaDetector
 import reduceFlyData
 import wwwServerTransfers
 import xmlSupport
@@ -149,19 +150,19 @@ class Scan(object):
         return self.spec_scan
 
     def getData(self):
-        if self.scan_type in ('uascan', 'sbuascan'):
+        if self.scan_type in ('uascan', 'sbuascan', 'FlyScan', 'pinSAXS', 'WAXS',):
             if self.spec_scan is None:
                 self.spec_scan = self.getSpecScan()
             # TODO: reduce the USAXS raw data
-        elif self.scan_type in ('FlyScan'):
-            if self.spec_scan is None:
-                self.spec_scan = self.getSpecScan()
-            # TODO: reduce
-            pass
-        elif self.scan_type in ('pinSAXS'):
-            pass
-        elif self.scan_type in ('WAXS'):
-            pass
+#         elif self.scan_type in ('FlyScan'):
+#             if self.spec_scan is None:
+#                 self.spec_scan = self.getSpecScan()
+#             # TODO: reduce
+#             pass
+#         elif self.scan_type in ('pinSAXS'):
+#             pass
+#         elif self.scan_type in ('WAXS'):
+#             pass
         else:
             pass
 
@@ -191,7 +192,7 @@ def plottable_scan(scan_node):
                 )
                 scan.getData()
 
-    elif scan_node.attrib['type'] in ('FlyScan', ):
+    elif scan_node.attrib['type'] in ('FlyScan',):
         if scan_node.attrib['state'] in ('complete', ):
             specfiledir = os.path.dirname(filename)
             scan = Scan()
@@ -218,6 +219,32 @@ def plottable_scan(scan_node):
                     else:
                         scan = None     # bail out, no HDF5 file found
                     break
+
+    elif scan_node.attrib['type'] in ('pinSAXS', 'WAXS',):
+        if scan_node.attrib['state'] in ('complete', ):
+            specfiledir = os.path.dirname(filename)
+            scan = Scan()
+            scan.setFileParms(
+                scan_node.find('title').text.strip(),
+                filename,
+                scan_node.attrib['type'],
+                scan_node.attrib['number'],
+                scan_node.attrib['id'],
+            )
+            scan.getData()
+            
+            # get the HDF5 file name from the SPEC file (no search needed)
+            spec = spec_file_cache.get(filename)
+            spec_scan = spec.getScan(str(scan_node.attrib['number']))
+
+            hdf5_file = spec_scan.scanCmd.split()[1]
+            hdf5_file = os.path.abspath(os.path.join(specfiledir, hdf5_file))
+            if os.path.exists(hdf5_file):
+                # actual data file
+                scan_node.data_file = hdf5_file
+                ok = True
+            else:
+                scan = None     # bail out, no HDF5 file found
 
     if scan is not None:
         scan_cache.add(scan)
@@ -267,10 +294,40 @@ def get_USAXS_FlyScan_Data(scan_obj):
     except reduceFlyData.NoFlyScanData, _exc:
         print str(_exc)
         return None     # HDF5 file exists but length of raw data is zero
-    title = os.path.split(hdf5File)[-1] + '(fly)'
+    
+    fname =  os.path.split(hdf5File)[-1]
+    fname =  os.path.splitext(fname)[0]
+    pos = fname.find('_')
+    if pos >= 0:
+        fname = fname[pos+1:]
+    title = 'S%s %s (%s)' % (str(scan.scanNum), fname, 'fly')
     rebinned = fly.reduced[str(localConfig.REDUCED_FLY_SCAN_BINS)]
     entry = dict(qVec=rebinned['Q'], rVec=rebinned['R'], title=title)
     return entry
+
+
+def get_AreaDetector_Data(scan_obj):
+    scan = scan_obj.spec_scan
+    scanMacro, hdf5File = scan.scanCmd.strip().split()[0:2]
+    path = os.path.dirname(scan.header.parent.fileName)
+    hdf5File = os.path.abspath(os.path.join(path, hdf5File))
+    bins = dict(pinSAXS=250, WAXS=800)[scanMacro]
+    filename = os.path.split(hdf5File)[-1]
+    filename = os.path.splitext(filename)[0]
+
+    ad = reduceAreaDetector.reduce_area_detector_data(hdf5File,  bins)
+    title = 'S%s %s (%s)' % (str(scan.scanNum), filename, scanMacro)
+    rebinned = ad.reduced[str(bins)]
+    entry = dict(qVec=rebinned['Q'], rVec=rebinned['R'], title=title)
+    return entry
+
+
+def get_USAXS_uascan_ScanData(scan, ar_center=None):
+    usaxs = calc.reduce_uascan(scan.spec_scan)
+    usaxs['qVec'] = usaxs.pop('Q')
+    usaxs['rVec'] = usaxs.pop('R')
+    usaxs['title'] = 'S' + str(scan.scan_number) + ' ' + scan.spec_scan.comments[0]
+    return usaxs
 
 
 def format_as_mpl_data_one(scan):
@@ -295,18 +352,13 @@ def format_as_mpl_data_one(scan):
         return mpl_ds
 
 
-def get_USAXS_uascan_ScanData(scan, ar_center=None):
-    usaxs = calc.reduce_uascan(scan.spec_scan)
-    usaxs['qVec'] = usaxs.pop('Q')
-    usaxs['rVec'] = usaxs.pop('R')
-    usaxs['title'] = 'S' + str(scan.scan_number) + ' ' + scan.spec_scan.comments[0]
-    return usaxs
-
-
 def get_USAXS_data(cache):
     getscandata = dict(uascan=get_USAXS_uascan_ScanData, 
                        sbuascan=get_USAXS_uascan_ScanData, 
-                       FlyScan=get_USAXS_FlyScan_Data)
+                       FlyScan=get_USAXS_FlyScan_Data,
+                       pinSAXS=get_AreaDetector_Data,
+                       WAXS=get_AreaDetector_Data,
+                       )
     mpl_datasets = []
     for key in sorted(cache.get_keys()):
         scan_obj = cache.get(key)
