@@ -83,6 +83,7 @@ class Reduce(object):
             raise IOError, 'file not found: ' + hdf5_file_name
         self.hdf5_file_name = hdf5_file_name
         self.image = None
+        self.reduced = {}
         
     def read_image_data(self):
         '''
@@ -93,6 +94,17 @@ class Reduce(object):
         self.image.read_image_data()
         fp.close()
         return self.image
+        
+    def has_reduced(self, key = 'full'):
+        '''
+        check if the reduced dataset is available
+        
+        :param str|int key: name of reduced dataset (default = 'full')
+        '''
+        key = str(key)
+        if key not in self.reduced:
+            return False
+        return 'Q' in self.reduced[key] and 'R' in self.reduced[key]
         
     def read_reduced(self):
         '''
@@ -106,7 +118,8 @@ class Reduce(object):
         '''
         if self.image is None:      # TODO: make this conditional on need to reduce image data
             self.read_image_data()
-        developer(self.image)   # TODO: not for production use
+
+        developer(self.image)   # TODO: refactor this into "full" data reduction
 
 
 def get_user_options():
@@ -232,7 +245,7 @@ class Image(object):
                 return
             
 
-def developer(hdf5, output_filename=None):
+def developer(hdf5, output_filename=None):  # TODO: refactor this into "full" data reduction
     '''
     data reduction: development version
     
@@ -267,6 +280,7 @@ def developer(hdf5, output_filename=None):
     if output_filename is None:
         path = os.path.dirname(hdf5.filename)
         output_filename = os.path.join(path, 'testfile.hdf5')
+
     fp = eznx.makeFile(output_filename, default='entry')
 
     nxentry = eznx.makeGroup(fp, 'entry', 'NXentry', default='reduced_full')
