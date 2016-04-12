@@ -120,7 +120,7 @@ def get_user_options():
     parser.add_argument('-V', 
                         '--version', 
                         action='version', 
-                        version='$Id: reduceFlyData.py 1317 2016-02-11 05:05:21Z jemian $')
+                        version='$Id$')
 
     parser.add_argument('--recompute-full',
                         dest='recompute_full',
@@ -291,10 +291,10 @@ if __name__ == '__main__':
 
 
 ########### SVN repository information ###################
-# $Date: 2016-02-10 23:05:21 -0600 (Wed, 10 Feb 2016) $
-# $Author: jemian $
-# $Revision: 1317 $
-# $URL: https://subversion.xray.aps.anl.gov/small_angle/USAXS/livedata/reduceFlyData.py $
-# $Id: reduceFlyData.py 1317 2016-02-11 05:05:21Z jemian $
+# $Date$
+# $Author$
+# $Revision$
+# $URL$
+# $Id$
 ########### SVN repository information ###################
 
