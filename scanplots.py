@@ -295,8 +295,8 @@ def get_USAXS_FlyScan_Data(scan_obj):
         print str(_exc)
         return None     # HDF5 file exists but length of raw data is zero
     
-    fname =  os.path.split(hdf5File)[-1]
-    fname =  os.path.splitext(fname)[0]
+    fname = os.path.split(hdf5File)[-1]
+    fname = os.path.splitext(fname)[0]
     pos = fname.find('_')
     if pos >= 0:
         fname = fname[pos+1:]
