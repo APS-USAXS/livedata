@@ -29,8 +29,9 @@ from radialprofile import azimuthalAverage
 # [ ] construct and apply image mask
 # [x] refactor developer code for regular use
 # [x] write results back to original HDF5 file
-# [ ] integrate with routine data reduction code
-# [ ] plot on livedata page
+# [x] integrate with routine data reduction code
+# [x] plot on livedata page
+# [ ] resolve problem with h5py, cannot append reduced data to existing file
 
 
 DEFAULT_BIN_COUNT   = localConfig.REDUCED_AD_IMAGE_BINS
@@ -140,7 +141,8 @@ class AD_ScatteringImage(object):
     
         radii *= self.image.xsize
         Q = (4*math.pi / self.image.wavelength) * numpy.sin(0.5*numpy.arctan2(radii, self.image.SDD))
-        scale_factor = self.image.I0_gain / self.image.I0     # TODO: verify the equation
+        # scale_factor = 1 /self.image.I0_gain / self.image.I0     # TODO: verify the equation
+        scale_factor = 1 / self.image.I0     # TODO: verify the equation
         rAvg = rAvg * scale_factor
 
         # remove NaNs and non-positives from output data
@@ -270,7 +272,16 @@ class AD_ScatteringImage(object):
         nxname = 'areaDetector_reduced_' + key
         hfile = hfile or self.hdf5_file_name
         ds = self.reduced[key]
-        hdf = h5py.File(hfile, 'a')
+        try:
+            hdf = h5py.File(hfile, 'a')
+        except IOError, _exc:
+            # FIXME: some h5py problem in <h5py>/_hl/files.py, line 101
+            # this fails: fid = h5f.open(name, h5f.ACC_RDWR, fapl=fapl)
+            # with IOError that is improperly caught on next and then:
+            # fid = h5f.create(name, h5f.ACC_EXCL, fapl=fapl, fcpl=fcpl) fails with IOError
+            # since the second call has "name" with all lower case
+            pvwatch.logMessage( "Problem writing reduced data back to file: " + hfile )
+            return
         if 'default' not in hdf.attrs:
             hdf.attrs['default'] = 'entry'
         nxentry = eznx.openGroup(hdf, 'entry', 'NXentry')
