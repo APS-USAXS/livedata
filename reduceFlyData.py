@@ -2,7 +2,6 @@
 
 '''reduceFlyScanData: reduce the raw data from USAXS Fly Scans to R(Q)'''
 
-import datetime             #@UnusedImport
 import h5py                 #@UnusedImport
 import math                 #@UnusedImport
 import numpy                #@UnusedImport
@@ -342,7 +341,7 @@ class UsaxsFlyScan(object):
         # compute bin edges from ustep
         Q_bins = numpy.array(ustep.ustep(Qmin, 0.0, Qmax, bin_count+1, self.uaterm, minStep).series)
         qVec, rVec, drVec = [], [], []
-        for xref in bin_xref(Q_full, Q_bins):
+        for xref in calc.bin_xref(Q_full, Q_bins):
             if len(xref) > 0:
                 q = Q_full[xref]
                 r = R_full[xref]
@@ -446,7 +445,7 @@ class UsaxsFlyScan(object):
                                 signal='R',
                                 axes='Q',
                                 Q_indices=0,
-                                timestamp=self.iso8601_datetime(),
+                                timestamp=calc.iso8601_datetime(),
                                 )
         for key in sorted(ds.keys()):
             try:
@@ -731,13 +730,6 @@ class UsaxsFlyScan(object):
             os.chmod(archive_file, mode)           # make archive_file read-only to all
             result = archive_file
         return result
-    
-    def iso8601_datetime(self):
-        '''return current date & time as modified ISO8601=compliant string'''
-        t = datetime.datetime.now()
-        # standard ISO8601 uses 'T', blank space instead is now allowed
-        s = str(t).split('.')[0]
-        return s
 
         
 def get_channels_from_signals_and_ranges(signal, ranges):
@@ -745,26 +737,6 @@ def get_channels_from_signals_and_ranges(signal, ranges):
     channels = numpy.array([0,] + signal)[ranges.data+1]
     channels = numpy.ma.masked_less_equal(channels, 0)
     return channels
-
-
-def bin_xref(x, bins):
-    '''
-    Return an array of arrays.  
-    Outer array is in bins, inner array contains indices of x in each bin,
-    
-    :param ndarray x: values to be mapped
-    :param ndarray bins: new bin boundaries
-    '''
-    indices = numpy.digitize(x, bins)
-    xref_dict = {}
-    for i, v in enumerate(indices):
-        if 0 < v < len(bins):
-            if str(v) not in xref_dict:
-                xref_dict[str(v)] = []
-            xref_dict[str(v)].append(i)
-    key_list = map(int, xref_dict.keys())
-    xref = [xref_dict[str(key)] for key in sorted(key_list)]
-    return numpy.array(xref)
 
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
