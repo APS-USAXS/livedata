@@ -194,6 +194,7 @@
   <EPICS_PV PV="9idcLAX:vsc:c0.S4" description="scaler diode, counts" display_format="%d" mne="scaler_diode"/>
   <EPICS_PV PV="9idcLAX:vsc:c0.T" description="scaler counting time elasped, s" display_format="%.3f" mne="scaler_t"/>
   <EPICS_PV PV="9idcLAX:vsc:c0.TP" description="scaler counting time preset, s" display_format="%.3f" mne="scaler_tp"/>
+  <EPICS_PV PV="9idcLAX:vsc:c2.S2" description="scaler I000, counts" display_format="%d" mne="scaler_I000"/>
 
   <EPICS_PV PV="9idcUSX:alldone" description="USAXS eBrick motors moving" mne="usx_alldone"/>
   <EPICS_PV PV="9idcUSX:ath01:ana01:ai01.VAL" description="pzt A2Rp, VDC, readback" display_format="%.4f" mne="A2Rp_rbv"/>
@@ -206,6 +207,7 @@
   <EPICS_PV PV="9idcUSX:fem01:seq01:gain" description="PD amplifier gain V/A" display_format="%.2e" mne="diode_amp_gain"/>
   <EPICS_PV PV="9idcUSX:fem02:seq01:gain" description="I0 amplifier gain V/A" display_format="%.2e" mne="I0_amp_gain"/>
   <EPICS_PV PV="9idcUSX:fem03:seq01:gain" description="I00 amplifier gain, V/A" display_format="%.2e" mne="I00_amp_gain"/>
+  <EPICS_PV PV="9idcUSX:fem04:seq01:gain" description="I000 amplifier gain, V/A" display_format="%.2e" mne="I000_amp_gain"/>
   <EPICS_PV PV="9idcUSX:pd01:seq02:gain" description="PD amplifier diode gain, V/A" display_format="%.2e" mne="diode_amp_gain"/>
   <EPICS_PV PV="9idcUSX:pd01:seq02:lucurrent" description="photodiode last-update current, A" display_format="%.3e" mne="diode_current"/>
   <EPICS_PV PV="9idcUSX:pd01:seq02:lurate" description="diode count rate (at last update), c/s" mne="diode_count_rate"/>
