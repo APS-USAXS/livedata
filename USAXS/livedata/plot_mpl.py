@@ -13,7 +13,7 @@ BISQUE_RGB    = (255./255, 228./255, 196./255)  # 255 228 196 bisque
 MINTCREAM_RGB = (245./255, 255./255, 250./255)  # 245 255 250 MintCream
 
 SYMBOL_LIST = ("^", "D", "s", "v", "d", "<", ">")
-COLOR_LIST = "orange lime green blue purple violet chocolate gray black".split() # red is NOT in the list
+COLOR_LIST = "orange yellow lime green blue purple violet chocolate gray black".split() # red is NOT in the list
 
 CHART_FILE = 'livedata.png'
 
