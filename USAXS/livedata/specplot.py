@@ -120,7 +120,7 @@ def mpl__process_plotData(scan, plotData, plotFile):
         ylog = True
         xtitle = scan.column_first
         ytitle = scan.column_last
-    elif scan_macro in ('FlyScan', ):
+    elif scan_macro in ('FlyScan', 'sbFlyScan', ):
         xlog = True
         ylog = True
         xtitle = r'$|\vec{Q}|, 1/\AA$'
