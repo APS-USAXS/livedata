@@ -10,6 +10,7 @@
 import datetime
 import logging
 import os
+os.environ['HDF5_DISABLE_VERSION_CHECK'] = '2'
 import sys
 import time
 import shutil

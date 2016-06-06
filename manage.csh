@@ -17,6 +17,7 @@ setenv PYTHON		 /APSshare/anaconda/x86_64/bin/python
 setenv CAGET		 /APSshare/epics/extensions-base/3.14.12.3-ext1/bin/linux-x86_64/caget
 setenv PVWATCH_PHASE_PV  9idcLAX:long18
 setenv LOOP_COUNTER_PV   9idcLAX:long20
+setenv HDF5_DISABLE_VERSION_CHECK 2
 
 # a little bit of protection here ...
 setenv HOSTNAME `/bin/hostname`

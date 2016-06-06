@@ -150,7 +150,7 @@ class Scan(object):
         return self.spec_scan
 
     def getData(self):
-        if self.scan_type in ('uascan', 'sbuascan', 'FlyScan', 'pinSAXS', 'WAXS',):
+        if self.scan_type in ('uascan', 'sbuascan', 'FlyScan', 'sbFlyScan', 'pinSAXS', 'WAXS',):
             if self.spec_scan is None:
                 self.spec_scan = self.getSpecScan()
             # TODO: reduce the USAXS raw data
@@ -192,7 +192,7 @@ def plottable_scan(scan_node):
                 )
                 scan.getData()
 
-    elif scan_node.attrib['type'] in ('FlyScan',):
+    elif scan_node.attrib['type'] in ('FlyScan', 'sbFlyScan',):
         if scan_node.attrib['state'] in ('complete', ):
             specfiledir = os.path.dirname(filename)
             scan = Scan()
@@ -297,9 +297,10 @@ def get_USAXS_FlyScan_Data(scan_obj):
     
     fname = os.path.split(hdf5File)[-1]
     fname = os.path.splitext(fname)[0]
-    pos = fname.find('_')
-    if pos >= 0:
-        fname = fname[pos+1:]
+    # 2016-06-06, prj: truncates too much info from name now?
+    #pos = fname.find('_')
+    #if pos >= 0:
+    #    fname = fname[pos+1:]
     title = 'S%s %s (%s)' % (str(scan.scanNum), fname, 'fly')
     rebinned = fly.reduced[str(localConfig.REDUCED_FLY_SCAN_BINS)]
     entry = dict(qVec=rebinned['Q'], rVec=rebinned['R'], title=title)

@@ -20,6 +20,7 @@ PROGRAM=$CODE_DIR/specplotsAllScans.py
 LOGFILE=/share1/local_livedata/specplots/specplots.log
 #PYTHON=/APSshare/epd/rh6-x86_64/bin/python
 PYTHON=/APSshare/anaconda/x86_64/bin/python
+HDF5_DISABLE_VERSION_CHECK=2
 
 #
 # change the SPEC_DATA_PATTERN periodically to reduce the search time
