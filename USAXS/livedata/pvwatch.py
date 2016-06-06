@@ -13,6 +13,8 @@ Start this with the shell command::
 import datetime         # date/time stamps
 import epics            # manages EPICS (PyEpics) connections for Python 2.6+
 import numpy
+import os
+os.environ['HDF5_DISABLE_VERSION_CHECK'] = '2'
 import os.path          # testing if a file exists
 import shutil           # file copies
 import sys              # for flushing log output

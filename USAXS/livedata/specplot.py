@@ -88,13 +88,10 @@ def makeScanImage(scan, plotFile):
     if scanCmd == 'USAXSImaging':
         # make simple image file of the data
         process_NexusImageData(scan, plotFile, log_image=False)
-    elif scanCmd == 'pinSAXS':
+    elif scanCmd in ('pinSAXS', 'WAXS'):
         # make simple image file of the data
         process_NexusImageData(scan, plotFile)
-    elif scanCmd == 'WAXS':
-        # make simple image file of the data
-        process_NexusImageData(scan, plotFile)
-    elif scanCmd == 'FlyScan':
+    elif scanCmd in ('FlyScan', 'sbFlyScan'):
         plotData = retrieve_flyScanData(scan)
         if len(plotData) > 0:
             mpl__process_plotData(scan, plotData, plotFile)
