@@ -8,6 +8,8 @@ specFile = '/share1/old_USAXS_data/2014-08/08_15_Tomography.dat'
 scan_number = 21
 specFile = '/share1/USAXS_data/2015-01/02_07_Testing.dat'
 scan_number = 86
+specFile = '/share1/USAXS_data/2016-06/06_07_ROss.dat'
+scan_number = 81
 plotFile = "/tmp/specplot.png"
 
 sys.argv.append(specFile)
