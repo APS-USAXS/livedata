@@ -357,6 +357,7 @@ def get_USAXS_data(cache):
     getscandata = dict(uascan=get_USAXS_uascan_ScanData, 
                        sbuascan=get_USAXS_uascan_ScanData, 
                        FlyScan=get_USAXS_FlyScan_Data,
+                       sbFlyScan=get_USAXS_FlyScan_Data,
                        pinSAXS=get_AreaDetector_Data,
                        WAXS=get_AreaDetector_Data,
                        )
