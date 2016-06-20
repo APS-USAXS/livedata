@@ -83,8 +83,8 @@
   <EPICS_PV PV="9idcLAX:m58:c0:m4.RBV" description="motor M1Y, mm" display_format="%.3f" mne="m1y"/>
   <EPICS_PV PV="9idcLAX:m58:c0:m5.DMOV" description="motor done moving AX" mne="ax_dmov"/>
   <EPICS_PV PV="9idcLAX:m58:c0:m5.RBV" description="motor AX, mm" display_format="%.3f" mne="ax"/>
-  <EPICS_PV PV="9idcLAX:m58:c0:m6.DMOV" description="motor done moving AY" mne="ay_dmov"/>
-  <EPICS_PV PV="9idcLAX:m58:c0:m6.RBV" description="motor AY, mm" display_format="%.3f" mne="ay"/>
+  <EPICS_PV PV="9idcLAX:aero:c1:m1.DMOV" description="motor done moving AY" mne="ay_dmov"/>
+  <EPICS_PV PV="9idcLAX:aero:c1:m1.RBV" description="motor AY, mm" display_format="%.3f" mne="ay"/>
   <EPICS_PV PV="9idcLAX:m58:c0:m7.DMOV" description="motor done moving AZ" mne="az_dmov"/>
   <EPICS_PV PV="9idcLAX:m58:c0:m7.RBV" description="motor AZ, mm" display_format="%.3f" mne="az"/>
   
@@ -107,8 +107,8 @@
   <EPICS_PV PV="9idcLAX:m58:c2:m2.RBV" description="motor SY, mm" display_format="%.3f" mne="sy"/>
   <EPICS_PV PV="9idcLAX:m58:c2:m3.DMOV" description="motor done moving DX" mne="dx_dmov"/>
   <EPICS_PV PV="9idcLAX:m58:c2:m3.RBV" description="motor DX, mm" display_format="%.3f" mne="dx"/>
-  <EPICS_PV PV="9idcLAX:m58:c2:m4.DMOV" description="motor done moving DY" mne="dy_dmov"/>
-  <EPICS_PV PV="9idcLAX:m58:c2:m4.RBV" description="motor DY, mm" display_format="%.3f" mne="dy"/>
+  <EPICS_PV PV="9idcLAX:aero:c2:m1.DMOV" description="motor done moving DY" mne="dy_dmov"/>
+  <EPICS_PV PV="9idcLAX:aero:c2:m1.RBV" description="motor DY, mm" display_format="%.3f" mne="dy"/>
   <EPICS_PV PV="9idcLAX:m58:c2:m5.DMOV" description="motor done moving uslitv0 USAXS slit vertical center" mne="uslitv0_dmov"/>
   <EPICS_PV PV="9idcLAX:m58:c2:m5.RBV" description="motor uslitv0 USAXS slit vertical center, mm" display_format="%.4f" mne="uslitv0"/>
   <EPICS_PV PV="9idcLAX:m58:c2:m6.DMOV" description="motor done moving uslith0 USAXS slit horizontal center" mne="uslith0_dmov"/>
