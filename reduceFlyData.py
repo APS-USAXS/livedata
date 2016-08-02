@@ -278,6 +278,8 @@ class UsaxsFlyScan(object):
 
         hdf.close()
         
+        if len(full['R']) == 0:
+            return
         full['R_max'] = full['R'].max()
         
         self.reduced = dict(full = full)
@@ -333,6 +335,8 @@ class UsaxsFlyScan(object):
         R_full = self.reduced['full']['R']
         
         # lowest non-zero Q value > 0 or minimum acceptable Q
+        if 'full' not in self.reduced or len(self.reduced['full']['Q']) == 0:
+            return
         Qmin = max(Q_MIN, Q_full[numpy.where(Q_full > 0)].min() )
         Qmax = 1.0001 * Q_full.max()
         
@@ -427,6 +431,10 @@ class UsaxsFlyScan(object):
         :see: http://download.nexusformat.org/doc/html/classes/base_classes/NXentry.html
         :see: http://download.nexusformat.org/doc/html/classes/base_classes/NXdata.html
         '''
+        # TODO: save with NXprocess/NXdata structure
+        # TODO: link that NXdata up to NXentry level
+        # TODO: change /NXentry@default to point to best NXdata reduced
+        # TODO: What about NXcanSAS?
         key = str(key)
         if key not in self.reduced:
             return
@@ -822,11 +830,14 @@ def command_line_interface():
     needs_calc[s_num_bins] = not scan.has_reduced(s_num_bins)
     if cmd_args.recompute_rebinned:
         needs_calc[s_num_bins] = True
-    needs_calc['250'] = True    # FIXME: developer only
+    # needs_calc['250'] = True    # FIXME: developer only
 
     if needs_calc['full']:
         pvwatch.logMessage('  reducing FlyScan to R(Q)')
         scan.reduce()
+        if 'full' not in scan.reduced:
+            pvwatch.logMessage( '  no reduced R(Q) when checking for previously-saved ' + output_filename)
+            return
         pvwatch.logMessage( '  saving reduced R(Q) to ' + output_filename)
         scan.save(cmd_args.hdf5_file, 'full')
         needs_calc[s_num_bins] = True

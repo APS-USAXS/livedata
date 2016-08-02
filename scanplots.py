@@ -284,6 +284,8 @@ def get_USAXS_FlyScan_Data(scan_obj):
         #fly.make_archive()
         fly.reduce()        # open the file in this step
         fly.save(hdf5File, 'full')
+	if 'full' not in fly.reduced:
+	    return None
         fly.rebin(localConfig.REDUCED_FLY_SCAN_BINS)
         fly.save(hdf5File, str(localConfig.REDUCED_FLY_SCAN_BINS))
     except IOError:
@@ -302,7 +304,10 @@ def get_USAXS_FlyScan_Data(scan_obj):
     #if pos >= 0:
     #    fname = fname[pos+1:]
     title = 'S%s %s (%s)' % (str(scan.scanNum), fname, 'fly')
-    rebinned = fly.reduced[str(localConfig.REDUCED_FLY_SCAN_BINS)]
+    numbins_str = str(localConfig.REDUCED_FLY_SCAN_BINS)
+    if numbins_str not in fly.reduced:
+        return None
+    rebinned = fly.reduced[numbins_str]
     entry = dict(qVec=rebinned['Q'], rVec=rebinned['R'], title=title)
     return entry
 
