@@ -140,6 +140,40 @@
                     		    </td>
                                 </tr>
                             </table>
+                            <table border="1" width="100%" rules="all" bgcolor="lightblue">
+                                <tr>
+                                    <td>webcams Beamline</td>
+                                    <!--
+ 					Cryo system view
+					http://urania.xray.aps.anl.gov/home/homeS.html
+					Mono system view
+					http://melpomene.xray.aps.anl.gov/home/homeS.html
+					SOE 
+					http://clio.xray.aps.anl.gov/home/homeS.html
+					need java, will run on Safari but not on Firefox on OSX
+                                    -->
+                    		    <td align="center">
+                    		        <a href="http://urania.xray.aps.anl.gov/home/homeS.html">
+                    		            Cryo system
+                    		        </a>
+                    		    </td>
+                    		    <td align="center">
+                    		        <a href="http://melpomene.xray.aps.anl.gov/home/homeS.html">
+                    		            Monochromator
+                    		        </a>
+                    		    </td>
+                    		    <td align="center">
+                    		        <a href="http://clio.xray.aps.anl.gov/home/homeS.html">
+                    		            SOE
+                    		        </a>
+                    		    </td>
+                  		    <td align="center">
+                    		        <a href="tba">
+                    		            TBA
+                    		        </a>
+                    		    </td>
+                                </tr>
+                            </table>
                     	</td>
                     </tr>
                 </table>
