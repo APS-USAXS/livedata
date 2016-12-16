@@ -61,7 +61,13 @@ def livedata_plot(datasets, plotfile, title=None):
         else:
             color = 'red'
             symbol = 'o'
-        pl, = ax.plot(ds.Q, ds.I, symbol, label=ds.label, mfc='w', mec=color, ms=3, mew=1)
+        if ds.label.find('(fly)') >= 0:
+            label = ds.label[:ds.label.find('(fly)')] + '(USAXS)'
+        elif ds.label.find('(pinSAXS)') >= 0:
+            label = ds.label[:ds.label.find('(pinSAXS)')] + '(SAXS)'
+        else:
+            label = ds.label
+        pl, = ax.plot(ds.Q, ds.I, symbol, label=label, mfc='w', mec=color, ms=3, mew=1)
         legend_handlers[pl] = matplotlib.legend_handler.HandlerLine2D(numpoints=1)
 
     ax.legend(loc='lower left', fontsize=9, handler_map=legend_handlers)
