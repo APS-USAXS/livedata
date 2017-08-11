@@ -32,7 +32,8 @@ HDF5_DISABLE_VERSION_CHECK=2
 #SPEC_DATA_PATTERN=/data/USAXS_data/2013-1*/*.dat
 #SPEC_DATA_PATTERN=/data/USAXS_data/2014-*/*.dat
 #SPEC_DATA_PATTERN=/share1/USAXS_data/2015-*/*.dat
-SPEC_DATA_PATTERN=/share1/USAXS_data/2016-*/*.dat
+#SPEC_DATA_PATTERN=/share1/USAXS_data/2016-*/*.dat
+SPEC_DATA_PATTERN=/share1/USAXS_data/2017-*/*.dat
 
 #export PLOTICUS_BASE=/home/beams/USAXS/Documents/ploticus/pl241src
 #export PLOTICUS_PREFABS=$PLOTICUS_BASE/prefabs
