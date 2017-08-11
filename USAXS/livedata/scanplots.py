@@ -150,7 +150,7 @@ class Scan(object):
         return self.spec_scan
 
     def getData(self):
-        if self.scan_type in ('uascan', 'sbuascan', 'FlyScan', 'sbFlyScan', 'pinSAXS', 'WAXS',):
+        if self.scan_type in ('uascan', 'sbuascan', 'FlyScan', 'sbFlyScan', 'pinSAXS', 'SAXS', 'WAXS',):
             if self.spec_scan is None:
                 self.spec_scan = self.getSpecScan()
             # TODO: reduce the USAXS raw data
@@ -159,7 +159,7 @@ class Scan(object):
 #                 self.spec_scan = self.getSpecScan()
 #             # TODO: reduce
 #             pass
-#         elif self.scan_type in ('pinSAXS'):
+#         elif self.scan_type in ('SAXS'):
 #             pass
 #         elif self.scan_type in ('WAXS'):
 #             pass
@@ -220,7 +220,7 @@ def plottable_scan(scan_node):
                         scan = None     # bail out, no HDF5 file found
                     break
 
-    elif scan_node.attrib['type'] in ('pinSAXS', 'WAXS',):
+    elif scan_node.attrib['type'] in ('pinSAXS', 'SAXS', 'WAXS',):
         if scan_node.attrib['state'] in ('complete', ):
             specfiledir = os.path.dirname(filename)
             scan = Scan()
@@ -317,7 +317,7 @@ def get_AreaDetector_Data(scan_obj):
     scanMacro, hdf5File = scan.scanCmd.strip().split()[0:2]
     path = os.path.dirname(scan.header.parent.fileName)
     hdf5File = os.path.abspath(os.path.join(path, hdf5File))
-    bins = dict(pinSAXS=250, WAXS=800)[scanMacro]
+    bins = dict(SAXS=250, WAXS=800)[scanMacro]
     filename = os.path.split(hdf5File)[-1]
     filename = os.path.splitext(filename)[0]
 
@@ -363,7 +363,7 @@ def get_USAXS_data(cache):
                        sbuascan=get_USAXS_uascan_ScanData, 
                        FlyScan=get_USAXS_FlyScan_Data,
                        sbFlyScan=get_USAXS_FlyScan_Data,
-                       pinSAXS=get_AreaDetector_Data,
+                       SAXS=get_AreaDetector_Data,
                        WAXS=get_AreaDetector_Data,
                        )
     mpl_datasets = []
