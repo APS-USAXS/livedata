@@ -160,14 +160,14 @@
   <EPICS_PV PV="9idcUSX:pic:m6.RBV" description="motor M2TPico, mm" display_format="%.6f" mne="M2TPico"/>
 
 
-  <EPICS_PV PV="9idcUSX:pzt:m1.DMOV" description="motor done moving A2Rp" mne="A2Rp_dmov"/>
-  <EPICS_PV PV="9idcUSX:pzt:m1.RBV" description="motor A2Rp, VDC" display_format="%.4f" mne="A2Rp_rbv"/>
-  <EPICS_PV PV="9idcUSX:pzt:m2.DMOV" description="motor done moving M2Rp" mne="M2Rp_dmov"/>
-  <EPICS_PV PV="9idcUSX:pzt:m2.RBV" description="motor M2Rp, VDC" display_format="%.4f" mne="M2Rp_rbv"/>
-  <EPICS_PV PV="9idcUSX:pzt:m3.DMOV" description="motor done moving ASRp" mne="ASRp_dmov"/>
-  <EPICS_PV PV="9idcUSX:pzt:m3.RBV" description="motor ASRp, VDC" display_format="%.4f" mne="A2Rp_rbv"/>
-  <EPICS_PV PV="9idcUSX:pzt:m4.DMOV" description="motor done moving MSRp" mne="MSRp_dmov"/>
-  <EPICS_PV PV="9idcUSX:pzt:m4.RBV" description="motor MSRp, VDC" display_format="%.4f" mne="MSRp_rbv"/>
+  <EPICS_PV PV="9idcLAX:pi:c0:m1.DMOV" description="motor done moving A2Rp" mne="A2Rp_dmov"/>
+  <EPICS_PV PV="9idcLAX:pi:c0:m1.RBV" description="motor A2Rp, VDC" display_format="%.4f" mne="A2Rp_rbv"/>
+  <EPICS_PV PV="9idcLAX:pi:c0:m2.DMOV" description="motor done moving M2Rp" mne="M2Rp_dmov"/>
+  <EPICS_PV PV="9idcLAX:pi:c0:m2.RBV" description="motor M2Rp, VDC" display_format="%.4f" mne="M2Rp_rbv"/>
+  <EPICS_PV PV="9idcLAX:pi:c0:m3.DMOV" description="motor done moving MSRp" mne="MSRp_dmov"/>
+  <EPICS_PV PV="9idcLAX:pi:c0:m3.RBV" description="motor MSRp, VDC" display_format="%.4f" mne="MSRp_rbv"/>
+  <EPICS_PV PV="9idcLAX:pi:c0:m4.DMOV" description="motor done moving ASRp" mne="ASRp_dmov"/>
+  <EPICS_PV PV="9idcLAX:pi:c0:m4.RBV" description="motor ASRp, VDC" display_format="%.4f" mne="A2Rp_rbv"/>
 
   <EPICS_PV PV="9idcLAX:mr:encoder" description="motor MR encoder, degrees" display_format="%.6f" mne="mr_enc"/>
 
@@ -196,14 +196,16 @@
   <EPICS_PV PV="9idcLAX:vsc:c0.TP" description="scaler counting time preset, s" display_format="%.3f" mne="scaler_tp"/>
   <EPICS_PV PV="9idcLAX:vsc:c2.S2" description="scaler I000, counts" display_format="%d" mne="scaler_I000"/>
 
+<!--
   <EPICS_PV PV="9idcUSX:alldone" description="USAXS eBrick motors moving" mne="usx_alldone"/>
   <EPICS_PV PV="9idcUSX:ath01:ana01:ai01.VAL" description="pzt A2Rp, VDC, readback" display_format="%.4f" mne="A2Rp_rbv"/>
   <EPICS_PV PV="9idcUSX:ath01:ana01:ai02.VAL" description="pzt M2Rp, VDC, readback" display_format="%.4f" mne="M2Rp_rbv"/>
   <EPICS_PV PV="9idcUSX:ath01:ana01:ai03.VAL" description="pzt ASRp, VDC, readback" display_format="%.4f" mne="ASRp_rbv"/>
   <EPICS_PV PV="9idcUSX:ath01:ana01:ai04.VAL" description="pzt MSRp, VDC, readback" display_format="%.4f" mne="MSRp_rbv"/>
-  <EPICS_PV PV="9idcUSX:ath01:ana01:ai05.VAL" description="ADC I0, VDC" display_format="%.4f" mne="I0_VDC"/>
-  <EPICS_PV PV="9idcUSX:ath01:ana01:ai06.VAL" description="ADC I00, VDC" display_format="%.4f" mne="I00_VDC"/>
-  <EPICS_PV PV="9idcUSX:ath01:ana01:ai07.VAL" description="ADC diode, VDC" display_format="%.4f" mne="diode_VDC"/>
+-->
+  <EPICS_PV PV="9idcRIO:GalilAi0_MON.VAL" description="ADC I0, VDC" display_format="%.4f" mne="I0_VDC"/>
+  <EPICS_PV PV="9idcRIO:GalilAi1_MON.VAL" description="ADC I00, VDC" display_format="%.4f" mne="I00_VDC"/>
+  <EPICS_PV PV="9idcRIO:GalilAi2_MON.VAL" description="ADC diode, VDC" display_format="%.4f" mne="diode_VDC"/>
   <EPICS_PV PV="9idcUSX:fem01:seq01:gain" description="PD amplifier gain V/A" display_format="%.2e" mne="diode_amp_gain"/>
   <EPICS_PV PV="9idcUSX:fem02:seq01:gain" description="I0 amplifier gain V/A" display_format="%.2e" mne="I0_amp_gain"/>
   <EPICS_PV PV="9idcUSX:fem03:seq01:gain" description="I00 amplifier gain, V/A" display_format="%.2e" mne="I00_amp_gain"/>
@@ -215,15 +217,17 @@
   <EPICS_PV PV="9idcUSX:pf4:filterAl" description="filter Al thickness in beam, mm" display_format="%.3f" mne="pf4_thickness_Al"/>
   <EPICS_PV PV="9idcUSX:pf4:filterTi" description="filter Ti thickness in beam, mm" display_format="%.3f" mne="pf4_thickness_Ti"/>
   <EPICS_PV PV="9idcUSX:pf4:trans" description="filter transmission" display_format="%.4e" mne="pf4_trans"/>
-  <EPICS_PV PV="9idcUSX:pmm01:reg01:bo01" description="USAXS CCD shutter" mne="CCD_shutter"/>
+  <EPICS_PV PV="9idcRIO:Galil2Bo0_CMD.VAL" description="USAXS CCD shutter" mne="CCD_shutter"/>
+<!--
   <EPICS_PV PV="9idcUSX:rmm01:ana01:ao01.VAL" description="pzt A2Rp, VDC" display_format="%.4f" mne="A2Rp_VDC"/>
   <EPICS_PV PV="9idcUSX:rmm01:ana01:ao02.VAL" description="pzt M2Rp, VDC" display_format="%.4f" mne="M2Rp_VDC"/>
   <EPICS_PV PV="9idcUSX:rmm01:ana01:ao03.VAL" description="pzt ASRp, VDC" display_format="%.4f" mne="ASRp_VDC"/>
   <EPICS_PV PV="9idcUSX:rmm01:ana01:ao04.VAL" description="pzt MSRp, VDC" display_format="%.4f" mne="MSRp_VDC"/>
+-->
   <EPICS_PV PV="9idcUSX:rmm02:reg01:bo08" description="shutter open, USAXS Ti filter" mne="invalid_Ti_shtr_open"/>
 
-  <EPICS_PV PV="9idcUSX:ath01:reg01:bo03" description="USAXS Ti shutter PF42 bit3" mne="Ti_pf42_b3"/>
-  <EPICS_PV PV="9idcUSX:ath01:reg01:bo04" description="USAXS Ti shutter PF42 bit4" mne="Ti_pf42_b4"/>
+  <EPICS_PV PV="9idcRIO:Galil2Bo14.VAL" description="USAXS Ti shutter PF42 bit3" mne="Ti_pf42_b3"/>
+  <EPICS_PV PV="9idcRIO:Galil2Bo15.VAL" description="USAXS Ti shutter PF42 bit4" mne="Ti_pf42_b4"/>
   <EPICS_PV PV="9idb:BioEnc2B3"         description="USAXS Ti shutter, B station" mne="Ti_shutter"/>
 
   <EPICS_PV PV="PA:09ID:STA_A_FES_OPEN_PL.VAL" description="9-ID white shutter opened" mne="white_shtr_opened"/>
