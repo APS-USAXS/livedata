@@ -82,7 +82,7 @@ def plotAllSpecFileScans(specFile):
     # decide here if SPEC file needs to be opened for possible replot of scan data
     mtime_specFile = getTimeFileModified(specFile)
     png_directory = get_PngDir(specFile)
-    if not os.path.exists(png_directory):
+    if (png_directory == None) or (not os.path.exists(png_directory)):
         mtime_pngdir = 0
     else:
         mtime_pngdir = getTimeFileModified(png_directory)
@@ -91,7 +91,10 @@ def plotAllSpecFileScans(specFile):
         # do nothing if plot directory was last updated _after_ the specFile
         # This assumes people don't modify the png_directory
         return
-    logger('updating plots in directory: ' + png_directory)
+    if png_directory != None:
+        logger('updating plots in directory: ' + png_directory)
+    else:
+        logger('updating plots in directory: None')
     logger('  mtime_specFile: ' + str(mtime_specFile))
     logger('  mtime_pngdir:   ' + str(mtime_pngdir))
 

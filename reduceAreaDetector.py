@@ -40,7 +40,7 @@ ESD_FACTOR          = 0.01      # estimate dr = ESD_FACTOR * r  if r.std() = 0 :
 
 # define the locations of the source data in the HDF5 file
 # there are various possible layouts
-AD_HDF5_PINSAXS_MAP = {
+AD_HDF5_SAXS_MAP = {
     'local_name_match'      : 'Pilatus 100K',
     'local_name'            : '/entry/data/local_name',
     'image'                 : '/entry/data/data',
@@ -335,7 +335,7 @@ class Image(object):
         
         determine if SAXS or WAXS based on detector name as coded into the hdf5_map
         '''
-        for hdf5_map in (AD_HDF5_PINSAXS_MAP, AD_HDF5_WAXS_MAP):
+        for hdf5_map in (AD_HDF5_SAXS_MAP, AD_HDF5_WAXS_MAP):
             detector_name = self.fp.get(hdf5_map['local_name'], None)[0]
             if detector_name == hdf5_map['local_name_match']:
                 self.hdf5_addr_map = hdf5_map
