@@ -212,11 +212,11 @@ def datePath(date):
 
 def get_PngDir(specFile):
     '''return the PNG directory based on the specFile'''
-    data_file_root_name = os.path.splitext(os.path.split(specFile)[1])[0]
+    path = os.path.dirname(specFile)
     date_str = get_SpecFileDate(specFile)
     if date_str is None:
         return
-    return getBaseDir(data_file_root_name, date_str)
+    return getBaseDir(path, date_str)
 
 
 def get_SpecFileDate(specFile):
