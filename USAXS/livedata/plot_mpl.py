@@ -63,8 +63,8 @@ def livedata_plot(datasets, plotfile, title=None):
             symbol = 'o'
         if ds.label.find('(fly)') >= 0:
             label = ds.label[:ds.label.find('(fly)')] + '(USAXS)'
-        elif ds.label.find('(pinSAXS)') >= 0:
-            label = ds.label[:ds.label.find('(pinSAXS)')] + '(SAXS)'
+        elif ds.label.find('(SAXS)') >= 0:
+            label = ds.label[:ds.label.find('(SAXS)')] + '(SAXS)'
         else:
             label = ds.label
         pl, = ax.plot(ds.Q, ds.I, symbol, label=label, mfc='w', mec=color, ms=3, mew=1)
