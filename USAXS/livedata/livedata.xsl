@@ -114,10 +114,13 @@
                                     <td>webcams</td>
                                     <!--
                 axis server     164.54.143.40   axis-server.xray.aps.anl.gov
-                Front camera    164.54.143.43   front-camera.xray.aps.anl.gov
-                M stage camera  164.54.143.44   m-stage-camera.xray.aps.anl.gov
-                A stage camera  164.54.143.41   a-stage-camera.xray.aps.anl.gov
-                                    -->
+                164.54.143.41   
+                164.54.143.42   
+                164.54.143.43   
+                164.54.143.45   
+                164.54.143.46   
+                164.54.143.47   
+                                      -->
                     		    <td align="center">
                     		        <a href="http://axis-server.xray.aps.anl.gov">
                     		            Axis Server
@@ -125,17 +128,32 @@
                     		    </td>
                     		    <td align="center">
                     		        <a href="http://164.54.143.43">
-                    		            Front camera
+                    		            Front table
                     		        </a>
                     		    </td>
-                    		    <td align="center">
-                    		        <a href="http://164.54.143.44">
-                    		            M stage camera
-                    		        </a>
-                    		    </td>
-                    		    <td align="center">
+                   		    <td align="center">
                     		        <a href="http://164.54.143.41">
-                    		            A stage camera
+                    		            A stage table
+                    		        </a>
+                    		    </td>
+                   		    <td align="center">
+                    		        <a href="http://164.54.143.42">
+                    		            Side wall
+                    		        </a>
+                    		    </td>
+                   		    <td align="center">
+                    		        <a href="http://164.54.143.45">
+                    		            Back table
+                    		        </a>
+                    		    </td>
+                    		    <td align="center">
+                    		        <a href="http://164.54.143.46">
+                    		            Back wall
+                    		        </a>
+                    		    </td>
+	               		    <td align="center">
+                    		        <a href="http://164.54.143.47">
+                    		            Left side table
                     		        </a>
                     		    </td>
                                 </tr>
@@ -167,12 +185,7 @@
                     		            SOE
                     		        </a>
                     		    </td>
-                  		    <td align="center">
-                    		        <a href="tba">
-                    		            TBA
-                    		        </a>
-                    		    </td>
-                                </tr>
+                                 </tr>
                             </table>
                     	</td>
                     </tr>
