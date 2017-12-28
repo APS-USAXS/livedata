@@ -17,10 +17,12 @@ import pvwatch
 
 
 # general use
-WWW_SERVER = 'www-i.xray.aps.anl.gov'
+#WWW_SERVER = 'www-i.xray.aps.anl.gov'
+WWW_SERVER = 'joule.xray.aps.anl.gov'
 WWW_SERVER_USER = 'webusaxs'
 WWW_SERVER_ROOT = WWW_SERVER_USER + '@' + WWW_SERVER
-LIVEDATA_DIR = "www/livedata"
+#LIVEDATA_DIR = "www/livedata"
+LIVEDATA_DIR = "www_live"
 SERVER_WWW_HOMEDIR = WWW_SERVER_ROOT + ":~"
 SERVER_WWW_LIVEDATA = os.path.join(SERVER_WWW_HOMEDIR, LIVEDATA_DIR)
 
