@@ -66,8 +66,10 @@ SPECMACRO_TXT_FILE = "specmacro.txt"
 # TEST_SPEC_DATA = '/share1/USAXS_data/2014-04/04_09_Prakash_A5.dat'
 # TEST_SPEC_DATA = '/share1/USAXS_data/2014-06/06_19_Tony.dat'
 # TEST_SPEC_DATA = '/share1/USAXS_data/2014-08/08_13_setup.dat'
-#TEST_SPEC_DATA = '/share1/USAXS_data/2015-01/02_08_Samples.dat'
-TEST_SPEC_DATA = '/share1/USAXS_data/2016-06/06_08_DoyoonKim.dat'
+# TEST_SPEC_DATA = '/share1/USAXS_data/2015-01/02_08_Samples.dat'
+# TEST_SPEC_DATA = '/share1/USAXS_data/2016-06/06_08_DoyoonKim.dat'
+TEST_SPEC_DATA = '/share1/USAXS_data/2018-01/01_22_TestHDF5.dat'
+
 TEST_SPEC_SCAN_NUMBER = 15
 TEST_PLOTFILE = "pete.png"
 LINE_ONLY_THRESHOLD = 400

@@ -44,32 +44,32 @@ AD_HDF5_SAXS_MAP = {
     'local_name_match'      : 'Pilatus 100K',
     'local_name'            : '/entry/data/local_name',
     'image'                 : '/entry/data/data',
-    'wavelength'            : '/entry/EPICS_PV_metadata/wavelength',
-    'SDD'                   : '/entry/EPICS_PV_metadata/SDD',
+    'wavelength'            : '/entry/Metadata/wavelength',
+    'SDD'                   : '/entry/Metadata/SDD',
     'SAXS_or_WAXS'          : 'SAXS',
     # image is transposed, consider that here
-    'y_image_center_pixels' : '/entry/EPICS_PV_metadata/pin_ccd_center_x_pixel',
-    'x_image_center_pixels' : '/entry/EPICS_PV_metadata/pin_ccd_center_y_pixel',
-    'x_pixel_size_mm'       : '/entry/EPICS_PV_metadata/pin_ccd_pixel_size_x',
-    'y_pixel_size_mm'       : '/entry/EPICS_PV_metadata/pin_ccd_pixel_size_y',
-    'I0_counts'             : '/entry/EPICS_PV_metadata/I0_cts_gated',
-    'I0_gain'               : '/entry/EPICS_PV_metadata/I0_gain',
+    'y_image_center_pixels' : '/entry/Metadata/pin_ccd_center_x_pixel',
+    'x_image_center_pixels' : '/entry/Metadata/pin_ccd_center_y_pixel',
+    'x_pixel_size_mm'       : '/entry/Metadata/pin_ccd_pixel_size_x',
+    'y_pixel_size_mm'       : '/entry/Metadata/pin_ccd_pixel_size_y',
+    'I0_counts'             : '/entry/Metadata/I0_cts_gated',
+    'I0_gain'               : '/entry/Metadata/I0_gain',
     # need to consider a detector-dependent mask
 }
 AD_HDF5_WAXS_MAP = {
     'local_name_match'      : 'Pilatus 300Kw',
     'local_name'            : '/entry/data/local_name',
     'image'                 : '/entry/data/data',
-    'wavelength'            : '/entry/EPICS_PV_metadata/dcm_wavelength',
-    'SDD'                   : '/entry/EPICS_PV_metadata/SDD',
+    'wavelength'            : '/entry/Metadata/dcm_wavelength',
+    'SDD'                   : '/entry/Metadata/SDD',
     'SAXS_or_WAXS'          : 'WAXS',
     # image is transposed, consider that here
-    'y_image_center_pixels' : '/entry/EPICS_PV_metadata/waxs_ccd_center_x_pixel',
-    'x_image_center_pixels' : '/entry/EPICS_PV_metadata/waxs_ccd_center_y_pixel',
-    'x_pixel_size_mm'       : '/entry/EPICS_PV_metadata/waxs_ccd_pixel_size_x',
-    'y_pixel_size_mm'       : '/entry/EPICS_PV_metadata/waxs_ccd_pixel_size_y',
-    'I0_counts'             : '/entry/EPICS_PV_metadata/I0_cts_gated',
-    'I0_gain'               : '/entry/EPICS_PV_metadata/I0_gain',
+    'y_image_center_pixels' : '/entry/Metadata/waxs_ccd_center_x_pixel',
+    'x_image_center_pixels' : '/entry/Metadata/waxs_ccd_center_y_pixel',
+    'x_pixel_size_mm'       : '/entry/Metadata/waxs_ccd_pixel_size_x',
+    'y_pixel_size_mm'       : '/entry/Metadata/waxs_ccd_pixel_size_y',
+    'I0_counts'             : '/entry/Metadata/I0_cts_gated',
+    'I0_gain'               : '/entry/Metadata/I0_gain',
     # need to consider a detector-dependent mask
 }
 
