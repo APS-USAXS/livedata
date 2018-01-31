@@ -40,37 +40,35 @@ ESD_FACTOR          = 0.01      # estimate dr = ESD_FACTOR * r  if r.std() = 0 :
 
 # define the locations of the source data in the HDF5 file
 # there are various possible layouts
-AD_HDF5_SAXS_MAP = {
-    'local_name_match'      : 'Pilatus 100K',
+AD_HDF5_ADDRESS_MAP = {
     'local_name'            : '/entry/data/local_name',
-    'image'                 : '/entry/data/data',
-    'wavelength'            : '/entry/Metadata/wavelength',
-    'SDD'                   : '/entry/Metadata/SDD',
-    'SAXS_or_WAXS'          : 'SAXS',
-    # image is transposed, consider that here
-    'y_image_center_pixels' : '/entry/Metadata/pin_ccd_center_x_pixel',
-    'x_image_center_pixels' : '/entry/Metadata/pin_ccd_center_y_pixel',
-    'x_pixel_size_mm'       : '/entry/Metadata/pin_ccd_pixel_size_x',
-    'y_pixel_size_mm'       : '/entry/Metadata/pin_ccd_pixel_size_y',
-    'I0_counts'             : '/entry/Metadata/I0_cts_gated',
-    'I0_gain'               : '/entry/Metadata/I0_gain',
-    # need to consider a detector-dependent mask
-}
-AD_HDF5_WAXS_MAP = {
-    'local_name_match'      : 'Pilatus 300Kw',
-    'local_name'            : '/entry/data/local_name',
-    'image'                 : '/entry/data/data',
-    'wavelength'            : '/entry/Metadata/dcm_wavelength',
-    'SDD'                   : '/entry/Metadata/SDD',
-    'SAXS_or_WAXS'          : 'WAXS',
-    # image is transposed, consider that here
-    'y_image_center_pixels' : '/entry/Metadata/waxs_ccd_center_x_pixel',
-    'x_image_center_pixels' : '/entry/Metadata/waxs_ccd_center_y_pixel',
-    'x_pixel_size_mm'       : '/entry/Metadata/waxs_ccd_pixel_size_x',
-    'y_pixel_size_mm'       : '/entry/Metadata/waxs_ccd_pixel_size_y',
-    'I0_counts'             : '/entry/Metadata/I0_cts_gated',
-    'I0_gain'               : '/entry/Metadata/I0_gain',
-    # need to consider a detector-dependent mask
+    'Pilatus 100K' : {
+        'image'                 : '/entry/data/data',
+        'wavelength'            : '/entry/Metadata/wavelength',
+        'SDD'                   : '/entry/Metadata/SDD',
+        # image is transposed, consider that here
+        'y_image_center_pixels' : '/entry/instrument/detector/beam_center_x',
+        'x_image_center_pixels' : '/entry/instrument/detector/beam_center_y',
+        'x_pixel_size_mm'       : '/entry/instrument/detector/x_pixel_size',
+        'y_pixel_size_mm'       : '/entry/instrument/detector/y_pixel_size',
+        'I0_counts'             : '/entry/Metadata/I0_cts_gated',
+        'I0_gain'               : '/entry/Metadata/I0_gain',
+        # need to consider a detector-dependent mask
+    },
+    'Pilatus 300Kw' : {
+        'image'                 : '/entry/data/data',
+        'wavelength'            : '/entry/Metadata/dcm_wavelength',
+        # TODO: Now? 'wavelength'            : '/entry/Metadata/wavelength',
+        'SDD'                   : '/entry/Metadata/SDD',
+        # image is transposed, consider that here
+        'y_image_center_pixels' : '/entry/instrument/detector/beam_center_x',
+        'x_image_center_pixels' : '/entry/instrument/detector/beam_center_y',
+        'x_pixel_size_mm'       : '/entry/instrument/detector/x_pixel_size',
+        'y_pixel_size_mm'       : '/entry/instrument/detector/y_pixel_size',
+        'I0_counts'             : '/entry/Metadata/I0_cts_gated',
+        'I0_gain'               : '/entry/Metadata/I0_gain',
+        # need to consider a detector-dependent mask
+    },
 }
 
 
@@ -333,25 +331,24 @@ class Image(object):
         '''
         get the image from the HDF5 file
         
-        determine if SAXS or WAXS based on detector name as coded into the hdf5_map
+        determine if SAXS or WAXS based on detector name as coded into the h5addr
         '''
-        for hdf5_map in (AD_HDF5_SAXS_MAP, AD_HDF5_WAXS_MAP):
-            detector_name = self.fp.get(hdf5_map['local_name'], None)[0]
-            if detector_name == hdf5_map['local_name_match']:
-                self.hdf5_addr_map = hdf5_map
-                self.filename    = self.fp.filename
-                self.image       = numpy.array(self.fp[hdf5_map['image']])
-                self.wavelength  = self.fp[hdf5_map['wavelength']][0]
-                self.SDD         = self.fp[hdf5_map['SDD']][0]
-                self.x0          = self.fp[hdf5_map['x_image_center_pixels']][0]
-                self.y0          = self.fp[hdf5_map['y_image_center_pixels']][0]
-                self.xsize       = self.fp[hdf5_map['x_pixel_size_mm']][0]
-                self.ysize       = self.fp[hdf5_map['y_pixel_size_mm']][0]
-                self.I0          = self.fp[hdf5_map['I0_counts']][0]
-                self.I0_gain     = self.fp[hdf5_map['I0_gain']][0]
-                # later, scale each image by metadata I0_cts_gated and I0_gain
-                # TODO: get image mask specifications
-                return
+        detector_name_h5addr = AD_HDF5_ADDRESS_MAP['local_name']
+        detector_name = str(self.fp[detector_name_h5addr].value[0])
+        self.hdf5_addr_map = h5addr = AD_HDF5_ADDRESS_MAP[detector_name]
+        self.filename    = self.fp.filename
+        self.image       = numpy.array(self.fp[h5addr['image']])
+        self.wavelength  = self.fp[h5addr['wavelength']][0]
+        self.SDD         = self.fp[h5addr['SDD']][0]
+        self.x0          = self.fp[h5addr['x_image_center_pixels']][0]
+        self.y0          = self.fp[h5addr['y_image_center_pixels']][0]
+        self.xsize       = self.fp[h5addr['x_pixel_size_mm']][0]
+        self.ysize       = self.fp[h5addr['y_pixel_size_mm']][0]
+        self.I0          = self.fp[h5addr['I0_counts']][0]
+        self.I0_gain     = self.fp[h5addr['I0_gain']][0]
+        # later, scale each image by metadata I0_cts_gated and I0_gain
+        # TODO: get image mask specifications
+        return
 
 
 def get_user_options():
@@ -467,6 +464,9 @@ def command_line_interface():
 
 
 if __name__ == '__main__':
+    import sys
+    # sys.argv.append("/share1/USAXS_data/2018-01/01_30_Settle_waxs/Adam_0184.hdf")
+    sys.argv.append("/tmp/Adam_0184.hdf")
     command_line_interface()
 
 
