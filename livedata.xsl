@@ -103,6 +103,7 @@
 				    </td>
                                     <td align="center"><a href="specplots">SPEC plots</a></td>
                                     <td align="center"><a href="usaxstv.html">iPad/TV view</a></td>
+                                    <td align="center"><a href="https://s9pva.xray.aps.anl.gov/cgi-bin/pvarch/show.py">PV watch</a></td>
 				</tr>
                             </table>
                         </td>

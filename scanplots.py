@@ -323,6 +323,9 @@ def get_AreaDetector_Data(scan_obj):
 
     ad = reduceAreaDetector.reduce_area_detector_data(hdf5File,  bins)
     title = 'S%s %s (%s)' % (str(scan.scanNum), filename, scanMacro)
+    rebinned = ad.reduced.get(str(bins))
+    if rebinned is None:
+        raise KeyError("No rebinned %s data of length %d" % (scanMacro, bins))
     rebinned = ad.reduced[str(bins)]
     entry = dict(qVec=rebinned['Q'], rVec=rebinned['R'], title=title)
     return entry

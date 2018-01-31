@@ -146,13 +146,12 @@ def plotAllSpecFileScans(specFile):
                 logger('  creating SPEC data scan image: ' + basePlotFile)
                 specplot.makeScanImage(scan, fullPlotFile)
                 newFileList.append(fullPlotFile)
-            except:
-                exc = sys.exc_info()[1]
-                msg = "ERROR: '%s' %s #%s" % (exc, specFile, scan.scanNum)
+            except Exception as _exc:
+                msg = "ERROR: '%s' %s #%s" % (_exc.message, specFile, scan.scanNum)
                 # print msg
                 plotList.pop()     # rewrite the default link
                 plotList.append("<!-- " + msg + " -->")
-                altText = "%s: #%s %s" % (exc, scan.scanNum, scan.scanCmd)
+                altText = "%s: #%s %s" % (_exc.message, scan.scanNum, scan.scanCmd)
                 href = HREF_FORMAT % (basePlotFile, basePlotFile, altText)
                 plotList.append(href)
 
@@ -176,7 +175,7 @@ def plotAllSpecFileScans(specFile):
             logger('  uploading files to WWW server: ' + ', '.join(newFileList))
             upload(newFileList, sd)
         except Exception, exc:
-            pass        # TODO: what now?
+            logger('  ERROR %s: could not upload to WWW server' % exc.message)
         os.chdir(cwd)
 
 
@@ -191,7 +190,7 @@ def upload(newFileList, sdf):
     '''
     yyyymm = datePath(sdf.headers[-1].date)
     source = os.path.join('specplots', yyyymm + '/')
-    target = wwwServerTransfers.SERVER_WWW_HOMEDIR + '/' + os.path.join('www', 'livedata')
+    target = wwwServerTransfers.SERVER_WWW_LIVEDATA
     command = wwwServerTransfers.RSYNC
     command += " -rRtz %s %s" % (source, target)
     wwwServerTransfers.execute_command(command)
@@ -212,11 +211,11 @@ def datePath(date):
 
 def get_PngDir(specFile):
     '''return the PNG directory based on the specFile'''
-    path = os.path.dirname(specFile)
+    basename = os.path.splitext(os.path.basename(specFile))[0]
     date_str = get_SpecFileDate(specFile)
     if date_str is None:
         return
-    return getBaseDir(path, date_str)
+    return getBaseDir(basename, date_str)
 
 
 def get_SpecFileDate(specFile):

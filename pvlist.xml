@@ -133,6 +133,7 @@
   <EPICS_PV PV="9idcLAX:mxv:c0:m8.DMOV" description="motor done moving pin_z" mne="pin_z_dmov"/>
   <EPICS_PV PV="9idcLAX:mxv:c0:m8.RBV" description="motor Pilatus pin_z, mm" display_format="%.3f" mne="pin_z"/>
 
+<!--  2018-01-30,prj: remove XPS now per Jan's instructions
   <EPICS_PV PV="9idcLAX:xps:c0:m1.DMOV" description="motor done moving MR" mne="mr_dmov"/>
   <EPICS_PV PV="9idcLAX:xps:c0:m1.RBV" description="motor MR, degrees" display_format="%.6f" mne="mr"/>
   <EPICS_PV PV="9idcLAX:xps:c0:m3.DMOV" description="motor done moving MST" mne="mst_dmov"/>
@@ -143,6 +144,7 @@
   <EPICS_PV PV="9idcLAX:xps:c0:m5.RBV" description="motor MSR, mm" display_format="%.6f" mne="msr"/>
   <EPICS_PV PV="9idcLAX:xps:c0:m6.DMOV" description="motor done moving ASR" mne="asr_dmov"/>
   <EPICS_PV PV="9idcLAX:xps:c0:m6.RBV" description="motor ASR, mm" display_format="%.6f" mne="asr"/>
+   -->
 
 <!-- 2013-02-12,PRJ
   <EPICS_PV PV="9idcUSX:pic:m1.DMOV" description="motor done moving A2RPico" mne="A2Rpico_dmov"/>
