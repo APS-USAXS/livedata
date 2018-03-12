@@ -122,11 +122,3 @@ switch ($1)
        breaksw
 
 endsw
-
-########### SVN repository information ###################
-# $Date$
-# $Author$
-# $Revision$
-# $URL$
-# $Id$
-########### SVN repository information ###################

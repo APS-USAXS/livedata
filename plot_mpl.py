@@ -34,7 +34,7 @@ class Plottable_USAXS_Dataset(object):
 def livedata_plot(datasets, plotfile, title=None):
     '''
     generate the USAXS livedata plot
-    
+
     :param [Plottable_USAXS_Dataset] datasets: USAXS data to be plotted, newest data last
     :param str plotfile: file name to write plot image
     '''
@@ -74,15 +74,15 @@ def livedata_plot(datasets, plotfile, title=None):
     FigureCanvas(fig).print_figure(plotfile, bbox_inches='tight', facecolor=BISQUE_RGB)
 
 
-def spec_plot(x, y, 
-              plotfile, 
-              title=None, subtitle=None, 
-              xtitle=None, ytitle=None, 
+def spec_plot(x, y,
+              plotfile,
+              title=None, subtitle=None,
+              xtitle=None, ytitle=None,
               xlog=False, ylog=False,
               timestamp_str=None):
     '''
     generate a plot of a scan (as if data from a scan in a SPEC file)
-    
+
     :param [float] x: horizontal axis data
     :param [float] y: vertical axis data
     :param str plotfile: file name to write plot image
@@ -134,22 +134,22 @@ def main():
     ds1.Q = x
     ds1.I = np.sin(x**2) * np.exp(-x) + 1.0e-5
     ds1.label = 'sin(x^2) exp(-x)'
-    
+
     ds2 = Plottable_USAXS_Dataset()
     ds2.Q = x
     ds2.I = ds1.I**2 + 1.0e-5
     ds2.label = '$[\sin(x^2)\cdot\exp(-x)]^2$'
-    
+
     ds3 = Plottable_USAXS_Dataset()
     ds3.Q = x
     ds3.I = np.sin(5*x) / (5*x)  + 1.0e-5
     ds3.label = 'sin(5x)/(5x)'
-    
+
     ds4 = Plottable_USAXS_Dataset()
     ds4.Q = x
     ds4.I = ds3.I**2 + 1.0e-5
     ds4.label = r'$[\sin(5x)/(5x)]^2$'
-    
+
     livedata_plot([ds2, ds4], CHART_FILE)
 
 
@@ -157,12 +157,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-########### SVN repository information ###################
-# $Date$
-# $Author$
-# $Revision$
-# $HeadURL$
-# $Id$
-########### SVN repository information ###################

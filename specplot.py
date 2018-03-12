@@ -69,13 +69,13 @@ def process_NexusImageData(scan, imgfile, **attr):
         h5file = h5file.replace('Z:', '/data')  # convert mount point to Linux
         h5file = h5file.replace('\\', '/')      # convert delimiters to Linux
     h5file = os.path.abspath( os.path.join(path, h5file) )
-    
+
     # TODO: common user problem happens here
     # the file name is specified in the SPEC file
     # often, the file extension used by area detector
     # is different than the SPEC file and "file not found" happens
     # Could by more flexible by searching other possible extensions if first file is not found.
-    
+
     if os.path.exists(h5file) and not os.path.exists(imgfile):
         path = localConfig.HDF5_PATH_TO_IMAGE_DATA
         handle_2d.make_png(h5file, imgfile, path, **attr)
@@ -133,9 +133,9 @@ def mpl__process_plotData(scan, plotData, plotFile):
     title = scan.specFile
     subtitle = "#%s: %s" % (scan.scanNum, scan.scanCmd)
     #timestamp_str = scan.date                REMOVE ME
-    plot_mpl.spec_plot(x, y,  plotFile, 
-                       title=title,  subtitle=subtitle, 
-                       xtitle=xtitle,  ytitle=ytitle, 
+    plot_mpl.spec_plot(x, y,  plotFile,
+                       title=title,  subtitle=subtitle,
+                       xtitle=xtitle,  ytitle=ytitle,
                        xlog=xlog, ylog=ylog,
                        timestamp_str=scan.date)
 
@@ -172,12 +172,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-
-########### SVN repository information ###################
-# $Date$
-# $Author$
-# $Revision$
-# $URL$
-# $Id$
-########### SVN repository information ###################

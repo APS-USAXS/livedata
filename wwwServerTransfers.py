@@ -165,12 +165,3 @@ if __name__ == '__main__':
         print sys.exc_info()[1]
     scpToWebServer("wwwServerTransfers.py", "wally.txt")
     scpToWebServer_Demonstrate("wwwServerTransfers.py", "wally.txt")
-
-
-########### SVN repository information ###################
-# $Date$
-# $Author$
-# $Revision$
-# $URL$
-# $Id$
-########### SVN repository information ###################

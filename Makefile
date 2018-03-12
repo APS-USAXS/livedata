@@ -1,11 +1,4 @@
 
-########### SVN repository information ###################
-# $Date$
-# $Author$
-# $Revision$
-# $URL$
-# $Id$
-########### SVN repository information ###################
 
 DATE_STRING   = `date '+%Y%m%d-%H%M%S'`
 

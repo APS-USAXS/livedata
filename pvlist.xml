@@ -5,7 +5,6 @@
 
 <pvwatch version="1.0">
 	<!-- (update version if format of XML file changes) -->
-  <SVN svnid="$Id$"/>
 
   <definition name="mne">
   	one-word mnemonic reference used in python and xslt code
@@ -36,7 +35,7 @@
 
   <EPICS_PV PV="ID09:Energy"    mne="Und_E" description="ID E, keV"  display_format="%.4f"/>
   <EPICS_PV PV="9ida:BraggEAO" mne="DCM_E" description="DCM E, keV" display_format="%.4f"/>
-  
+
   <EPICS_PV PV="9idcLAX:userCalcOut10.A" mne="calc10_A" description="DCM temperature now, C"/>
   <EPICS_PV PV="9idcLAX:userCalcOut10.B" mne="calc10_B" description="DCM temperature alarm value, C"/>
   <EPICS_PV PV="9idcLAX:userCalcOut10.CALC" mne="calc10_CALC" description="DCM temperature calculation"/>
@@ -71,10 +70,10 @@
   <EPICS_PV _ignore_="true" PV="15IDB:scaler1.S2" description="scaler I000, counts" display_format="%d" mne="scaler_I000"/>
 
   <EPICS_PV PV="9idcLAX:alldone" description="LAX motors moving" mne="lax_alldone"/>
-  
+
   <EPICS_PV PV="9idcLAX:aero:c0:m1.DMOV" description="motor done moving AR" mne="ar_dmov"/>
   <EPICS_PV PV="9idcLAX:aero:c0:m1.RBV" description="motor AR, degrees" display_format="%.6f" mne="ar"/>
-  
+
   <EPICS_PV PV="9idcLAX:m58:c0:m2.DMOV" description="motor done moving MX" mne="mx_dmov"/>
   <EPICS_PV PV="9idcLAX:m58:c0:m2.RBV" description="motor MX, mm" display_format="%.3f" mne="mx"/>
   <EPICS_PV PV="9idcLAX:m58:c0:m3.DMOV" description="motor done moving MY" mne="my_dmov"/>
@@ -87,7 +86,7 @@
   <EPICS_PV PV="9idcLAX:aero:c1:m1.RBV" description="motor AY, mm" display_format="%.3f" mne="ay"/>
   <EPICS_PV PV="9idcLAX:m58:c0:m7.DMOV" description="motor done moving AZ" mne="az_dmov"/>
   <EPICS_PV PV="9idcLAX:m58:c0:m7.RBV" description="motor AZ, mm" display_format="%.3f" mne="az"/>
-  
+
   <EPICS_PV PV="9idcLAX:m58:c1:m1.DMOV" description="motor done moving MSX" mne="msx_dmov"/>
   <EPICS_PV PV="9idcLAX:m58:c1:m1.RBV" description="motor MSX, mm" display_format="%.3f" mne="msx"/>
   <EPICS_PV PV="9idcLAX:m58:c1:m2.DMOV" description="motor done moving MSY" mne="msy_dmov"/>
@@ -100,7 +99,7 @@
   <EPICS_PV PV="9idcLAX:m58:c1:m5.RBV" description="motor I0_stage, mm" display_format="%.3f" mne="I0_stage"/>
   <EPICS_PV PV="9idcLAX:m58:c1:m6.DMOV" description="motor done moving tcam position" mne="tcam_dmov"/>
   <EPICS_PV PV="9idcLAX:m58:c1:m6.RBV" description="motor tcam position, degrees" display_format="%.1f" mne="tcam"/>
-  
+
   <EPICS_PV PV="9idcLAX:m58:c2:m1.DMOV" description="motor done moving SX" mne="sx_dmov"/>
   <EPICS_PV PV="9idcLAX:m58:c2:m1.RBV" description="motor SX, mm" display_format="%.3f" mne="sx"/>
   <EPICS_PV PV="9idcLAX:m58:c2:m2.DMOV" description="motor done moving SY" mne="sy_dmov"/>
@@ -117,7 +116,7 @@
   <EPICS_PV PV="9idcLAX:m58:c2:m7.RBV" description="motor uslitv USAXS slit vertical gap, mm" display_format="%.4f" mne="uslitv"/>
   <EPICS_PV PV="9idcLAX:m58:c2:m8.DMOV" description="motor done moving uslith USAXS slit horizontal gap" mne="uslith_dmov"/>
   <EPICS_PV PV="9idcLAX:m58:c2:m8.RBV" description="motor uslith USAXS slit horizontal gap, mm" display_format="%.4f" mne="uslith"/>
-  
+
   <EPICS_PV PV="9idcLAX:mxv:c0:m1.DMOV" description="motor done moving pin_x" mne="pin_x_dmov"/>
   <EPICS_PV PV="9idcLAX:mxv:c0:m1.RBV" description="motor Pilatus pin_x, mm" display_format="%.3f" mne="pin_x"/>
   <EPICS_PV PV="9idcLAX:mxv:c0:m2.DMOV" description="motor done moving pin_y" mne="pin_y_dmov"/>

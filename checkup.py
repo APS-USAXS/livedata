@@ -7,7 +7,7 @@ Uses PyEpics
 
 usage::
 
-  /APSshare//epd/rh5-x86/bin/python ./checkup.py pvlist.xml | more
+  /APSshare/anaconda/x86_64/bin/python ./checkup.py pvlist.xml | more
 
 '''
 

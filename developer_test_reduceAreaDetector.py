@@ -34,10 +34,10 @@ for hdf5_file in testfiles:
     scan = reduceAreaDetector.command_line_interface()
 
     plotfile = os.path.join(path, 'test_specplot__' + os.path.basename(hdf5_file) + '_.png')
-    
+
     if True:
-        plot_mpl.spec_plot(scan.reduced['full']['Q'], scan.reduced['full']['R'], 
-                           plotfile, 
+        plot_mpl.spec_plot(scan.reduced['full']['Q'], scan.reduced['full']['R'],
+                           plotfile,
                            xtitle='Q', ytitle='R',
                            ylog=True,
                            )
@@ -48,23 +48,14 @@ for hdf5_file in testfiles:
         ds_full.label = 'full data'
         ds_full.Q = scan.reduced['full']['Q']
         ds_full.I = scan.reduced['full']['R']
-        
+
         ds_250 = plot_mpl.Plottable_USAXS_Dataset()
         ds_250.label = 'rebinned (250) data'
         ds_250.Q = scan.reduced['250']['Q']
         ds_250.I = scan.reduced['250']['R']
-        
+
         pvwatch.logMessage( '  plotting to ' + plotfile )
-    
-        plot_mpl.livedata_plot([ds_full, ds_250], 
-                               plotfile, 
+
+        plot_mpl.livedata_plot([ds_full, ds_250],
+                               plotfile,
                                'test: ' + os.path.basename(hdf5_file))
-
-
-########### SVN repository information ###################
-# $Date$
-# $Author$
-# $Revision$
-# $URL$
-# $Id$
-########### SVN repository information ###################

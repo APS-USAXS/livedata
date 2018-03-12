@@ -87,12 +87,3 @@ REDUCED_AD_IMAGE_BINS   = 250       # sufficient to make a good plot
 
 
 HDF5_PATH_TO_IMAGE_DATA = '/entry/data/data'
-
-
-########### SVN repository information ###################
-# $Date$
-# $Author$
-# $Revision$
-# $URL$
-# $Id$
-########### SVN repository information ###################

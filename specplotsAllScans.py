@@ -29,14 +29,12 @@ import localConfig      # definitions for 9-ID
 import wwwServerTransfers
 
 
-SVN_ID = "$Id$"
-
 MTIME_CACHE = None
 
 def is_mtime_changed(fname):
     '''
     compare the file modified time of fname with a file cache
-    
+
     This is used to avoid redundant scanning of data files when no new data is available.
     The fname file has already been verified to exist.
     '''
@@ -66,11 +64,11 @@ def is_mtime_changed(fname):
     if (fname in MTIME_CACHE and mtime > MTIME_CACHE[fname]) or fname not in MTIME_CACHE:
         MTIME_CACHE[fname] = mtime
         changed = True
-  
+
     if changed:
         logger('  SPEC data file updated: ' + fname)
         saveCacheFile(localConfig.MTIME_CACHE_FILE, MTIME_CACHE)
-      
+
     return changed
 
 
@@ -112,7 +110,7 @@ def plotAllSpecFileScans(specFile):
     if not os.path.exists(png_directory):
         os.makedirs(png_directory)
         logger('creating directory: ' + png_directory)
-        
+
     # copy the SPEC data file to the WWW site, only if file has newer mtime
     baseSpecFile = os.path.basename(specFile)
     wwwSpecFile = os.path.join(png_directory, baseSpecFile)
@@ -163,10 +161,10 @@ def plotAllSpecFileScans(specFile):
         f.write(html)
         f.close()
         newFileList.append(htmlFile)
-        
+
     # touch to update the mtime on the png_directory
     os.utime(png_directory, None)
-    
+
     #------------------
     if len(newFileList):
         cwd = os.getcwd()
@@ -182,9 +180,9 @@ def plotAllSpecFileScans(specFile):
 def upload(newFileList, sdf):
     '''
     upload the list of files to the XSD WWW server
-    
+
     limit the rsync to just the specplots/yyyymm subdir
-    
+
     :param [str] newFileList: list of local files (absolute path reference) to be uploaded
     :param obj sdf: instance of SpecDataFile
     '''
@@ -285,7 +283,7 @@ def needToCopySpecDataFile(wwwSpecFile, mtime_specFile):
 def timestamp():
     '''current time as yyyy-mm-dd hh:mm:ss'''
     return time.strftime(
-                      localConfig.TIMESTAMP_FORMAT, 
+                      localConfig.TIMESTAMP_FORMAT,
                       time.localtime(time.time()))
 
 
@@ -293,7 +291,6 @@ def build_index_html(baseSpecFile, specFile, plotList):
     '''build index.html content'''
     comment = "\n"
     comment += "   written by: %s\n" % sys.argv[0]
-    comment += "   SVN: %s\n"        % SVN_ID
     comment += "   date: %s\n"       % timestamp()
     comment += "\n"
     href = "<a href='%s'>%s</a>" % (baseSpecFile, specFile)
@@ -346,12 +343,3 @@ if __name__ == '__main__':
     for specFile in filelist:
         plotAllSpecFileScans(specFile)
     logger('<'*10 + ' finished')
-
-
-########### SVN repository information ###################
-# $Date$
-# $Author$
-# $Revision$
-# $URL$
-# $Id$
-########### SVN repository information ###################

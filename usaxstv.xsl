@@ -19,18 +19,18 @@
  <meta http-equiv="Refresh" content="60"/>
  <title>USAXS: TV status</title>
  <style type="text/css">
-                    
+
                     body {
-                        font: x-small Verdana, Arial, Helvetica, sans-serif; 
+                        font: x-small Verdana, Arial, Helvetica, sans-serif;
                     }
                     h1 {
-                       font-size: 145%; 
-                       margin-bottom: .5em; 
+                       font-size: 145%;
+                       margin-bottom: .5em;
                     }
                     h2 {
                        font-size: 125%;
                        margin-top: 1.5em;
-                       margin-bottom: .5em; 
+                       margin-bottom: .5em;
                     }
                     h3 {
                         font-size: 115%;
@@ -40,48 +40,48 @@
                     h4 {
                         font-size: 100%;
                        margin-top: 1.2em;
-                       margin-bottom: .5em; 
+                       margin-bottom: .5em;
                     }
                     p {
                       font: x-small Verdana, Arial, Helvetica, sans-serif;
-                      color: #000000; 
+                      color: #000000;
                     }
-                    .description {  
-                        font-weight: bold; 
+                    .description {
+                        font-weight: bold;
                         font-size: 150%;
                     }
                     td {
-                        font-size: x-small; 
+                        font-size: x-small;
                     }
-                    
+
                     li {
                         margin-top: .75em;
-                        margin-bottom: .75em; 
+                        margin-bottom: .75em;
                     }
-                    ul {   
-                        list-style: disc; 
+                    ul {
+                        list-style: disc;
                     }
-                    
+
                     ul ul, ol ol , ol ul, ul ol {
                       margin-top: 1em;
-                      margin-bottom: 1em; 
+                      margin-bottom: 1em;
                     }
                     li p {
                       margin-top: .5em;
-                      margin-bottom: .5em; 
+                      margin-bottom: .5em;
                     }
-                    
+
                     .dt {
-                        margin-bottom: -1em; 
+                        margin-bottom: -1em;
                     }
                     .indent {
-                        margin-left: 1.5em; 
+                        margin-left: 1.5em;
                     }
                     sup {
                        text-decoration: none;
-                       font-size: smaller; 
+                       font-size: smaller;
                     }
-                    
+
  </style>
 </head>
 <body>
@@ -91,7 +91,7 @@
         <xsl:when test="contains(//pv[@id='state']/value,'Radiography Mode')">
 		    <!--
             <script language="javascript">
-		    
+
     			if (navigator.userAgent.match(/like Mac OS X/i)) {
     			    document.write('<img src="http://axis-server.xray.aps.anl.gov/axis-cgi/jpg/image.cgi?resolution=vga&amp;amp;camera=4" width="100%" />');
                 }
@@ -102,13 +102,13 @@
             </script>
             -->
             <script language="javascript">
-                
+
                 if (navigator.userAgent.match(/like Mac OS X/i)) {
                     document.write('<img src="http://axis-server.xray.aps.anl.gov/axis-cgi/jpg/image.cgi?camera=4" width="100%" />');
                 } else {
                     document.write('<img src="http://axis-server.xray.aps.anl.gov/axis-cgi/mjpg/video.cgi?camera=4" width="100%" />');
                 }
-                
+
             </script>
         </xsl:when>
         <xsl:otherwise>
@@ -131,7 +131,7 @@ USAXS status
 <font color="white" size="4">updated  <xsl:value-of select="/usaxs_pvs/datetime"/></font></td></tr>
 <xsl:call-template name="vertical_spacer"/>
 
-<tr> 
+<tr>
     <xsl:choose>
     	 <xsl:when test="//pv[@id='beam_available']/value=1">
     	     <td bgcolor="#22ff22" align="center"><font size="3">
@@ -149,7 +149,7 @@ USAXS status
      <xsl:choose>
      	 <xsl:when test="//pv[@id='SR_current']/value>2">
      	     <td bgcolor="#22ff22" align="center"><font size="3">
-     	      
+
      		 APS current =
      		 <xsl:value-of select="//pv[@id='SR_current']/value"/> mA</font></td>
      	 </xsl:when>
@@ -160,7 +160,7 @@ USAXS status
      	 </xsl:otherwise>
      </xsl:choose>
 </tr>
-<tr>                                    
+<tr>
 	<td align="center">
 		<font size="3">
 			DCM E = <xsl:value-of select="//pv[@id='DCM_E']/value"/> keV
@@ -220,9 +220,6 @@ USAXS status
                                     <xsl:value-of select="//pv[@id='spec_scan']/timestamp"/>
     </font></td></tr></tr>
 
-    <xsl:call-template name="vertical_spacer"/>
-    <tr><td align="center"><small>svn id: $Id$</small></td></tr>
-
 </table>
 </td></tr>
 </table>
@@ -234,16 +231,6 @@ USAXS status
 
     <xsl:template name="vertical_spacer">
         <tr><td height="75px"><br /></td></tr>
-    </xsl:template>        
+    </xsl:template>
 
 </xsl:stylesheet>
-
-<!-- 
-    ########### SVN repository information ###################
-    # $Date: 2013-04-20 00:19:52 -0500 (Sat, 20 Apr 2013) $
-    # $Author: jemian $
-    # $Revision: 803 $
-    # $URL$
-    # $Id$
-    ########### SVN repository information ###################
--->

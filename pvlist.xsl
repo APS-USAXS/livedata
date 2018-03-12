@@ -9,14 +9,13 @@
             <body>
                 <h1>USAXS: EPICS process variables to be monitored and reported</h1>
                 <small>
-                <p>XML subversion ID: <xsl:value-of select="pvwatch/SVN/@svnid"/></p>
                 <p>
-                	XML version: 
+                	XML version:
                 	<xsl:value-of select="pvwatch/@version"/>
                 	(update version if format of XML file changes)
                 </p>
                 </small>
-                
+
                 <h2>definitions</h2>
                 <dl>
 
@@ -68,12 +67,3 @@
     </xsl:template>
 
 </xsl:stylesheet>
-<!-- 
-    ########### SVN repository information ###################
-    # $Date$
-    # $Author$
-    # $Revision$
-    # $URL$
-    # $Id$
-    ########### SVN repository information ###################
--->

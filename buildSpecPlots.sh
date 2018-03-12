@@ -43,19 +43,10 @@ cd $CODE_DIR
 echo "#= $$ --Start--- `/bin/date`" >> $LOGFILE 2>&1
 
 filelist=`/bin/ls -1 $SPEC_DATA_PATTERN`
-# for item in $filelist; 
+# for item in $filelist;
 # 	do
 # 	# echo $item >> $LOGFILE 2>&1;
 # 	$PYTHON $PROGRAM $item >> $LOGFILE 2>&1;
 # done
 $PYTHON $PROGRAM $filelist >> $LOGFILE 2>&1;
 echo "#= $$ --Done---------------------------------- `/bin/date`" >> $LOGFILE 2>&1
-
-
-########### SVN repository information ###################
-# $Date$
-# $Author$
-# $Revision$
-# $URL$
-# $Id$
-########### SVN repository information ###################

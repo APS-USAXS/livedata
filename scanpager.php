@@ -5,12 +5,12 @@
  //  http://pear.php.net/package/Pager
  //  http://www.plus2net.com/php_tutorial/php_paging.php
  //  http://devzone.zend.com/1038/paging-data-sets-with-pear-pager/
- 
+
  // NOTE:  The pear Pager may not be the *best* choice here.
  //  With each page load, we parse the entire XML file.
  //  While reading only what we want to view  would be a major optimization,
  //  _any_ pager is better than loading the entire XML file
- //  through an XSLT when most folks just want to see the most 
+ //  through an XSLT when most folks just want to see the most
  //  recent scan information.
 
     $xmlFile = "scanlog.xml";
@@ -36,7 +36,7 @@
 	'lastPageText' => 'current',
   	//'currentPage'  => 20000,
     );
-    
+
     function item_datetime_str($item) {
       $str = $item->attributes()->date;
       $str .= ' ';
@@ -62,7 +62,7 @@
     echo $pager->linkTags, "\n";
 
     ?>
-    
+
     <table border="2" width="100%">
       <tr style="background-color: grey; color: white;">
         <th>index</th>
@@ -99,24 +99,14 @@
     }
     ?>
     </table>
-    
+
     <?php
 
     // get links for current page and print
     echo $links['all'];
     echo $pager->linkTags, "\n";
-    
+
     ?>
 
   </body>
 </html>
-
-<!--
-########### SVN repository information ###################
-# $Date$
-# $Author$
-# $Revision$
-# $URL$
-# $Id$
-########### SVN repository information ###################
--->

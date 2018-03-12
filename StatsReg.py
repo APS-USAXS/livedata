@@ -59,7 +59,7 @@ class StatsRegClass:
 
     def  Clear(self):
         '''
-        clear the statistics registers: 
+        clear the statistics registers:
         :math:`N=w=\sum{x}=\sum{x^2}=\sum{y}=\sum{y^2}=\sum{xy}=0`
         '''
         self.count = 0
@@ -156,7 +156,7 @@ class StatsRegClass:
 
     def  __sdeverr(self, summation, sqr, weight):
         '''
-		internal routine standard deviation and 
+		internal routine standard deviation and
 		standard error of from given data
 		'''
         temp = sqr - (summation**2)/weight
@@ -208,10 +208,10 @@ class StatsRegClass:
 
     def  determinant(self):
         ''' compute and return the determinant of the square matrices::
-        
+
           |  sum_w   sum_x      |          |  sum_w   sum_y      |
           |  sum_x   sum_(x^2)  |          |  sum_y   sum_(y^2)  |
-        
+
         :return: determinants of x and y summation matrices
         :rtype: (float, float)
         '''
@@ -223,7 +223,7 @@ class StatsRegClass:
 
     def  LinearRegression(self):
         '''
-        For (*x,y*) data pairs added to the registers, 
+        For (*x,y*) data pairs added to the registers,
         fit and find (*a,b*) that satisfy:
 
         .. math::
@@ -242,7 +242,7 @@ class StatsRegClass:
     def  LinearRegressionVariance(self):
         '''
         est. errors of slope & intercept
-        
+
         :return: (var_a, var_b) -- is this correct?
         :rtype: (float, float)
 		'''
@@ -256,10 +256,10 @@ class StatsRegClass:
     def  LinearRegressionCorrelation(self):
         '''
         the regression coefficient
-        
+
         :return: (corr_a, corr_b) -- is this correct?
         :rtype: (float, float)
-        
+
         :see: http://stattrek.com/AP-Statistics-1/Correlation.aspx?Tutorial=Stat
            Look at "Product-moment correlation coefficient"
 		'''
@@ -271,9 +271,9 @@ class StatsRegClass:
     def  CorrelationCoefficient(self):
         '''
         relation of errors in slope and intercept
-        
-        :return: correlation coefficient  
-        :rtype: float     
+
+        :return: correlation coefficient
+        :rtype: float
 		'''
         if self.correlation == None:
             self.correlation = -self.sumX / math.sqrt (self.weight * self.sumXX)
@@ -330,12 +330,3 @@ def __selftest():
 if __name__ == '__main__':
     print("%s: v%s, %s" % ('documentation', version, __doc__))
     __selftest()
-
-
-########### SVN repository information ###################
-# $Date$
-# $Author$
-# $Revision$
-# $URL$
-# $Id$
-########### SVN repository information ###################

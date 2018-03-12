@@ -31,13 +31,13 @@ def make_png(h5file, imgfile, h5path=HDF5_DATA_PATH, log_image=True,
              hsize=PLOT_H_INT, vsize=PLOT_V_INT, cmap=COLORMAP):
     '''
     read the image from the named HDF5 file and make a PNG file
-    
+
     Test that the HDF5 file exists and that the path to the data exists in that file.
-    Read the data from the named dataset, mask off some bad values, 
+    Read the data from the named dataset, mask off some bad values,
     convert to log(image) and use Matplotlib to make the PNG file.
-    
+
     The HDF5 file could be a NeXus file, not required though.
-    
+
     :param str h5file: name of HDF5 file (path is optional)
     :param str imgfile: name of image file to be written (path is optional)
     :param str h5path: path to the image dataset within the HDF5 file
@@ -66,7 +66,7 @@ def make_png(h5file, imgfile, h5path=HDF5_DATA_PATH, log_image=True,
     image_data = numpy.ma.masked_less_equal(ds.value, 0)
     # replace masked data with min good value
     image_data = image_data.filled(image_data.min())
-    
+
     if log_image and image_data.max() != 0:
         image_data = numpy.log(image_data)
         image_data -= image_data.min()
@@ -88,12 +88,3 @@ def make_png(h5file, imgfile, h5path=HDF5_DATA_PATH, log_image=True,
 
 if __name__ == '__main__':
     make_png(TEST_FILE, IMG_FILE)
-
-
-########### SVN repository information ###################
-# $Date$
-# $Author$
-# $Revision$
-# $URL$
-# $Id$
-########### SVN repository information ###################

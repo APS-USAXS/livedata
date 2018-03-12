@@ -48,9 +48,6 @@ try:
     logMessage("faulthandler: module enabled")
 except ImportError, exc:
     logMessage("faulthandler: module not imported")
- 
-
-SVN_ID = "$Id$"
 
 
 global GLOBAL_MONITOR_COUNTER
@@ -185,7 +182,7 @@ def buildReport():
     root = ElementTree.Element("usaxs_pvs")
     root.set("version", "1")
     node = ElementTree.SubElement(root, "written_by")
-    node.text = SVN_ID
+    node.text = __file__
     node = ElementTree.SubElement(root, "datetime")
     node.text = yyyymmdd + " " + hhmmss
 
@@ -429,12 +426,12 @@ def main():
     nextLog = nextReport
     delta_report = datetime.timedelta(seconds=localConfig.REPORT_INTERVAL_S)
     delta_log = datetime.timedelta(seconds=localConfig.LOG_INTERVAL_S)
-    
+
     # !!!!!!!!!!!!!!!!!!!!!!! #
     # run the main event loop #
     # !!!!!!!!!!!!!!!!!!!!!!! #
     mainLoopCount = 0
-    while True:     
+    while True:
         mainLoopCount = (mainLoopCount + 1) % MAINLOOP_COUNTER_TRIGGER
         nextReport, nextLog = main_event_loop_checks(mainLoopCount,
                                        nextReport, nextLog, delta_report, delta_log)
@@ -450,12 +447,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-
-########### SVN repository information ###################
-# $Date$
-# $Author$
-# $Revision$
-# $URL$
-# $Id$
-########### SVN repository information ###################

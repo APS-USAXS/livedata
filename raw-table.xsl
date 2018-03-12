@@ -22,7 +22,7 @@
                 </table>
 
                 <hr />
-                
+
                 <h2> EPICS process variables </h2>
                 <table border="2">
                     <tr style="background-color: grey; color: white;">
@@ -77,12 +77,3 @@
     </xsl:template>
 
 </xsl:stylesheet>
-<!-- 
-    ########### SVN repository information ###################
-    # $Date$
-    # $Author$
-    # $Revision$
-    # $URL$
-    # $Id$
-    ########### SVN repository information ###################
--->

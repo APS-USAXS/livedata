@@ -116,7 +116,7 @@ class SCPClient(object):
 
         if self.channel:
             self.channel.close()
-    
+
     def _read_stats(self, name):
         """return just the file stats needed for scp"""
         stats = os.stat(name)
@@ -353,12 +353,3 @@ def _sh_quote(s):
 def report_scp_progress(basename, size, file_pos):
     '''report scp progress to the console'''
     print 'scp progress: %s  %d of %d' % (basename, file_pos, size)
-
-
-########### SVN repository information ###################
-# $Date$
-# $Author$
-# $Revision$
-# $URL$
-# $Id$
-########### SVN repository information ###################

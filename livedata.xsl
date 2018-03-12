@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
-    
+
     <xsl:template match="/">
 
         <html>
@@ -9,18 +9,18 @@
                 <meta http-equiv="Refresh" content="300"/>
                 <title>USAXS: status</title>
                 <style type="text/css">
-                    
+
                     body {
-                        font: x-small Verdana, Arial, Helvetica, sans-serif; 
+                        font: x-small Verdana, Arial, Helvetica, sans-serif;
                     }
                     h1 {
-                       font-size: 145%; 
-                       margin-bottom: .5em; 
+                       font-size: 145%;
+                       margin-bottom: .5em;
                     }
                     h2 {
                        font-size: 125%;
                        margin-top: 1.5em;
-                       margin-bottom: .5em; 
+                       margin-bottom: .5em;
                     }
                     h3 {
                         font-size: 115%;
@@ -30,52 +30,52 @@
                     h4 {
                         font-size: 100%;
                        margin-top: 1.2em;
-                       margin-bottom: .5em; 
+                       margin-bottom: .5em;
                     }
                     p {
                       font: x-small Verdana, Arial, Helvetica, sans-serif;
-                      color: #000000; 
+                      color: #000000;
                     }
-                    .description {  
-                        font-weight: bold; 
+                    .description {
+                        font-weight: bold;
                         font-size: 150%;
                     }
                     td {
-                        font-size: x-small; 
+                        font-size: x-small;
                     }
-                    
+
                     li {
                         margin-top: .75em;
-                        margin-bottom: .75em; 
+                        margin-bottom: .75em;
                     }
-                    ul {   
-                        list-style: disc; 
+                    ul {
+                        list-style: disc;
                     }
-                    
+
                     ul ul, ol ol , ol ul, ul ol {
                       margin-top: 1em;
-                      margin-bottom: 1em; 
+                      margin-bottom: 1em;
                     }
                     li p {
                       margin-top: .5em;
-                      margin-bottom: .5em; 
+                      margin-bottom: .5em;
                     }
-                    
+
                     .dt {
-                        margin-bottom: -1em; 
+                        margin-bottom: -1em;
                     }
                     .indent {
-                        margin-left: 1.5em; 
+                        margin-left: 1.5em;
                     }
                     sup {
                        text-decoration: none;
-                       font-size: smaller; 
+                       font-size: smaller;
                     }
-                    
+
                 </style>
             </head>
             <body>
-                
+
                 <table border="0" width="96%" rules="none" bgcolor="darkblue">
                     <tr>
 			<td align="center" class="description">
@@ -96,7 +96,7 @@
  					<xsl:value-of select="/usaxs_pvs/datetime"/>
 				    </td>
                                     <td align="center"><a href="raw-report.html">raw info</a> </td>
-                                    <td align="center">scan log: 
+                                    <td align="center">scan log:
 				        <a href="scanpager.php?pageID=99999">paged</a>
 					|
 				        <a href="scanlog.xml">full</a>
@@ -115,12 +115,12 @@
                                     <td>webcams</td>
                                     <!--
                 axis server     164.54.143.40   axis-server.xray.aps.anl.gov
-                164.54.143.41   
-                164.54.143.42   
-                164.54.143.43   
-                164.54.143.45   
-                164.54.143.46   
-                164.54.143.47   
+                164.54.143.41
+                164.54.143.42
+                164.54.143.43
+                164.54.143.45
+                164.54.143.46
+                164.54.143.47
                                       -->
                     		    <td align="center">
                     		        <a href="http://axis-server.xray.aps.anl.gov">
@@ -167,7 +167,7 @@
 					http://urania.xray.aps.anl.gov/home/homeS.html
 					Mono system view
 					http://melpomene.xray.aps.anl.gov/home/homeS.html
-					SOE 
+					SOE
 					http://clio.xray.aps.anl.gov/home/homeS.html
 					need java, will run on Safari but not on Firefox on OSX
                                     -->
@@ -206,7 +206,7 @@
                                         </xsl:otherwise>
                                     </xsl:choose>
                                     <xsl:choose>
-                                    <!-- 
+                                    <!--
                                         Ti shutter PV is:
                                         9idb:BioEnc2B3 with open being 1 (up), closed 0 (down)
                                      -->
@@ -245,13 +245,13 @@
                                         <xsl:when test="//pv[@id='SR_current']/value>2">
                                             <td bgcolor="#22ff22">
                                                 <a href="http://www.aps.anl.gov/aod/blops/plots/smallStatusPlot.png">
-                                                APS current</a> = 
+                                                APS current</a> =
                                                 <xsl:value-of select="//pv[@id='SR_current']/value"/> mA</td>
                                         </xsl:when>
                                         <xsl:otherwise>
                                             <td bgcolor="#ff2222">
                                                 <a href="http://www.aps.anl.gov/aod/blops/plots/smallStatusPlot.png">
-                                                    APS current</a> = 
+                                                    APS current</a> =
                                                 <xsl:value-of select="//pv[@id='SR_current']/value"/> mA</td>
                                         </xsl:otherwise>
                                     </xsl:choose>
@@ -293,12 +293,12 @@
                                         </xsl:when>
                                         <xsl:otherwise>(mirror settings not available)</xsl:otherwise>
                                     </xsl:choose>
-                                    
+
                                 </td>
-                                <td>PF4 filter transmission: 
-                                    <xsl:value-of select="//pv[@id='pf4_trans']/value"/> 
-                                    (Al=<xsl:value-of select="//pv[@id='pf4_thickness_Al']/value"/> mm, 
-                                    Ti=<xsl:value-of select="//pv[@id='pf4_thickness_Ti']/value"/> mm, 
+                                <td>PF4 filter transmission:
+                                    <xsl:value-of select="//pv[@id='pf4_trans']/value"/>
+                                    (Al=<xsl:value-of select="//pv[@id='pf4_thickness_Al']/value"/> mm,
+                                    Ti=<xsl:value-of select="//pv[@id='pf4_thickness_Ti']/value"/> mm,
                                     glass=<xsl:value-of select="//pv[@id='pf4_thickness_Gl']/value"/> mm)
                                 </td>
                             </table>
@@ -306,29 +306,29 @@
                     </tr>
                     <tr>
                         <td align="center" bgcolor="bisque" class="description">
-                            <xsl:value-of select="//pv[@id='sampleTitle']/value"/> 
+                            <xsl:value-of select="//pv[@id='sampleTitle']/value"/>
                         </td>
                     </tr>
                     <tr>
                         <td align="center" bgcolor="lightblue">
                             <font size="4">
-                                <xsl:value-of select="//pv[@id='state']/value"/> 
+                                <xsl:value-of select="//pv[@id='state']/value"/>
                             </font>
                         </td>
                     </tr>
                     <tr>
                         <td>
                             <table border="1" width="100%" bgcolor="mintcream" rules="all">
-                                <td align="left">spec macro: 
+                                <td align="left">spec macro:
                                     <a href="usaxs.mac">
                                         <xsl:attribute name="href">
-                                        	<xsl:value-of select="//pv[@id='spec_macro_file']/value"/> 
+                                        	<xsl:value-of select="//pv[@id='spec_macro_file']/value"/>
                                         </xsl:attribute>
-                                        <xsl:value-of select="//pv[@id='spec_macro_file']/value"/> 
+                                        <xsl:value-of select="//pv[@id='spec_macro_file']/value"/>
                                     </a>
                                 </td>
                                 <td align="center">
-                                    time stamp: 
+                                    time stamp:
                                     <xsl:value-of select="//pv[@id='timeStamp']/value"/>
                                 </td>
                                 <xsl:choose>
@@ -401,10 +401,10 @@
  			</tr>
 		    </xsl:if>	<!-- end Linkam CI94 status-->
                 </table>
-                
+
                 <br/>
                 <h4>slits</h4>
-                
+
                 <table border="2">
                     <tr style="background-color: grey; color: white;">
                         <td>slits</td>
@@ -440,12 +440,12 @@
                         <td bgcolor="white"><xsl:value-of select="//pv[@id='uslitv']/value"/></td>
                         <td bgcolor="white"><xsl:value-of select="//pv[@id='uslith0']/value"/></td>
                         <td bgcolor="white"><xsl:value-of select="//pv[@id='uslitv0']/value"/></td>
-                        
+
                     </tr>
                 </table>
                 <table>
                     <tr>
-                        
+
                         <td>
                             <h4>detectors</h4>
                             <table border="2">
@@ -456,7 +456,7 @@
                                     <td>gain,V/A</td>
                                     <td>current,A</td>
                                 </tr>
-                                
+
                                 <tr>
                                     <td>I0</td>
                                     <td bgcolor="white"><xsl:value-of select="//pv[@id='scaler_I0']/value"/></td>
@@ -493,7 +493,7 @@
                                 </tr>
                             </table>
                         </td>
-                        
+
                         <td>
                             <h4>USAXS plot</h4>
                             <a href="showplot.html"><img SRC="livedata.png" alt="plot of USAXS data" WIDTH="200"/></a>
@@ -521,7 +521,7 @@
                         <td bgcolor="#dddddd"><!-- nothing --></td>
                         <td bgcolor="#dddddd"><!-- nothing --></td>
                     </tr>
-                    
+
                     <tr>
                         <td>ms</td>
                         <td bgcolor="white"><xsl:value-of select="//pv[@id='msr']/value"/></td>
@@ -549,7 +549,7 @@
                         <td bgcolor="#dddddd"><!-- nothing --></td>
                         <td bgcolor="white"><xsl:value-of select="//pv[@id='ast']/value"/></td>
                     </tr>
-                    
+
                     <tr>
                         <td>a</td>
                         <td bgcolor="white"><xsl:value-of select="//pv[@id='ar']/value"/></td>
@@ -607,27 +607,13 @@
                         <td bgcolor="#dddddd"><!-- nothing --></td>
                     </tr>
                 </table>
-                
-                <br/>
-                
-                <hr/>
-                
-                <p><small>svn id: $Id$</small></p>
-                
-            </body>
-            
-        </html>
-        
-    </xsl:template>
-    
-</xsl:stylesheet>
 
-<!-- 
-    ########### SVN repository information ###################
-    # $Date$
-    # $Author$
-    # $Revision$
-    # $URL$
-    # $Id$
-    ########### SVN repository information ###################
--->
+                <br/>
+
+            </body>
+
+        </html>
+
+    </xsl:template>
+
+</xsl:stylesheet>

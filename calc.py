@@ -21,12 +21,12 @@ TEST_FILE_OUTPUT = os.path.join('testdata', 'test_calc.h5')
 class FileNotFound(RuntimeError): pass
 
 
-def calc_R_Q(wavelength, ar, seconds, pd, pd_bkg, pd_gain, I0, 
-             I0_bkg=None, I0_gain=None, ar_center=None, 
+def calc_R_Q(wavelength, ar, seconds, pd, pd_bkg, pd_gain, I0,
+             I0_bkg=None, I0_gain=None, ar_center=None,
              V_f_gain=None):
     '''
     Calculate :math:`R(Q)`
-    
+
     :param float wavelength: :math:`lambda`, (:math:`\A`)
     :param float ar_center: center of rocking curve along AR axis
     :param numpy.ndarray([float]) ar: array of crystal analyzer angles
@@ -44,12 +44,12 @@ def calc_R_Q(wavelength, ar, seconds, pd, pd_bkg, pd_gain, I0,
     '''
     r  = amplifier_corrections(pd, seconds, pd_bkg, pd_gain)
     r0 = amplifier_corrections(I0, seconds, I0_bkg, I0_gain)
-    
+
     rVec = r / r0
     if V_f_gain is not None:        # but why?
         rVec /= V_f_gain
     rVec = numpy.ma.masked_less_equal(rVec, 0)
-    
+
     ar_r_peak = ar[numpy.argmax(rVec)]  # ar value at peak R
     rMax = rVec.max()
     if ar_center is None:       # compute ar_center from rVec and ar
@@ -57,16 +57,16 @@ def calc_R_Q(wavelength, ar, seconds, pd, pd_bkg, pd_gain, I0,
 
     d2r = math.pi / 180
     qVec = (4 * math.pi / wavelength) * numpy.sin(d2r*(ar_center - ar)/2)
-    
+
     # trim off masked points
     r0   = remove_masked_data(r0, rVec.mask)
     r    = remove_masked_data(r, rVec.mask)
     ar   = remove_masked_data(ar, rVec.mask)
     qVec = remove_masked_data(qVec, rVec.mask)
     rVec = remove_masked_data(rVec, rVec.mask)
-    
-    result = dict(Q=qVec, R=rVec, 
-                  ar=ar, r=r, r0=r0, 
+
+    result = dict(Q=qVec, R=rVec,
+                  ar=ar, r=r, r0=r0,
                   ar_0=ar_center, ar_r_peak=ar_r_peak, r_peak=rMax)
     return result
 
@@ -74,7 +74,7 @@ def calc_R_Q(wavelength, ar, seconds, pd, pd_bkg, pd_gain, I0,
 def amplifier_corrections(signal, seconds, dark, gain):
     '''
     correct for amplifier dark current and gain
-    
+
     :math:`v = (s - t*d) / g`
     '''
     #v = (signal - seconds*dark) / gain
@@ -109,7 +109,7 @@ def test_flyScan(filename):
     '''test data reduction from a flyScan (in an HDF5 file)'''
     if not os.path.exists(filename):
         raise FileNotFound(filename)
-    
+
     import reduceFlyData
     fs = reduceFlyData.UsaxsFlyScan(filename)
     # compute the R(Q) profile
@@ -132,7 +132,7 @@ def test_uascan(filename):
 
 def reduce_uascan(sds):
     '''data reduction of an uascan (in a SPEC file)
-    
+
     :params obj sds: spec2nexus.spec.SpecDataFileScan object
     :returns: dictionary of title and R(Q)
     '''
@@ -144,7 +144,7 @@ def reduce_uascan(sds):
     I0                = numpy.array(sds.data['I0'])
     I0_amplifier_gain = numpy.array(sds.metadata['I0AmpGain'])
     pd_range          = numpy.array(sds.data['pd_range'], dtype=int)
-    ar_center         = float(sds.metadata['arCenter'])      
+    ar_center         = float(sds.metadata['arCenter'])
 
     # gain & dark are stored as 1-offset, pad here with 0-offset to simplify list handling
     gain = [0, ] + map(lambda _: sds.metadata["UPD2gain" + str(_)], range(1,6))
@@ -178,9 +178,9 @@ def iso8601_datetime():
 
 def bin_xref(x, bins):
     '''
-    Return an array of arrays.  
+    Return an array of arrays.
     Outer array is in bins, inner array contains indices of x in each bin,
-    
+
     :param ndarray x: values to be mapped
     :param ndarray bins: new bin boundaries
     '''
@@ -200,15 +200,15 @@ def developer_main():
     path = os.path.dirname(__file__)
     hdf5FileName = os.path.abspath(os.path.join(path, TEST_FILE_FLYSCAN))
     fs = test_flyScan(hdf5FileName)
-    
+
     specFileName = os.path.abspath(os.path.join(path, TEST_FILE_UASCAN))
     ua = test_uascan(specFileName)
-    
+
     # - - - - - - - - - - - - - - - - - - - - - - - - - -
-    
+
     # write results to a NeXus file
-    
-    nx = spec2nexus.eznx.makeFile(os.path.abspath(os.path.join(path, TEST_FILE_OUTPUT)), 
+
+    nx = spec2nexus.eznx.makeFile(os.path.abspath(os.path.join(path, TEST_FILE_OUTPUT)),
                                   signal='flyScan',
                                   timestamp=str(datetime.datetime.now()),
                                   writer='USAXS livedata.calc and spec2nexus.eznx',
@@ -231,12 +231,3 @@ def developer_main():
 
 if __name__ == '__main__':
     developer_main()
-
-
-########### SVN repository information ###################
-# $Date$
-# $Author$
-# $Revision$
-# $URL$
-# $Id$
-########### SVN repository information ###################

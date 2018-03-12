@@ -76,7 +76,7 @@ AD_HDF5_ADDRESS_MAP = {
 
 
 class AD_ScatteringImage(object):
-    
+
     def __init__(self, hdf5_file_name):
         if not os.path.exists(hdf5_file_name):
             raise IOError, 'file not found: ' + hdf5_file_name
@@ -88,9 +88,9 @@ class AD_ScatteringImage(object):
             x = 'mm',
             Q = '1/A',
             R = 'none',
-            dR = 'none', 
+            dR = 'none',
         )
-        
+
     def read_image_data(self):
         '''
         read image data from the HDF5 file, return as instance of :class:`Image`
@@ -100,11 +100,11 @@ class AD_ScatteringImage(object):
         self.image.read_image_data()
         fp.close()
         return self.image
-        
+
     def has_reduced(self, key = 'full'):
         '''
         check if the reduced dataset is available
-        
+
         :param str|int key: name of reduced dataset (default = 'full')
         '''
         key = str(key)
@@ -121,22 +121,22 @@ class AD_ScatteringImage(object):
             raise ValueError('X & Y pixels have different sizes, not prepared for this')
 
         # TODO: construct the image mask
-        
+
         # radial averaging (average around the azimuth at constant radius, repeat at all radii)
         with numpy.errstate(invalid='ignore'):
-            radii, rAvg = azimuthalAverage(self.image.image, 
-                                           center=(self.image.x0, self.image.y0), 
+            radii, rAvg = azimuthalAverage(self.image.image,
+                                           center=(self.image.x0, self.image.y0),
                                            returnradii=True)
-        
+
         # standard deviation results do not look right, skip that in full data reduction
         # with numpy.errstate(invalid='ignore'):
         #     with warnings.catch_warnings():
         #         # sift out this RuntimeWarning warning from numpy
         #         warnings.filterwarnings('ignore', r'Degrees of freedom <= 0 for slice')
-        #         rAvgDev = azimuthalAverage(self.image.image, 
-        #                                        center=(self.image.x0, self.image.y0), 
+        #         rAvgDev = azimuthalAverage(self.image.image,
+        #                                        center=(self.image.x0, self.image.y0),
         #                                        stddev=True)
-    
+
         radii *= self.image.xsize
         Q = (4*math.pi / self.image.wavelength) * numpy.sin(0.5*numpy.arctan2(radii, self.image.SDD))
         # scale_factor = 1 /self.image.I0_gain / self.image.I0     # TODO: verify the equation
@@ -150,14 +150,14 @@ class AD_ScatteringImage(object):
         radii = calc.remove_masked_data(radii, rAvg.mask)
         # rAvgDev = calc.remove_masked_data(rAvgDev, rAvg.mask)
         rAvg = calc.remove_masked_data(rAvg, rAvg.mask)     # always remove the masked array last
-        
+
         full = dict(Q=Q, R=rAvg, x=radii)
         self.reduced = dict(full = full)    # reset the entire dictionary with new "full" reduction
 
     def rebin(self, bin_count = None):
         '''
         generate R(Q) with a bin_count bins
-        
+
         save in ``self.reduced[str(bin_count)]`` dict
         '''
         if not self.has_reduced():
@@ -165,18 +165,18 @@ class AD_ScatteringImage(object):
             if 'full' not in self.reduced:
                 raise IndexError('no data reduction: ' + self.hdf5_file_name)
                 #return
- 
+
         bin_count_full = len(self.reduced['full']['Q'])
         bin_count = min(bin_count or self.bin_count, bin_count_full)
         s = str(bin_count)
-         
+
         Q_full = self.reduced['full']['Q']
         R_full = self.reduced['full']['R']
-         
+
         # lowest non-zero Q value > 0 or minimum acceptable Q
         Qmin = Q_full.min()
         Qmax = 1.0001 * Q_full.max()
-         
+
         # pick the Q binning
         Q_bins = numpy.linspace(Qmin, Qmax, bin_count)
 
@@ -187,14 +187,14 @@ class AD_ScatteringImage(object):
                 r = R_full[xref]
                 # average Q & R in log-log space, won't matter to WAXS data at higher Q
                 if q.size > 0:
-                    qVec.append(  numpy.exp(numpy.mean(numpy.log(q))) ) 
+                    qVec.append(  numpy.exp(numpy.mean(numpy.log(q))) )
                     rVec.append(  numpy.exp(numpy.mean(numpy.log(r))) )
                     dr = r.std()
                     if dr == 0.0:
                         drVec.append( ESD_FACTOR * rVec[-1] )
                     else:
                         drVec.append( r.std() )
- 
+
         reduced = dict(
             Q  = numpy.array(qVec),
             R  = numpy.array(rVec),
@@ -202,11 +202,11 @@ class AD_ScatteringImage(object):
         )
         self.reduced[s] = reduced
         return reduced
-        
+
     def read_reduced(self):
         '''
         read any and all reduced data from the HDF5 file, return in a dictionary
-        
+
         dictionary = {
           'full': dict(Q, R)
           '250':  dict(Q, R, dR)
@@ -233,34 +233,34 @@ class AD_ScatteringImage(object):
         hdf.close()
         self.reduced = reduced
         return reduced
-    
+
     def save(self, hfile = None, key = None):
         '''
         save the reduced data group to an HDF5 file, return filename or None if not written
-        
+
         :param str hfile: output HDF5 file name (default: input HDF5 file)
         :param str key: name of reduced data set (default: nothing will be saved)
-        
+
         By default, save to the input HDF5 file.
         To override this, specify the output HDF5 file name when calling this method.
-        
+
         * If the file exists, this will not overwrite any input data.
         * Full, reduced :math:`R(Q)` goes into NXdata group::
-        
+
             /entry/areaDetector_reduced_full
-        
+
         * any previous full reduced :math:`R(Q)` will be replaced.
-        
-        * It may replace the rebinned, reduced :math:`R(Q)` 
+
+        * It may replace the rebinned, reduced :math:`R(Q)`
           if a NXdata group of the same number of bins exists.
         * Rebinned, reduced :math:`R(Q)`  goes into NXdata group::
-          
+
               /entry/areaDetector_reduced_<N>
-        
-          where ``<N>`` is the number of bins, such as (for 500 bins):: 
-          
+
+          where ``<N>`` is the number of bins, such as (for 500 bins)::
+
               /entry/areaDetector_reduced_500
-        
+
         :see: http://download.nexusformat.org/doc/html/classes/base_classes/NXentry.html
         :see: http://download.nexusformat.org/doc/html/classes/base_classes/NXdata.html
         '''
@@ -291,9 +291,9 @@ class AD_ScatteringImage(object):
         nxentry = eznx.openGroup(hdf, 'entry', 'NXentry')
         if 'default' not in nxentry.attrs:
             nxentry.attrs['default'] = nxname
-        nxdata = eznx.openGroup(nxentry, 
-                                nxname, 
-                                'NXdata', 
+        nxdata = eznx.openGroup(nxentry,
+                                nxname,
+                                'NXdata',
                                 signal='R',
                                 axes='Q',
                                 Q_indices=0,
@@ -311,7 +311,7 @@ class AD_ScatteringImage(object):
 
 
 class Image(object):
-    
+
     def __init__(self, fp):
         self.fp = fp
 
@@ -326,11 +326,11 @@ class Image(object):
         self.I0             = None
         self.I0_gain        = None
         self.hdf5_addr_map  = None
-    
+
     def read_image_data(self):
         '''
         get the image from the HDF5 file
-        
+
         determine if SAXS or WAXS based on detector name as coded into the h5addr
         '''
         detector_name_h5addr = AD_HDF5_ADDRESS_MAP['local_name']
@@ -355,12 +355,12 @@ def get_user_options():
     '''parse the command line for the user options'''
     import argparse
     parser = argparse.ArgumentParser(prog='reduceAreaDetector', description=__doc__)
-    parser.add_argument('hdf5_file', 
-                        action='store', 
+    parser.add_argument('hdf5_file',
+                        action='store',
                         help="NeXus/HDF5 data file name")
     msg =  'how many bins in output R(Q)?'
     msg += '  (default = %d)' % DEFAULT_BIN_COUNT
-    parser.add_argument('-n', 
+    parser.add_argument('-n',
                         '--num_bins',
                         dest='num_bins',
                         type=int,
@@ -368,15 +368,15 @@ def get_user_options():
                         help=msg)
     msg =  'output file name?'
     msg += '  (default = input HDF5 file)'
-    parser.add_argument('-o', 
+    parser.add_argument('-o',
                         '--output_file',
                         dest='output_file',
                         type=str,
                         default='',
                         help=msg)
-    parser.add_argument('-V', 
-                        '--version', 
-                        action='version', 
+    parser.add_argument('-V',
+                        '--version',
+                        action='version',
                         version='$Id$')
 
     parser.add_argument('--recompute-full',
@@ -384,7 +384,7 @@ def get_user_options():
                         action='store_true',
                         default=False,
                         help='(re)compute full R(Q): implies --recompute-rebinning')
- 
+
     parser.add_argument('--recompute-rebinned',
                         dest='recompute_rebinned',
                         action='store_true',
@@ -392,16 +392,16 @@ def get_user_options():
                         help='(re)compute rebinned R(Q)')
 
     return parser.parse_args()
-            
-            
-def reduce_area_detector_data(hdf5_file, 
-                              num_bins, 
-                              recompute_full=False, 
-                              recompute_rebinned=False, 
+
+
+def reduce_area_detector_data(hdf5_file,
+                              num_bins,
+                              recompute_full=False,
+                              recompute_rebinned=False,
                               output_filename=None):
     '''
     reduce areaDetector image data to R(Q)
-    
+
     :param str hdf5_file: name of HDF5 file with AD image data
     :param int num_bins: number of bins in rebinned data set
     :param bool recompute_full: set True to force recompute,
@@ -454,11 +454,11 @@ def command_line_interface():
         output_filename = cmd_args.output_file
     else:
         output_filename = cmd_args.hdf5_file
-        
-    scan = reduce_area_detector_data(cmd_args.hdf5_file, 
-                              cmd_args.num_bins, 
-                              recompute_full=cmd_args.recompute_full, 
-                              recompute_rebinned=cmd_args.recompute_rebinned, 
+
+    scan = reduce_area_detector_data(cmd_args.hdf5_file,
+                              cmd_args.num_bins,
+                              recompute_full=cmd_args.recompute_full,
+                              recompute_rebinned=cmd_args.recompute_rebinned,
                               output_filename=output_filename)
     return scan
 
@@ -470,13 +470,3 @@ if __name__ == '__main__':
         # sys.argv.append("/share1/USAXS_data/2018-01/01_30_Settle_waxs/Adam_0184.hdf")
         sys.argv.append("/tmp/Adam_0184.hdf")
     command_line_interface()
-
-
-########### SVN repository information ###################
-# $Date$
-# $Author$
-# $Revision$
-# $URL$
-# $Id$
-########### SVN repository information ###################
-

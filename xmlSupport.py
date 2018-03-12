@@ -76,7 +76,7 @@ def flagRunawayScansAsUnknown(doc, scanid):
 
 def readFileAsLines(filename):
     '''
-    open a file and read all of it into 
+    open a file and read all of it into
     memory as a list separated by line breaks,
     return None if error or cannot find file
     '''
@@ -117,7 +117,7 @@ def prettyXmlToString(element):
     dom = xml.dom.minidom.parseString(txt)
     ugly = dom.toprettyxml()
     #pretty = dom.toxml()
-    text_re = re.compile('>\n\s+([^<>\s].*?)\n\s+</', re.DOTALL)    
+    text_re = re.compile('>\n\s+([^<>\s].*?)\n\s+</', re.DOTALL)
     pretty = text_re.sub('>\g<1></', ugly)
     return "\n".join(removeBlankLines(pretty.split("\n")))
 
@@ -198,12 +198,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-########### SVN repository information ###################
-# $Date$
-# $Author$
-# $Revision$
-# $HeadURL$
-# $Id$
-########### SVN repository information ###################
