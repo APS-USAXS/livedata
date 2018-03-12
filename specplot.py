@@ -87,7 +87,9 @@ def makeScanImage(scan, plotFile):
     scanCmd = scan.scanCmd.split()[0]
     if scanCmd == 'USAXSImaging':
         # make simple image file of the data
-        process_NexusImageData(scan, plotFile, log_image=False)
+        # removed: https://github.com/APS-USAXS/livedata/issues/1
+        # process_NexusImageData(scan, plotFile, log_image=False)
+        pass
     elif scanCmd in ('pinSAXS', 'SAXS', 'WAXS'):
         # make simple image file of the data
         process_NexusImageData(scan, plotFile)
