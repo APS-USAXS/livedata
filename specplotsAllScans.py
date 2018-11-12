@@ -124,7 +124,17 @@ def plotAllSpecFileScans(specFile):
     HREF_FORMAT += "<img src=\"%s\" width=\"150\" height=\"75\" alt=\"%s\"/>"
     HREF_FORMAT += "</a>"
 
-    for scan_number in sd.getScanNumbers():
+    try:
+        scan_number_list = sd.getScanNumbers()
+    except ValueError as exc:
+        # 2018-11-12, prj:
+        # bypass a problem referencing non-integer scan numbers: 
+        # see: https://github.com/APS-USAXS/ipython-usaxs/issues/76
+        scan_number_list = []
+        template = "#= {} -- non-integer scan number in {}, traceback:\n{}"
+        print template.format(os.getpid(), specFile, exc)
+
+    for scan_number in scan_number_list:
         # TODO: was the data in _this_ scan changed since the last time the SPEC file was modified?
         #  Check the scan's date/time stamp and also if the plot exists.
         #  For a scan N, the plot may exist if the scan was in progress at the last update.
