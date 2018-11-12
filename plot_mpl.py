@@ -18,6 +18,10 @@ COLOR_LIST = "orange yellow lime green blue purple violet chocolate gray black".
 CHART_FILE = 'livedata.png'
 
 
+class PlotException(Exception):
+    """one of the plot traces has raised an excpetion"""
+
+
 # MatPlotLib has several interfaces for plotting
 # Since this module runs as part of a background job generating lots of plots,
 # the standard plt code is not the right model.  It warns after 20 plots
@@ -54,24 +58,31 @@ def livedata_plot(datasets, plotfile, title=None):
         ax.set_title(title, fontsize=12)
 
     legend_handlers = {}  # to configure legend for one symbol per dataset
+    faults = []
     for i, ds in enumerate(datasets):
-        if i < len(datasets)-1:
-            color = COLOR_LIST[i % len(COLOR_LIST)]
-            symbol = SYMBOL_LIST[i % len(SYMBOL_LIST)]
-        else:
-            color = 'red'
-            symbol = 'o'
-        if ds.label.find('(fly)') >= 0:
-            label = ds.label[:ds.label.find('(fly)')] + '(USAXS)'
-        elif ds.label.find('(SAXS)') >= 0:
-            label = ds.label[:ds.label.find('(SAXS)')] + '(SAXS)'
-        else:
-            label = ds.label
-        pl, = ax.plot(ds.Q, ds.I, symbol, label=label, mfc='w', mec=color, ms=3, mew=1)
-        legend_handlers[pl] = matplotlib.legend_handler.HandlerLine2D(numpoints=1)
+        try:
+            if i < len(datasets)-1:
+                color = COLOR_LIST[i % len(COLOR_LIST)]
+                symbol = SYMBOL_LIST[i % len(SYMBOL_LIST)]
+            else:
+                color = 'red'
+                symbol = 'o'
+            if ds.label.find('(fly)') >= 0:
+                label = ds.label[:ds.label.find('(fly)')] + '(USAXS)'
+            elif ds.label.find('(SAXS)') >= 0:
+                label = ds.label[:ds.label.find('(SAXS)')] + '(SAXS)'
+            else:
+                label = ds.label
+            pl, = ax.plot(ds.Q, ds.I, symbol, label=label, mfc='w', mec=color, ms=3, mew=1)
+            legend_handlers[pl] = matplotlib.legend_handler.HandlerLine2D(numpoints=1)
+        except Exception as exc:
+            faults.append((i, ds, exc))
 
     ax.legend(loc='lower left', fontsize=9, handler_map=legend_handlers)
     FigureCanvas(fig).print_figure(plotfile, bbox_inches='tight', facecolor=BISQUE_RGB)
+    if len(faults) > 0:
+        fault_text = "\n".join(["{}".format(f) for f in faults])
+        raise PlotException(fault_text)
 
 
 def spec_plot(x, y,
