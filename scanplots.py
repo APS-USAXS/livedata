@@ -284,8 +284,8 @@ def get_USAXS_FlyScan_Data(scan_obj):
         #fly.make_archive()
         fly.reduce()        # open the file in this step
         fly.save(hdf5File, 'full')
-	if 'full' not in fly.reduced:
-	    return None
+        if 'full' not in fly.reduced:
+            return None
         fly.rebin(localConfig.REDUCED_FLY_SCAN_BINS)
         fly.save(hdf5File, str(localConfig.REDUCED_FLY_SCAN_BINS))
     except IOError:
@@ -412,7 +412,10 @@ def main(n = None, cp=False):
                 eznx.makeDataset(nxdata, "Q", ds.Q, units='1/A')
                 eznx.makeDataset(nxdata, "R", ds.I, units='a.u.')
             f.close()
-        plot_mpl.livedata_plot(mpl_datasets, local_plot)
+        try:
+            plot_mpl.livedata_plot(mpl_datasets, local_plot)
+        except plot_mpl.PlotException as exc:
+            print "{}".format(exc)
         if cp:
             www_plot = localConfig.LOCAL_PLOTFILE
             wwwServerTransfers.scpToWebServer(local_plot, www_plot)
