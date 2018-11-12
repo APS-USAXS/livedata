@@ -24,7 +24,7 @@
   </definition>
 
 
-  <!-- Linkam CI94 status PVs PAB 2010-11-11 -->
+  <!-- Linkam CI94 status PVs JIL 2018-10 -->
   <EPICS_PV PV="9idcLAX:ci94:temp" description="Linkam Temp. 1, C"  mne="linkam_temp1"/>
   <EPICS_PV PV="9idcLAX:ci94:temp2" description="Linkam Temp. 2, C"  mne="linkam_temp2"/>
   <EPICS_PV PV="9idcLAX:ci94:status" description="Linkam Status" display_format="%s"  mne="linkam_status"/>
@@ -32,6 +32,18 @@
   <EPICS_PV PV="9idcLAX:ci94:setLimit" description="Linkam Limit, C"  mne="linkam_limit"/>
   <EPICS_PV PV="9idcLAX:ci94:errorByte" description="Linkam errors" mne="linkam_errors" />
   <!-- end Linkam CI94 status PVs -->
+
+ <!-- Linkam T96 status PVs JIL 2018-10 -->
+  <EPICS_PV PV="9idcLINKAM:tc1:temperature_RBV" description="Linkam T96 Temp., C"  mne="linkamT96_temp"/>
+  <EPICS_PV PV="9idcLINKAM:tc1:heating" description="Linkam Heating" display_format="%s"  mne="linkamT96_status"/>
+  <EPICS_PV PV="9idcLINKAM:tc1:rampRate_RBV" description="Linkam Rate, C/min"  mne="linkamT96_rate"/>
+  <EPICS_PV PV="9idcLINKAM:tc1:rampLimit_RBV" description="Linkam Limit, C"  mne="linkamT96_limit"/>
+  <EPICS_PV PV="9idcLINKAM:tc1:statusError_RBV" description="Linkam errors" mne="linkamT96_errors" />
+  <EPICS_PV PV="9idcLINKAM:tc1:lnpStatus_RBV" description="Linkam LN2 Status, C/min"  mne="linkamT96_ln2Status"/>
+  <EPICS_PV PV="9idcLINKAM:tc1:vacuumLimit_RBV" description="Linkam Pressure, mBar"  mne="linkamT96_Pressure"/>
+  <EPICS_PV PV="9idcLINKAM:tc1:vacuumStatus_RBV" description="Linkam Vacuum Status"  mne="linkamT96_VaccumStatus"/>
+  <!-- end Linkam T96 status PVs -->
+
 
   <EPICS_PV PV="ID09:Energy"    mne="Und_E" description="ID E, keV"  display_format="%.4f"/>
   <EPICS_PV PV="9ida:BraggEAO" mne="DCM_E" description="DCM E, keV" display_format="%.4f"/>

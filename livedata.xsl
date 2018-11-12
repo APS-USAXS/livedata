@@ -360,14 +360,13 @@
                         </td>
                     </tr>
 
-		    <xsl:if test="//pv[@id='linkam_status']/value!=0">
+		    <xsl:if test="//pv[@id='linkam_status']/value!=0">	<!-- start Linkam CI94 NIST 1500 status-->
 			<tr>
  			    <td>
  				<table border="1" width="100%" bgcolor="mintcream" rules="all">
- 				    <td align="left">Linkam temps:(1)
+ 				    <td align="left">Linkam 1500 temp:
  					<xsl:value-of select="//pv[@id='linkam_temp1']/value"
- 					/>C/(2)<xsl:value-of select="//pv[@id='linkam_temp2']/value"/> C
- 				    </td>
+ 					/> C </td>
  				    <td align="center">
  					<xsl:choose>
 					    <xsl:when test="//pv[@id='linkam_status']/value=0"> stopped </xsl:when>
@@ -385,7 +384,7 @@
  				       Rate: <xsl:value-of select="//pv[@id='linkam_rate']/value"/> C/min
  				    </td>
 				    <td align="center">
-				       Limit: <xsl:value-of select="//pv[@id='linkam_limit']/value"/>C
+				       Target Temp: <xsl:value-of select="//pv[@id='linkam_limit']/value"/>C
 				    </td>
 				    <xsl:choose>
 				       <xsl:when test="//pv[@id='linkam_errors']/value=65408">
@@ -400,6 +399,43 @@
  			    </td>
  			</tr>
 		    </xsl:if>	<!-- end Linkam CI94 status-->
+         
+         	<tr>   <!-- start Linkam T96 status-->
+ 			    <td>
+ 				<table border="1" width="100%" bgcolor="mintcream" rules="all">
+ 				    <td align="left">Linkam 350V/600/1500V T/P    :
+ 					<xsl:value-of select="//pv[@id='linkamT96_temp']/value"
+ 					/> C/ <xsl:value-of select="//pv[@id='linkamT96_Pressure']/value"/> mBar
+ 				    </td>
+ 				    <td align="center">
+ 					<xsl:choose>
+					    <xsl:when test="//pv[@id='linkamT96_status']/value=0"> stopped </xsl:when>
+ 					    <xsl:when test="//pv[@id='linkamT96_status']/value=1"> heating/cooling/holding </xsl:when>
+ 					    <xsl:otherwise>
+						    unknown status: <xsl:value-of select="//pv[@id='linkamT96_status']/value"/>
+					    </xsl:otherwise>
+				       </xsl:choose>
+ 				    </td>
+ 				    <td align="center">
+ 				       Rate: <xsl:value-of select="//pv[@id='linkamT96_rate']/value"/> C/min
+ 				    </td>
+				    <td align="center">
+				       Target Temp: <xsl:value-of select="//pv[@id='linkamT96_limit']/value"/>C
+				    </td>
+				    <xsl:choose>
+				       <xsl:when test="//pv[@id='linkamT96_errors']/value=0">
+					    <td align="center" bgcolor="#22ff22">
+					    No controller errors </td>
+				       </xsl:when>
+				       <xsl:otherwise>
+					    <td align="center" bgcolor="#ff2222">
+					    Controller Error!!!  </td>
+				       </xsl:otherwise>
+				    </xsl:choose>
+ 				</table>
+ 			    </td>
+ 			</tr>    <!-- end Linkam T96 status-->      
+         
                 </table>
 
                 <br/>
