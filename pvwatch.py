@@ -149,9 +149,8 @@ def updatePlotImage():
 
 def writeFile(filename, contents):
     '''write contents to file'''
-    f = open(filename, 'w')
-    f.write(contents)
-    f.close()
+    with open(filename, 'w') as f:
+        f.write(contents)
 
 
 def xslt_transformation(xslt_file, src_xml_file, result_xml_file):
