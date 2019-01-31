@@ -50,10 +50,9 @@ def is_mtime_changed(fname):
         return cache
 
     def saveCacheFile(cache_file, cache):
-        f = open(cache_file, 'w')
-        for key, val in sorted(cache.items()):
-            f.write('%s\t%f\n' % (key, val))
-        f.close()
+        with open(cache_file, 'w') as f:
+            for key, val in sorted(cache.items()):
+                f.write('%s\t%f\n' % (key, val))
 
     changed = False
     mtime = getTimeFileModified(fname)
@@ -167,9 +166,8 @@ def plotAllSpecFileScans(specFile):
     if len(newFileList) or not os.path.exists(htmlFile):
         logger('  creating/updating index.html file')
         html = build_index_html(baseSpecFile, specFile, plotList)
-        f = open(htmlFile, "w")
-        f.write(html)
-        f.close()
+        with open(htmlFile, "w") as f:
+            f.write(html)
         newFileList.append(htmlFile)
 
     # touch to update the mtime on the png_directory
@@ -236,14 +234,13 @@ def get_SpecFileDate(specFile):
         return None
 
     # read the first lines of the file and validate for SPEC data file format
-    f = open(specFile, 'r')
-    line = f.readline()
-    if not line.startswith('#F '): return None
-    line = f.readline()
-    if not line.startswith('#E '): return None
-    line = f.readline()
-    if not line.startswith('#D '): return None
-    f.close()
+    with open(specFile, 'r') as f:
+        line = f.readline()
+        if not line.startswith('#F '): return None
+        line = f.readline()
+        if not line.startswith('#E '): return None
+        line = f.readline()
+        if not line.startswith('#D '): return None
 
     return line[2:].strip()  # 'Thu Jun 19 12:21:55 2014'
 

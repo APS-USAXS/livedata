@@ -83,9 +83,8 @@ def readFileAsLines(filename):
     if not os.path.exists(filename):
         return None
     try:
-        f = open(filename, 'r')
-        buf = f.read()
-        f.close()
+        with open(filename, 'r') as f:
+            buf = f.read()
         return buf.split("\n")
     except:
         return None
@@ -95,9 +94,8 @@ def readFileAsLines(filename):
 def writeLinesInFile(filename, lines):
     '''write a list of lines to a file, ignore any errors'''
     try:
-        f = open(filename, 'w')
-        f.write("\n".join(lines) + "\n")
-        f.close()
+        with open(filename, 'w') as f:
+            f.write("\n".join(lines) + "\n")
     except:
         pass
 
