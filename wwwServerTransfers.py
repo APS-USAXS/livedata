@@ -12,6 +12,7 @@ import datetime
 import logging
 import paramiko
 import socket
+import threading
 
 from scp import SCPClient, report_scp_progress, SCPException
 import pvwatch
@@ -62,23 +63,35 @@ def scpToWebServer(sourceFile, targetFile = "", demo = False):
         print "%s -p %s %s" % (SCP, sourceFile, destinationName)
         return None
 
+    logger.info("Number of threads running: {}".format(threading.active_count()))
+
     # TODO: handle exceptions
     ssh = createSSHClient(WWW_SERVER, user=WWW_SERVER_USER)
+
+    logger.info("Number of threads running: {}".format(threading.active_count()))
+
     report = None
     #report = report_scp_progress    # debugging
     scp = SCPClient(ssh.get_transport(), progress=report)
+
     for _retry in range(RETRY_COUNT):
         try:
             scp.put(sourceFile, remote_path=LIVEDATA_DIR)
-            if _retry > 0:
+            if _retry > 0:  # only report after some retries, otherwise return quietly
                 msg = "scp was successful after %d tries" % (_retry+1)
                 logger.info(msg)
+            ssh.close()
+            logger.info("Number of threads running: {}".format(threading.active_count()))
             return
         except (SCPException, paramiko.SSHException, socket.error), exc:
             msg = 'scp attempt %d: %s' % ((_retry+1), str(exc))
             logger.info(msg)
+
     msg = 'tried %d times: scp %s %s' % (RETRY_COUNT, sourceFile, targetFile)
     WwwServerScpException(msg)
+    logger.info("Number of threads running: {}".format(threading.active_count()))
+    ssh.close()
+    logger.info("Number of threads running: {}".format(threading.active_count()))
 
 
 def scpToWebServer_Demonstrate(sourceFile, targetFile = ""):
@@ -151,12 +164,16 @@ def createSSHClient(server, port=None, user=None, password=None):
     '''scp over a paramiko transport'''
     # see: http://stackoverflow.com/questions/250283/how-to-scp-in-python
     # TODO: handle exceptions
+    logger.info("Number of threads running: {}".format(threading.active_count()))
     client = paramiko.SSHClient()
+    logger.info("Number of threads running: {}".format(threading.active_count()))
     client.load_system_host_keys()
     client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     #client.connect(server, port, user, password)
     client.connect(server, username=user)
+    logger.info("Number of threads running: {}".format(threading.active_count()))
     transport = client.get_transport()
+    logger.info("Number of threads running: {}".format(threading.active_count()))
     transport.logger.setLevel(logging.WARNING)  # otherwise, reports frequently
     return client
 
