@@ -303,11 +303,15 @@ def EPICS_monitor_receiver(*args, **kws):
     if pv not in pvdb:
         msg = '!!!ERROR!!! %s was not found in pvdb!' % pv
         raise PvNotRegistered, msg
-    update_pvdb(pv, kws['value'])   # cache the last known good value
+    if pvdb[pv]["waveform_char"]:
+        v = kws['char_value']
+    else:
+        v = kws['value']
+    update_pvdb(pv, v)   # cache the last known good value
     GLOBAL_MONITOR_COUNTER += 1
 
 
-def add_pv(mne, pv, desc, fmt):
+def add_pv(mne, pv, desc, fmt, waveform_char=False):
     '''Connect to another EPICS (PyEpics) process variable'''
     if pv in pvdb:
         raise Exception("%s already defined by id=%s" % (pv, pvdb[pv]['id']))
@@ -323,7 +327,8 @@ def add_pv(mne, pv, desc, fmt):
         'ch': ch,             # EPICS PV channel
         'format': fmt,        # format for display
         'value': None,        # formatted value
-        'raw_value': None     # unformatted value
+        'raw_value': None,    # unformatted value
+        'waveform_char': waveform_char,     # PV is a waveform of CHAR
     }
     pvdb[pv] = entry
     xref[mne] = pv            # mne is local mnemonic, define actual PV in pvlist.xml
@@ -363,8 +368,9 @@ def initiate_PV_connections():
             pv = key.get("PV")
             desc = key.get("description")
             fmt = key.get("display_format", "%s")  # default format
+            waveform_char = key.get("waveform_char", "false").lower() == "true"
             try:
-                add_pv(mne, pv, desc, fmt)
+                add_pv(mne, pv, desc, fmt, waveform_char=waveform_char)
             except:
                 msg = "%s: problem connecting: %s" % (PVLIST_FILE, ElementTree.tostring(key))
                 logException(msg)
@@ -413,7 +419,7 @@ def main():
     connected = ch.connect(timeout=5.0)
     if not connected:
         logMessage('Did not connect PV: ' + str(ch))
-	logMessage('program will exit')
+        logMessage('program will exit')
         return
 
     logMessage("starting pvwatch.py")
