@@ -217,7 +217,7 @@ class SCPClient(object):
             raise SCPException('Invalid response from server: ' + msg)
 
     def _recv_all(self):
-        # loop over scp commands, and recive as necessary
+        # loop over scp commands, and receive as necessary
         command = {'C': self._recv_file,
                    'T': self._set_time,
                    'D': self._recv_pushd,
