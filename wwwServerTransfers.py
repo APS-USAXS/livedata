@@ -9,12 +9,15 @@ import os, sys
 import subprocess
 import shlex
 import datetime
+import logging
 import paramiko
 import socket
 
 from scp import SCPClient, report_scp_progress, SCPException
 import pvwatch
 
+
+logger = logging.getLogger(__name__)
 
 # general use
 #WWW_SERVER = 'www-i.xray.aps.anl.gov'
@@ -69,11 +72,11 @@ def scpToWebServer(sourceFile, targetFile = "", demo = False):
             scp.put(sourceFile, remote_path=LIVEDATA_DIR)
             if _retry > 0:
                 msg = "scp was successful after %d tries" % (_retry+1)
-                pvwatch.logMessage(msg)
+                logger.info(msg)
             return
         except (SCPException, paramiko.SSHException, socket.error), exc:
             msg = 'scp attempt %d: %s' % ((_retry+1), str(exc))
-            pvwatch.logMessage(msg)
+            logger.info(msg)
     msg = 'tried %d times: scp %s %s' % (RETRY_COUNT, sourceFile, targetFile)
     WwwServerScpException(msg)
 
@@ -128,7 +131,7 @@ def scpToWebServer_subprocess(sourceFile, targetFile = "", demo = False):
             msg = {True: 'problem', False: 'timeout'}[finished]
             msg += ': command `%s` returned code=%d' % (command, code)
             msg += '\nSTDOUT=%s\nSTDERR=%s' % (str(result[0]), str(result[1]))
-            pvwatch.logMessage(msg)
+            logger.info(msg)
         return result
 
 
@@ -153,6 +156,8 @@ def createSSHClient(server, port=None, user=None, password=None):
     client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     #client.connect(server, port, user, password)
     client.connect(server, username=user)
+    transport = client.get_transport()
+    transport.logger.setLevel(logging.WARNING)  # otherwise, reports frequently
     return client
 
 

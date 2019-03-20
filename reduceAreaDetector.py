@@ -3,6 +3,7 @@
 '''reduceAreaDetector: reduce the raw data from Area Detector images to R(Q)'''
 
 import h5py                 #@UnusedImport
+import logging
 import math                 #@UnusedImport
 import numpy                #@UnusedImport
 import os                   #@UnusedImport
@@ -18,6 +19,7 @@ import pvwatch
 # import ustep                #@UnusedImport
 from radialprofile import azimuthalAverage
 
+logger = logging.getLogger(__name__)
 
 # TODO: list
 # [x] copy fly scan data reduction code for SAXS&WAXS
@@ -282,7 +284,7 @@ class AD_ScatteringImage(object):
             # real problem is that these HDF5 files have the wrong uid/gid, as set by the Pilatus computer
             # TODO: fix each Pilatus and this problem will go away
             # TODO: change uid/gid on all the acquired HDF5 files (*.h5, *.hdf) under usaxscontrol:/share1/USAXS_data/2*
-	        # Files should be owned by usaxs:usaxs (1810:2026), but are owned by tomo2:usaxs (500:2026) as seen by usaxs@usaxscontrol
+            # Files should be owned by usaxs:usaxs (1810:2026), but are owned by tomo2:usaxs (500:2026) as seen by usaxs@usaxscontrol
             # not enough to change the "umask" on the det@dec1122 computer, what else will fix this?
             pvwatch.logMessage( "Problem writing reduced data back to file: " + hfile )
             return

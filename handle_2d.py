@@ -7,11 +7,14 @@ handle 2-D raw SAXS and WAXS data
 
 import os
 import h5py
+import logging
 import numpy
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
+
+logger = logging.getLogger(__name__)
 
 PATH_TO_HERE = os.path.abspath(os.path.split(__file__)[0])
 TEST_FILE = os.path.join(PATH_TO_HERE, 'testdata', '2014-06-12', 'waxs', 'LSM_YSZ_infl_227.hdf5')

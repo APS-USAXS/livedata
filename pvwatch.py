@@ -29,15 +29,13 @@ import scanplots
 import wwwServerTransfers
 
 
-LOGGER_FORMAT = "%(asctime)s (%(levelname)s,%(process)d,%(module)s,%(lineno)d) "
+LOGGER_FORMAT = "%(asctime)s (%(levelname)s,%(process)d,%(name)s,%(module)s,%(lineno)d) %(message)s"
 logging.basicConfig(level=logging.INFO, format=LOGGER_FORMAT)
 logger = logging.getLogger(__name__)
 
 
 def logMessage(msg):
     '''write a message with a timestamp and pid to the log file'''
-    #scriptName = os.path.basename(sys.argv[0])
-    #print "[%s %d %s] %s" % (scriptName, os.getpid(), datetime.datetime.now(), msg)
     #sys.stdout.flush()
     logger.info(msg)
 
@@ -46,9 +44,9 @@ try:
     # http://faulthandler.readthedocs.org
     import faulthandler
     faulthandler.enable()
-    logMessage("faulthandler: module enabled")
+    logger.info("faulthandler: module enabled")
 except ImportError, exc:
-    logMessage("faulthandler: module not imported")
+    logger.info("faulthandler: module not imported")
 
 
 global GLOBAL_MONITOR_COUNTER
@@ -74,9 +72,9 @@ def logException(troublemaker):
     '''write an exception report to the log file'''
     msg = "problem with %s:" % troublemaker
     for _ in msg.splitlines():
-        logMessage(_)
+        logger.info(_)
     for _ in traceback.format_exc().splitlines():
-        logMessage('\t' + _)
+        logger.info('\t' + _)
 
 
 def getSpecFileName(pv):
@@ -102,10 +100,10 @@ def updateSpecMacroFile():
     specFile = getSpecFileName(xref['spec_macro_file'])
     if not os.path.exists(specFile):
         # @TODO: will this write too much to the logs?
-        logMessage(specFile + " does not exist")
+        logger.debug(specFile + " does not exist")
         return
     if not os.path.isfile(specFile):
-        logMessage(specFile + " is not a file")
+        logger.debug(specFile + " is not a file")
         return
     localDir = localConfig.LOCAL_WWW_LIVEDATA_DIR
     macroFile = localConfig.SPECMACRO_TXT_FILE
@@ -129,10 +127,10 @@ def updatePlotImage():
 
     specFile = getSpecFileName(xref['spec_data_file'])
     if not os.path.exists(specFile):
-        logMessage(specFile + " does not exist")
+        logger.info(specFile + " does not exist")
         return
     if not os.path.isfile(specFile):
-        logMessage(specFile + " is not a file")
+        logger.info(specFile + " is not a file")
         return
     spec_mtime = os.stat(specFile).st_mtime
 
@@ -144,7 +142,7 @@ def updatePlotImage():
         makePlot = spec_mtime > plot_mtime        #  plot only if new data
 
     if makePlot:
-        #logMessage("updating the plots and gathering scan data for XML file")
+        logger.debug("updating the plots and gathering scan data for XML file")
         scanplots.main(n=localConfig.NUM_SCANS_PLOTTED, cp=True)
 
 
@@ -222,9 +220,9 @@ def buildReport():
             vec.set('units', 'arbitrary')
             vec.text = ' '.join(textArray(scan['rVec']))
         except Exception, e:
-            logMessage('caught Exception while writing USAXS scan data to XML file')
-            logMessage('  file: %s' % specfile)
-            logMessage(e)
+            logger.info('caught Exception while writing USAXS scan data to XML file')
+            logger.info('  file: %s' % specfile)
+            logger.info(e)
 
     # final steps
     # ProcessingInstruction for 2nd line of XML
@@ -355,12 +353,12 @@ def add_pv(mne, pv, desc, fmt, waveform_char=False):
 def initiate_PV_connections():
     '''create connections to all defined PVs'''
     if not os.path.exists(PVLIST_FILE):
-        logMessage('could not find file: ' + PVLIST_FILE)
+        logger.info('could not find file: ' + PVLIST_FILE)
         return
     try:
         tree = ElementTree.parse(PVLIST_FILE)
     except:
-        logMessage('could not parse file: ' + PVLIST_FILE)
+        logger.info('could not parse file: ' + PVLIST_FILE)
         return
 
     for key in tree.findall(".//EPICS_PV"):
@@ -385,7 +383,7 @@ def main_event_loop_checks(mainLoopCount, nextReport, nextLog, delta_report, del
     epics.ca.poll()
 
     if mainLoopCount == 0:
-        logMessage(" %s times through main loop" % MAINLOOP_COUNTER_TRIGGER)
+        logger.info(" %s times through main loop" % MAINLOOP_COUNTER_TRIGGER)
 
     if dt >= nextReport:
         nextReport = dt + delta_report
@@ -402,7 +400,7 @@ def main_event_loop_checks(mainLoopCount, nextReport, nextLog, delta_report, del
     if dt >= nextLog:
         nextLog = dt + delta_log
         msg = "checkpoint, %d EPICS monitor events received" % GLOBAL_MONITOR_COUNTER
-        logMessage(msg)
+        logger.info(msg)
         GLOBAL_MONITOR_COUNTER = 0  # reset
 
     return nextReport, nextLog
@@ -419,14 +417,14 @@ def main():
     epics.ca.poll()
     connected = ch.connect(timeout=5.0)
     if not connected:
-        logMessage('Did not connect PV: ' + str(ch))
-        logMessage('program will exit')
+        logger.info('Did not connect PV: ' + str(ch))
+        logger.info('program will exit')
         return
 
-    logMessage("starting pvwatch.py")
+    logger.info("starting pvwatch.py")
     initiate_PV_connections()
 
-    logMessage("Connected %d EPICS PVs" % len(pvdb))
+    logger.info("Connected %d EPICS PVs" % len(pvdb))
 
     nextReport = datetime.datetime.now()
     nextLog = nextReport

@@ -6,6 +6,8 @@ Step-Size Algorithm for Bonse-Hart Ultra-Small-Angle Scattering Instruments
 :see: http://usaxs.xray.aps.anl.gov/docs/ustep/index.html
 '''
 
+import logging
+logger = logging.getLogger(__name__)
 
 class ustep(object):
     '''
@@ -93,7 +95,7 @@ class ustep(object):
         This search technique picks a new factor based on the fit of the present choice.
         It converges but not quickly.
         '''
-        #print '\t'.join('factor diff'.split())
+        logger.debug('\t'.join('factor diff'.split()))
         span_target = abs(self.finish - self.start)
         span_precision = abs(self.minStep) * 0.2
         factor = abs(self.finish-self.start) / (self.numPts -1)
@@ -104,7 +106,7 @@ class ustep(object):
             self.make_series(factor)
             span = abs(self.series[0] - self.series[-1])
             span_diff = span - span_target
-            #print '\t'.join(map(str,[factor, span_diff]))
+            logger.debug('\t'.join(map(str,[factor, span_diff])))
             if abs(span_diff) <= span_precision:
                 break
             if span_diff < 0:

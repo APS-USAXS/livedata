@@ -15,14 +15,16 @@ import sys
 import time
 import shutil
 
+logger = logging.getLogger(__name__)
+
 try:
     # better reporting of SEGFAULT
     # http://faulthandler.readthedocs.org
     import faulthandler
     faulthandler.enable()
-    print "#= %d --faulthandler" % os.getpid() + "-"*10 + " module enabled"
+    logger.info("faulthandler: module enabled")
 except ImportError, exc:
-    print "#= %d --faulthandler" % os.getpid() + "-"*10 + " module not imported"
+    logger.warning("faulthandler: module not imported")
 
 import specplot
 import localConfig      # definitions for 9-ID
@@ -65,7 +67,7 @@ def is_mtime_changed(fname):
         changed = True
 
     if changed:
-        logger('  SPEC data file updated: ' + fname)
+        logger.info('  SPEC data file updated: ' + fname)
         saveCacheFile(localConfig.MTIME_CACHE_FILE, MTIME_CACHE)
 
     return changed
@@ -89,14 +91,14 @@ def plotAllSpecFileScans(specFile):
         # This assumes people don't modify the png_directory
         return
     if png_directory != None:
-        logger('updating plots in directory: ' + png_directory)
+        logger.info('updating plots in directory: ' + png_directory)
     else:
-        logger('updating plots in directory: None')
-    logger('  mtime_specFile: ' + str(mtime_specFile))
-    logger('  mtime_pngdir:   ' + str(mtime_pngdir))
+        logger.info('updating plots in directory: None')
+    logger.info('  mtime_specFile: ' + str(mtime_specFile))
+    logger.info('  mtime_pngdir:   ' + str(mtime_pngdir))
 
     try:
-        logger('opening SPEC data file: ' + specFile)
+        logger.info('opening SPEC data file: ' + specFile)
         sd = specplot.openSpecFile(specFile)
     except:
         return    # could not open file, be silent about it
@@ -108,14 +110,14 @@ def plotAllSpecFileScans(specFile):
 
     if not os.path.exists(png_directory):
         os.makedirs(png_directory)
-        logger('creating directory: ' + png_directory)
+        logger.info('creating directory: ' + png_directory)
 
     # copy the SPEC data file to the WWW site, only if file has newer mtime
     baseSpecFile = os.path.basename(specFile)
     wwwSpecFile = os.path.join(png_directory, baseSpecFile)
     if needToCopySpecDataFile(wwwSpecFile, mtime_specFile):
         # copy specFile to WWW site
-        logger('  copying SPEC data file to web directory: ' + wwwSpecFile)
+        logger.info('  copying SPEC data file to web directory: ' + wwwSpecFile)
         shutil.copy2(specFile,wwwSpecFile)
         newFileList.append(wwwSpecFile)
 
@@ -127,11 +129,11 @@ def plotAllSpecFileScans(specFile):
         scan_number_list = sd.getScanNumbers()
     except ValueError as exc:
         # 2018-11-12, prj:
-        # bypass a problem referencing non-integer scan numbers: 
+        # bypass a problem referencing non-integer scan numbers:
         # see: https://github.com/APS-USAXS/ipython-usaxs/issues/76
         scan_number_list = []
-        template = "#= {} -- non-integer scan number in {}, traceback:\n{}"
-        print template.format(os.getpid(), specFile, exc)
+        logger.warn("non-integer scan number in " + specFile)
+        logger.warn("traceback:\n" + str(exc))
 
     for scan_number in scan_number_list:
         # TODO: was the data in _this_ scan changed since the last time the SPEC file was modified?
@@ -145,17 +147,17 @@ def plotAllSpecFileScans(specFile):
         altText = "#%s: %s" % (scan.scanNum, scan.scanCmd)
         href = HREF_FORMAT % (basePlotFile, basePlotFile, altText)
         plotList.append(href)
-        #print "specplot.py %s %s %s" % (specFile, scan.scanNum, fullPlotFile)
+        logger.debug("{} {} {}".format(specFile, scan.scanNum, fullPlotFile))
         cmd = scan.scanCmd.strip()
         cmd = cmd[:cmd.find(' ')]
         if needToMakePlot(fullPlotFile, mtime_specFile):
             try:
-                logger('  creating SPEC data scan image: ' + basePlotFile)
+                logger.info('  creating SPEC data scan image: ' + basePlotFile)
                 specplot.makeScanImage(scan, fullPlotFile)
                 newFileList.append(fullPlotFile)
             except Exception as _exc:
                 msg = "ERROR: '%s' %s #%s" % (_exc.message, specFile, scan.scanNum)
-                # print msg
+                logger.debug(msg)
                 plotList.pop()     # rewrite the default link
                 plotList.append("<!-- " + msg + " -->")
                 altText = "%s: #%s %s" % (_exc.message, scan.scanNum, scan.scanCmd)
@@ -164,7 +166,7 @@ def plotAllSpecFileScans(specFile):
 
     htmlFile = os.path.join(png_directory, "index.html")
     if len(newFileList) or not os.path.exists(htmlFile):
-        logger('  creating/updating index.html file')
+        logger.info('  creating/updating index.html file')
         html = build_index_html(baseSpecFile, specFile, plotList)
         with open(htmlFile, "w") as f:
             f.write(html)
@@ -178,10 +180,10 @@ def plotAllSpecFileScans(specFile):
         cwd = os.getcwd()
         os.chdir(wwwServerTransfers.LOCAL_WWW)
         try:
-            logger('  uploading files to WWW server: ' + ', '.join(newFileList))
+            logger.info('  uploading files to WWW server: ' + ', '.join(newFileList))
             upload(newFileList, sd)
         except Exception, exc:
-            logger('  ERROR %s: could not upload to WWW server' % exc.message)
+            logger.error('  ERROR %s: could not upload to WWW server' % exc.message)
         os.chdir(cwd)
 
 
@@ -321,19 +323,19 @@ def build_index_html(baseSpecFile, specFile, plotList):
     return html
 
 
-def logger(message):
-    '''
-    log a message or report from this module
-
-    :param str message: words to be logged
-    '''
-    #print message
-    now = datetime.datetime.now()
-    name = os.path.basename(sys.argv[0])
-    pid = os.getpid()
-    text = "(%d,%s,%s) %s" % (pid, name, now, message)
-    #print text
-    logging.info(text)
+# def logger(message):
+#     '''
+#     log a message or report from this module
+#
+#     :param str message: words to be logged
+#     '''
+#     #print message
+#     now = datetime.datetime.now()
+#     name = os.path.basename(sys.argv[0])
+#     pid = os.getpid()
+#     text = "(%d,%s,%s) %s" % (pid, name, now, message)
+#     #print text
+#     logging.info(text)
 
 
 if __name__ == '__main__':
@@ -343,10 +345,12 @@ if __name__ == '__main__':
         filelist = [localConfig.TEST_SPEC_DATA]     # developer use
 
     log_file = os.path.join(localConfig.LOCAL_SPECPLOTS_DIR, 'processing.log')
-    logging.basicConfig(filename=log_file, level=logging.INFO)
-    logger('>'*10 + ' starting')
-    logger('file list: ' + ', '.join(filelist))
+    log_format = "%(asctime)s (%(levelname)s,%(process)d,%(name)s,%(module)s,%(lineno)d) %(message)s"
+    logging.basicConfig(filename=log_file, level=logging.INFO, format=log_format)
+    logger = logging.getLogger(__name__)
+    logger.info('>'*10 + ' starting')
+    logger.info('file list: ' + ', '.join(filelist))
 
     for specFile in filelist:
         plotAllSpecFileScans(specFile)
-    logger('<'*10 + ' finished')
+    logger.info('<'*10 + ' finished')

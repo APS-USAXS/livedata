@@ -4,10 +4,14 @@
 
 
 import datetime
+import logging
 import matplotlib
 matplotlib.use('Agg')
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 import numpy as np
+
+
+logger = logging.getLogger(__name__)
 
 BISQUE_RGB    = (255./255, 228./255, 196./255)  # 255 228 196 bisque
 MINTCREAM_RGB = (245./255, 255./255, 250./255)  # 245 255 250 MintCream

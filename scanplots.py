@@ -4,6 +4,7 @@
 
 
 import datetime
+import logging
 import math
 import numpy
 import os
@@ -17,6 +18,7 @@ import wwwServerTransfers
 import xmlSupport
 
 
+logger = logging.getLogger(__name__)
 SCANLOG = '/share1/local_livedata/scanlog.xml'
 NUMBER_SCANS_TO_PLOT = 5
 scan_cache = None
@@ -291,10 +293,10 @@ def get_USAXS_FlyScan_Data(scan_obj):
     except IOError:
         return None     # file may not be available yet for reading if fly scan is still going
     except KeyError, exc:
-        print 'HDF5 file:', hdf5File
+        logger.info('HDF5 file:' + hdf5File)
         raise KeyError(exc)
     except reduceFlyData.NoFlyScanData, _exc:
-        print str(_exc)
+        logger.info(str(_exc))
         return None     # HDF5 file exists but length of raw data is zero
 
     fname = os.path.split(hdf5File)[-1]
@@ -380,7 +382,7 @@ def get_USAXS_data(cache):
             if mpl_ds is None: continue
             if len(mpl_ds.Q) > 0 and len(mpl_ds.I) > 0:
                 mpl_datasets.append(mpl_ds)
-        # print key, scanMacro
+        logger.debug("{} = {}".format(key, scanMacro))
     return mpl_datasets
 
 
@@ -415,7 +417,7 @@ def main(n = None, cp=False):
         try:
             plot_mpl.livedata_plot(mpl_datasets, local_plot)
         except plot_mpl.PlotException as exc:
-            print "{}".format(exc)
+            logger.info("{}".format(exc))
         if cp:
             www_plot = localConfig.LOCAL_PLOTFILE
             wwwServerTransfers.scpToWebServer(local_plot, www_plot)

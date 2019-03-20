@@ -2,12 +2,15 @@
 
 '''read XML configuration files into a common data structure'''
 
+import logging
 import os.path
 import re
 import sys
 import time
 from xml.etree import ElementTree
 import xml.dom.minidom
+
+logger = logging.getLogger(__name__)
 
 #**************************************************************************
 
@@ -29,10 +32,11 @@ def readPvlistXML(xmlFile):
     return(xref)
 
 #**************************************************************************
+readConfigurationXML = readPvlistXML
 
-def readConfigurationXML(pvListFile):
-    '''locate the PV configuration from XML into memory'''
-    return readPvlistXML(pvListFile)
+# def readConfigurationXML(pvListFile):
+#     '''locate the PV configuration from XML into memory'''
+#     return readPvlistXML(pvListFile)
 
 #**************************************************************************
 
@@ -180,7 +184,7 @@ def main():
         pwd = '.'
     config = readConfigurationXML(os.path.join(pwd, 'pvlist.xml'))
     if len(config) == 0:
-        print "ERROR: could not read the configuration file"
+        logger.error("ERROR: could not read the configuration file")
         return
     doc = openScanLogFile(config['scanLogFile'])
     root = doc.getroot()

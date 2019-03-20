@@ -17,6 +17,8 @@ import reduceFlyData
 import handle_2d
 
 
+logger = logging.getLogger(__name__)
+
 def retrieve_specScanData(scan):
     '''retrieve default data from spec data file'''
     x = scan.data[scan.column_first]
@@ -79,7 +81,7 @@ def process_NexusImageData(scan, imgfile, **attr):
     if os.path.exists(h5file) and not os.path.exists(imgfile):
         path = localConfig.HDF5_PATH_TO_IMAGE_DATA
         handle_2d.make_png(h5file, imgfile, path, **attr)
-        print '(' + str(os.getpid()) + ') created: ' + imgfile
+        logger.info('created: ' + imgfile)
 
 
 def makeScanImage(scan, plotFile):

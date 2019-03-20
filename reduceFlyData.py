@@ -3,6 +3,7 @@
 '''reduceFlyScanData: reduce the raw data from USAXS Fly Scans to R(Q)'''
 
 import h5py                 #@UnusedImport
+import logging
 import math                 #@UnusedImport
 import numpy                #@UnusedImport
 import os                   #@UnusedImport
@@ -16,6 +17,7 @@ import pvwatch
 import ustep                #@UnusedImport
 
 
+logger = logging.getLogger(__name__)
 ARCHIVE_SUBDIR_NAME = 'archive'
 DEFAULT_BIN_COUNT   = localConfig.REDUCED_FLY_SCAN_BINS
 FIXED_VF_GAIN       = localConfig.FIXED_VF_GAIN
@@ -309,7 +311,7 @@ class UsaxsFlyScan(object):
             raise ValueError, msg
 
         # TODO: find better way to report this information
-        #print "  possible vibrations during scan, re-generating AR from 10Hz sampling array"
+        logger.warning("  possible vibrations during scan, re-generating AR from 10Hz sampling array")
         pso, ar = self.getAR_10Hz_Array(hdf)
 
         linear_interpolation_func = scipy.interpolate.interp1d(pso, ar)

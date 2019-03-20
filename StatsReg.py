@@ -28,11 +28,12 @@ Source code documentation
 '''
 
 
-
+import logging
 import math
 
 
 version = '0.1a'
+logger = logging.getLogger(__name__)
 
 
 class StatsRegClass:
@@ -141,24 +142,24 @@ class StatsRegClass:
 
     def  Mean(self):
         '''
-		arithmetic mean of X & Y
+        arithmetic mean of X & Y
 
-		.. math::
+        .. math::
 
-		  (1 / N) \\sum_i^N x_i
+          (1 / N) \\sum_i^N x_i
 
-		:return: mean X and Y values
-		:rtype: float
-		'''
+        :return: mean X and Y values
+        :rtype: float
+        '''
         if self.mean == None:
             self.mean = (self.sumX / self.weight, self.sumY / self.weight)
         return self.mean
 
     def  __sdeverr(self, summation, sqr, weight):
         '''
-		internal routine standard deviation and
-		standard error of from given data
-		'''
+        internal routine standard deviation and
+        standard error of from given data
+        '''
         temp = sqr - (summation**2)/weight
         if temp > 0:
             dev = math.sqrt(temp / weight)        # standard deviation
@@ -170,11 +171,11 @@ class StatsRegClass:
 
     def  StdDev(self):
         '''
-		standard deviation on X & Y
+        standard deviation on X & Y
 
-		:return: standard deviation of mean X and Y values
-		:rtype: (float, float)
-		'''
+        :return: standard deviation of mean X and Y values
+        :rtype: (float, float)
+        '''
         if self.sDev == None:
             xDev = self.__sdeverr(self.sumX, self.sumXX, self.weight)[0]
             yDev = self.__sdeverr(self.sumY, self.sumYY, self.weight)[0]
@@ -183,11 +184,11 @@ class StatsRegClass:
 
     def  StdErr(self):
         '''
-		standard error on X & Y
+        standard error on X & Y
 
-		:return: standard error of mean X and Y values
-		:rtype: (float, float)
-		'''
+        :return: standard error of mean X and Y values
+        :rtype: (float, float)
+        '''
         if self.sErr == None:
             xErr = self.__sdeverr(self.sumX, self.sumXX, self.weight)[1]
             yErr = self.__sdeverr(self.sumY, self.sumYY, self.weight)[1]
@@ -245,7 +246,7 @@ class StatsRegClass:
 
         :return: (var_a, var_b) -- is this correct?
         :rtype: (float, float)
-		'''
+        '''
         if self.lrVariance == None:
             determ   = self.determinant()[0]
             slope    = math.sqrt (self.weight / determ)
@@ -262,7 +263,7 @@ class StatsRegClass:
 
         :see: http://stattrek.com/AP-Statistics-1/Correlation.aspx?Tutorial=Stat
            Look at "Product-moment correlation coefficient"
-		'''
+        '''
         if self.r == None:
             VarX, VarY = self.determinant()
             self.r = (self.weight*self.sumXX - self.sumX*self.sumY) / math.sqrt(VarX*VarY)
@@ -274,7 +275,7 @@ class StatsRegClass:
 
         :return: correlation coefficient
         :rtype: float
-		'''
+        '''
         if self.correlation == None:
             self.correlation = -self.sumX / math.sqrt (self.weight * self.sumXX)
         return self.correlation

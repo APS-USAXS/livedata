@@ -6,12 +6,15 @@ Calculate R(Q) from arrays of measured data using numpy
 
 
 import datetime
+import logging
 import math
 import numpy
 import os
 import spec2nexus.eznx
 import spec2nexus.spec
 
+
+logger = logging.getLogger(__name__)
 
 TEST_FILE_FLYSCAN = os.path.join('testdata', 'S217_E7_600C_87min.h5')
 TEST_FILE_UASCAN = os.path.join('testdata', '03_18_GlassyCarbon.dat')
