@@ -68,24 +68,15 @@ class NoneEpicsValue(Exception): pass
 class PvNotRegistered(Exception): pass
 
 
-def logException(troublemaker):
-    '''write an exception report to the log file'''
-    msg = "problem with %s:" % troublemaker
-    for _ in msg.splitlines():
-        logger.info(_)
-    for _ in traceback.format_exc().splitlines():
-        logger.info('\t' + _)
-
-
 def getSpecFileName(pv):
     '''construct the name of the file, based on a PV'''
     dir_pv = xref['spec_dir']
     userDir = pvdb[dir_pv]['value']
     rawName = pvdb[pv]['value']
     if userDir is None:
-        raise NoneEpicsValue, '"None" received for spec_dir PV: <' + str(dir_pv) + '>'
+        raise NoneEpicsValue('"None" received for spec_dir PV: {}'.format(dir_pv))
     if rawName is None:
-        raise NoneEpicsValue, '"None" received for spec file PV: <' + str(pv) + '>'
+        raise NoneEpicsValue('"None" received for spec file PV: {}'.format(pv))
     specFile = userDir + "/" + rawName
     return specFile
 
@@ -304,7 +295,7 @@ def EPICS_monitor_receiver(*args, **kws):
         raise PvNotRegistered, msg
     if pvdb[pv]["waveform_char"]:
         v = kws['char_value']
-        logger.info("CA monitor: {} = {}".format(pv, v))
+        logger.debug("CA monitor waveform string value: {} = {}".format(pv, v))
     else:
         v = kws['value']
     update_pvdb(pv, v)   # cache the last known good value
@@ -404,14 +395,12 @@ def main_event_loop_checks(mainLoopCount, nextReport, nextLog, delta_report, del
         try:
             updateSpecMacroFile()                      # copy the spec macro file
         except Exception as exc:
-            # logException("updateSpecMacroFile()")
             msg = "problem with {}(): traceback={}".format("updateSpecMacroFile", exc)
             logger.warn(msg)
 
         try:
             updatePlotImage()                          # update the plot
         except Exception as exc:
-            # logException("updatePlotImage()")
             msg = "problem with {}(): traceback={}".format("updatePlotImage", exc)
             logger.warn(msg)
 
