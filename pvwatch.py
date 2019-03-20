@@ -19,6 +19,7 @@ os.environ['HDF5_DISABLE_VERSION_CHECK'] = '2'
 import os.path          # testing if a file exists
 import shutil           # file copies
 import sys              # for flushing log output
+import threading
 import time             # provides sleep()
 import traceback
 from xml.dom import minidom
@@ -233,7 +234,6 @@ def buildReport():
 
 def report():
     '''write the values out to files'''
-
     xmlText = buildReport()
 
     # WWW directory for livedata (absolute path)
@@ -243,7 +243,10 @@ def report():
     raw_xml = localConfig.XML_REPORT_FILE
     abs_raw_xml = os.path.join(localDir, raw_xml)
     writeFile(abs_raw_xml, xmlText)
+
+    logger.info("Number of threads running: {}".format(threading.active_count()))
     wwwServerTransfers.scpToWebServer(abs_raw_xml, raw_xml)
+    logger.info("Number of threads running: {}".format(threading.active_count()))
 
     #--- xslt transforms from XML to HTML
 
@@ -387,7 +390,9 @@ def main_event_loop_checks(mainLoopCount, nextReport, nextLog, delta_report, del
         try:
             # https://github.com/APS-USAXS/livedata/issues/6
             logger.debug(pvdb["9idcLAX:USAXS:sampleTitle"]["value"])
+            logger.info("Number of threads running: {}".format(threading.active_count()))
             report()                                   # write contents of pvdb to a file
+            logger.info("Number of threads running: {}".format(threading.active_count()))
         except Exception as exc:
             msg = "problem with {}(): traceback={}".format("report", exc)
             logger.warn(msg)
