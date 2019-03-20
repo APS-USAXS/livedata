@@ -304,6 +304,7 @@ def EPICS_monitor_receiver(*args, **kws):
         raise PvNotRegistered, msg
     if pvdb[pv]["waveform_char"]:
         v = kws['char_value']
+        logger.info("CA monitor: {} = {}".format(pv, v))
     else:
         v = kws['value']
     update_pvdb(pv, v)   # cache the last known good value
@@ -347,7 +348,11 @@ def add_pv(mne, pv, desc, fmt, waveform_char=False):
         if units in unit_renames:
             units = unit_renames[units]
         entry['units'] = units
-    update_pvdb(pv, ch.get())   # initialize the cache
+    if waveform_char:
+        v = ch.get(as_string=True)
+    else:
+        v = ch.get()
+    update_pvdb(pv, v)   # initialize the cache
 
 
 def initiate_PV_connections():
@@ -372,7 +377,7 @@ def initiate_PV_connections():
                 add_pv(mne, pv, desc, fmt, waveform_char=waveform_char)
             except:
                 msg = "%s: problem connecting: %s" % (PVLIST_FILE, ElementTree.tostring(key))
-                logException(msg)
+                logger.warn(msg)
 
 
 def main_event_loop_checks(mainLoopCount, nextReport, nextLog, delta_report, delta_log):
@@ -388,14 +393,27 @@ def main_event_loop_checks(mainLoopCount, nextReport, nextLog, delta_report, del
     if dt >= nextReport:
         nextReport = dt + delta_report
 
-        try: report()                                   # write contents of pvdb to a file
-        except Exception: logException("report()")
+        try:
+            # https://github.com/APS-USAXS/livedata/issues/6
+            logger.debug(pvdb["9idcLAX:USAXS:sampleTitle"]["value"])
+            report()                                   # write contents of pvdb to a file
+        except Exception as exc:
+            msg = "problem with {}(): traceback={}".format("report", exc)
+            logger.warn(msg)
 
-        try: updateSpecMacroFile()                      # copy the spec macro file
-        except Exception as exc: logException("updateSpecMacroFile()")
+        try:
+            updateSpecMacroFile()                      # copy the spec macro file
+        except Exception as exc:
+            # logException("updateSpecMacroFile()")
+            msg = "problem with {}(): traceback={}".format("updateSpecMacroFile", exc)
+            logger.warn(msg)
 
-        try: updatePlotImage()                          # update the plot
-        except Exception as exc: logException("updatePlotImage()")
+        try:
+            updatePlotImage()                          # update the plot
+        except Exception as exc:
+            # logException("updatePlotImage()")
+            msg = "problem with {}(): traceback={}".format("updatePlotImage", exc)
+            logger.warn(msg)
 
     if dt >= nextLog:
         nextLog = dt + delta_log
