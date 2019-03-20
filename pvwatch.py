@@ -29,11 +29,17 @@ import scanplots
 import wwwServerTransfers
 
 
+LOGGER_FORMAT = "%(asctime)s (%(levelname)s,%(process)d,%(module)s,%(lineno)d) "
+logging.basicConfig(level=logging.INFO, format=LOGGER_FORMAT)
+logger = logging.getLogger(__name__)
+
+
 def logMessage(msg):
     '''write a message with a timestamp and pid to the log file'''
-    scriptName = os.path.basename(sys.argv[0])
-    print "[%s %d %s] %s" % (scriptName, os.getpid(), datetime.datetime.now(), msg)
-    sys.stdout.flush()
+    #scriptName = os.path.basename(sys.argv[0])
+    #print "[%s %d %s] %s" % (scriptName, os.getpid(), datetime.datetime.now(), msg)
+    #sys.stdout.flush()
+    logger.info(msg)
 
 try:
     # better reporting of SEGFAULT
