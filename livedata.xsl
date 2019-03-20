@@ -244,7 +244,7 @@
                                     <xsl:choose>
                                         <xsl:when test="//pv[@id='SR_current']/value>2">
                                             <td bgcolor="#22ff22">
-                                                <a href="http://www.aps.anl.gov/aod/blops/plots/smallStatusPlot.png">
+                                                <a href="https://www3.aps.anl.gov/aod/blops/status/srStatus.html">
                                                 APS current</a> =
                                                 <xsl:value-of select="//pv[@id='SR_current']/value"/> mA</td>
                                         </xsl:when>
