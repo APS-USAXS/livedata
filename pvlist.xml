@@ -188,7 +188,7 @@
   <EPICS_PV PV="9idcLAX:USAXS:I" description="I, a.u." display_format="%.4e" mne="USAXS_I"/>
   <EPICS_PV PV="9idcLAX:USAXS:Q" description="|Q|, 1/A" display_format="%.4e" mne="USAXS_Q"/>
   <EPICS_PV PV="9idcLAX:USAXS:SAD" description="sample-analyzer distance, mm" display_format="%.1f" mne="SAD"/>
-  <EPICS_PV PV="9idcLAX:USAXS:sampleTitle" description="SPEC sample title" mne="sampleTitle"/>
+  <EPICS_PV PV="9idcLAX:USAXS:sampleTitle" description="SPEC sample title" mne="sampleTitle" string="true"/>
   <EPICS_PV PV="9idcLAX:USAXS:scanning" description="USAXS scanning" mne="USAXS_collecting"/>
   <EPICS_PV PV="9idcLAX:USAXS:SDD" description="sample-detector distance, mm" display_format="%.1f" mne="SDD"/>
   <EPICS_PV PV="9idcLAX:USAXS:specFile" description="SPEC data file" mne="spec_data_file"/>
