@@ -12,6 +12,7 @@ Start this with the shell command::
 
 import datetime         # date/time stamps
 import epics            # manages EPICS (PyEpics) connections for Python 2.6+
+import logging
 import numpy
 import os
 os.environ['HDF5_DISABLE_VERSION_CHECK'] = '2'
@@ -28,16 +29,10 @@ import scanplots
 import wwwServerTransfers
 
 
-def getTime():
-    '''return a datetime value'''
-    dt = datetime.datetime.now()
-    return dt
-
-
 def logMessage(msg):
     '''write a message with a timestamp and pid to the log file'''
     scriptName = os.path.basename(sys.argv[0])
-    print "[%s %d %s] %s" % (scriptName, os.getpid(), getTime(), msg)
+    print "[%s %d %s] %s" % (scriptName, os.getpid(), datetime.datetime.now(), msg)
     sys.stdout.flush()
 
 try:
@@ -290,7 +285,7 @@ def update_pvdb(pv, raw_value):
         raise PvNotRegistered, msg
     entry = pvdb[pv]
     #ch = entry['ch']
-    entry['timestamp'] = getTime()
+    entry['timestamp'] = datetime.datetime.now()
     entry['counter'] += 1
     entry['raw_value'] = raw_value
     entry['value'] = entry['format'] % raw_value
@@ -380,7 +375,7 @@ def main_event_loop_checks(mainLoopCount, nextReport, nextLog, delta_report, del
     '''check events for the main event loop'''
     global GLOBAL_MONITOR_COUNTER
     global MAINLOOP_COUNTER_TRIGGER
-    dt = getTime()
+    dt = datetime.datetime.now()
     epics.ca.poll()
 
     if mainLoopCount == 0:
@@ -427,7 +422,7 @@ def main():
 
     logMessage("Connected %d EPICS PVs" % len(pvdb))
 
-    nextReport = getTime()
+    nextReport = datetime.datetime.now()
     nextLog = nextReport
     delta_report = datetime.timedelta(seconds=localConfig.REPORT_INTERVAL_S)
     delta_log = datetime.timedelta(seconds=localConfig.LOG_INTERVAL_S)
