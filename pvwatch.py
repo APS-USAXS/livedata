@@ -244,9 +244,7 @@ def report():
     abs_raw_xml = os.path.join(localDir, raw_xml)
     writeFile(abs_raw_xml, xmlText)
 
-    logger.info("Number of threads running: {}".format(threading.active_count()))
     wwwServerTransfers.scpToWebServer(abs_raw_xml, raw_xml)
-    logger.info("Number of threads running: {}".format(threading.active_count()))
 
     #--- xslt transforms from XML to HTML
 
@@ -390,9 +388,7 @@ def main_event_loop_checks(mainLoopCount, nextReport, nextLog, delta_report, del
         try:
             # https://github.com/APS-USAXS/livedata/issues/6
             logger.debug(pvdb["9idcLAX:USAXS:sampleTitle"]["value"])
-            logger.info("Number of threads running: {}".format(threading.active_count()))
             report()                                   # write contents of pvdb to a file
-            logger.info("Number of threads running: {}".format(threading.active_count()))
         except Exception as exc:
             msg = "problem with {}(): traceback={}".format("report", exc)
             logger.warn(msg)
