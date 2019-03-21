@@ -30,10 +30,9 @@ import scanplots
 import wwwServerTransfers
 
 
-LOGGER_FORMAT = "%(asctime)s (%(levelname)s,%(process)d,%(name)s,%(module)s,%(lineno)d) %(message)s"
-logging.basicConfig(level=logging.INFO, format=LOGGER_FORMAT)
+LOGGER_FORMAT = "%(asctime)s.%(msecs)03d (%(levelname)s,%(process)d,%(name)s,%(lineno)d) %(message)s"
+logging.basicConfig(level=logging.INFO, format=LOGGER_FORMAT, datefmt='%Y-%m-%d %H:%M:%S',)
 logger = logging.getLogger(__name__)
-
 
 def logMessage(msg):
     '''write a message with a timestamp and pid to the log file'''
@@ -45,9 +44,9 @@ try:
     # http://faulthandler.readthedocs.org
     import faulthandler
     faulthandler.enable()
-    logger.info("faulthandler: module enabled")
+    logger.debug("faulthandler: module enabled")
 except ImportError, exc:
-    logger.info("faulthandler: module not imported")
+    logger.warning("faulthandler: module not imported")
 
 
 global GLOBAL_MONITOR_COUNTER
@@ -85,13 +84,11 @@ def getSpecFileName(pv):
 def updateSpecMacroFile():
     '''copy the current SPEC macro file to the WWW page space'''
 
-    #@TODO: What if the specFile is actually a directory?
     if len(pvdb[xref['spec_macro_file']]['value'].strip()) == 0:
         # SPEC file name PV is empty
         return
     specFile = getSpecFileName(xref['spec_macro_file'])
     if not os.path.exists(specFile):
-        # @TODO: will this write too much to the logs?
         logger.debug(specFile + " does not exist")
         return
     if not os.path.isfile(specFile):
