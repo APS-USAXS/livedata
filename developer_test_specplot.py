@@ -12,6 +12,9 @@ specFile = '/share1/USAXS_data/2016-06/06_07_ROss.dat'
 scan_number = 81
 plotFile = "/tmp/specplot.png"
 
+scan_number = 3
+specFile = "/share1/USAXS_data/2019-05/05_02_05_test.dat"
+
 sys.argv.append(specFile)
 sys.argv.append(str(scan_number))
 sys.argv.append(plotFile)
