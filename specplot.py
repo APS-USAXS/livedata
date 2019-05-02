@@ -171,6 +171,7 @@ def main():
 
     specData = openSpecFile(results.specFile)
     scan = findScan(specData, results.scan_number)
+    # scan.interpret()
     makeScanImage(scan, results.plotFile)
 
 
