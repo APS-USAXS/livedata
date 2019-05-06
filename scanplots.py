@@ -434,50 +434,7 @@ def main(n = None, cp=False):
             www_plot = localConfig.LOCAL_PLOTFILE
             wwwServerTransfers.scpToWebServer(local_plot, www_plot)
 
-def testing():
-    from spec2nexus.spec import SpecDataFile
-    import uuid
-    global scan_cache
-    global spec_file_cache
-
-    scan_cache = ScanCache()
-    spec_file_cache = SpecFileCache()
-
-    fname = "/share1/USAXS_data/2019-04/04_02_Cheng_INL.dat"
-    sdf = SpecDataFile(fname)
-    for scan_number in (1004, 1005, 1006, 1007, 1008, 1009, 1010):
-        spec_scan = sdf.getScan(scan_number)
-        # hdf5File = get_Hdf5_Data_file_Name(spec_scan)
-        # if hdf5File is not None and not os.path.exists(hdf5File):
-        #     raise IOError("File not Found: %s" % hdf5File)
-        scan_type = spec_scan.scanCmd.split()[0]
-        if scan_type not in scan_macro_list:
-            continue
-        scan = Scan()
-        scan.setFileParms(
-            spec_scan.comments[0],          # title
-            fname,                          # file name
-            scan_type,                      # scan type
-            spec_scan.scanNum,              # scan number
-            uuid.uuid4(),                   # unique scan ID
-        )
-        scan.getSpecScan()
-        if scan is not None:
-            scan_cache.add(scan)
-#     #S 1004  SAXS  ./04_02_Cheng_INL_saxs/BlankHeater_0198.hdf    0    0    1    20     1
-#     #S 1005  WAXS  ./04_02_Cheng_INL_waxs/BlankHeater_0198.hdf     0    0    1    20     1
-#     #S 1006  ascan  mr 8.82619 8.82219  30 0.1
-#     #S 1007  ascan  m2rp 26.2902 14.2902  40 0.1
-#     #S 1008  ascan  ar 8.88239 8.88379  30 0.1
-#     #S 1009  ascan  a2rp 46.0722 38.0722  40 0.1
-#     #S 1010  FlyScan  ar 8.88479 0 7.26777 3e-05
-    spec_files = spec_file_cache
-    cache = scan_cache
-    mpl_datasets = get_USAXS_data(scan_cache)
-    _z = 2
-
 
 if __name__ == "__main__":
     #last_n_scans(SCANLOG, NUMBER_SCANS_TO_PLOT)
-    #main()
-    testing()
+    main()
