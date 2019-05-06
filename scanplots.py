@@ -184,7 +184,7 @@ def plottable_scan(scan_node):
                 )
                 scan.getData()
 
-    elif scan_type in ('FlyScan', 'sbFlyScan',):
+    elif scan_type in ('FlyScan', 'sbFlyScan', 'Flyscan'):
         if scan_node.attrib['state'] in ('complete', ):
             specfiledir = os.path.dirname(filename)
             scan = Scan()
@@ -266,19 +266,33 @@ def get_Hdf5_Data_file_Name(scan):
     """
     read the name of the HDF5 data file from the SPEC data file scan
     """
+    scan_command_parts = scan.scanCmd.strip().split()
     if hasattr(scan, "MD"):
-        # SPEC data file written from Bluesky plan
-        path = scan.MD["hdf5_path"]
+        # HDF5 data file (Flyscan, or area detector) written from Bluesky plan
+        #MD hdf5_file = blank_0755.h5
+        #MD hdf5_path = /share1/USAXS_data/2019-05/05_02_test_usaxs
         fname = scan.MD["hdf5_file"]
+        path = scan.MD["hdf5_path"]
+
+    elif len(scan_command_parts) > 8 and scan_command_parts[2] in ("SAXS", "WAXS"):
+        # EPICS area detector data file written from SPEC macros
+        #S 10  WAXS  ./04_02_Cheng_INL_waxs/LaB6_0002.hdf     0    0    1    20     1
+        #S 15  SAXS  ./04_02_Cheng_INL_saxs/BlankHeater_0003.hdf    0    0    1    20     1
+        fname = scan_command_parts[3]
+        path = os.path.dirname(scan.header.parent.fileName)
+
     else:
-        # SPEC data file written from SPEC macros
+        # FlyScan HDF5 data file written from SPEC macros
+        #C Tue Apr 02 20:49:39 2019.  FlyScan file name = ./04_02_Cheng_INL_usaxs/2104H_1020C_47min_0013.h5.
         comment = scan.comments[2]
         key_string = 'FlyScan file name = '
         index = comment.find(key_string) + len(key_string)
         fname = comment[index:-1]
         path = os.path.dirname(scan.header.parent.fileName)
+
     hdf5File = os.path.abspath(os.path.join(path, fname))
     return hdf5File
+
 
 def get_USAXS_FlyScan_Data(scan_obj):
     scan = scan_obj.spec_scan
@@ -314,12 +328,10 @@ def get_USAXS_FlyScan_Data(scan_obj):
 
 def get_AreaDetector_Data(scan_obj):
     scan = scan_obj.spec_scan
-    scanMacro, hdf5File = scan.scanCmd.strip().split()[0:2]
-    path = os.path.dirname(scan.header.parent.fileName)
-    hdf5File = os.path.abspath(os.path.join(path, hdf5File))
+    scanMacro = scan.scanCmd.strip().split()[2] # TODO: needs testing !!!
+    hdf5File = get_Hdf5_Data_file_Name(scan)
     bins = dict(SAXS=250, WAXS=800)[scanMacro]
-    filename = os.path.split(hdf5File)[-1]
-    filename = os.path.splitext(filename)[0]
+    filename = os.path.splitext(os.path.split(hdf5File)[-1])[0]
 
     ad = reduceAreaDetector.reduce_area_detector_data(hdf5File,  bins)
     title = 'S%s %s (%s)' % (str(scan.scanNum), filename, scanMacro)
