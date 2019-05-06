@@ -23,6 +23,7 @@ SCANLOG = '/share1/local_livedata/scanlog.xml'
 NUMBER_SCANS_TO_PLOT = 5
 scan_cache = None
 spec_file_cache = None
+scan_macro_list = "uascan sbuascan FlyScan sbFlyScan pinSAXS SAXS WAXS Flyscan".split()
 
 
 class ScanCache(object):
@@ -152,21 +153,9 @@ class Scan(object):
         return self.spec_scan
 
     def getData(self):
-        if self.scan_type in ('uascan', 'sbuascan', 'FlyScan', 'sbFlyScan', 'pinSAXS', 'SAXS', 'WAXS',):
+        if self.scan_type in scan_macro_list:
             if self.spec_scan is None:
                 self.spec_scan = self.getSpecScan()
-#             # TODO: reduce the USAXS raw data
-# #         elif self.scan_type in ('FlyScan'):
-# #             if self.spec_scan is None:
-# #                 self.spec_scan = self.getSpecScan()
-# #             # TODO: reduce
-# #             pass
-# #         elif self.scan_type in ('SAXS'):
-# #             pass
-# #         elif self.scan_type in ('WAXS'):
-# #             pass
-#         else:
-#             pass
 
 
 def plottable_scan(scan_node):
@@ -273,14 +262,27 @@ def last_n_scans(xml_log_file, number_scans):
     return list(reversed(scans))
 
 
+def get_Hdf5_Data_file_Name(scan):
+    """
+    read the name of the HDF5 data file from the SPEC data file scan
+    """
+    if hasattr(scan, "MD"):
+        # SPEC data file written from Bluesky plan
+        path = scan.MD["hdf5_path"]
+        fname = scan.MD["hdf5_file"]
+    else:
+        # SPEC data file written from SPEC macros
+        comment = scan.comments[2]
+        key_string = 'FlyScan file name = '
+        index = comment.find(key_string) + len(key_string)
+        fname = comment[index:-1]
+        path = os.path.dirname(scan.header.parent.fileName)
+    hdf5File = os.path.abspath(os.path.join(path, fname))
+    return hdf5File
+
 def get_USAXS_FlyScan_Data(scan_obj):
     scan = scan_obj.spec_scan
-    comment = scan.comments[2]
-    key_string = 'FlyScan file name = '
-    index = comment.find(key_string) + len(key_string)
-    fname = comment[index:-1]
-    path = os.path.dirname(scan.header.parent.fileName)
-    hdf5File = os.path.abspath(os.path.join(path, fname))
+    hdf5File = get_Hdf5_Data_file_Name(scan)
 
     try:
         fly = reduceFlyData.UsaxsFlyScan(hdf5File)  # checks if file exists
@@ -300,12 +302,7 @@ def get_USAXS_FlyScan_Data(scan_obj):
         logger.info(str(_exc))
         return None     # HDF5 file exists but length of raw data is zero
 
-    fname = os.path.split(hdf5File)[-1]
-    fname = os.path.splitext(fname)[0]
-    # 2016-06-06, prj: truncates too much info from name now?
-    #pos = fname.find('_')
-    #if pos >= 0:
-    #    fname = fname[pos+1:]
+    fname = os.path.splitext(os.path.split(hdf5File)[-1])[0]
     title = 'S%s %s (%s)' % (str(scan.scanNum), fname, 'fly')
     numbins_str = str(localConfig.REDUCED_FLY_SCAN_BINS)
     if numbins_str not in fly.reduced:
@@ -371,7 +368,7 @@ def get_USAXS_data(cache):
         if scan_obj is None:
             continue
         scanMacro = scan_obj.spec_scan.scanCmd.strip().split()[0].split("(")[0]
-        if scanMacro in ("uascan sbuascan FlyScan sbFlyScan SAXS WAXS Flyscan".split()):
+        if scanMacro in scan_macro_list:
             if scanMacro in ("uascan", "sbuascan"):
                 entry = get_USAXS_uascan_ScanData(scan_obj)
             elif scanMacro in ("FlyScan", "sbFlyScan", "Flyscan"):
