@@ -158,7 +158,7 @@ class Scan(object):
                 self.spec_scan = self.getSpecScan()
 
 
-def plottable_scan(scan_node):
+def plottable_scan_node(scan_node):
     '''
     Determine if the scan_node (XML) is plottable
 
@@ -254,7 +254,7 @@ def last_n_scans(xml_log_file, number_scans):
     if node_list is None:
         return scans
     for scan_node in reversed(node_list):
-        scan_object = plottable_scan(scan_node)
+        scan_object = plottable_scan_node(scan_node)
         if scan_object is not None:
             scans.append(scan_object)
             if len(scans) == number_scans:
@@ -274,14 +274,14 @@ def get_Hdf5_Data_file_Name(scan):
         fname = scan.MD["hdf5_file"]
         path = scan.MD["hdf5_path"]
 
-    elif len(scan_command_parts) > 8 and scan_command_parts[2] in ("SAXS", "WAXS"):
+    elif len(scan_command_parts) > 6 and scan_command_parts[0] in ("SAXS", "WAXS"):
         # EPICS area detector data file written from SPEC macros
         #S 10  WAXS  ./04_02_Cheng_INL_waxs/LaB6_0002.hdf     0    0    1    20     1
         #S 15  SAXS  ./04_02_Cheng_INL_saxs/BlankHeater_0003.hdf    0    0    1    20     1
-        fname = scan_command_parts[3]
+        fname = scan_command_parts[1]
         path = os.path.dirname(scan.header.parent.fileName)
 
-    else:
+    elif len(scan_command_parts) > 3 and scan_command_parts[0] in ("FlyScan", ):
         # FlyScan HDF5 data file written from SPEC macros
         #C Tue Apr 02 20:49:39 2019.  FlyScan file name = ./04_02_Cheng_INL_usaxs/2104H_1020C_47min_0013.h5.
         comment = scan.comments[2]
@@ -289,6 +289,9 @@ def get_Hdf5_Data_file_Name(scan):
         index = comment.find(key_string) + len(key_string)
         fname = comment[index:-1]
         path = os.path.dirname(scan.header.parent.fileName)
+
+    else:
+        return
 
     hdf5File = os.path.abspath(os.path.join(path, fname))
     return hdf5File
@@ -431,7 +434,50 @@ def main(n = None, cp=False):
             www_plot = localConfig.LOCAL_PLOTFILE
             wwwServerTransfers.scpToWebServer(local_plot, www_plot)
 
+def testing():
+    from spec2nexus.spec import SpecDataFile
+    import uuid
+
+    fname = "/share1/USAXS_data/2019-04/04_02_Cheng_INL.dat"
+    sdf = SpecDataFile(fname)
+    scans = []
+    for scan_number in (1004, 1005, 1006, 1007, 1008, 1009, 1010):
+        spec_scan = sdf.getScan(scan_number)
+        hdf5File = get_Hdf5_Data_file_Name(spec_scan)
+        if hdf5File is not None and not os.path.exists(hdf5File):
+            pass
+#         scan_type = spec_scan.scanCmd.split()[0]
+#         if scan_type not in scan_macro_list:
+#             continue
+#         scan = Scan()
+# #         scan.setFileParms(
+# #             spec_scan.comments[0],          # title
+# #             fname,                          # file name
+# #             scan_type,                      # scan type
+# #             spec_scan.scanNum,              # scan number
+# #             uuid.uuid4(),                   # unique scan ID
+# #         )
+#         scan.title = spec_scan.comments[0]
+#         scan.scan_type = scan_type
+#         scan.data_file = fname
+#         scan.scan_number = spec_scan.scanNum
+#         scan.scan_id = uuid.uuid4()
+#         # scan.safe_id = self.makeSafeId()
+#         scan.safe_id = scan.scan_id
+#         scan.spec_scan = spec_scan
+#         if scan is not None:
+#             scans.append(scan)              # if plottable_scan(scan_num), add to list
+#     #S 1004  SAXS  ./04_02_Cheng_INL_saxs/BlankHeater_0198.hdf    0    0    1    20     1
+#     #S 1005  WAXS  ./04_02_Cheng_INL_waxs/BlankHeater_0198.hdf     0    0    1    20     1
+#     #S 1006  ascan  mr 8.82619 8.82219  30 0.1
+#     #S 1007  ascan  m2rp 26.2902 14.2902  40 0.1
+#     #S 1008  ascan  ar 8.88239 8.88379  30 0.1
+#     #S 1009  ascan  a2rp 46.0722 38.0722  40 0.1
+#     #S 1010  FlyScan  ar 8.88479 0 7.26777 3e-05
+    scans = list(reversed(scans))
+
 
 if __name__ == "__main__":
     #last_n_scans(SCANLOG, NUMBER_SCANS_TO_PLOT)
-    main()
+    #main()
+    testing()
