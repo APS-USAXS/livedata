@@ -155,18 +155,18 @@ class Scan(object):
         if self.scan_type in ('uascan', 'sbuascan', 'FlyScan', 'sbFlyScan', 'pinSAXS', 'SAXS', 'WAXS',):
             if self.spec_scan is None:
                 self.spec_scan = self.getSpecScan()
-            # TODO: reduce the USAXS raw data
-#         elif self.scan_type in ('FlyScan'):
-#             if self.spec_scan is None:
-#                 self.spec_scan = self.getSpecScan()
-#             # TODO: reduce
+#             # TODO: reduce the USAXS raw data
+# #         elif self.scan_type in ('FlyScan'):
+# #             if self.spec_scan is None:
+# #                 self.spec_scan = self.getSpecScan()
+# #             # TODO: reduce
+# #             pass
+# #         elif self.scan_type in ('SAXS'):
+# #             pass
+# #         elif self.scan_type in ('WAXS'):
+# #             pass
+#         else:
 #             pass
-#         elif self.scan_type in ('SAXS'):
-#             pass
-#         elif self.scan_type in ('WAXS'):
-#             pass
-        else:
-            pass
 
 
 def plottable_scan(scan_node):
@@ -181,27 +181,28 @@ def plottable_scan(scan_node):
     scan = None
 
     filename = scan_node.find('file').text.strip()
-    if scan_node.attrib['type'] in ('uascan', 'sbuascan'):
+    scan_type = scan_node.attrib['type']
+    if scan_type in ('uascan', 'sbuascan'):
         if scan_node.attrib['state'] in ('scanning', 'complete'):
             if os.path.exists(filename):
                 scan = Scan()
                 scan.setFileParms(
                     scan_node.find('title').text.strip(),
                     filename,
-                    scan_node.attrib['type'],
+                    scan_type,
                     scan_node.attrib['number'],
                     scan_node.attrib['id'],
                 )
                 scan.getData()
 
-    elif scan_node.attrib['type'] in ('FlyScan', 'sbFlyScan',):
+    elif scan_type in ('FlyScan', 'sbFlyScan',):
         if scan_node.attrib['state'] in ('complete', ):
             specfiledir = os.path.dirname(filename)
             scan = Scan()
             scan.setFileParms(
                 scan_node.find('title').text.strip(),
                 filename,
-                scan_node.attrib['type'],
+                scan_type,
                 scan_node.attrib['number'],
                 scan_node.attrib['id'],
             )
@@ -222,14 +223,14 @@ def plottable_scan(scan_node):
                         scan = None     # bail out, no HDF5 file found
                     break
 
-    elif scan_node.attrib['type'] in ('pinSAXS', 'SAXS', 'WAXS',):
+    elif scan_type in ('pinSAXS', 'SAXS', 'WAXS',):
         if scan_node.attrib['state'] in ('complete', ):
             specfiledir = os.path.dirname(filename)
             scan = Scan()
             scan.setFileParms(
                 scan_node.find('title').text.strip(),
                 filename,
-                scan_node.attrib['type'],
+                scan_type,
                 scan_node.attrib['number'],
                 scan_node.attrib['id'],
             )
@@ -364,32 +365,23 @@ def format_as_mpl_data_one(scan):
 
 
 def get_USAXS_data(cache):
-    getscandata = dict(uascan=get_USAXS_uascan_ScanData,
-                       sbuascan=get_USAXS_uascan_ScanData,
-                       FlyScan=get_USAXS_FlyScan_Data,
-                       sbFlyScan=get_USAXS_FlyScan_Data,
-                       SAXS=get_AreaDetector_Data,
-                       WAXS=get_AreaDetector_Data,
-                       )
     mpl_datasets = []
-    for key in sorted(cache.get_keys()):
-        scan_obj = cache.get(key)
-        if scan_obj is None: continue
-        scanMacro = scan_obj.spec_scan.scanCmd.strip().split()[0]
-        if scanMacro in getscandata.keys():
-            entry = getscandata[scanMacro](scan_obj)
+    for key, scan_obj in sorted(cache.db.items()):
+        # scan_obj = cache.get(key)
+        if scan_obj is None:
+            continue
+        scanMacro = scan_obj.spec_scan.scanCmd.strip().split()[0].split("(")[0]
+        if scanMacro in ("uascan sbuascan FlyScan sbFlyScan SAXS WAXS Flyscan".split()):
+            if scanMacro in ("uascan", "sbuascan"):
+                entry = get_USAXS_uascan_ScanData(scan_obj)
+            elif scanMacro in ("FlyScan", "sbFlyScan", "Flyscan"):
+                entry = get_USAXS_FlyScan_Data(scan_obj)
+            elif scanMacro in ("SAXS", "WAXS"):
+                entry = get_AreaDetector_Data(scan_obj)
             mpl_ds = format_as_mpl_data_one(entry)
             if mpl_ds is None: continue
             if len(mpl_ds.Q) > 0 and len(mpl_ds.I) > 0:
                 mpl_datasets.append(mpl_ds)
-        elif scanMacro == "TuneAxis.tune()":
-            scan_type = scan_obj.scan_type
-            if scan_type in getscandata.keys():
-                entry = getscandata[scan_type](scan_obj)
-                mpl_ds = format_as_mpl_data_one(entry)
-                if mpl_ds is None: continue
-                if len(mpl_ds.Q) > 0 and len(mpl_ds.I) > 0:
-                    mpl_datasets.append(mpl_ds)
         logger.debug("{} = {}".format(key, scanMacro))
     return mpl_datasets
 
