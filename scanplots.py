@@ -170,6 +170,8 @@ def plottable_scan_node(scan_node):
     scan = None
 
     filename = scan_node.find('file').text.strip()
+    if not os.path.exists(filename):
+        return scan
     scan_type = scan_node.attrib['type']
     if scan_type in ('uascan', 'sbuascan'):
         if scan_node.attrib['state'] in ('scanning', 'complete'):
@@ -200,17 +202,13 @@ def plottable_scan_node(scan_node):
             # get the HDF5 file name from the SPEC file (no search needed)
             spec = spec_file_cache.get(filename)
             spec_scan = spec.getScan(str(scan_node.attrib['number']))
-            for line in spec_scan.comments:
-                if line.find('FlyScan file name = ') > 1:
-                    hdf5_file = line.split('=')[-1].strip().rstrip('.')
-                    hdf5_file = os.path.abspath(os.path.join(specfiledir, hdf5_file))
-                    if os.path.exists(hdf5_file):
-                        # actual data file
-                        scan_node.data_file = hdf5_file
-                        ok = True
-                    else:
-                        scan = None     # bail out, no HDF5 file found
-                    break
+            hdf5_file = get_Hdf5_Data_file_Name(spec_scan)
+            if os.path.exists(hdf5_file):
+                # actual data file
+                scan_node.data_file = hdf5_file
+                ok = True
+            else:
+                scan = None     # bail out, no HDF5 file found
 
     elif scan_type in ('pinSAXS', 'SAXS', 'WAXS',):
         if scan_node.attrib['state'] in ('complete', ):
@@ -229,8 +227,7 @@ def plottable_scan_node(scan_node):
             spec = spec_file_cache.get(filename)
             spec_scan = spec.getScan(str(scan_node.attrib['number']))
 
-            hdf5_file = spec_scan.scanCmd.split()[1]
-            hdf5_file = os.path.abspath(os.path.join(specfiledir, hdf5_file))
+            hdf5_file = get_Hdf5_Data_file_Name(spec_scan)      # TODO: check this!!
             if os.path.exists(hdf5_file):
                 # actual data file
                 scan_node.data_file = hdf5_file
@@ -271,7 +268,9 @@ def get_Hdf5_Data_file_Name(scan):
         # HDF5 data file (Flyscan, or area detector) written from Bluesky plan
         #MD hdf5_file = blank_0755.h5
         #MD hdf5_path = /share1/USAXS_data/2019-05/05_02_test_usaxs
-        fname = scan.MD["hdf5_file"]
+        fname = scan.MD.get("hdf5_file")
+        if fname is None:
+            return "no spec data file"     # missing in an early version
         path = scan.MD["hdf5_path"]
 
     elif len(scan_command_parts) > 6 and scan_command_parts[0] in ("SAXS", "WAXS"):
@@ -293,33 +292,33 @@ def get_Hdf5_Data_file_Name(scan):
     else:
         return
 
-    hdf5File = os.path.abspath(os.path.join(path, fname))
-    return hdf5File
+    hdf5_file = os.path.abspath(os.path.join(path, fname))
+    return hdf5_file
 
 
 def get_USAXS_FlyScan_Data(scan_obj):
     scan = scan_obj.spec_scan
-    hdf5File = get_Hdf5_Data_file_Name(scan)
+    hdf5_file = get_Hdf5_Data_file_Name(scan)
 
     try:
-        fly = reduceFlyData.UsaxsFlyScan(hdf5File)  # checks if file exists
+        fly = reduceFlyData.UsaxsFlyScan(hdf5_file)  # checks if file exists
         #fly.make_archive()
         fly.reduce()        # open the file in this step
-        fly.save(hdf5File, 'full')
+        fly.save(hdf5_file, 'full')
         if 'full' not in fly.reduced:
             return None
         fly.rebin(localConfig.REDUCED_FLY_SCAN_BINS)
-        fly.save(hdf5File, str(localConfig.REDUCED_FLY_SCAN_BINS))
+        fly.save(hdf5_file, str(localConfig.REDUCED_FLY_SCAN_BINS))
     except IOError:
         return None     # file may not be available yet for reading if fly scan is still going
     except KeyError, exc:
-        logger.info('HDF5 file:' + hdf5File)
+        logger.info('HDF5 file:' + hdf5_file)
         raise KeyError(exc)
     except reduceFlyData.NoFlyScanData, _exc:
         logger.info(str(_exc))
         return None     # HDF5 file exists but length of raw data is zero
 
-    fname = os.path.splitext(os.path.split(hdf5File)[-1])[0]
+    fname = os.path.splitext(os.path.split(hdf5_file)[-1])[0]
     title = 'S%s %s (%s)' % (str(scan.scanNum), fname, 'fly')
     numbins_str = str(localConfig.REDUCED_FLY_SCAN_BINS)
     if numbins_str not in fly.reduced:
@@ -332,11 +331,11 @@ def get_USAXS_FlyScan_Data(scan_obj):
 def get_AreaDetector_Data(scan_obj):
     scan = scan_obj.spec_scan
     scanMacro = scan.scanCmd.strip().split()[0]
-    hdf5File = get_Hdf5_Data_file_Name(scan)
+    hdf5_file = get_Hdf5_Data_file_Name(scan)
     bins = dict(SAXS=250, WAXS=800)[scanMacro]
-    scan_name = os.path.splitext(os.path.split(hdf5File)[-1])[0]
+    scan_name = os.path.splitext(os.path.split(hdf5_file)[-1])[0]
 
-    ad = reduceAreaDetector.reduce_area_detector_data(hdf5File,  bins)
+    ad = reduceAreaDetector.reduce_area_detector_data(hdf5_file,  bins)
     title = 'S%s %s (%s)' % (str(scan.scanNum), scan_name, scanMacro)
     rebinned = ad.reduced.get(str(bins))
     if rebinned is None:
