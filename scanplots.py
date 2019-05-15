@@ -223,11 +223,7 @@ def plottable_scan_node(scan_node):
             )
             scan.getData()
 
-            # get the HDF5 file name from the SPEC file (no search needed)
-            spec = spec_file_cache.get(filename)
-            spec_scan = spec.getScan(str(scan_node.attrib['number']))
-
-            hdf5_file = get_Hdf5_Data_file_Name(spec_scan)      # TODO: check this!!
+            hdf5_file = get_Hdf5_Data_file_Name(scan.spec_scan)
             if os.path.exists(hdf5_file):
                 # actual data file
                 scan_node.data_file = hdf5_file
@@ -330,7 +326,7 @@ def get_USAXS_FlyScan_Data(scan_obj):
 
 def get_AreaDetector_Data(scan_obj):
     scan = scan_obj.spec_scan
-    scanMacro = scan.scanCmd.strip().split()[0]
+    scanMacro = scan.scanCmd.strip().split()[0].split("(")[0]
     hdf5_file = get_Hdf5_Data_file_Name(scan)
     bins = dict(SAXS=250, WAXS=800)[scanMacro]
     scan_name = os.path.splitext(os.path.split(hdf5_file)[-1])[0]
