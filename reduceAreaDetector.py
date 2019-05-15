@@ -156,7 +156,7 @@ class AD_ScatteringImage(object):
         full = dict(Q=Q, R=rAvg, x=radii)
         self.reduced = dict(full = full)    # reset the entire dictionary with new "full" reduction
 
-    def rebin(self, bin_count = None):
+    def rebin(self, bin_count=250):
         '''
         generate R(Q) with a bin_count bins
 
@@ -169,7 +169,7 @@ class AD_ScatteringImage(object):
                 #return
 
         bin_count_full = len(self.reduced['full']['Q'])
-        bin_count = min(bin_count or self.bin_count, bin_count_full)
+        bin_count = min(bin_count, bin_count_full)
         s = str(bin_count)
 
         Q_full = self.reduced['full']['Q']
