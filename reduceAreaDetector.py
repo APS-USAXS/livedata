@@ -2,21 +2,16 @@
 
 '''reduceAreaDetector: reduce the raw data from Area Detector images to R(Q)'''
 
-import h5py                 #@UnusedImport
+import h5py
 import logging
-import math                 #@UnusedImport
-import numpy                #@UnusedImport
-import os                   #@UnusedImport
-# import scipy.interpolate    #@UnusedImport
-# import shutil               #@UnusedImport
-# import stat                 #@UnusedImport
-import warnings
+import math
+import numpy
+import os
 
-from spec2nexus import eznx #@UnusedImport
+from spec2nexus import eznx
 import calc
-import localConfig          #@UnusedImport
+import localConfig
 import pvwatch
-# import ustep                #@UnusedImport
 from radialprofile import azimuthalAverage
 
 logger = logging.getLogger(__name__)
@@ -466,9 +461,8 @@ def command_line_interface():
 
 
 if __name__ == '__main__':
-    if False:
-        # for developer use only
-        import sys
-        # sys.argv.append("/share1/USAXS_data/2018-01/01_30_Settle_waxs/Adam_0184.hdf")
-        sys.argv.append("/tmp/Adam_0184.hdf")
+    # # for developer use only
+    # import sys
+    # # sys.argv.append("/share1/USAXS_data/2018-01/01_30_Settle_waxs/Adam_0184.hdf")
+    # sys.argv.append("/tmp/Adam_0184.hdf")
     command_line_interface()

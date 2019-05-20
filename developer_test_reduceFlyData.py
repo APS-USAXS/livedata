@@ -1,7 +1,6 @@
 
 '''developer routine to test reduceFlyData.py'''
 
-import glob
 import os
 import sys
 
@@ -18,7 +17,7 @@ sys.argv.append( '--recompute-rebinned' )
 
 # test_files = glob.glob('testdata/flyscan_modes/*.h5')
 # test_files = glob.glob('testdata/flyscan_modes/S18_FS_Fixed*.h5')    # from day with no beam, this dataset has problems!
-# test_files = glob.glob('testdata/flyscan_modes/*_PSO_Fixed*.h5')     # from day with no beam 
+# test_files = glob.glob('testdata/flyscan_modes/*_PSO_Fixed*.h5')     # from day with no beam
 # test_files = glob.glob('testdata/flyscan_modes/S39_Blank*.h5')       # 2014-08-13, fly scan mode=1
 # test_files = glob.glob('testdata/flyscan_modes/S44_GC_Adam*.h5')     # 2014-08-13, fly scan mode=1
 # test_files = glob.glob('testdata/flyscan_modes/S19_FS_Fixed*.h5')
@@ -41,28 +40,29 @@ for hdf5_file in test_files:
     scan = reduceFlyData.command_line_interface()
 
     plotfile = os.path.join(path, 'test_reduceFly__' + os.path.basename(hdf5_file) + '_.png')
-    
-    if True:
-        plot_mpl.spec_plot(scan.reduced['full']['Q'], scan.reduced['full']['R'], 
-                           plotfile, 
-                           xtitle='Q', ytitle='R',
-                           ylog=True,
-                           )
+
+    plot_mpl.spec_plot(
+        scan.reduced['full']['Q'], scan.reduced['full']['R'],
+        plotfile,
+        xtitle='Q', ytitle='R',
+        ylog=True,
+        )
 
     plotfile = os.path.join(path, 'test_reduceFly_USAXS_' + os.path.basename(hdf5_file) + '_.png')
-    if True:
-        ds_full = plot_mpl.Plottable_USAXS_Dataset()
-        ds_full.label = 'full data'
-        ds_full.Q = scan.reduced['full']['Q']
-        ds_full.I = scan.reduced['full']['R']
-        
-        ds_250 = plot_mpl.Plottable_USAXS_Dataset()
-        ds_250.label = 'rebinned (250) data'
-        ds_250.Q = scan.reduced['250']['Q']
-        ds_250.I = scan.reduced['250']['R']
-        
-        pvwatch.logMessage( '  plotting to ' + plotfile )
-    
-        plot_mpl.livedata_plot([ds_full, ds_250], 
-                               plotfile, 
-                               'test: ' + os.path.basename(hdf5_file))
+    ds_full = plot_mpl.Plottable_USAXS_Dataset()
+    ds_full.label = 'full data'
+    ds_full.Q = scan.reduced['full']['Q']
+    ds_full.I = scan.reduced['full']['R']
+
+    ds_250 = plot_mpl.Plottable_USAXS_Dataset()
+    ds_250.label = 'rebinned (250) data'
+    ds_250.Q = scan.reduced['250']['Q']
+    ds_250.I = scan.reduced['250']['R']
+
+    pvwatch.logMessage( '  plotting to ' + plotfile )
+
+    plot_mpl.livedata_plot(
+        [ds_full, ds_250],
+        plotfile,
+        'test: ' + os.path.basename(hdf5_file)
+        )

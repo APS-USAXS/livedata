@@ -17,8 +17,8 @@ from xml.etree import ElementTree
 import epics
 import pyRestTable
 
-XML_FILE = 'test.xml'
-XML_FILE = 'pvlist_2011-09-09.xml'
+# XML_FILE = 'test.xml'
+# XML_FILE = 'pvlist_2011-09-09.xml'
 XML_FILE = 'pvlist.xml'
 tree = ElementTree.parse(XML_FILE)
 
@@ -35,12 +35,12 @@ for key in tree.findall(".//EPICS_PV"):
     if pv == base + ".RBV":
         rtyp = epics.caget(base + ".RTYP")
         if rtyp not in ("motor", ):
-	    continue
+            continue
         mne = key.get("mne")
         desc = key.get("description")
         #fmt = key.get("display_format", "%s")  # default format
         text = epics.caget(base + ".DESC")
-	d[mne.lower()] = (rtyp, base, mne, text, desc)
+    d[mne.lower()] = (rtyp, base, mne, text, desc)
 
 t = pyRestTable.Table()
 t.labels = ( "RTYP", "EPICS PV", "mnemonic", "pv.DESC", "pvlist.xml description" )

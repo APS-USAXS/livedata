@@ -15,20 +15,19 @@ LOCAL_USAXS_DATA_DIR = os.path.join(LOCAL_DATA_DIR, "/USAXS_data")
 LOCAL_WWW_LIVEDATA_DIR = os.path.join(LOCAL_DATA_DIR, "local_livedata")
 
 PLOT_FORMAT = "png"
+TIMESTAMP_FORMAT = "%Y-%m-%d %H:%M:%S"
 
 
 # dirWatch.py
 SKIP_DIRS = ['.AppleFileInfo']
 KEEP_EXTS = ['.dat']
 TIME_WINDOWS_SECS = 60*60*24*180
-TIMESTAMP_FORMAT = "%Y-%m-%d %H:%M:%S"
 
 
 # plotAllSpecFileScans.py
 LOCAL_SPECPLOTS_DIR = os.path.join(LOCAL_WWW_LIVEDATA_DIR, "specplots")
 WWW_SPECPLOTS_DIR = "specplots"
 SPEC_FILE = os.path.join(LOCAL_USAXS_DATA_DIR, "2010-03/03_27.dat")
-TIMESTAMP_FORMAT = "%Y-%m-%d %H:%M:%S"
 MTIME_CACHE_FILE = os.path.join(LOCAL_SPECPLOTS_DIR, 'mtime_cache.txt')
 
 # plot.py

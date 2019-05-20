@@ -12,9 +12,8 @@ import datetime
 import logging
 import paramiko
 import socket
-import threading
 
-from scp import SCPClient, report_scp_progress, SCPException
+from scp import SCPClient, SCPException
 import pvwatch
 
 
@@ -66,7 +65,7 @@ def scpToWebServer(sourceFile, targetFile = "", demo = False):
     with createSSHClient(WWW_SERVER, user=WWW_SERVER_USER) as ssh:
 
         report = None
-        #report = report_scp_progress    # debugging
+        #report = report_scp_progress    # debugging (from scp.report_scp_progress)
         scp = SCPClient(ssh.get_transport(), progress=report)
 
         for _retry in range(RETRY_COUNT):
@@ -169,7 +168,7 @@ if __name__ == '__main__':
     scpToWebServer_Demonstrate("wwwServerTransfers.py")
     try:
         scpToWebServer("wally.txt")
-    except:
+    except Exception:
         print sys.exc_info()[1]
     scpToWebServer("wwwServerTransfers.py", "wally.txt")
     scpToWebServer_Demonstrate("wwwServerTransfers.py", "wally.txt")
