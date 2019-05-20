@@ -196,7 +196,7 @@ def buildReport():
             node = ElementTree.SubElement(root, "usaxs_scans")
             node.set("file", specfile)
             for scan in USAXS_DATA['usaxs']:
-                scannode = ElementTree.SubElement(node, "scan")
+                scannode = ElementTree.SubElement(node, "scan") # FIXME: ? scan or node ?
             for item in ('scan', 'key', 'label'):
                 scannode.set(item, str(scan[item]))
             scannode.set('specfile', specfile)

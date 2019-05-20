@@ -82,7 +82,7 @@ def scpToWebServer(sourceFile, targetFile = "", demo = False):
                 logger.info(msg)
 
         msg = 'tried %d times: scp %s %s' % (RETRY_COUNT, sourceFile, targetFile)
-        WwwServerScpException(msg)
+        raise WwwServerScpException(msg)
 
 
 def scpToWebServer_Demonstrate(sourceFile, targetFile = ""):
