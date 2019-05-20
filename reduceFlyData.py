@@ -308,6 +308,7 @@ class UsaxsFlyScan(object):
             raise ValueError, msg
 
         # TODO: find better way to report this information
+        # TODO: show scan identification, this is too generic
         logger.warning("  possible vibrations during scan, re-generating AR from 10Hz sampling array")
         pso, ar = self.getAR_10Hz_Array(hdf)
 
