@@ -151,8 +151,8 @@ class StatsRegClass:
         :return: mean X and Y values
         :rtype: float
         '''
-        if self.mean == None:
-            self.mean = (self.sumX / self.weight, self.sumY / self.weight)
+        if self.mean is None:
+            self.mean = (self.sumX / float(self.weight), self.sumY / float(self.weight))
         return self.mean
 
     def  __sdeverr(self, summation, sqr, weight):
@@ -176,7 +176,7 @@ class StatsRegClass:
         :return: standard deviation of mean X and Y values
         :rtype: (float, float)
         '''
-        if self.sDev == None:
+        if self.sDev is None:
             xDev = self.__sdeverr(self.sumX, self.sumXX, self.weight)[0]
             yDev = self.__sdeverr(self.sumY, self.sumYY, self.weight)[0]
             self.sDev = (xDev, yDev)
@@ -189,7 +189,7 @@ class StatsRegClass:
         :return: standard error of mean X and Y values
         :rtype: (float, float)
         '''
-        if self.sErr == None:
+        if self.sErr is None:
             xErr = self.__sdeverr(self.sumX, self.sumXX, self.weight)[1]
             yErr = self.__sdeverr(self.sumY, self.sumYY, self.weight)[1]
             self.sErr = (xErr, yErr)
@@ -216,7 +216,7 @@ class StatsRegClass:
         :return: determinants of x and y summation matrices
         :rtype: (float, float)
         '''
-        if self.determ == None:
+        if self.determ is None:
             x = self.weight*self.sumXX - self.sumX**2
             y = self.weight*self.sumYY - self.sumY**2
             self.determ = (x, y)
@@ -234,7 +234,7 @@ class StatsRegClass:
         :return: (a, b) for fit of y=a+b*x
         :rtype: (float, float)
         '''
-        if self.slope == None or self.intercept == None:
+        if self.slope is None or self.intercept is None:
             determ         = self.determinant()[0]
             self.slope     = (self.weight*self.sumXY - self.sumX*self.sumY) / determ
             self.intercept = (self.sumXX*self.sumY  - self.sumX*self.sumXY) / determ
@@ -247,7 +247,7 @@ class StatsRegClass:
         :return: (var_a, var_b) -- is this correct?
         :rtype: (float, float)
         '''
-        if self.lrVariance == None:
+        if self.lrVariance is None:
             determ   = self.determinant()[0]
             slope    = math.sqrt (self.weight / determ)
             constant = math.sqrt (self.sumXX / determ)
@@ -264,7 +264,7 @@ class StatsRegClass:
         :see: http://stattrek.com/AP-Statistics-1/Correlation.aspx?Tutorial=Stat
            Look at "Product-moment correlation coefficient"
         '''
-        if self.r == None:
+        if self.r is None:
             VarX, VarY = self.determinant()
             self.r = (self.weight*self.sumXX - self.sumX*self.sumY) / math.sqrt(VarX*VarY)
         return self.r
@@ -276,7 +276,7 @@ class StatsRegClass:
         :return: correlation coefficient
         :rtype: float
         '''
-        if self.correlation == None:
+        if self.correlation is None:
             self.correlation = -self.sumX / math.sqrt (self.weight * self.sumXX)
         return self.correlation
 
@@ -319,8 +319,8 @@ def __selftest():
     reg.Add(521, 0.376)
     reg.Add(522, 0.143)
     reg.Show()
-    (xBar,        yBar)     = reg.Mean()
-    (xBarDev,     yBarDev)  = reg.StdDev()
+    # (xBar,        yBar)     = reg.Mean()
+    # (xBarDev,     yBarDev)  = reg.StdDev()
     (constant,    slope)    = reg.LinearRegression()
     (constantVar, slopeVar) = reg.LinearRegressionVariance()
     print("\t%s: %g +/- %g" % ('constant', constant, constantVar))

@@ -5,7 +5,6 @@
 
 import datetime
 import logging
-import math
 import numpy
 import os
 
@@ -188,7 +187,7 @@ def plottable_scan_node(scan_node):
 
     elif scan_type in ('FlyScan', 'sbFlyScan', 'Flyscan'):
         if scan_node.attrib['state'] in ('complete', ):
-            specfiledir = os.path.dirname(filename)
+            # specfiledir = os.path.dirname(filename)
             scan = Scan()
             scan.setFileParms(
                 scan_node.find('title').text.strip(),
@@ -208,11 +207,10 @@ def plottable_scan_node(scan_node):
             else:
                 # actual data file
                 scan_node.data_file = hdf5_file
-                ok = True
 
     elif scan_type in ('pinSAXS', 'SAXS', 'WAXS',):
         if scan_node.attrib['state'] in ('complete', ):
-            specfiledir = os.path.dirname(filename)
+            # specfiledir = os.path.dirname(filename)
             scan = Scan()
             scan.setFileParms(
                 scan_node.find('title').text.strip(),
@@ -227,7 +225,6 @@ def plottable_scan_node(scan_node):
             if os.path.exists(hdf5_file):
                 # actual data file
                 scan_node.data_file = hdf5_file
-                ok = True
             else:
                 scan = None     # bail out, no HDF5 file found
 
@@ -393,6 +390,20 @@ def get_USAXS_data(cache):
     return mpl_datasets
 
 
+def save_temporary_test_data(mpl_datasets):
+    '''save temporary test data sets'''
+    from spec2nexus import eznx
+    hdf5_file = os.path.join(localConfig.LOCAL_WWW_LIVEDATA_DIR, 'testdata.h5')
+    f = eznx.makeFile(hdf5_file)
+    for i, ds in enumerate(mpl_datasets):
+        nxentry = eznx.makeGroup(f, 'entry_' + str(i), 'NXentry')
+        eznx.makeDataset(nxentry, "title", ds.label)
+        nxdata = eznx.makeGroup(nxentry, 'data', 'NXdata', signal='R', axes='Q')
+        eznx.makeDataset(nxdata, "Q", ds.Q, units='1/A')
+        eznx.makeDataset(nxdata, "R", ds.I, units='a.u.')
+    f.close()
+
+
 def main(n = None, cp=False):
     global scan_cache
     global spec_file_cache
@@ -401,26 +412,15 @@ def main(n = None, cp=False):
     spec_file_cache = SpecFileCache()
     if n is None:
         n = NUMBER_SCANS_TO_PLOT
-    _scans = last_n_scans(SCANLOG, n)    # updates scan_cache & spec_file_cache
+    last_n_scans(SCANLOG, n)    # updates scan_cache & spec_file_cache
 
     local_plot = os.path.join(
-                              localConfig.LOCAL_WWW_LIVEDATA_DIR,
-                              localConfig.LOCAL_PLOTFILE)
+        localConfig.LOCAL_WWW_LIVEDATA_DIR,
+        localConfig.LOCAL_PLOTFILE)
 
     mpl_datasets = get_USAXS_data(scan_cache)
     if len(mpl_datasets):
-        if False:
-            '''save temporary test data sets'''
-            from spec2nexus import eznx
-            hdf5_file = os.path.join(localConfig.LOCAL_WWW_LIVEDATA_DIR, 'testdata.h5')
-            f = eznx.makeFile(hdf5_file)
-            for i, ds in enumerate(mpl_datasets):
-                nxentry = eznx.makeGroup(f, 'entry_' + str(i), 'NXentry')
-                eznx.makeDataset(nxentry, "title", ds.label)
-                nxdata = eznx.makeGroup(nxentry, 'data', 'NXdata', signal='R', axes='Q')
-                eznx.makeDataset(nxdata, "Q", ds.Q, units='1/A')
-                eznx.makeDataset(nxdata, "R", ds.I, units='a.u.')
-            f.close()
+        # save_temporary_test_data(mpl_datasets)
         try:
             plot_mpl.livedata_plot(mpl_datasets, local_plot)
         except plot_mpl.PlotException as exc:

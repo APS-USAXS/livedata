@@ -8,7 +8,6 @@ read a SPEC data file and plot scan n
 
 import argparse
 import logging
-import numpy
 import os
 from spec2nexus import spec             # read SPEC data files
 

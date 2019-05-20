@@ -7,7 +7,6 @@
 '''
 
 
-import datetime
 import logging
 import os
 os.environ['HDF5_DISABLE_VERSION_CHECK'] = '2'
@@ -81,7 +80,7 @@ def plotAllSpecFileScans(specFile):
     # decide here if SPEC file needs to be opened for possible replot of scan data
     mtime_specFile = getTimeFileModified(specFile)
     png_directory = get_PngDir(specFile)
-    if (png_directory == None) or (not os.path.exists(png_directory)):
+    if png_directory is None or not os.path.exists(png_directory):
         mtime_pngdir = 0
     else:
         mtime_pngdir = getTimeFileModified(png_directory)
@@ -100,7 +99,7 @@ def plotAllSpecFileScans(specFile):
     try:
         logger.info('opening SPEC data file: ' + specFile)
         sd = specplot.openSpecFile(specFile)
-    except:
+    except Exception:
         return    # could not open file, be silent about it
     if len(sd.headers) == 0:    # no scan header found, again, silence
         return
@@ -321,21 +320,6 @@ def build_index_html(baseSpecFile, specFile, plotList):
     html += "  </body>\n"
     html += "</html>\n"
     return html
-
-
-# def logger(message):
-#     '''
-#     log a message or report from this module
-#
-#     :param str message: words to be logged
-#     '''
-#     #print message
-#     now = datetime.datetime.now()
-#     name = os.path.basename(sys.argv[0])
-#     pid = os.getpid()
-#     text = "(%d,%s,%s) %s" % (pid, name, now, message)
-#     #print text
-#     logging.info(text)
 
 
 if __name__ == '__main__':

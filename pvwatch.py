@@ -18,10 +18,7 @@ import os
 os.environ['HDF5_DISABLE_VERSION_CHECK'] = '2'
 import os.path          # testing if a file exists
 import shutil           # file copies
-import sys              # for flushing log output
-import threading
 import time             # provides sleep()
-import traceback
 from xml.dom import minidom
 from xml.etree import ElementTree
 
@@ -36,7 +33,6 @@ logger = logging.getLogger(__name__)
 
 def logMessage(msg):
     '''write a message with a timestamp and pid to the log file'''
-    #sys.stdout.flush()
     logger.info(msg)
 
 try:
@@ -49,13 +45,9 @@ except ImportError, exc:
     logger.warning("faulthandler: module not imported")
 
 
-global GLOBAL_MONITOR_COUNTER
-global pvdb         # cache of last known good values
-global xref         # cross-reference between mnemonics and PV names: {mne:pvname}
-
 GLOBAL_MONITOR_COUNTER = 0
-pvdb = {}   # EPICS data will go here
-xref = {}   # cross-reference id with PV
+pvdb = {}   # EPICS data will go here, cache of last known good values
+xref = {}   # cross-reference between mnemonics and PV names: {mne:pvname}
 PVLIST_FILE = "pvlist.xml"
 MAINLOOP_COUNTER_TRIGGER = 10000  # print a log message periodically
 USAXS_DATA = None
@@ -196,7 +188,7 @@ def buildReport():
             node = ElementTree.SubElement(root, "usaxs_scans")
             node.set("file", specfile)
             for scan in USAXS_DATA['usaxs']:
-                scannode = ElementTree.SubElement(node, "scan")
+                scannode = ElementTree.SubElement(node, "scan") # FIXME: ? scan or node ?
             for item in ('scan', 'key', 'label'):
                 scannode.set(item, str(scan[item]))
             scannode.set('specfile', specfile)
@@ -351,7 +343,7 @@ def initiate_PV_connections():
         return
     try:
         tree = ElementTree.parse(PVLIST_FILE)
-    except:
+    except Exception:
         logger.info('could not parse file: ' + PVLIST_FILE)
         return
 
@@ -364,7 +356,7 @@ def initiate_PV_connections():
             waveform_char = key.get("waveform_char", "false").lower() == "true"
             try:
                 add_pv(mne, pv, desc, fmt, waveform_char=waveform_char)
-            except:
+            except Exception:
                 msg = "%s: problem connecting: %s" % (PVLIST_FILE, ElementTree.tostring(key))
                 logger.warn(msg)
 
@@ -446,12 +438,12 @@ def main():
                                        nextReport, nextLog, delta_report, delta_log)
         time.sleep(localConfig.SLEEP_INTERVAL_S)
 
-    # this exit handling will never be called
-    for pv in pvdb:
-        ch = pvdb[pv]['ch']
-        if ch != None:
-            ch.disconnect()
-    print "script is done"
+    # # this exit handling will never be called
+    # for pv in pvdb:
+    #     ch = pvdb[pv]['ch']
+    #     if ch != None:
+    #         ch.disconnect()
+    # print "script is done"
 
 
 if __name__ == '__main__':

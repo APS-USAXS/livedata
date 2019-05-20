@@ -1,14 +1,14 @@
 import numpy as np
 
-def azimuthalAverage(image, center=None, stddev=False, returnradii=False, return_nr=False, 
+def azimuthalAverage(image, center=None, stddev=False, returnradii=False, return_nr=False,
         binsize=0.5, weights=None, steps=False, interpnan=False, left=None, right=None,
         mask=None ):
     """
     Calculate the azimuthally averaged radial profile.
 
     image - The 2D image
-    center - The [x,y] pixel coordinates used as the center. The default is 
-             None, which then uses the center of the image (including 
+    center - The [x,y] pixel coordinates used as the center. The default is
+             None, which then uses the center of the image (including
              fractional pixels).
     stddev - if specified, return the azimuthal standard deviation instead of the average
     returnradii - if specified, return (radii_array,radial_profile)
@@ -30,7 +30,7 @@ def azimuthalAverage(image, center=None, stddev=False, returnradii=False, return
     If a bin contains NO DATA, it will have a NAN value because of the
     divide-by-sum-of-weights component.  I think this is a useful way to denote
     lack of data, but users let me know if an alternative is prefered...
-    
+
     """
     # Calculate the indices from the image
     y, x = np.indices(image.shape)
@@ -51,7 +51,7 @@ def azimuthalAverage(image, center=None, stddev=False, returnradii=False, return
     # obsolete     mask = mask.ravel()
 
     # the 'bins' as initially defined are lower/upper bounds for each bin
-    # so that values will be in [lower,upper)  
+    # so that values will be in [lower,upper)
     nbins = int(np.round(r.max() / binsize)+1)
     maxbin = nbins * binsize
     bins = np.linspace(0,maxbin,nbins+1)
@@ -68,19 +68,24 @@ def azimuthalAverage(image, center=None, stddev=False, returnradii=False, return
     if stddev:
         # Find out which radial bin each point in the map belongs to
         whichbin = np.digitize(r.flat,bins)
-        # This method is still very slow; is there a trick to do this with histograms? 
+        # This method is still very slow; is there a trick to do this with histograms?
         radial_prof = np.array([image.flat[mask.flat*(whichbin==b)].std() for b in xrange(1,nbins+1)])
-    else: 
+    else:
         radial_prof = np.histogram(r, bins, weights=(image*weights*mask))[0] / np.histogram(r, bins, weights=(mask*weights))[0]
 
     if interpnan:
-        radial_prof = np.interp(bin_centers,bin_centers[radial_prof==radial_prof],radial_prof[radial_prof==radial_prof],left=left,right=right)
+        radial_prof = np.interp(
+            bin_centers,
+            bin_centers[radial_prof==radial_prof],  # FIXME: tests identical numbers
+            radial_prof[radial_prof==radial_prof],  # FIXME: tests identical numbers
+            left=left,
+            right=right)
 
     if steps:
-        xarr = np.array(zip(bins[:-1],bins[1:])).ravel() 
-        yarr = np.array(zip(radial_prof,radial_prof)).ravel() 
+        xarr = np.array(zip(bins[:-1],bins[1:])).ravel()
+        yarr = np.array(zip(radial_prof,radial_prof)).ravel()
         return xarr,yarr
-    elif returnradii: 
+    elif returnradii:
         return bin_centers,radial_prof
     elif return_nr:
         return nr,bin_centers,radial_prof
@@ -88,12 +93,12 @@ def azimuthalAverage(image, center=None, stddev=False, returnradii=False, return
         return radial_prof
 
 def azimuthalAverageBins(image,azbins,symmetric=None, center=None, **kwargs):
-    """ Compute the azimuthal average over a limited range of angles 
+    """ Compute the azimuthal average over a limited range of angles
     kwargs are passed to azimuthalAverage """
     y, x = np.indices(image.shape)
     if center is None:
         center = np.array([(x.max()-x.min())/2.0, (y.max()-y.min())/2.0])
-    r = np.hypot(x - center[0], y - center[1])
+    # r = np.hypot(x - center[0], y - center[1])
     theta = np.arctan2(x - center[0], y - center[1])
     theta[theta < 0] += 2*np.pi
     theta_deg = theta*180.0/np.pi
@@ -122,7 +127,7 @@ def azimuthalAverageBins(image,azbins,symmetric=None, center=None, **kwargs):
 
     return azbins,rr,azavlist
 
-def radialAverage(image, center=None, stddev=False, returnAz=False, return_naz=False, 
+def radialAverage(image, center=None, stddev=False, returnAz=False, return_naz=False,
         binsize=1.0, weights=None, steps=False, interpnan=False, left=None, right=None,
         mask=None, symmetric=None ):
     """
@@ -130,8 +135,8 @@ def radialAverage(image, center=None, stddev=False, returnAz=False, return_naz=F
     (this code has not been optimized; it could be speed boosted by ~20x)
 
     image - The 2D image
-    center - The [x,y] pixel coordinates used as the center. The default is 
-             None, which then uses the center of the image (including 
+    center - The [x,y] pixel coordinates used as the center. The default is
+             None, which then uses the center of the image (including
              fractional pixels).
     stddev - if specified, return the radial standard deviation instead of the average
     returnAz - if specified, return (azimuthArray,azimuthal_profile)
@@ -153,7 +158,7 @@ def radialAverage(image, center=None, stddev=False, returnAz=False, return_naz=F
     If a bin contains NO DATA, it will have a NAN value because of the
     divide-by-sum-of-weights component.  I think this is a useful way to denote
     lack of data, but users let me know if an alternative is prefered...
-    
+
     """
     # Calculate the indices from the image
     y, x = np.indices(image.shape)
@@ -187,7 +192,7 @@ def radialAverage(image, center=None, stddev=False, returnAz=False, return_naz=F
         maxangle = 180
 
     # the 'bins' as initially defined are lower/upper bounds for each bin
-    # so that values will be in [lower,upper)  
+    # so that values will be in [lower,upper)
     nbins = int(np.round(maxangle / binsize))
     maxbin = nbins * binsize
     bins = np.linspace(0,maxbin,nbins+1)
@@ -217,10 +222,10 @@ def radialAverage(image, center=None, stddev=False, returnAz=False, return_naz=F
             left=left,right=right)
 
     if steps:
-        xarr = np.array(zip(bins[:-1],bins[1:])).ravel() 
-        yarr = np.array(zip(azimuthal_prof,azimuthal_prof)).ravel() 
+        xarr = np.array(zip(bins[:-1],bins[1:])).ravel()
+        yarr = np.array(zip(azimuthal_prof,azimuthal_prof)).ravel()
         return xarr,yarr
-    elif returnAz: 
+    elif returnAz:
         return bin_centers,azimuthal_prof
     elif return_naz:
         return nr,bin_centers,azimuthal_prof

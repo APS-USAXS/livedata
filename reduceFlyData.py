@@ -204,7 +204,7 @@ class UsaxsFlyScan(object):
         pname = self.get_program_name(hdf)
         config_version = self.get_config_version(pname)
         mode_number = self.get_mode_number(hdf, config_version)
-        _mode_name = self.get_mode_name(mode_number)
+        # _mode_name = self.get_mode_name(mode_number)
 
         raw = hdf['entry/flyScan']
 
@@ -241,12 +241,12 @@ class UsaxsFlyScan(object):
 
         if mode_number in (AR_MODE_ARRAY, AR_MODE_TRAJECTORY):
             # consequence of Aerotech HLe providing no useful data in 1st channel
-            upd_ranges = upd_ranges[1:]
+            # upd_ranges = upd_ranges[1:]
             upd_gain = upd_gain[1:]
             upd_dark = upd_dark[1:]
             # truncate in case PSO oscillations were corrected
             n = len(raw_upd)
-            upd_ranges = upd_ranges[:n]
+            # upd_ranges = upd_ranges[:n]
             upd_gain = upd_gain[:n]
             upd_dark = upd_dark[:n]
 
@@ -274,9 +274,6 @@ class UsaxsFlyScan(object):
                              I0_gain=I0_amp_gain,
                              ar_center=ar_center,
                              )
-#         center = full['ar_0']
-#         if center != ar_center:
-#             pass
 
         hdf.close()
 
@@ -320,13 +317,6 @@ class UsaxsFlyScan(object):
 
     def rebin(self, bin_count = None):
         '''generate R(Q) with a bin_count bins, save in ``self.reduced[str(bin_count)]`` dict'''
-
-        def subarray(arr, key_arr, lo, hi):
-            '''return subarray of arr where lo < arr <= hi'''
-            low_pass  = numpy.where(key_arr <= hi, arr,      0)
-            high_pass = numpy.where(lo < key_arr,  low_pass, 0)
-            return numpy.trim_zeros(high_pass)
-
         if not self.has_reduced():
             self.reduce()
 
@@ -714,7 +704,7 @@ class UsaxsFlyScan(object):
         centroid = sumX / sumWt
         try:
             sigma = math.sqrt( (sumXX - (sumX*sumX)/sumWt) / (sumWt - 1) )
-        except:
+        except Exception:
             sigma = 0.0
         return centroid, sigma
 
