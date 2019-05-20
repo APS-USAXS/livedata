@@ -203,12 +203,12 @@ def plottable_scan_node(scan_node):
             spec = spec_file_cache.get(filename)
             spec_scan = spec.getScan(str(scan_node.attrib['number']))
             hdf5_file = get_Hdf5_Data_file_Name(spec_scan)
-            if os.path.exists(hdf5_file):
+            if hdf5_file is None or not os.path.exists(hdf5_file):
+                scan = None     # bail out, no HDF5 file found
+            else:
                 # actual data file
                 scan_node.data_file = hdf5_file
                 ok = True
-            else:
-                scan = None     # bail out, no HDF5 file found
 
     elif scan_type in ('pinSAXS', 'SAXS', 'WAXS',):
         if scan_node.attrib['state'] in ('complete', ):
