@@ -379,7 +379,7 @@ def main_event_loop_checks(mainLoopCount, nextReport, nextLog, delta_report, del
             logger.debug(pvdb["9idcLAX:USAXS:sampleTitle"]["value"])
             t0 = time.time()
             report()                                   # write contents of pvdb to a file
-            logger.info("report() completed in %.3f s" % (time.time() - t0))
+            logger.debug("report() completed in %.3f s" % (time.time() - t0))
         except Exception as exc:
             msg = "problem with {}(): traceback={}".format("report", exc)
             logger.warn(msg)

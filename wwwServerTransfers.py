@@ -5,16 +5,17 @@ manage file transfers with the USAXS account on the XSD WWW server
 '''
 
 
-import os, sys
-import subprocess
-import shlex
-import shutil
 import datetime
 import logging
+import os
 import paramiko
-import socket
-
 from scp import SCPClient, SCPException
+import shlex
+import shutil
+import socket
+import subprocess
+import sys
+
 import pvwatch
 
 
