@@ -8,6 +8,7 @@ manage file transfers with the USAXS account on the XSD WWW server
 import os, sys
 import subprocess
 import shlex
+import shutil
 import datetime
 import logging
 import paramiko
@@ -24,10 +25,12 @@ logger = logging.getLogger(__name__)
 WWW_SERVER = 'joule.xray.aps.anl.gov'
 WWW_SERVER_USER = 'webusaxs'
 WWW_SERVER_ROOT = WWW_SERVER_USER + '@' + WWW_SERVER
+WWW_SERVER_NFS_ROOT = "/net/joule/export/joule/WEBUSAXS/"
 #LIVEDATA_DIR = "www/livedata"
 LIVEDATA_DIR = "www_live"
 SERVER_WWW_HOMEDIR = WWW_SERVER_ROOT + ":~"
 SERVER_WWW_LIVEDATA = os.path.join(SERVER_WWW_HOMEDIR, LIVEDATA_DIR)
+SERVER_WWW_LIVEDATA_NFS = os.path.join(WWW_SERVER_NFS_ROOT, LIVEDATA_DIR)
 
 LOCAL_DATA_DIR = "/share1"
 LOCAL_WWW = os.path.join(LOCAL_DATA_DIR, 'local_livedata')
@@ -42,6 +45,30 @@ RETRY_COUNT = 3
 
 
 class WwwServerScpException(Exception): pass
+
+
+def nfsCpToWebServer(sourceFile, targetFile = "", demo = False):
+    '''
+    Copy the local source file to the WWW server using NFS.
+
+    @param sourceFile: file in local file space relative to /share1/local_livedata
+    @param targetFile: destination file (default is same path as sourceFile)
+    @param demo: If True, don't do the copy, just print the command
+    @return: a tuple (stdoutdata,  stderrdata) -or- None (if demo=False)
+    '''
+    if not os.path.exists(sourceFile):
+        raise Exception("Local file not found: " + sourceFile)
+    if len(targetFile) == 0:
+        targetFile = sourceFile
+    destinationName = os.path.join(SERVER_WWW_LIVEDATA_NFS, targetFile)
+    msg = "%s -p %s %s" % ("NFS copy", sourceFile, destinationName)
+    # if demo:
+    #     logger.debug(msg)
+    #     print msg
+    #     return
+
+    shutil.copy2(sourceFile, destinationName)
+    logger.debug(msg)
 
 
 def scpToWebServer(sourceFile, targetFile = "", demo = False):
