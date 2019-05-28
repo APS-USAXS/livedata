@@ -427,7 +427,7 @@ def main(n = None, cp=False):
             logger.info("{}".format(exc))
         if cp:
             www_plot = localConfig.LOCAL_PLOTFILE
-            wwwServerTransfers.scpToWebServer(local_plot, www_plot)
+            wwwServerTransfers.nfsCpToWebServer(local_plot, www_plot)
 
 
 if __name__ == "__main__":

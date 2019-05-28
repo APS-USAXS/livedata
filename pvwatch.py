@@ -100,7 +100,7 @@ def updateSpecMacroFile():
         updateFile = True
     if updateFile:
         shutil.copy2(specFile, wwwFile)
-        wwwServerTransfers.scpToWebServer(specFile, macroFile)
+        wwwServerTransfers.nfsCpToWebServer(specFile, macroFile)
 
 
 def updatePlotImage():
@@ -233,7 +233,7 @@ def report():
     abs_raw_xml = os.path.join(localDir, raw_xml)
     writeFile(abs_raw_xml, xmlText)
 
-    wwwServerTransfers.scpToWebServer(abs_raw_xml, raw_xml)
+    wwwServerTransfers.nfsCpToWebServer(abs_raw_xml, raw_xml)
 
     #--- xslt transforms from XML to HTML
 
@@ -241,27 +241,27 @@ def report():
     index_html = localConfig.HTML_INDEX_FILE  # short name
     abs_index_html = os.path.join(localDir, index_html)  # absolute path
     xslt_transformation(localConfig.LIVEDATA_XSL_STYLESHEET, abs_raw_xml, abs_index_html)
-    wwwServerTransfers.scpToWebServer(abs_index_html, index_html)  # copy to XSD
+    wwwServerTransfers.nfsCpToWebServer(abs_index_html, index_html)  # copy to XSD
 
     # display the raw data (but pre-convert it in an html page)
     raw_html = localConfig.HTML_RAWREPORT_FILE
     abs_raw_html = os.path.join(localDir, raw_html)
     xslt_transformation(localConfig.RAWTABLE_XSL_STYLESHEET, abs_raw_xml, abs_raw_html)
-    wwwServerTransfers.scpToWebServer(abs_raw_html, raw_html)
+    wwwServerTransfers.nfsCpToWebServer(abs_raw_html, raw_html)
 
     # also copy the raw table XSLT
     xslFile = localConfig.RAWTABLE_XSL_STYLESHEET
-    wwwServerTransfers.scpToWebServer(xslFile, xslFile)
+    wwwServerTransfers.nfsCpToWebServer(xslFile, xslFile)
 
     # also copy the php pager software
     phpFile = localConfig.LIVEDATA_PHP_PAGER
-    wwwServerTransfers.scpToWebServer(phpFile, phpFile)
+    wwwServerTransfers.nfsCpToWebServer(phpFile, phpFile)
 
     # make the usaxstv.html file
     usaxstv_html = localConfig.HTML_USAXSTV_FILE  # short name
     abs_usaxstv_html = os.path.join(localDir, usaxstv_html)  # absolute path
     xslt_transformation(localConfig.USAXSTV_XSL_STYLESHEET, abs_raw_xml, abs_usaxstv_html)
-    wwwServerTransfers.scpToWebServer(abs_usaxstv_html, usaxstv_html)  # copy to XSD
+    wwwServerTransfers.nfsCpToWebServer(abs_usaxstv_html, usaxstv_html)  # copy to XSD
 
 
 def update_pvdb(pv, raw_value):
@@ -377,7 +377,9 @@ def main_event_loop_checks(mainLoopCount, nextReport, nextLog, delta_report, del
         try:
             # https://github.com/APS-USAXS/livedata/issues/6
             logger.debug(pvdb["9idcLAX:USAXS:sampleTitle"]["value"])
+            t0 = time.time()
             report()                                   # write contents of pvdb to a file
+            logger.info("report() completed in %.3f s" % (time.time() - t0))
         except Exception as exc:
             msg = "problem with {}(): traceback={}".format("report", exc)
             logger.warn(msg)
