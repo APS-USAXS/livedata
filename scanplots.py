@@ -130,7 +130,9 @@ class Scan(object):
             self.getData()
 
         if self.spec_scan is None:
-            pass
+            logger.debug("No scan %d in file %s" % (self.scan_number, self.data_file))
+            return None
+
         epoch = datetime.datetime.strptime(self.spec_scan.date, '%c')
         fmt = '%Y_%m_%d__%H_%M_%S'
         scan_date_time_stamp = datetime.datetime.strftime(epoch, fmt)
@@ -219,10 +221,12 @@ def plottable_scan_node(scan_node):
                 scan_node.attrib['number'],
                 scan_node.attrib['id'],
             )
+            if scan.spec_scan is None:
+                return None         # reached a dead end here
             scan.getData()
 
             hdf5_file = get_Hdf5_Data_file_Name(scan.spec_scan)
-            if os.path.exists(hdf5_file):
+            if hdf5_file is not None and os.path.exists(hdf5_file):
                 # actual data file
                 scan_node.data_file = hdf5_file
             else:
@@ -244,6 +248,15 @@ def last_n_scans(xml_log_file, number_scans):
     if node_list is None:
         return scans
     for scan_node in reversed(node_list):
+        logger.debug(
+            "%s %s - %s - %s" %
+            (
+                scan_node.tag,
+                scan_node.attrib["state"],
+                scan_node.attrib["type"],
+                scan_node.attrib["id"],
+                )
+            )
         scan_object = plottable_scan_node(scan_node)
         if scan_object is not None:
             scans.append(scan_object)
