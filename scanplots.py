@@ -241,12 +241,11 @@ def plottable_scan_node(scan_node):
 def last_n_scans(xml_log_file, number_scans):
     '''get list of last *n* plottable scan objects, chronological, most recent last'''
     xml_doc = xmlSupport.openScanLogFile(xml_log_file)
-    if xml_doc is None: return []
+    if xml_doc is None:
+        return []
 
     scans = []
-    node_list = xml_doc.findall('scan')
-    if node_list is None:
-        return scans
+    node_list = xml_doc.findall('scan') or []
     for scan_node in reversed(node_list):
         logger.debug(
             "%s %s - %s - %s" %
