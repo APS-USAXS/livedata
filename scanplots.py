@@ -424,7 +424,8 @@ def main(n = None, cp=False):
     spec_file_cache = SpecFileCache()
     if n is None:
         n = NUMBER_SCANS_TO_PLOT
-    last_n_scans(SCANLOG, n)    # updates scan_cache & spec_file_cache
+    scan_list = last_n_scans(SCANLOG, n)    # updates scan_cache & spec_file_cache
+    logger.debug("scan list: " + ", ".join(map(str, scan_list)))
 
     local_plot = os.path.join(
         localConfig.LOCAL_WWW_LIVEDATA_DIR,
@@ -444,4 +445,4 @@ def main(n = None, cp=False):
 
 if __name__ == "__main__":
     #last_n_scans(SCANLOG, NUMBER_SCANS_TO_PLOT)
-    main()
+    main(n=21)
