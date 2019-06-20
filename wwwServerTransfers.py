@@ -62,8 +62,11 @@ def nfsCpToWebServer(sourceFile, targetFile = "", demo = False):
     if len(targetFile) == 0:
         targetFile = sourceFile
     destinationName = os.path.join(SERVER_WWW_LIVEDATA_NFS, targetFile)
-    msg = "%s %s %s" % ("cp", sourceFile, destinationName)
+    msg = "%s %s %s" % ("cp -f", sourceFile, destinationName)
     logger.debug(msg)
+    
+    if demo:
+        return
 
     try:
         #shutil.copy2(sourceFile, destinationName)
