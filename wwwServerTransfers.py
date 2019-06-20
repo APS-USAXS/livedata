@@ -69,8 +69,7 @@ def nfsCpToWebServer(sourceFile, targetFile = "", demo = False):
         return
 
     try:
-        #shutil.copy2(sourceFile, destinationName)
-        shutil.copy(sourceFile, destinationName)
+        shutil.copyfile(sourceFile, destinationName)
     except OSError as exc:
         msg = "OSError - could not " + msg
         logger.debug(msg)
