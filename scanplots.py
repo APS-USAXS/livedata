@@ -18,6 +18,7 @@ import xmlSupport
 
 
 logger = logging.getLogger(__name__)
+# logger.setLevel(logging.DEBUG)
 SCANLOG = '/share1/local_livedata/scanlog.xml'
 NUMBER_SCANS_TO_PLOT = 5
 scan_cache = None
@@ -174,6 +175,8 @@ def plottable_scan_node(scan_node):
     if not os.path.exists(filename):
         return scan
     scan_type = scan_node.attrib['type']
+
+    # TODO: #23 similar code blocks could be combined
     if scan_type in ('uascan', 'sbuascan'):
         if scan_node.attrib['state'] in ('scanning', 'complete'):
             if os.path.exists(filename):
@@ -198,11 +201,16 @@ def plottable_scan_node(scan_node):
                 scan_node.attrib['number'],
                 scan_node.attrib['id'],
             )
+            if scan.spec_scan is None:
+                return None         # reached a dead end here
             scan.getData()
 
             # get the HDF5 file name from the SPEC file (no search needed)
             spec = spec_file_cache.get(filename)
             spec_scan = spec.getScan(str(scan_node.attrib['number']))
+            if not spec_scan.__interpreted__:
+                spec_scan.interpret()
+
             hdf5_file = get_Hdf5_Data_file_Name(spec_scan)
             if hdf5_file is None or not os.path.exists(hdf5_file):
                 scan = None     # bail out, no HDF5 file found
@@ -224,6 +232,8 @@ def plottable_scan_node(scan_node):
             if scan.spec_scan is None:
                 return None         # reached a dead end here
             scan.getData()
+            if not scan.spec_scan.__interpreted__:
+                scan.spec_scan.interpret()
 
             hdf5_file = get_Hdf5_Data_file_Name(scan.spec_scan)
             if hdf5_file is not None and os.path.exists(hdf5_file):
@@ -247,15 +257,10 @@ def last_n_scans(xml_log_file, number_scans):
     scans = []
     node_list = xml_doc.findall('scan') or []
     for scan_node in reversed(node_list):
-        logger.debug(
-            "%s %s - %s - %s" %
-            (
-                scan_node.tag,
-                scan_node.attrib["state"],
-                scan_node.attrib["type"],
-                scan_node.attrib["id"],
-                )
-            )
+        msg = scan_node.tag
+        for k in "state type id".split():
+            msg += " - " + scan_node.attrib[k]
+        logger.debug(msg)
         scan_object = plottable_scan_node(scan_node)
         if scan_object is not None:
             scans.append(scan_object)
@@ -443,6 +448,41 @@ def main(n = None, cp=False):
             wwwServerTransfers.nfsCpToWebServer(local_plot, www_plot)
 
 
+def pr20(n = None, cp=False):
+    """
+    test code
+
+    make SAXS & WAXS data from BS show on livedata page
+
+    supporting issue https://github.com/APS-USAXS/livedata/issues/14
+    and PR https://github.com/APS-USAXS/livedata/pull/20
+
+    import logging
+    import os
+    import scanplots
+
+    logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger(__name__)
+    logger.setLevel(logging.DEBUG)
+
+    scanplots.pr20(100)
+    """
+    global scan_cache
+    global spec_file_cache
+
+    scan_cache = ScanCache()
+    spec_file_cache = SpecFileCache()
+    if n is None:
+        n = NUMBER_SCANS_TO_PLOT
+    scan_list = last_n_scans(SCANLOG, n)    # updates scan_cache & spec_file_cache
+
+    mpl_datasets = get_USAXS_data(scan_cache)
+
+    logger.debug("scan list: ")
+    for i, s in enumerate(mpl_datasets):
+        logger.debug("%d  %d  %s" % (i+1, len(s.Q), s.label))
+
+
 if __name__ == "__main__":
     #last_n_scans(SCANLOG, NUMBER_SCANS_TO_PLOT)
-    main(n=21)
+    main()
