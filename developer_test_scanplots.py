@@ -9,7 +9,6 @@ make SAXS & WAXS data from BS show on livedata page
 """
 
 import logging
-import os
 import scanplots
 
 logging.basicConfig(level=logging.INFO)

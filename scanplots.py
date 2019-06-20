@@ -474,7 +474,7 @@ def pr20(n = None, cp=False):
     spec_file_cache = SpecFileCache()
     if n is None:
         n = NUMBER_SCANS_TO_PLOT
-    scan_list = last_n_scans(SCANLOG, n)    # updates scan_cache & spec_file_cache
+    last_n_scans(SCANLOG, n)    # updates scan_cache & spec_file_cache
 
     mpl_datasets = get_USAXS_data(scan_cache)
 
