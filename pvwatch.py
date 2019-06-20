@@ -19,6 +19,7 @@ os.environ['HDF5_DISABLE_VERSION_CHECK'] = '2'
 import os.path          # testing if a file exists
 import shutil           # file copies
 import time             # provides sleep()
+import traceback
 from xml.dom import minidom
 from xml.etree import ElementTree
 
@@ -41,7 +42,7 @@ try:
     import faulthandler
     faulthandler.enable()
     logger.debug("faulthandler: module enabled")
-except ImportError, exc:
+except ImportError:
     logger.warning("faulthandler: module not imported")
 
 
@@ -200,7 +201,7 @@ def buildReport():
             vec = ElementTree.SubElement(scannode, "R")
             vec.set('units', 'arbitrary')
             vec.text = ' '.join(textArray(scan['rVec']))
-        except Exception, e:
+        except Exception as e:
             logger.info('caught Exception while writing USAXS scan data to XML file')
             logger.info('  file: %s' % specfile)
             logger.info(e)
@@ -383,18 +384,21 @@ def main_event_loop_checks(mainLoopCount, nextReport, nextLog, delta_report, del
         except Exception as exc:
             msg = "problem with {}(): traceback={}".format("report", exc)
             logger.warn(msg)
+            logger.warn(traceback.format_exc())
 
         try:
             updateSpecMacroFile()                      # copy the spec macro file
         except Exception as exc:
             msg = "problem with {}(): traceback={}".format("updateSpecMacroFile", exc)
             logger.warn(msg)
+            logger.warn(traceback.format_exc())
 
         try:
             updatePlotImage()                          # update the plot
         except Exception as exc:
             msg = "problem with {}(): traceback={}".format("updatePlotImage", exc)
             logger.warn(msg)
+            logger.warn(traceback.format_exc())
 
     if dt >= nextLog:
         nextLog = dt + delta_log
