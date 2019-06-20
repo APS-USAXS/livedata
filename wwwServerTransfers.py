@@ -71,7 +71,7 @@ def nfsCpToWebServer(sourceFile, targetFile = "", demo = False):
     except OSError as exc:
         msg = "OSError - could not " + msg
         logger.debug(msg)
-        raise exc
+        raise OSError(msg)
 
 
 def scpToWebServer(sourceFile, targetFile = "", demo = False):
