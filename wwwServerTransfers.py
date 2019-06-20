@@ -62,14 +62,16 @@ def nfsCpToWebServer(sourceFile, targetFile = "", demo = False):
     if len(targetFile) == 0:
         targetFile = sourceFile
     destinationName = os.path.join(SERVER_WWW_LIVEDATA_NFS, targetFile)
-    msg = "%s -p %s %s" % ("NFS copy", sourceFile, destinationName)
-    # if demo:
-    #     logger.debug(msg)
-    #     print msg
-    #     return
-
-    shutil.copy2(sourceFile, destinationName)
+    msg = "%s %s %s" % ("cp", sourceFile, destinationName)
     logger.debug(msg)
+
+    try:
+        #shutil.copy2(sourceFile, destinationName)
+        shutil.copy(sourceFile, destinationName)
+    except OSError as exc:
+        msg = "OSError - could not " + msg
+        logger.debug(msg)
+        raise exc
 
 
 def scpToWebServer(sourceFile, targetFile = "", demo = False):
