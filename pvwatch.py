@@ -19,6 +19,7 @@ os.environ['HDF5_DISABLE_VERSION_CHECK'] = '2'
 import os.path          # testing if a file exists
 import shutil           # file copies
 import time             # provides sleep()
+import traceback
 from xml.dom import minidom
 from xml.etree import ElementTree
 
