@@ -28,10 +28,11 @@ def list_recent_spec_data_files(since = None):
     PARAMETERS
     
     since : datetime object or `None`
-        absolute path name(s) of recent SPEC data file(s)
+        earliest acceptable start time for SPEC scan
+        defaults to `RECENT` (as defined above)
     
     RETURNS : [str]
-        absolute path name(s) of recent SPEC data file(s)
+        list containing absolute path name(s) of recent SPEC data file(s)
     """
     since = since or datetime.datetime.fromtimestamp(time.time() - RECENT)
     
