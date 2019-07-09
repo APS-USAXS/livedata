@@ -320,11 +320,14 @@
                         <td>
                             <table border="1" width="100%" bgcolor="mintcream" rules="all">
                                 <td align="left">spec macro:
-                                    <a href="usaxs.mac">
+                                    <a href="specmacro.txt">
+										specmacro.txt
+  										<!--
                                         <xsl:attribute name="href">
                                         	<xsl:value-of select="//pv[@id='spec_macro_file']/value"/>
                                         </xsl:attribute>
                                         <xsl:value-of select="//pv[@id='spec_macro_file']/value"/>
+                                        -->
                                     </a>
                                 </td>
                                 <td align="center">
