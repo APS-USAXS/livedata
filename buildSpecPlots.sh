@@ -35,7 +35,8 @@ HDF5_DISABLE_VERSION_CHECK=2
 #SPEC_DATA_PATTERN=/share1/USAXS_data/2016-*/*.dat
 #SPEC_DATA_PATTERN=/share1/USAXS_data/2017-*/*.dat
 #SPEC_DATA_PATTERN=/share1/USAXS_data/2018-*/*.dat
-SPEC_DATA_PATTERN=/share1/USAXS_data/2019-*/*.dat
+SPEC_DATA_PATTERN=/share1/USAXS_data/2019-07/*.dat
+#SPEC_DATA_PATTERN=/share1/USAXS_data/2019-*/*.dat
 
 #export PLOTICUS_BASE=/home/beams/USAXS/Documents/ploticus/pl241src
 #export PLOTICUS_PREFABS=$PLOTICUS_BASE/prefabs
@@ -43,7 +44,9 @@ SPEC_DATA_PATTERN=/share1/USAXS_data/2019-*/*.dat
 cd $CODE_DIR
 echo "#= $$ --Start--- `/bin/date`" >> $LOGFILE 2>&1
 
-filelist=`/bin/ls -1 $SPEC_DATA_PATTERN`
+#filelist=`/bin/ls -1 $SPEC_DATA_PATTERN`
+# 2019-07-09, prj: look at scan logs and build the list
+filelist=`$PYTHON ./recent_spec_data_files.py`
 # for item in $filelist;
 # 	do
 # 	# echo $item >> $LOGFILE 2>&1;
