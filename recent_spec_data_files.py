@@ -1,7 +1,7 @@
 #!/APSshare/anaconda/x86_64/bin/python
 
 '''
-return a list of the recent SPEC data files (as noted in the scan logs)
+print list of the recent SPEC data files (as noted in the scan logs)
 '''
 
 
@@ -22,8 +22,18 @@ TIME_FORMAT = "%Y-%m-%d %H:%M:%S.%f"
 
 
 def list_recent_spec_data_files(since = None):
-    if since is None:
-        since = datetime.datetime.fromtimestamp(time.time() - RECENT)
+    """
+    return a list of the recent SPEC data files (as noted in the scan logs)
+    
+    PARAMETERS
+    
+    since : datetime object or `None`
+        absolute path name(s) of recent SPEC data file(s)
+    
+    RETURNS : [str]
+        absolute path name(s) of recent SPEC data file(s)
+    """
+    since = since or datetime.datetime.fromtimestamp(time.time() - RECENT)
     
     collection = []
     xml_doc = lxml_etree.parse(SCANLOG_XML_FILE)
