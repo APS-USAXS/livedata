@@ -21,9 +21,11 @@ RECENT = 1.5 * WEEK   # 1-1/2 weeks back, in seconds
 TIME_FORMAT = "%Y-%m-%d %H:%M:%S.%f"
 
 
-def main():
+def list_recent_spec_data_files(since = None):
+    if since is None:
+        since = datetime.datetime.fromtimestamp(time.time() - RECENT)
+    
     collection = []
-    since = datetime.datetime.fromtimestamp(time.time() - RECENT)
     xml_doc = lxml_etree.parse(SCANLOG_XML_FILE)
     for element in xml_doc.findall('scan'):
         """
@@ -41,10 +43,12 @@ def main():
             if filename not in collection and os.path.exists(filename):
                 collection.append(filename)
 
-    if len(collection) == 0:
-        print("")
-    else:
-        print("\n".join(collection))
+    return collection
+
+
+def main():
+    print("\n".join(list_recent_spec_data_files()))
+
 
 if __name__ == "__main__":
     main()
