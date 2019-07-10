@@ -322,7 +322,7 @@ def build_index_html(baseSpecFile, specFile, plotList):
     return html
 
 
-if __name__ == '__main__':
+def main():
     if len(sys.argv) > 1:
         filelist = sys.argv[1:]                     # usual command-line use
     else:
@@ -338,3 +338,7 @@ if __name__ == '__main__':
     for specFile in filelist:
         plotAllSpecFileScans(specFile)
     logger.info('<'*10 + ' finished')
+
+
+if __name__ == '__main__':
+    main()
