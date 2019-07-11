@@ -139,7 +139,7 @@ def plotAllSpecFileScans(specFile):
         #    Always remake if plot for scan N+1 does not exist
         scan = sd.getScan(scan_number)
         scan.interpret()
-        basePlotFile = "s%s.png" % scan.scanNum
+        basePlotFile = "s%s.svg" % scan.scanNum
         fullPlotFile = os.path.join(png_directory, basePlotFile)
         altText = "#%s: %s" % (scan.scanNum, scan.scanCmd)
         href = HREF_FORMAT % (basePlotFile, basePlotFile, altText)
