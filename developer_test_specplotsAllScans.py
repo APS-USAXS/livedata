@@ -10,9 +10,6 @@ import sys
 logger = logging.getLogger("pydev-shell")
 logger.setLevel(logging.DEBUG)
 
-#  SPEC2NEXUS_PLUGIN_PATH
-#  os.environ.get(env_var_name, None)
-
 # note: made soft link to simulate this path
 # mkdir -p /home/mintadmin/Documents/usaxs_sim/USAXS_data
 # cd /
