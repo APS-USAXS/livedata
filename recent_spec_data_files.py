@@ -20,6 +20,7 @@ WEEK = 7 * DAY
 RECENT = 1.5 * WEEK   # 1-1/2 weeks back, in seconds
 TIME_FORMAT = "%Y-%m-%d %H:%M:%S.%f"
 RETRY_MAX = 5
+RETRY_DELAY_S = 5
 
 
 def list_recent_spec_data_files(since = None):
@@ -48,6 +49,7 @@ def list_recent_spec_data_files(since = None):
         except lxml.etree.XMLSyntaxError as exc:
             retry -= 1  # try again
             errors.append(str(exc))
+            time.sleep(RETRY_DELAY_S)
     if len(errors) > 0:
         emsg = "Could not read scan log XML file in %d tries:\n" % RETRY_MAX
         emsg += "\n".join(errors)
