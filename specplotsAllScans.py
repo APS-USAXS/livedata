@@ -10,9 +10,10 @@
 import logging
 import os
 os.environ['HDF5_DISABLE_VERSION_CHECK'] = '2'
+import shutil
+import spec2nexus
 import sys
 import time
-import shutil
 
 logger = logging.getLogger(__name__)
 
@@ -98,7 +99,8 @@ def plotAllSpecFileScans(specFile):
 
     try:
         logger.info('opening SPEC data file: ' + specFile)
-        sd = specplot.openSpecFile(specFile)
+        # sd = specplot.openSpecFile(specFile)
+        sd = spec2nexus.spec.SpecDataFile(specFile)
     except Exception:
         return    # could not open file, be silent about it
     if len(sd.headers) == 0:    # no scan header found, again, silence
@@ -114,11 +116,6 @@ def plotAllSpecFileScans(specFile):
     # copy the SPEC data file to the WWW site, only if file has newer mtime
     baseSpecFile = os.path.basename(specFile)
     wwwSpecFile = os.path.join(png_directory, baseSpecFile)
-    if needToCopySpecDataFile(wwwSpecFile, mtime_specFile):
-        # copy specFile to WWW site
-        logger.info('  copying SPEC data file to web directory: ' + wwwSpecFile)
-        shutil.copy2(specFile,wwwSpecFile)
-        newFileList.append(wwwSpecFile)
 
     HREF_FORMAT = "<a href=\"%s\">"
     HREF_FORMAT += "<img src=\"%s\" width=\"150\" height=\"75\" alt=\"%s\"/>"
@@ -141,14 +138,14 @@ def plotAllSpecFileScans(specFile):
         #  For sure, if a plot for N+1 exists, no need to remake plot for scan N.  Thus:
         #    Always remake if plot for scan N+1 does not exist
         scan = sd.getScan(scan_number)
-        basePlotFile = "s%s.png" % scan.scanNum
+        scan.interpret()
+        basePlotFile = "s%s.svg" % scan.scanNum
         fullPlotFile = os.path.join(png_directory, basePlotFile)
         altText = "#%s: %s" % (scan.scanNum, scan.scanCmd)
         href = HREF_FORMAT % (basePlotFile, basePlotFile, altText)
         plotList.append(href)
         logger.debug("{} {} {}".format(specFile, scan.scanNum, fullPlotFile))
-        cmd = scan.scanCmd.strip()
-        cmd = cmd[:cmd.find(' ')]
+        # cmd = scan.scanCmd.strip().split()[0]
         if needToMakePlot(fullPlotFile, mtime_specFile):
             try:
                 logger.info('  creating SPEC data scan image: ' + basePlotFile)
@@ -173,6 +170,12 @@ def plotAllSpecFileScans(specFile):
 
     # touch to update the mtime on the png_directory
     os.utime(png_directory, None)
+
+    if needToCopySpecDataFile(wwwSpecFile, mtime_specFile):
+        # copy specFile to WWW site
+        logger.info('  copying SPEC data file to web directory: ' + wwwSpecFile)
+        shutil.copy2(specFile,wwwSpecFile)
+        newFileList.append(wwwSpecFile)
 
     #------------------
     if len(newFileList):
@@ -322,7 +325,7 @@ def build_index_html(baseSpecFile, specFile, plotList):
     return html
 
 
-if __name__ == '__main__':
+def main():
     if len(sys.argv) > 1:
         filelist = sys.argv[1:]                     # usual command-line use
     else:
@@ -338,3 +341,7 @@ if __name__ == '__main__':
     for specFile in filelist:
         plotAllSpecFileScans(specFile)
     logger.info('<'*10 + ' finished')
+
+
+if __name__ == '__main__':
+    main()
