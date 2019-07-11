@@ -19,6 +19,7 @@ DAY = 24 * HOUR
 WEEK = 7 * DAY
 RECENT = 1.5 * WEEK   # 1-1/2 weeks back, in seconds
 TIME_FORMAT = "%Y-%m-%d %H:%M:%S.%f"
+RETRY_MAX = 5
 
 
 def list_recent_spec_data_files(since = None):
@@ -37,7 +38,20 @@ def list_recent_spec_data_files(since = None):
     since = since or datetime.datetime.fromtimestamp(time.time() - RECENT)
     
     collection = []
-    xml_doc = lxml_etree.parse(SCANLOG_XML_FILE)
+    retry = RETRY_MAX
+    errors = []
+    while retry > 0:
+        try:
+            xml_doc = lxml_etree.parse(SCANLOG_XML_FILE)
+            retry = 0   # success!  end the while() loop
+            success = True
+        except lxml.etree.XMLSyntaxError as exc:
+            retry -= 1  # try again
+            errors.append(str(exc))
+    if len(errors) > 0:
+        emsg = "Could not read scan log XML file in %d tries:\n" % RETRY_MAX
+        emsg += "\n".join(errors)
+        raise RuntimeError(emsg)
     for element in xml_doc.findall('scan'):
         """
         <scan id="4579:/share1/USAXS_data/2019-04/04_19_Gadikota.dat" number="4579" state="complete" type="FlyScan">
