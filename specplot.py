@@ -27,11 +27,17 @@ def retrieve_specScanData(scan):
 
 def retrieve_flyScanData(scan):
     '''retrieve reduced, rebinned data from USAXS Fly Scans'''
-    path = os.path.dirname(scan.header.parent.fileName)
     key_string = 'FlyScan file name = '
-    comment = scan.comments[2]
-    index = comment.find(key_string) + len(key_string)
-    hdf_file_name = comment[index:-1]
+    if hasattr(scan, "MD") and scan.MD.get("hdf5_path") is not None:
+        # Bluesky wrote this SPEC data file
+        path = scan.MD.get("hdf5_path")
+        hdf_file_name = scan.MD.get("hdf5_file")
+    else:
+        # SPEC wrote this data file
+        comment = scan.comments[2]
+        index = comment.find(key_string) + len(key_string)
+        path = os.path.dirname(scan.header.parent.fileName)
+        hdf_file_name = comment[index:-1]
     abs_file = os.path.abspath(os.path.join(path, hdf_file_name))
     if os.path.exists(abs_file):
         s_num_bins = str(localConfig.REDUCED_FLY_SCAN_BINS)
@@ -62,13 +68,20 @@ def process_NexusImageData(scan, imgfile, **attr):
     if not os.path.exists(os.path.dirname(imgfile)):
         return
 
-    path = os.path.dirname(scan.header.parent.fileName)
+    if hasattr(scan, "MD") and scan.MD.get("hdf5_path") is not None:
+        # Bluesky wrote this SPEC data file
+        path = scan.MD.get("hdf5_path")
+        h5file = scan.MD.get("hdf5_file")
+    else:
+        # SPEC wrote this data file
+        path = os.path.dirname(scan.header.parent.fileName)
+        h5file = scan.scanCmd.split()[1]
 
-    h5file = scan.scanCmd.split()[1]
     if h5file.find('Z:') >= 0:
         # MS Windows file path
         h5file = h5file.replace('Z:', '/data')  # convert mount point to Linux
         h5file = h5file.replace('\\', '/')      # convert delimiters to Linux
+
     h5file = os.path.abspath( os.path.join(path, h5file) )
 
     # TODO: common user problem happens here
@@ -91,13 +104,15 @@ def makeScanImage(scan, plotFile):
         # removed: https://github.com/APS-USAXS/livedata/issues/1
         # process_NexusImageData(scan, plotFile, log_image=False)
         pass
-    elif scanCmd in ('pinSAXS', 'SAXS', 'WAXS'):
+    elif scanCmd in ('pinSAXS', 'SAXS', 'WAXS') or scanCmd.startswith("SAXS(") or scanCmd.startswith("WAXS("):
         # make simple image file of the data
         process_NexusImageData(scan, plotFile)
-    elif scanCmd in ('FlyScan', 'sbFlyScan'):
+    elif scanCmd in ('FlyScan', 'sbFlyScan') or scanCmd.lower().startswith("flyscan("):
         plotData = retrieve_flyScanData(scan)
         if len(plotData) > 0:
             mpl__process_plotData(scan, plotData, plotFile)
+    elif scanCmd.lower().startswith("measure_"):
+        pass    # do not plot this data, it's only one point
     else:
         # plot last column v. first column
         plotData = retrieve_specScanData(scan)
@@ -123,7 +138,7 @@ def mpl__process_plotData(scan, plotData, plotFile):
         ylog = True
         xtitle = scan.column_first
         ytitle = scan.column_last
-    elif scan_macro in ('FlyScan', 'sbFlyScan', ):
+    elif scan_macro in ('FlyScan', 'sbFlyScan', ) or scan_macro.lower().startswith("flyscan("):
         xlog = True
         ylog = True
         xtitle = r'$|\vec{Q}|, 1/\AA$'
