@@ -145,7 +145,7 @@ def plotAllSpecFileScans(specFile):
         href = HREF_FORMAT % (basePlotFile, basePlotFile, altText)
         plotList.append(href)
         logger.debug("{} {} {}".format(specFile, scan.scanNum, fullPlotFile))
-        cmd = scan.scanCmd.strip().split()[0]
+        # cmd = scan.scanCmd.strip().split()[0]
         if needToMakePlot(fullPlotFile, mtime_specFile):
             try:
                 logger.info('  creating SPEC data scan image: ' + basePlotFile)
