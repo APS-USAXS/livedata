@@ -46,7 +46,7 @@ def list_recent_spec_data_files(since = None):
             xml_doc = lxml_etree.parse(SCANLOG_XML_FILE)
             retry = 0   # success!  end the while() loop
             success = True
-        except lxml.etree.XMLSyntaxError as exc:
+        except lxml_etree.XMLSyntaxError as exc:
             retry -= 1  # try again
             errors.append("#%d %.3f: %s" % (retry, time.time(), str(exc)))
             if retry > 0:
