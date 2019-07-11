@@ -20,11 +20,12 @@ logger.setLevel(logging.DEBUG)
 path = "/share1/USAXS_data/2019-06"
 
 sys.argv.append(os.path.join(path, "06_26_NXSchool0626.dat"))
+sys.argv.append(os.path.join(path, "06_27_NX2.dat"))
 
 f = "/share1/local_livedata/specplots/mtime_cache.txt"
 if os.path.exists(f):
     os.remove(f)
-f = "/share1/local_livedata/specplots/2019/06/06_26_NXSchool0626"
+f = "/share1/local_livedata/specplots/2019/"
 if os.path.exists(f):
     shutil.rmtree(f, ignore_errors=True)
 specplotsAllScans.main()
