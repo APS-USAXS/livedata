@@ -48,10 +48,10 @@ def list_recent_spec_data_files(since = None):
             success = True
         except lxml.etree.XMLSyntaxError as exc:
             retry -= 1  # try again
-            errors.append(str(exc))
+            errors.append("#%d %.3f: %s" % (retry, time.time(), str(exc)))
             if retry > 0:
                 time.sleep(RETRY_DELAY_S)
-    if len(errors) > 0:
+    if not success and len(errors) > 0:
         emsg = "Could not read scan log XML file in %d tries:\n" % RETRY_MAX
         emsg += "\n".join(errors)
         raise RuntimeError(emsg)
