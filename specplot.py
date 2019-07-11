@@ -111,8 +111,6 @@ def makeScanImage(scan, plotFile):
         plotData = retrieve_flyScanData(scan)
         if len(plotData) > 0:
             mpl__process_plotData(scan, plotData, plotFile)
-    elif scanCmd.lower().startswith("measure_"):
-        pass    # do not plot this data, it's only one point
     else:
         # plot last column v. first column
         plotData = retrieve_specScanData(scan)
