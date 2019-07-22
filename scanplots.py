@@ -394,6 +394,7 @@ def get_USAXS_data(cache):
         scanMacro = scan_obj.spec_scan.scanCmd.strip().split()[0].split("(")[0]
         if scanMacro in scan_macro_list:
             if scanMacro in ("uascan", "sbuascan"):
+                scan_obj.spec_scan.interpret()
                 entry = get_USAXS_uascan_ScanData(scan_obj)
             elif scanMacro in ("FlyScan", "sbFlyScan", "Flyscan"):
                 entry = get_USAXS_FlyScan_Data(scan_obj)
