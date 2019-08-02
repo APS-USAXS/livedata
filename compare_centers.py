@@ -34,7 +34,15 @@ def flyscan_centroid(dataset, cutoff_fraction):
     
     dataset : dict
         A dictionary as received from the `reduceFlyData()` object.
-        Contains reduced USAXS data.
+        Contains reduced USAXS data.  
+        
+        Expect to find these keys in *dataset*:
+        
+        * ar : numpy array of angles
+        * R: numpy array of reduced intensities
+        * R_max: maximum value of *R*
+        * ar_r_peak: value of *ar* at *R_max*
+
     cutoff_fraction : float
         Discard any data with R < cutoff_fraction * max(R)
     
