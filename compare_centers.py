@@ -6,10 +6,9 @@ compute centroid of USAXS fly scan data
 import h5py
 import numpy
 import os
-import sys
 
 import reduceFlyData
-import calc
+
 
 path = os.path.dirname(__file__)
 TESTFILE = os.path.join(path, "testdata", "Blank_0016.h5")
