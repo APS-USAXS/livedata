@@ -166,7 +166,7 @@ def radialAverage(image, center=None, stddev=False, returnAz=False, return_naz=F
     if center is None:
         center = np.array([(x.max()-x.min())/2.0, (y.max()-y.min())/2.0])
 
-    r = np.hypot(x - center[0], y - center[1])
+    # r = np.hypot(x - center[0], y - center[1])
     theta = np.arctan2(x - center[0], y - center[1])
     theta[theta < 0] += 2*np.pi
     theta_deg = theta*180.0/np.pi
