@@ -49,9 +49,11 @@ def flyscan_centroid(dataset, cutoff_fraction):
     RETURNS
     
     tuple
-        (center, ar, R): where *center* is the computed centroid,
-        *ar* is a (numpy) array of the *ar* axis near the peak center,
-        *R* is a (numpy) array of the *R* axis near the peak center
+        (center, ar, R): 
+        
+        * center: computed centroid
+        * ar: (numpy) array of the *ar* axis near the peak center
+        * R: (numpy) array of the *R* axis near the peak center
     
     """
     x = dataset["ar"]
