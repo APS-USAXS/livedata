@@ -38,6 +38,13 @@ def flyscan_centroid(dataset, cutoff_fraction):
     cutoff_fraction : float
         Discard any data with R < cutoff_fraction * max(R)
     
+    PARAMETERS
+    
+    tuple
+        (center, ar, R): where *center* is the computed centroid,
+        *ar* is a (numpy) array of the *ar* axis near the peak center,
+        *R* is a (numpy) array of the *R* axis near the peak center
+    
     """
     x = dataset["ar"]
     y = dataset["R"]
