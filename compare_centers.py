@@ -75,8 +75,8 @@ def flyscan_centroid(dataset, cutoff_fraction):
         pHi += 1
 
     # enforce boundaries
-    pLo = max(0, pLo)
-    pHi = min(n-1, pHi)
+    pLo = max(0, pLo+1)
+    pHi = min(n-1, pHi-1)
     
     print pLo, pHi
     ar = x[pLo:pHi]
