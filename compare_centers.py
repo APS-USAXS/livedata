@@ -26,7 +26,26 @@ def centroid(x, y):
     return center
 
 
-def flyscan_centroid(x, y, peak_index, cutoff):
+def flyscan_centroid(dataset, cutoff_fraction):
+    """
+    compute the center of the fly scan from data near the peak
+    
+    PARAMETERS
+    
+    dataset : dict
+        A dictionary as received from the `reduceFlyData()` object.
+        Contains reduced USAXS data.
+    cutoff_fraction : float
+        Discard any data with R < cutoff_fraction * max(R)
+    
+    """
+    x = dataset["ar"]
+    y = dataset["R"]
+    peak_index = numpy.where(dataset["ar"]==dataset["ar_r_peak"])[0][0]
+    cutoff = dataset["R_max"] * cutoff_fraction
+
+    print "peak index:", peak_index
+
     # walk down each side from the peak
     n = len(x)
 
@@ -56,15 +75,7 @@ def main():
     for k in "R_max r_peak ar_r_peak".split():
         print k, full[k]
     
-    peak_index = numpy.where(full["ar"]==full["ar_r_peak"])[0][0]
-    print "peak index:", peak_index
-    
-    cen, ar, R = flyscan_centroid(
-        full["ar"],
-        full["R"],
-        peak_index,
-        full["R_max"] * 0.4,
-    )
+    cen, ar, R = flyscan_centroid(full, 0.4)
     print "centroid:", cen
     
     with h5py.File(OUTFILE, "w") as h5:
