@@ -38,7 +38,7 @@ def flyscan_centroid(dataset, cutoff_fraction):
     cutoff_fraction : float
         Discard any data with R < cutoff_fraction * max(R)
     
-    PARAMETERS
+    RETURNS
     
     tuple
         (center, ar, R): where *center* is the computed centroid,
