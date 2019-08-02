@@ -79,9 +79,20 @@ def main():
     print "centroid:", cen
     
     with h5py.File(OUTFILE, "w") as h5:
-        h5.create_dataset("ar", data=ar)
-        h5.create_dataset("R", data=R)
-        h5.create_dataset("cen", data=cen)
+        h5.attrs["default"] = "data"
+        nxentry = h5.create_group("entry")
+        nxentry.attrs["NX_class"] = "NXentry"
+        nxentry.attrs["default"] = "data"
+        nxdata = nxentry.create_group("data")
+        nxdata.attrs["NX_class"] = "NXdata"
+        nxdata.attrs["signal"] = "R"
+        nxdata.attrs["axes"] = "ar"
+        ds = nxdata.create_dataset("ar", data=ar)
+        ds.attrs["units"] = "degrees"
+        ds = nxdata.create_dataset("R", data=R)
+        ds.attrs["units"] = "not applicable"
+        ds = nxdata.create_dataset("cen", data=[cen])
+        ds.attrs["units"] = "degrees"
 
 
 if __name__ == "__main__":
