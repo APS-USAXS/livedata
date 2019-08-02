@@ -56,12 +56,13 @@ def main():
     for k in "R_max r_peak ar_r_peak".split():
         print k, full[k]
     
-    print "peak index:", list(full["ar"]).index(full["ar_r_peak"])
+    peak_index = numpy.where(full["ar"]==full["ar_r_peak"])[0][0]
+    print "peak index:", peak_index
     
     cen, ar, R = flyscan_centroid(
         full["ar"],
         full["R"],
-        list(full["ar"]).index(full["ar_r_peak"]),
+        peak_index,
         full["R_max"] * 0.4,
     )
     print "centroid:", cen
