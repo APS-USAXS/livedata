@@ -58,7 +58,7 @@ def flyscan_centroid(dataset, cutoff_fraction):
     """
     x = dataset["ar"]
     y = dataset["R"]
-    peak_index = numpy.where(dataset["ar"]==dataset["ar_r_peak"])[0][0]
+    peak_index = numpy.where(x==dataset["ar_r_peak"])[0][0]
     cutoff = dataset["R_max"] * cutoff_fraction
 
     print "peak index:", peak_index
