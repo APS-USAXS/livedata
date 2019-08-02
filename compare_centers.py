@@ -79,7 +79,7 @@ def main():
     print "centroid:", cen
     
     with h5py.File(OUTFILE, "w") as h5:
-        h5.attrs["default"] = "data"
+        h5.attrs["default"] = "entry"
         nxentry = h5.create_group("entry")
         nxentry.attrs["NX_class"] = "NXentry"
         nxentry.attrs["default"] = "data"
