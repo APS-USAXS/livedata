@@ -73,6 +73,10 @@ def flyscan_centroid(dataset, cutoff_fraction):
     pHi = peak_index + 1
     while pHi < n and y[pHi] > cutoff:
         pHi += 1
+
+    # enforce boundaries
+    pLo = max(0, pLo)
+    pHi = min(n-1, pHi)
     
     print pLo, pHi
     ar = x[pLo:pHi]
