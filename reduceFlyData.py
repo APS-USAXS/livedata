@@ -209,7 +209,7 @@ class UsaxsFlyScan(object):
             raw = hdf['entry/flyScan']
     
             wavelength = float(hdf['/entry/instrument/monochromator/wavelength'][0])
-            ar_center  = float(hdf['/entry/metadata/AR_center'][0])
+            # ar_center  = float(hdf['/entry/metadata/AR_center'][0])
     
             raw_clock_pulses =  raw['mca1']
             raw_I0 =            raw['mca2']
