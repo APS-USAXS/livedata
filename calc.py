@@ -16,10 +16,14 @@ import spec2nexus.spec
 
 logger = logging.getLogger(__name__)
 
-TEST_FILE_FLYSCAN = os.path.join('testdata', 'S217_E7_600C_87min.h5')
+# TEST_FILE_FLYSCAN = os.path.join('testdata', 'S217_E7_600C_87min.h5')
+TEST_FILE_FLYSCAN = os.path.join('testdata', 'Blank_0016.h5')
 TEST_FILE_UASCAN = os.path.join('testdata', '03_18_GlassyCarbon.dat')
 TEST_UASCAN_SCAN_NUMBER = 522
 TEST_FILE_OUTPUT = os.path.join('testdata', 'test_calc.h5')
+
+CUTOFF = 0.4    # when calculating the center, look at data above CUTOFF*R_max
+
 
 class FileNotFound(RuntimeError): pass
 
@@ -95,10 +99,46 @@ def centroid(x, y):
     import scipy.integrate
     a = remove_masked_data(x, y.mask)
     b = remove_masked_data(y, y.mask)
+    
+    # gather the data nearest the peak (above the CUTOFF)
+    R_max = max(b)
+    cutoff = R_max * CUTOFF
+    peak_index = numpy.where(b==R_max)[0][0]
+    n = len(a)
+
+    # walk down each side from the peak
+    pLo = peak_index
+    while pLo >= 0 and b[pLo] > cutoff:
+        pLo -= 1
+
+    pHi = peak_index + 1
+    while pHi < n and b[pHi] > cutoff:
+        pHi += 1
+
+    # enforce boundaries
+    pLo = max(0, pLo+1)     # the lowest ar above the cutoff
+    pHi = min(n-1, pHi)     # the highest ar (+1) above the cutoff
+    
+    if pHi - pLo == 0:
+        emsg = "not enough data to find peak center - not expected"
+        logger.debug(emsg)
+        raise KeyError(emsg)
+    elif pHi - pLo == 1:
+        # trivial answer
+        emsg = "peak is 1 point, picking peak position as center"
+        logger.debug(emsg)
+        return x[peak_index]
+
+    a = a[pLo:pHi]
+    b = b[pLo:pHi]
+
     weight = b*b
     top    = scipy.integrate.simps(a*weight, a)
     bottom = scipy.integrate.simps(weight, a)
     center = top/bottom
+    
+    emsg = "computed peak center: " + str(center)
+    logger.debug(emsg)
     return center
 
 
