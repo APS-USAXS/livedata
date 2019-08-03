@@ -24,7 +24,7 @@ TEST_UASCAN_SCAN_NUMBER = 522
 TEST_FILE_OUTPUT = os.path.join('testdata', 'test_calc.h5')
 
 CUTOFF = 0.4    # when calculating the center, look at data above CUTOFF*R_max
-
+ZINGER_THRESHOLD = 2
 
 class FileNotFound(RuntimeError): pass
 
@@ -111,9 +111,7 @@ def centroid(x, y):
     a = remove_masked_data(x, y.mask)
     b = remove_masked_data(y, y.mask)
 
-    # test for zinger
-    threshold = 2
-    while zinger_test(a, b) > threshold:
+    while zinger_test(a, b) > ZINGER_THRESHOLD:
         R_max = max(b)
         peak_index = numpy.where(b==R_max)[0][0]
         # delete or mask x[peak_index], and y[peak_index]
