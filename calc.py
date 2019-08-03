@@ -104,7 +104,9 @@ def centroid(x, y):
         p = numpy.where(v==m)[0][0]
         top = (v[p-1] + v[p] + v[p+1])/3
         bot = (v[p-1] + v[p+1])/2
-        return top/bot
+        v_test = top/bot
+        logger.debug("zinger test: %f", v_test)
+        return v_test
 
     a = remove_masked_data(x, y.mask)
     b = remove_masked_data(y, y.mask)
@@ -115,6 +117,7 @@ def centroid(x, y):
         R_max = max(b)
         peak_index = numpy.where(b==R_max)[0][0]
         # delete or mask x[peak_index], and y[peak_index]
+        logger.debug("removing zinger at ar = %f", a[peak_index])
         a = numpy.delete(a, peak_index)
         b = numpy.delete(b, peak_index)
     
