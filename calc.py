@@ -17,7 +17,8 @@ import spec2nexus.spec
 logger = logging.getLogger(__name__)
 
 # TEST_FILE_FLYSCAN = os.path.join('testdata', 'S217_E7_600C_87min.h5')
-TEST_FILE_FLYSCAN = os.path.join('testdata', 'Blank_0016.h5')
+#TEST_FILE_FLYSCAN = os.path.join('testdata', 'Blank_0016.h5')
+TEST_FILE_FLYSCAN = os.path.join('testdata', 'S6_r1SOTy2_0235.h5')
 TEST_FILE_UASCAN = os.path.join('testdata', '03_18_GlassyCarbon.dat')
 TEST_UASCAN_SCAN_NUMBER = 522
 TEST_FILE_OUTPUT = os.path.join('testdata', 'test_calc.h5')
@@ -97,8 +98,25 @@ def amplifier_corrections(signal, seconds, dark, gain):
 def centroid(x, y):
     '''compute centroid of y(x)'''
     import scipy.integrate
+    
+    def zinger_test(u, v):
+        m = max(v)
+        p = numpy.where(v==m)[0][0]
+        top = (v[p-1] + v[p] + v[p+1])/3
+        bot = (v[p-1] + v[p+1])/2
+        return top/bot
+
     a = remove_masked_data(x, y.mask)
     b = remove_masked_data(y, y.mask)
+
+    # test for zinger
+    threshold = 2
+    while zinger_test(a, b) > threshold:
+        R_max = max(b)
+        peak_index = numpy.where(b==R_max)[0][0]
+        # delete or mask x[peak_index], and y[peak_index]
+        a = numpy.delete(a, peak_index)
+        b = numpy.delete(b, peak_index)
     
     # gather the data nearest the peak (above the CUTOFF)
     R_max = max(b)
