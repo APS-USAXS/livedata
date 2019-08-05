@@ -8,7 +8,6 @@ print list of the recent SPEC data files (as noted in the scan logs)
 import datetime         # date/time stamps
 from lxml import etree as lxml_etree
 import os
-import sys
 import time
 
 SCANLOG_XML_FILE = "/share1/local_livedata/scanlog.xml"

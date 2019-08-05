@@ -199,83 +199,82 @@ class UsaxsFlyScan(object):
         '''convert raw Fly Scan data to R(Q), also get other terms'''
         if not os.path.exists(self.hdf5_file_name):
             raise IOError, 'file not found: ' + self.hdf5_file_name
-        hdf = h5py.File(self.hdf5_file_name, 'r')
+        with h5py.File(self.hdf5_file_name, 'r') as hdf:
 
-        pname = self.get_program_name(hdf)
-        config_version = self.get_config_version(pname)
-        mode_number = self.get_mode_number(hdf, config_version)
-        # _mode_name = self.get_mode_name(mode_number)
-
-        raw = hdf['entry/flyScan']
-
-        wavelength = float(hdf['/entry/instrument/monochromator/wavelength'][0])
-        ar_center  = float(hdf['/entry/metadata/AR_center'][0])
-
-        raw_clock_pulses =  raw['mca1']
-        raw_I0 =            raw['mca2']
-        raw_upd =           raw['mca3']
-        if len(raw_clock_pulses) == 0:
-            raise NoFlyScanData('no data found in file: ' + str(self.hdf5_file_name))
-
-        # unused
-        # AR_start =          float(raw['AR_start'][0])
-        # AR_increment =      float(raw['AR_increment'][0])
-
-        # compute the AR values from the MCA waveforms
-        raw_ar = self.get_raw_ar(hdf, mode_number)
-
-        # V_f_gain = FIXED_VF_GAIN    # unused
-        pulse_frequency = raw['mca_clock_frequency'][0] or  MCA_CLOCK_FREQUENCY
-        channel_time_s = raw_clock_pulses / pulse_frequency
-
-        amp_name = self.get_USAXS_PD_amplifier_name(hdf)
-        upd_ranges = self.get_ranges(hdf, amp_name)
-        upd_ranges = self.apply_upd_range_change_time_mask(hdf, upd_ranges, channel_time_s)
-        gains = self.get_gain(hdf, amp_name)
-        bkg   = self.get_bkg(hdf, amp_name)
-
-        upd_gain = get_channels_from_signals_and_ranges(gains, upd_ranges)
-        upd_dark = get_channels_from_signals_and_ranges(bkg,   upd_ranges)
-
-        I0_amp_gain = float(hdf['/entry/metadata/I0AmpGain'][0])
-
-        if mode_number in (AR_MODE_ARRAY, AR_MODE_TRAJECTORY):
-            # consequence of Aerotech HLe providing no useful data in 1st channel
-            # upd_ranges = upd_ranges[1:]
-            upd_gain = upd_gain[1:]
-            upd_dark = upd_dark[1:]
-            # truncate in case PSO oscillations were corrected
-            n = len(raw_upd)
-            # upd_ranges = upd_ranges[:n]
-            upd_gain = upd_gain[:n]
-            upd_dark = upd_dark[:n]
-
-        # ensure arrays have equal lengths
-        list_of_arrays = [raw_upd, channel_time_s, upd_dark, upd_gain, raw_ar, raw_I0]
-        min_n = min(map(len, list_of_arrays))
-        max_n = max(map(len, list_of_arrays))
-        if min_n != max_n:      # truncate arrays to shortest length
-            n = min(min_n, max_n)
-            # pvwatch.logMessage( "  truncating all arrays to " + str(n) + " points" )
-            raw_upd         = raw_upd[:n]
-            channel_time_s  = channel_time_s[:n]
-            upd_dark        = upd_dark[:n]
-            upd_gain        = upd_gain[:n]
-            raw_ar          = raw_ar[:n]
-            raw_I0          = raw_I0[:n]
-
-        full = calc.calc_R_Q(wavelength,            # wavelength
-                             raw_ar,                # ar
-                             channel_time_s,        # seconds
-                             raw_upd,               # pd
-                             upd_dark,              # pd_bkg
-                             upd_gain,              # pd_gain
-                             raw_I0,                # I0
-                             I0_gain=I0_amp_gain,
-                             ar_center=ar_center,
-                             )
-
-        hdf.close()
+            pname = self.get_program_name(hdf)
+            config_version = self.get_config_version(pname)
+            mode_number = self.get_mode_number(hdf, config_version)
+            # _mode_name = self.get_mode_name(mode_number)
+    
+            raw = hdf['entry/flyScan']
+    
+            wavelength = float(hdf['/entry/instrument/monochromator/wavelength'][0])
+            # ar_center  = float(hdf['/entry/metadata/AR_center'][0])
+    
+            raw_clock_pulses =  raw['mca1']
+            raw_I0 =            raw['mca2']
+            raw_upd =           raw['mca3']
+            if len(raw_clock_pulses) == 0:
+                raise NoFlyScanData('no data found in file: ' + str(self.hdf5_file_name))
+    
+            # unused
+            # AR_start =          float(raw['AR_start'][0])
+            # AR_increment =      float(raw['AR_increment'][0])
+    
+            # compute the AR values from the MCA waveforms
+            raw_ar = self.get_raw_ar(hdf, mode_number)
+    
+            # V_f_gain = FIXED_VF_GAIN    # unused
+            pulse_frequency = raw['mca_clock_frequency'][0] or  MCA_CLOCK_FREQUENCY
+            channel_time_s = raw_clock_pulses / pulse_frequency
+    
+            amp_name = self.get_USAXS_PD_amplifier_name(hdf)
+            upd_ranges = self.get_ranges(hdf, amp_name)
+            upd_ranges = self.apply_upd_range_change_time_mask(hdf, upd_ranges, channel_time_s)
+            gains = self.get_gain(hdf, amp_name)
+            bkg   = self.get_bkg(hdf, amp_name)
+    
+            upd_gain = get_channels_from_signals_and_ranges(gains, upd_ranges)
+            upd_dark = get_channels_from_signals_and_ranges(bkg,   upd_ranges)
+    
+            I0_amp_gain = float(hdf['/entry/metadata/I0AmpGain'][0])
+    
+            if mode_number in (AR_MODE_ARRAY, AR_MODE_TRAJECTORY):
+                # consequence of Aerotech HLe providing no useful data in 1st channel
+                # upd_ranges = upd_ranges[1:]
+                upd_gain = upd_gain[1:]
+                upd_dark = upd_dark[1:]
+                # truncate in case PSO oscillations were corrected
+                n = len(raw_upd)
+                # upd_ranges = upd_ranges[:n]
+                upd_gain = upd_gain[:n]
+                upd_dark = upd_dark[:n]
+    
+            # ensure arrays have equal lengths
+            list_of_arrays = [raw_upd, channel_time_s, upd_dark, upd_gain, raw_ar, raw_I0]
+            min_n = min(map(len, list_of_arrays))
+            max_n = max(map(len, list_of_arrays))
+            if min_n != max_n:      # truncate arrays to shortest length
+                n = min(min_n, max_n)
+                # pvwatch.logMessage( "  truncating all arrays to " + str(n) + " points" )
+                raw_upd         = raw_upd[:n]
+                channel_time_s  = channel_time_s[:n]
+                upd_dark        = upd_dark[:n]
+                upd_gain        = upd_gain[:n]
+                raw_ar          = raw_ar[:n]
+                raw_I0          = raw_I0[:n]
+    
+            full = calc.calc_R_Q(wavelength,            # wavelength
+                                 raw_ar,                # ar
+                                 channel_time_s,        # seconds
+                                 raw_upd,               # pd
+                                 upd_dark,              # pd_bkg
+                                 upd_gain,              # pd_gain
+                                 raw_I0,                # I0
+                                 I0_gain=I0_amp_gain,
+                                 # ar_center=ar_center,
+                                 ar_center=None,        # compute center from R(ar)
+                                 )
 
         if len(full['R']) == 0:
             return
