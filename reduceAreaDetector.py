@@ -76,7 +76,7 @@ class AD_ScatteringImage(object):
 
     def __init__(self, hdf5_file_name):
         if not os.path.exists(hdf5_file_name):
-            raise IOError, 'file not found: ' + hdf5_file_name
+            raise IOError('file not found: ' + hdf5_file_name)
         self.hdf5_file_name = hdf5_file_name
         self.image = None
         self.reduced = {}
@@ -269,7 +269,7 @@ class AD_ScatteringImage(object):
         ds = self.reduced[key]
         try:
             hdf = h5py.File(hfile, 'a')
-        except IOError, _exc:
+        except IOError as _exc:
             # FIXME: some h5py problem in <h5py>/_hl/files.py, line 101
             # this fails: fid = h5f.open(name, h5f.ACC_RDWR, fapl=fapl)
             # with IOError that is improperly caught on next and then:
@@ -301,7 +301,7 @@ class AD_ScatteringImage(object):
                 _ds = eznx.write_dataset(nxdata, key, ds[key])
                 if key in self.units:
                     eznx.addAttributes(_ds, units=self.units[key])
-            except RuntimeError, e:
+            except RuntimeError as e:
                 pass        # TODO: reporting
         hdf.close()
         return hfile

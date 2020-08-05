@@ -54,8 +54,7 @@ def make_png(h5file, imgfile, h5path=HDF5_DATA_PATH, log_image=True,
     '''
     global MPL_FIG
     if not os.path.exists(h5file):
-        msg = 'file does not exist: ' + h5file
-        raise IOError, msg
+        raise IOError('file does not exist: ' + h5file)
 
     hdf5 = h5py.File(h5file, 'r')
     try:
@@ -64,7 +63,7 @@ def make_png(h5file, imgfile, h5path=HDF5_DATA_PATH, log_image=True,
         msg = 'h5path not found in HDF5 file:'
         msg += '\n  file: ' + h5file
         msg += '\n  path: ' + h5path
-        raise IOError, msg
+        raise IOError(msg)
 
     image_data = numpy.ma.masked_less_equal(ds.value, 0)
     # replace masked data with min good value

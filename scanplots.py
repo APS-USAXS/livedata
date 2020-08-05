@@ -321,10 +321,10 @@ def get_USAXS_FlyScan_Data(scan_obj):
         fly.save(hdf5_file, str(localConfig.REDUCED_FLY_SCAN_BINS))
     except IOError:
         return None     # file may not be available yet for reading if fly scan is still going
-    except KeyError, exc:
+    except KeyError as exc:
         logger.info('HDF5 file:' + hdf5_file)
         raise KeyError(exc)
-    except reduceFlyData.NoFlyScanData, _exc:
+    except reduceFlyData.NoFlyScanData as _exc:
         logger.info(str(_exc))
         return None     # HDF5 file exists but length of raw data is zero
 
@@ -368,7 +368,7 @@ def format_as_mpl_data_one(scan):
     try:
         Q = map(float, scan['qVec'])
         I = map(float, scan['rVec'])
-    except TypeError, _e:
+    except TypeError as _e:
         if scan is None: return None
         Q = scan['qVec']
         I = scan['rVec']

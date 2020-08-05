@@ -108,7 +108,7 @@ def scpToWebServer(sourceFile, targetFile = "", demo = False):
                     logger.info(msg)
                 # ssh.close()
                 return
-            except (SCPException, paramiko.SSHException, socket.error), exc:
+            except (SCPException, paramiko.SSHException, socket.error) as exc:
                 msg = 'scp attempt %d: %s' % ((_retry+1), str(exc))
                 logger.info(msg)
 

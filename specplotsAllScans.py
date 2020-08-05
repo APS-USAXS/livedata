@@ -184,7 +184,7 @@ def plotAllSpecFileScans(specFile):
         try:
             logger.info('  uploading files to WWW server: ' + ', '.join(newFileList))
             upload(newFileList, sd)
-        except Exception, exc:
+        except Exception as exc:
             logger.error('  ERROR %s: could not upload to WWW server' % exc.message)
         os.chdir(cwd)
 

@@ -163,7 +163,7 @@ class UsaxsFlyScan(object):
 
     def __init__(self, hdf5_file_name):
         if not os.path.exists(hdf5_file_name):
-            raise IOError, 'file not found: ' + hdf5_file_name
+            raise IOError('file not found: ' + hdf5_file_name)
 
         self.units = dict(
             ar = 'degrees',
@@ -198,7 +198,7 @@ class UsaxsFlyScan(object):
     def reduce(self):
         '''convert raw Fly Scan data to R(Q), also get other terms'''
         if not os.path.exists(self.hdf5_file_name):
-            raise IOError, 'file not found: ' + self.hdf5_file_name
+            raise IOError('file not found: ' + self.hdf5_file_name)
         with h5py.File(self.hdf5_file_name, 'r') as hdf:
 
             pname = self.get_program_name(hdf)
@@ -303,8 +303,7 @@ class UsaxsFlyScan(object):
         Good luck.
         '''
         if mode not in (AR_MODE_ARRAY, AR_MODE_TRAJECTORY):
-            msg = 'PSO_oscillation_correction: wrong mode = ' + str(mode)
-            raise ValueError, msg
+            raise ValueError('PSO_oscillation_correction: wrong mode = ' + str(mode))
 
         # TODO: find better way to report this information
         # TODO: show scan identification, this is too generic
@@ -452,15 +451,14 @@ class UsaxsFlyScan(object):
                 _ds = eznx.write_dataset(nxdata, key, ds[key])
                 if key in self.units:
                     eznx.addAttributes(_ds, units=self.units[key])
-            except RuntimeError, e:
+            except RuntimeError as e:
                 pass        # TODO: reporting
         hdf.close()
         return hfile
 
     def get_program_name(self, hdf):
         if 'program_name' not in  hdf['/entry']:
-            msg = 'no /entry/program_name in file: ' + self.hdf5_file_name
-            raise KeyError(msg)
+            raise KeyError('no /entry/program_name in file: ' + self.hdf5_file_name)
         return hdf['/entry/program_name']
 
     def get_config_version(self, pname):
@@ -477,8 +475,9 @@ class UsaxsFlyScan(object):
             mode_number = hdf['/entry/flyScan/AR_PulseMode'][0]
         else:
             hdf.close()
-            msg = "Unexpected /entry/program_name/@config_version = " + config_version
-            raise ValueError, msg
+            raise ValueError(
+                "Unexpected /entry/program_name/@config_version = " + config_version
+            )
         return mode_number
 
     def get_mode_name(self, mode_number):
@@ -486,8 +485,9 @@ class UsaxsFlyScan(object):
             # just in case this is useful
             _mode_name = MODENAME_XREF[mode_number]
         else:
-            msg = 'Unexpected /entry/flyScan/AR_PulseMode value = ' + str(mode_number)
-            raise ValueError, msg
+            raise ValueError(
+                'Unexpected /entry/flyScan/AR_PulseMode value = ' + str(mode_number)
+            )
         return _mode_name
 
     def get_raw_ar(self, hdf, mode_number):
@@ -549,8 +549,7 @@ class UsaxsFlyScan(object):
 
         pso = sorted(channel.keys())
         if pso[0] != 0.0:
-            msg = '1st PSO pulse in 10Hz array is not zero'
-            raise ValueError, msg
+            raise ValueError('1st PSO pulse in 10Hz array is not zero')
         # first PSO channel 0 may be repeated, keep the last one
         channel[0.0] = channel[0.0][-1]
         # last PSO channel may be repeated, keep the first one

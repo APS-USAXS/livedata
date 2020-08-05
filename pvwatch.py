@@ -267,8 +267,7 @@ def report():
 
 def update_pvdb(pv, raw_value):
     if pv not in pvdb:
-        msg = '!!!ERROR!!! %s was not found in pvdb!' % pv
-        raise PvNotRegistered, msg
+        raise PvNotRegistered('!!!ERROR!!! %s was not found in pvdb!' % pv)
     entry = pvdb[pv]
     #ch = entry['ch']
     entry['timestamp'] = datetime.datetime.now()
@@ -282,8 +281,7 @@ def EPICS_monitor_receiver(*args, **kws):
     global GLOBAL_MONITOR_COUNTER
     pv = kws['pvname']
     if pv not in pvdb:
-        msg = '!!!ERROR!!! %s was not found in pvdb!' % pv
-        raise PvNotRegistered, msg
+        raise PvNotRegistered('!!!ERROR!!! %s was not found in pvdb!' % pv)
     if pvdb[pv]["waveform_char"]:
         v = kws['char_value']
         logger.debug("CA monitor waveform string value: {} = {}".format(pv, v))
