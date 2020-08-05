@@ -188,6 +188,7 @@
 
   <EPICS_PV PV="9idcLAX:mr:encoder" description="motor MR encoder, degrees" display_format="%.6f" mne="mr_enc"/>
 
+  <EPICS_PV PV="9idcLAX:SAXS:USAXSSAXSMode" description="Instrument mode" mne="instrument_mode"/>
   <EPICS_PV PV="9idcLAX:USAXS:macroFile" description="SPEC macro file" mne="spec_macro_file"/>
   <EPICS_PV PV="9idcLAX:USAXS:I" description="I, a.u." display_format="%.4e" mne="USAXS_I"/>
   <EPICS_PV PV="9idcLAX:USAXS:Q" description="|Q|, 1/A" display_format="%.4e" mne="USAXS_Q"/>
