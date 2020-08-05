@@ -128,32 +128,32 @@
                     		        </a>
                     		    </td>
                     		    <td align="center">
-                    		        <a href="http://164.54.143.43">
+                    		        <a href="https://front-camera.xray.aps.anl.gov/">
                     		            Front table
                     		        </a>
                     		    </td>
                    		    <td align="center">
-                    		        <a href="http://164.54.143.41">
+                    		        <a href="https://a-stage-camera.xray.aps.anl.gov/">
                     		            A stage table
                     		        </a>
                     		    </td>
                    		    <td align="center">
-                    		        <a href="http://164.54.143.42">
+                    		        <a href="https://usaxs-camera1.xray.aps.anl.gov/">
                     		            Side wall
                     		        </a>
                     		    </td>
                    		    <td align="center">
-                    		        <a href="http://164.54.143.45">
+                    		        <a href="https://usaxs-camera2.xray.aps.anl.gov/">
                     		            Back table
                     		        </a>
                     		    </td>
                     		    <td align="center">
-                    		        <a href="http://164.54.143.46">
+                    		        <a href="https://usaxs-camera3.xray.aps.anl.gov/">
                     		            Back wall
                     		        </a>
                     		    </td>
 	               		    <td align="center">
-                    		        <a href="http://164.54.143.47">
+                    		        <a href="https://usaxs-camera4.xray.aps.anl.gov/">
                     		            Left side table
                     		        </a>
                     		    </td>
@@ -178,7 +178,7 @@
                     		    </td>
                     		    <td align="center">
                     		        <a href="http://melpomene.xray.aps.anl.gov/home/homeS.html">
-                    		            Monochromator
+                    		            Control area
                     		        </a>
                     		    </td>
                     		    <td align="center">
@@ -244,13 +244,13 @@
                                     <xsl:choose>
                                         <xsl:when test="//pv[@id='SR_current']/value>2">
                                             <td bgcolor="#22ff22">
-                                                <a href="http://www3.aps.anl.gov/aod/blops/plots/smallStatusPlot.png">
+                                                <a href="https://www3.aps.anl.gov/aod/blops/plots/smallStatusPlot.png">
                                                 APS current</a> =
                                                 <xsl:value-of select="//pv[@id='SR_current']/value"/> mA</td>
                                         </xsl:when>
                                         <xsl:otherwise>
                                             <td bgcolor="#ff2222">
-                                                <a href="http://www3.aps.anl.gov/aod/blops/plots/smallStatusPlot.png">
+                                                <a href="https://www3.aps.anl.gov/aod/blops/plots/smallStatusPlot.png">
                                                     APS current</a> =
                                                 <xsl:value-of select="//pv[@id='SR_current']/value"/> mA</td>
                                         </xsl:otherwise>
@@ -438,7 +438,7 @@
  				</table>
  			    </td>
  			</tr>    <!-- end Linkam T96 status-->      
-         
+
                 </table>
 
                 <br/>
