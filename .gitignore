@@ -4,3 +4,6 @@
 
 # Microsoft VisualStudio Code editor
 .vscode/
+
+# logging subdirectory
+.logs/
