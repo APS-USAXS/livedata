@@ -35,7 +35,7 @@ HDF5_DISABLE_VERSION_CHECK=2
 #SPEC_DATA_PATTERN=/share1/USAXS_data/2016-*/*.dat
 #SPEC_DATA_PATTERN=/share1/USAXS_data/2017-*/*.dat
 #SPEC_DATA_PATTERN=/share1/USAXS_data/2018-*/*.dat
-SPEC_DATA_PATTERN=/share1/USAXS_data/2019-07/*.dat
+SPEC_DATA_PATTERN=/share1/USAXS_data/2020-08/*.dat
 #SPEC_DATA_PATTERN=/share1/USAXS_data/2019-*/*.dat
 
 #export PLOTICUS_BASE=/home/beams/USAXS/Documents/ploticus/pl241src
