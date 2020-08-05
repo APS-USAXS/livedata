@@ -1,3 +1,6 @@
 *.pyc
 .loglogin
 .pydevproject
+
+# Microsoft VisualStudio Code editor
+.vscode/
