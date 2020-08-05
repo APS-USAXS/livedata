@@ -6,6 +6,8 @@ supporting issue https://github.com/APS-USAXS/livedata/issues/14
 and PR https://github.com/APS-USAXS/livedata/pull/20
 
 make SAXS & WAXS data from BS show on livedata page
+
+NOTE: this is py27 code now.
 """
 
 import logging
