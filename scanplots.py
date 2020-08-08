@@ -212,7 +212,13 @@ def plottable_scan_node(scan_node):
                 try:
                     spec_scan.interpret()
                 except Exception as exc:
-                    logger.error(str(exc))
+                    logger.error(
+                        "[%s,S%d,%s] %s",
+                        scan.data_file,
+                        scan.scan_number,
+                        scan.scan_type,
+                        str(exc),
+                        )
                     return
 
             hdf5_file = get_Hdf5_Data_file_Name(spec_scan)
@@ -240,7 +246,13 @@ def plottable_scan_node(scan_node):
                 try:
                     scan.spec_scan.interpret()
                 except Exception as exc:
-                    logger.error(str(exc))
+                    logger.error(
+                        "[%s,S%d,%s] %s",
+                        scan.data_file,
+                        scan.scan_number,
+                        scan.scan_type,
+                        str(exc),
+                        )
                     return
 
             hdf5_file = get_Hdf5_Data_file_Name(scan.spec_scan)
@@ -405,7 +417,13 @@ def get_USAXS_data(cache):
                 try:
                     scan_obj.spec_scan.interpret()
                 except Exception as exc:
-                    logger.error(str(exc))
+                    logger.error(
+                        "[%s,S%d,%s] %s",
+                        scan_obj.spec_scan.data_file,
+                        scan_obj.spec_scan.scan_number,
+                        scan_obj.spec_scan.scan_type,
+                        str(exc),
+                        )
                     return
                 entry = get_USAXS_uascan_ScanData(scan_obj)
             elif scanMacro in ("FlyScan", "sbFlyScan", "Flyscan"):
