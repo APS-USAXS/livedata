@@ -209,7 +209,11 @@ def plottable_scan_node(scan_node):
             spec = spec_file_cache.get(filename)
             spec_scan = spec.getScan(str(scan_node.attrib['number']))
             if not spec_scan.__interpreted__:
-                spec_scan.interpret()
+                try:
+                    spec_scan.interpret()
+                except Exception as exc:
+                    logger.error(str(exc))
+                    return
 
             hdf5_file = get_Hdf5_Data_file_Name(spec_scan)
             if hdf5_file is None or not os.path.exists(hdf5_file):
