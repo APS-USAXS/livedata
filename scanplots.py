@@ -238,7 +238,7 @@ def plottable_scan_node(scan_node):
             scan.getData()
             if not scan.spec_scan.__interpreted__:
                 try:
-                    spec_scan.interpret()
+                    scan.spec_scan.interpret()
                 except Exception as exc:
                     logger.error(str(exc))
                     return
@@ -403,7 +403,7 @@ def get_USAXS_data(cache):
         if scanMacro in scan_macro_list:
             if scanMacro in ("uascan", "sbuascan"):
                 try:
-                    spec_scan.interpret()
+                    scan_obj.spec_scan.interpret()
                 except Exception as exc:
                     logger.error(str(exc))
                     return
