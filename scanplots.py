@@ -237,7 +237,11 @@ def plottable_scan_node(scan_node):
                 return None         # reached a dead end here
             scan.getData()
             if not scan.spec_scan.__interpreted__:
-                scan.spec_scan.interpret()
+                try:
+                    spec_scan.interpret()
+                except Exception as exc:
+                    logger.error(str(exc))
+                    return
 
             hdf5_file = get_Hdf5_Data_file_Name(scan.spec_scan)
             if hdf5_file is not None and os.path.exists(hdf5_file):
@@ -398,7 +402,11 @@ def get_USAXS_data(cache):
         scanMacro = scan_obj.spec_scan.scanCmd.strip().split()[0].split("(")[0]
         if scanMacro in scan_macro_list:
             if scanMacro in ("uascan", "sbuascan"):
-                scan_obj.spec_scan.interpret()
+                try:
+                    spec_scan.interpret()
+                except Exception as exc:
+                    logger.error(str(exc))
+                    return
                 entry = get_USAXS_uascan_ScanData(scan_obj)
             elif scanMacro in ("FlyScan", "sbFlyScan", "Flyscan"):
                 entry = get_USAXS_FlyScan_Data(scan_obj)
