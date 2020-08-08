@@ -138,7 +138,17 @@ def plotAllSpecFileScans(specFile):
         #  For sure, if a plot for N+1 exists, no need to remake plot for scan N.  Thus:
         #    Always remake if plot for scan N+1 does not exist
         scan = sd.getScan(scan_number)
-        scan.interpret()
+        try:
+            scan.interpret()
+        except Exception as exc:
+            logger.error(
+                "[%s,S%s,%s] %s",
+                scan.specFile,
+                scan.scanNum,
+                scan.scanCmd,
+                str(exc),
+                )
+            continue
         basePlotFile = "s%s.svg" % scan.scanNum
         fullPlotFile = os.path.join(png_directory, basePlotFile)
         altText = "#%s: %s" % (scan.scanNum, scan.scanCmd)
