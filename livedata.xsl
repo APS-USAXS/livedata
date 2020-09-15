@@ -128,32 +128,32 @@
                     		        </a>
                     		    </td>
                     		    <td align="center">
-                    		        <a href="https://front-camera.xray.aps.anl.gov/">
+                    		        <a href="http://front-camera.xray.aps.anl.gov/">
                     		            Front table
                     		        </a>
                     		    </td>
                    		    <td align="center">
-                    		        <a href="https://a-stage-camera.xray.aps.anl.gov/">
+                    		        <a href="http://a-stage-camera.xray.aps.anl.gov/">
                     		            A stage table
                     		        </a>
                     		    </td>
                    		    <td align="center">
-                    		        <a href="https://usaxs-camera1.xray.aps.anl.gov/">
+                    		        <a href="http://usaxs-camera1.xray.aps.anl.gov/">
                     		            Side wall
                     		        </a>
                     		    </td>
                    		    <td align="center">
-                    		        <a href="https://usaxs-camera2.xray.aps.anl.gov/">
+                    		        <a href="http://usaxs-camera2.xray.aps.anl.gov/">
                     		            Back table
                     		        </a>
                     		    </td>
                     		    <td align="center">
-                    		        <a href="https://usaxs-camera3.xray.aps.anl.gov/">
+                    		        <a href="http://usaxs-camera3.xray.aps.anl.gov/">
                     		            Back wall
                     		        </a>
                     		    </td>
 	               		    <td align="center">
-                    		        <a href="https://usaxs-camera4.xray.aps.anl.gov/">
+                    		        <a href="http://usaxs-camera4.xray.aps.anl.gov/">
                     		            Left side table
                     		        </a>
                     		    </td>
