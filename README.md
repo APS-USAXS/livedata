@@ -12,4 +12,4 @@ Another code module, *buildSpecPlots.sh*, crawls a set of
 subdirectories, looking for data files and plotting
 all scans using defaults (last column *vs.* first column).
 
-NOTE: [v1](archive/docs/index.md) code documentation
+NOTE: [v1 code documentation](archive/docs/index.md)
