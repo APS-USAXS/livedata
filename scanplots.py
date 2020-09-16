@@ -313,10 +313,15 @@ def get_Hdf5_Data_file_Name(scan):
     elif len(scan_command_parts) > 3 and scan_command_parts[0] in ("FlyScan", ):
         # FlyScan HDF5 data file written from SPEC macros
         #C Tue Apr 02 20:49:39 2019.  FlyScan file name = ./04_02_Cheng_INL_usaxs/2104H_1020C_47min_0013.h5.
-        comment = scan.comments[2]
         key_string = 'FlyScan file name = '
-        index = comment.find(key_string) + len(key_string)
-        fname = comment[index:-1]
+        fname = None
+        for comment in scan.comments:
+            index = comment.find(key_string)
+            if index > 0:
+                fname = comment[index + len(key_string):-1]
+                break
+        if fname is None:
+            raise ValueError("HDF5 file name not found")
         path = os.path.dirname(scan.header.parent.fileName)
 
     else:
