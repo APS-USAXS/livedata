@@ -18,41 +18,13 @@
 CODE_DIR=/home/beams/USAXS/Documents/eclipse/USAXS/livedata
 PROGRAM=$CODE_DIR/specplotsAllScans.py
 LOGFILE=/share1/local_livedata/specplots/specplots.log
+# NOTE: code is still python 2.7
 #PYTHON=/APSshare/epd/rh6-x86_64/bin/python
 PYTHON=/APSshare/anaconda/x86_64/bin/python
 HDF5_DISABLE_VERSION_CHECK=2
 
-# TODO: remove SPEC_DATA_PATTERN and all references
-#  Code below uses recent_spec_data_files.py
-
-# change the SPEC_DATA_PATTERN periodically to reduce the search time
-# this is very important, for example, just this one directory:
-#   /data/USAXS_data/2013-1*/*.dat  takes about a minute to run
-#
-#SPEC_DATA_PATTERN=/data/USAXS_data/2010-04/*.dat
-#SPEC_DATA_PATTERN=/data/USAXS_data/201*-*/*.dat
-#SPEC_DATA_PATTERN=/data/USAXS_data/2013-1*/*.dat
-#SPEC_DATA_PATTERN=/data/USAXS_data/2014-*/*.dat
-#SPEC_DATA_PATTERN=/share1/USAXS_data/2015-*/*.dat
-#SPEC_DATA_PATTERN=/share1/USAXS_data/2016-*/*.dat
-#SPEC_DATA_PATTERN=/share1/USAXS_data/2017-*/*.dat
-#SPEC_DATA_PATTERN=/share1/USAXS_data/2018-*/*.dat
-SPEC_DATA_PATTERN=/share1/USAXS_data/2020-08/*.dat
-#SPEC_DATA_PATTERN=/share1/USAXS_data/2019-*/*.dat
-
-# TODO: remove ploticus and all references
-#export PLOTICUS_BASE=/home/beams/USAXS/Documents/ploticus/pl241src
-#export PLOTICUS_PREFABS=$PLOTICUS_BASE/prefabs
-
 cd $CODE_DIR
 echo "#= $$ --Start--- `/bin/date`" >> $LOGFILE 2>&1
-
-#filelist=`/bin/ls -1 $SPEC_DATA_PATTERN`
-# for item in $filelist;
-# 	do
-# 	# echo $item >> $LOGFILE 2>&1;
-# 	$PYTHON $PROGRAM $item >> $LOGFILE 2>&1;
-# done
 
 # 2019-07-09, prj: look at scan logs and build the list
 filelist=`$PYTHON ./recent_spec_data_files.py`
