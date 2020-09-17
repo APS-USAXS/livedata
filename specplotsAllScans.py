@@ -76,6 +76,10 @@ def is_mtime_changed(fname):
 def plotAllSpecFileScans(specFile):
     '''make standard plots for all scans in the specFile'''
     if not os.path.exists(specFile):
+        logger.debug("Does not exist: %s", specFile)
+        return
+    if not os.path.isfile(specFile):
+        logger.debug("Is not a file: %s", specFile)
         return
 
     # decide here if SPEC file needs to be opened for possible replot of scan data
