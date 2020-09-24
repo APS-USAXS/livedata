@@ -70,7 +70,7 @@ def getSpecFileName(pv):
         raise NoneEpicsValue('"None" received for spec_dir PV: {}'.format(dir_pv))
     if rawName is None:
         raise NoneEpicsValue('"None" received for spec file PV: {}'.format(pv))
-    specFile = userDir + "/" + rawName
+    specFile = os.path.join(userDir, rawName)
     return specFile
 
 
@@ -82,8 +82,19 @@ def updateSpecMacroFile():
         return
     specFile = getSpecFileName(xref['spec_macro_file'])
     if not os.path.exists(specFile):
-        logger.debug(specFile + " does not exist")
-        return
+        # Look in parent directory per 2020-09 changes
+        otherFile = os.path.join(
+            # os.path.dirname(os.path.dirname(specFile)),
+            localConfig.LOCAL_WWW_LIVEDATA_DIR,
+            os.path.basename(specFile)
+        )
+        if not os.path.exists(otherFile):
+            logger.debug(
+                "Cannot find macro file: %s or %s",
+                specFile,
+                otherFile)
+            return
+        specFile = otherFile
     if not os.path.isfile(specFile):
         logger.debug(specFile + " is not a file")
         return
