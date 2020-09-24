@@ -7,7 +7,6 @@
 
 setenv SCRIPT_DIR	 /home/beams/USAXS/Documents/eclipse/USAXS/livedata
 setenv MANAGE		 ${SCRIPT_DIR}/manage.csh
-setenv PLOTICUS_PREFABS  /home/beams/USAXS/Documents/ploticus/pl241src/prefabs
 setenv WWW_DIR		 /share1/local_livedata
 setenv SCRIPT		 ${SCRIPT_DIR}/pvwatch.py
 setenv LOGFILE		 ${WWW_DIR}/log.txt
