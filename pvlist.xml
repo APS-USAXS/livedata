@@ -196,7 +196,7 @@
   <EPICS_PV PV="9idcLAX:USAXS:sampleTitle" description="SPEC sample title" mne="sampleTitle" waveform_char="true"/>
   <EPICS_PV PV="9idcLAX:USAXS:scanning" description="USAXS scanning" mne="USAXS_collecting"/>
   <EPICS_PV PV="9idcLAX:USAXS:SDD" description="sample-detector distance, mm" display_format="%.1f" mne="SDD"/>
-  <EPICS_PV PV="9idcLAX:USAXS:specFile" description="SPEC data file" mne="spec_data_file"/>
+  <EPICS_PV PV="9idcLAX:USAXS:specFile" description="SPEC data file" mne="spec_data_file" waveform_char="true"/>
   <EPICS_PV PV="9idcLAX:USAXS:specScan" description="SPEC scan number" mne="spec_scan"/>
   <EPICS_PV PV="9idcLAX:USAXS:state" description="SPEC what is happening?" mne="state"/>
   <EPICS_PV PV="9idcLAX:USAXS:timeStamp" description="USAXS macro timeStamp" mne="timeStamp"/>
