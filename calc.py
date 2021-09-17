@@ -200,7 +200,8 @@ def reduce_uascan(sds):
     :returns: dictionary of title and R(Q)
     '''
     # get the raw data from the data file
-    if hasattr(sds, "metadata"):  # SPEC data acquisition
+    created_by_bluesky = sds.header.comments[0].startswith("Bluesky ")
+    if not created_by_bluesky:  # SPEC created this data file
         wavelength        = float(sds.metadata['DCM_lambda'])
         ar                = numpy.array(sds.data['ar'])
         seconds           = numpy.array(sds.data['seconds'])
@@ -217,7 +218,7 @@ def reduce_uascan(sds):
         # create numpy arrays to match the ar & pd data
         pd_gain = map(lambda _: gain[_], pd_range)
         pd_dark = map(lambda _: dark[_], pd_range)
-    else:  # Bluesky data acquisition
+    else:  # Bluesky created this data file
         # BS plan writes a NeXus file with the raw data.
         hpath, hfile = "", ""
         for item in sds.raw.split("\n"):  # read the raw SPEC scan data for the new #MD keys
