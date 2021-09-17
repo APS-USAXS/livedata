@@ -6,6 +6,7 @@ Calculate R(Q) from arrays of measured data using numpy
 
 
 import datetime
+import h5py
 import logging
 import math
 import numpy
@@ -98,7 +99,7 @@ def amplifier_corrections(signal, seconds, dark, gain):
 def centroid(x, y):
     '''compute centroid of y(x)'''
     import scipy.integrate
-    
+
     def zinger_test(u, v):
         m = max(v)
         p = numpy.where(v==m)[0][0]
@@ -118,7 +119,7 @@ def centroid(x, y):
         logger.debug("removing zinger at ar = %f", a[peak_index])
         a = numpy.delete(a, peak_index)
         b = numpy.delete(b, peak_index)
-    
+
     # gather the data nearest the peak (above the CUTOFF)
     R_max = max(b)
     cutoff = R_max * CUTOFF
@@ -137,7 +138,7 @@ def centroid(x, y):
     # enforce boundaries
     pLo = max(0, pLo+1)     # the lowest ar above the cutoff
     pHi = min(n-1, pHi)     # the highest ar (+1) above the cutoff
-    
+
     if pHi - pLo == 0:
         emsg = "not enough data to find peak center - not expected"
         logger.debug(emsg)
@@ -155,7 +156,7 @@ def centroid(x, y):
     top    = scipy.integrate.simps(a*weight, a)
     bottom = scipy.integrate.simps(weight, a)
     center = top/bottom
-    
+
     emsg = "computed peak center: " + str(center)
     logger.debug(emsg)
     return center
@@ -199,34 +200,63 @@ def reduce_uascan(sds):
     :returns: dictionary of title and R(Q)
     '''
     # get the raw data from the data file
-    wavelength        = float(sds.metadata['DCM_lambda'])
-    ar                = numpy.array(sds.data['ar'])
-    seconds           = numpy.array(sds.data['seconds'])
-    pd                = numpy.array(sds.data['pd_counts'])
-    I0                = numpy.array(sds.data['I0'])
-    I0_amplifier_gain = numpy.array(sds.metadata['I0AmpGain'])
-    pd_range          = numpy.array(sds.data['pd_range'], dtype=int)
-    ar_center         = float(sds.metadata['arCenter'])
+    if hasattr(sds, "metadata"):
+        wavelength        = float(sds.metadata['DCM_lambda'])
+        ar                = numpy.array(sds.data['ar'])
+        seconds           = numpy.array(sds.data['seconds'])
+        pd                = numpy.array(sds.data['pd_counts'])
+        I0                = numpy.array(sds.data['I0'])
+        I0_amplifier_gain = numpy.array(sds.metadata['I0AmpGain'])
+        pd_range          = numpy.array(sds.data['pd_range'], dtype=int)
+        ar_center         = float(sds.metadata['arCenter'])
 
-    # gain & dark are stored as 1-offset, pad here with 0-offset to simplify list handling
-    gain = [0, ] + map(lambda _: sds.metadata["UPD2gain" + str(_)], range(1,6))
-    dark = [0, ] + map(lambda _: sds.metadata["UPD2bkg" + str(_)], range(1,6))
+        # gain & dark are stored as 1-offset, pad here with 0-offset to simplify list handling
+        gain = [0, ] + map(lambda _: sds.metadata["UPD2gain" + str(_)], range(1,6))
+        dark = [0, ] + map(lambda _: sds.metadata["UPD2bkg" + str(_)], range(1,6))
 
-    # create numpy arrays to match the ar & pd data
-    pd_gain = map(lambda _: gain[_], pd_range)
-    pd_dark = map(lambda _: dark[_], pd_range)
+        # create numpy arrays to match the ar & pd data
+        pd_gain = map(lambda _: gain[_], pd_range)
+        pd_dark = map(lambda _: dark[_], pd_range)
+    else:
+        # The Bluesky data acquisition writes a NeXus file with the raw data.
+        hpath, hfile = "", ""
+        for item in sds.raw.split("\n"):  # read the raw SPEC scan data for the new #MD keys
+            if item.startswith("#MD hdf5_path = "):
+                hpath = item.strip().split("=")[-1].strip()
+            elif item.startswith("#MD hdf5_file = "):
+                hfile = item.strip().split("=")[-1].strip()
+        filename = os.path.join(hpath, hfile)  # rebuild the full HDF5 data file name
+        if not os.path.exists(filename):
+            raise FileNotFoundError("Could not find uascan data file: %s", filename)
+
+        with h5py.File(filename, "r") as root:
+            entry = root["/entry"]
+            baseline = entry["instrument/bluesky/streams/baseline"]
+            primary = entry["instrument/bluesky/streams/primary"]
+
+            # Must copy from h5py into local data to keep once h5py file is closed.
+            wavelength = entry["instrument/monochromator/wavelength"].value
+            ar = numpy.array(primary["a_stage_r/value"])
+            seconds = numpy.array(primary["seconds/value"])
+            pd = numpy.array(primary["PD_USAXS/value"])
+            I0 = numpy.array(primary["I0_USAXS/value"])
+            I0_amplifier_gain = numpy.array(primary["I0_autorange_controls_gain/value"])
+            ar_center = baseline["terms_USAXS_center_AR/value_start"].value
+
+            pd_gain = numpy.array(primary["upd_autorange_controls_gain/value"])
+
+            pd_range = primary["upd_autorange_controls_reqrange/value"]
+            bkg = []
+            for ch in range(5):
+                addr = "upd_autorange_controls_ranges_gain%d_background" % ch
+                bkg.append(baseline[addr+"/value_start"].value)
+            pd_dark = [bkg[i] for i in pd_range]
 
     # compute the R(Q) profile
-    usaxs = calc_R_Q(wavelength,    # wavelength
-                     ar,            # ar
-                     seconds,       # seconds
-                     pd,            # pd
-                     pd_dark,       # pd_bkg
-                     pd_gain,       # pd_gain
-                     I0,            # I0
-                     I0_gain=I0_amplifier_gain,
-                     ar_center=ar_center,
-                     )
+    usaxs = calc_R_Q(
+        wavelength, ar, seconds, pd, pd_dark, pd_gain, I0,
+        I0_gain=I0_amplifier_gain, ar_center=ar_center
+    )
     return usaxs
 
 
