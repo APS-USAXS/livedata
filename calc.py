@@ -200,7 +200,7 @@ def reduce_uascan(sds):
     :returns: dictionary of title and R(Q)
     '''
     # get the raw data from the data file
-    if hasattr(sds, "metadata"):
+    if hasattr(sds, "metadata"):  # SPEC data acquisition
         wavelength        = float(sds.metadata['DCM_lambda'])
         ar                = numpy.array(sds.data['ar'])
         seconds           = numpy.array(sds.data['seconds'])
@@ -217,8 +217,8 @@ def reduce_uascan(sds):
         # create numpy arrays to match the ar & pd data
         pd_gain = map(lambda _: gain[_], pd_range)
         pd_dark = map(lambda _: dark[_], pd_range)
-    else:
-        # The Bluesky data acquisition writes a NeXus file with the raw data.
+    else:  # Bluesky data acquisition
+        # BS plan writes a NeXus file with the raw data.
         hpath, hfile = "", ""
         for item in sds.raw.split("\n"):  # read the raw SPEC scan data for the new #MD keys
             if item.startswith("#MD hdf5_path = "):
@@ -230,6 +230,7 @@ def reduce_uascan(sds):
             raise FileNotFoundError("Could not find uascan data file: %s", filename)
 
         with h5py.File(filename, "r") as root:
+            # get all data from the HDF5 file
             entry = root["/entry"]
             baseline = entry["instrument/bluesky/streams/baseline"]
             primary = entry["instrument/bluesky/streams/primary"]
