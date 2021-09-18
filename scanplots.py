@@ -382,14 +382,15 @@ def get_AreaDetector_Data(scan_obj):
 
 def get_USAXS_uascan_ScanData(scan, ar_center=None):
     created_by_bluesky = scan.header.comments[0].startswith("Bluesky ")
+    if created_by_bluesky:
+        title = scan.MD["title"]
+    else:
+        title = scan.spec_scan.comments[0]
+
     usaxs = calc.reduce_uascan(scan.spec_scan)
     usaxs['qVec'] = usaxs.pop('Q')
     usaxs['rVec'] = usaxs.pop('R')
-    usaxs['title'] = "S" + str(scan.scan_number) + " "
-    if not created_by_bluesky:
-        usaxs['title'] += scan.spec_scan.comments[0]
-    else:
-        usaxs["title"] += scan.MD["title"]
+    usaxs['title'] = "S{} {}".format(scan.scan_number, title)
     return usaxs
 
 
