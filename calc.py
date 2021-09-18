@@ -20,8 +20,10 @@ logger = logging.getLogger(__name__)
 # TEST_FILE_FLYSCAN = os.path.join('testdata', 'S217_E7_600C_87min.h5')
 #TEST_FILE_FLYSCAN = os.path.join('testdata', 'Blank_0016.h5')
 TEST_FILE_FLYSCAN = os.path.join('testdata', 'S6_r1SOTy2_0235.h5')
-TEST_FILE_UASCAN = os.path.join('testdata', '03_18_GlassyCarbon.dat')
-TEST_UASCAN_SCAN_NUMBER = 522
+# TEST_FILE_UASCAN = os.path.join('testdata', '03_18_GlassyCarbon.dat')
+# TEST_UASCAN_SCAN_NUMBER = 522
+TEST_FILE_UASCAN = "/share1/USAXS_data/2021-09/09_18_test/09_18_test.dat"
+TEST_UASCAN_SCAN_NUMBER = 11
 TEST_FILE_OUTPUT = os.path.join('testdata', 'test_calc.h5')
 
 CUTOFF = 0.4    # when calculating the center, look at data above CUTOFF*R_max
@@ -220,13 +222,8 @@ def reduce_uascan(sds):
         pd_dark = map(lambda _: dark[_], pd_range)
     else:  # Bluesky created this data file
         # BS plan writes a NeXus file with the raw data.
-        hpath, hfile = "", ""
-        for item in sds.raw.split("\n"):  # read the raw SPEC scan data for the new #MD keys
-            if item.startswith("#MD hdf5_path = "):
-                hpath = item.strip().split("=")[-1].strip()
-            elif item.startswith("#MD hdf5_file = "):
-                hfile = item.strip().split("=")[-1].strip()
-        filename = os.path.join(hpath, hfile)  # rebuild the full HDF5 data file name
+        # rebuild the full HDF5 data file name
+        filename = os.path.join(sds.MD["hdf5_path"], sds.MD["hdf5_file"])  
         if not os.path.exists(filename):
             raise FileNotFoundError("Could not find uascan data file: %s", filename)
 
@@ -237,15 +234,17 @@ def reduce_uascan(sds):
             primary = entry["instrument/bluesky/streams/primary"]
 
             # Must copy from h5py into local data to keep once h5py file is closed.
+            # The .value property does this.
             wavelength = entry["instrument/monochromator/wavelength"].value
-            ar = numpy.array(primary["a_stage_r/value"])
-            seconds = numpy.array(primary["seconds/value"])
-            pd = numpy.array(primary["PD_USAXS/value"])
-            I0 = numpy.array(primary["I0_USAXS/value"])
-            I0_amplifier_gain = numpy.array(primary["I0_autorange_controls_gain/value"])
+            ar = primary["a_stage_r/value"].value
+            pps = sds.MD.get("scaler_pulses_per_second", 1e-7)
+            seconds = pps * primary["seconds/value"].value  # convert from counts
+            pd = primary["PD_USAXS/value"].value
+            I0 = primary["I0_USAXS/value"].value
+            I0_amplifier_gain = primary["I0_autorange_controls_gain/value"].value
             ar_center = baseline["terms_USAXS_center_AR/value_start"].value
 
-            pd_gain = numpy.array(primary["upd_autorange_controls_gain/value"])
+            pd_gain = primary["upd_autorange_controls_gain/value"].value
 
             pd_range = primary["upd_autorange_controls_reqrange/value"]
             bkg = []
