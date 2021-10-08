@@ -126,7 +126,19 @@ def plotAllSpecFileScans(specFile):
     HREF_FORMAT += "</a>"
 
     try:
-        scan_number_list = sd.getScanNumbers()
+        # optimization: remake the last plot and make plots for any new scans
+        numbers = dict(new=[], old=[])
+        for scan_number in sd.scans:
+            scan = sd.getScan(scan_number)
+            if scan.epoch < mtime_pngdir:
+                key = "old"
+            else:
+                key = "new"
+            numbers[key].append(scan.scanNum)
+        scan_number_list = numbers["new"]  # make plots for new scans
+        if len(numbers["old"]) > 0:
+            scan_number_list.insert(0, numbers["old"][-1])  # remake last plot
+        del numbers
     except ValueError as exc:
         # 2018-11-12, prj:
         # bypass a problem referencing non-integer scan numbers:
@@ -136,11 +148,6 @@ def plotAllSpecFileScans(specFile):
         logger.warn("traceback:\n" + str(exc))
 
     for scan_number in scan_number_list:
-        # TODO: was the data in _this_ scan changed since the last time the SPEC file was modified?
-        #  Check the scan's date/time stamp and also if the plot exists.
-        #  For a scan N, the plot may exist if the scan was in progress at the last update.
-        #  For sure, if a plot for N+1 exists, no need to remake plot for scan N.  Thus:
-        #    Always remake if plot for scan N+1 does not exist
         scan = sd.getScan(scan_number)
         try:
             scan.interpret()
