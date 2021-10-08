@@ -29,7 +29,8 @@ sys.argv.append( '--recompute-rebinned' )
 # test_files = glob.glob('testdata/S*.h5')
 # test_files = glob.glob('/share1/USAXS_data/2015-12/12_2_Kariuki_fly/S28_TestAmplifierA.h5')
 # test_files = glob.glob('testdata/2016-02-10-USAXS/02_10_myers1_fly/S*_Glassy*.h5')
-test_files = ['/share1/USAXS_data/2016-08/08_02_GlassyCarbon_fly/GlassyCarbon_U_1_Time120s_0056.h5',]
+# test_files = ['/share1/USAXS_data/2016-08/08_02_GlassyCarbon_fly/GlassyCarbon_U_1_Time120s_0056.h5',]
+test_files = ["/share1/USAXS_data/2021-10/10_05_Gadikota/10_05_Gadikota_usaxs/AAM_50mM_CaCO3_206min_1039.h5", ]
 
 argv = list(sys.argv)
 

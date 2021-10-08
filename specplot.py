@@ -27,17 +27,20 @@ def retrieve_specScanData(scan):
 
 def retrieve_flyScanData(scan):
     '''retrieve reduced, rebinned data from USAXS Fly Scans'''
-    key_string = 'FlyScan file name = '
     if hasattr(scan, "MD") and scan.MD.get("hdf5_path") is not None:
         # Bluesky wrote this SPEC data file
         path = scan.MD.get("hdf5_path")
         hdf_file_name = scan.MD.get("hdf5_file")
     else:
         # SPEC wrote this data file
-        comment = scan.comments[2]
-        index = comment.find(key_string) + len(key_string)
-        path = os.path.dirname(scan.header.parent.fileName)
-        hdf_file_name = comment[index:-1]
+        key_string = 'FlyScan file name = '
+        hdf_file_name = ""  # in case key_string is not found
+        for comment in scan.comments:
+            if key_string in comment:
+                index = comment.find(key_string) + len(key_string)
+                path = os.path.dirname(scan.header.parent.fileName)
+                hdf_file_name = comment[index:-1]
+                break
     abs_file = os.path.abspath(os.path.join(path, hdf_file_name))
     if os.path.exists(abs_file):
         s_num_bins = str(localConfig.REDUCED_FLY_SCAN_BINS)
