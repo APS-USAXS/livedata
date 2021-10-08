@@ -110,7 +110,6 @@ def plotAllSpecFileScans(specFile):
     if len(sd.headers) == 0:    # no scan header found, again, silence
         return
 
-    plotList = []
     newFileList = [] # list of all new files created
 
     if not os.path.exists(png_directory):
@@ -162,9 +161,6 @@ def plotAllSpecFileScans(specFile):
             continue
         basePlotFile = "s%s.svg" % scan.scanNum
         fullPlotFile = os.path.join(png_directory, basePlotFile)
-        altText = "#%s: %s" % (scan.scanNum, scan.scanCmd)
-        href = HREF_FORMAT % (basePlotFile, basePlotFile, altText)
-        plotList.append(href)
         logger.debug("{} {} {}".format(specFile, scan.scanNum, fullPlotFile))
         # cmd = scan.scanCmd.strip().split()[0]
         if needToMakePlot(fullPlotFile, mtime_specFile):
@@ -175,11 +171,19 @@ def plotAllSpecFileScans(specFile):
             except Exception as _exc:
                 msg = "ERROR: '%s' %s #%s" % (_exc.message, specFile, scan.scanNum)
                 logger.debug(msg)
-                plotList.pop()     # rewrite the default link
-                plotList.append("<!-- " + msg + " -->")
-                altText = "%s: #%s %s" % (_exc.message, scan.scanNum, scan.scanCmd)
-                href = HREF_FORMAT % (basePlotFile, basePlotFile, altText)
-                plotList.append(href)
+
+    plotList = []  # list of ALL plot files (not just the new ones)
+    for scan_number in sd.scans:
+        scan = sd.getScan(scan_number)
+        basePlotFile = "s%s.svg" % scan.scanNum
+        fullPlotFile = os.path.join(png_directory, basePlotFile)
+        if os.path.exists(fullPlotFile):
+            altText = "#%s: %s" % (scan.scanNum, scan.scanCmd)
+        else:
+            altText = "no plot: #%s %s" % (scan.scanNum, scan.scanCmd)
+        href = HREF_FORMAT % (basePlotFile, basePlotFile, altText)
+        plotList.append(href)
+
 
     htmlFile = os.path.join(png_directory, "index.html")
     if len(newFileList) or not os.path.exists(htmlFile):
