@@ -77,12 +77,17 @@ def livedata_plot(datasets, plotfile, title=None):
                 label = ds.label[:ds.label.find('(SAXS)')] + '(SAXS)'
             else:
                 label = ds.label
+            p = label.find(" ")
+            if label.startswith("S") and p > 0:
+                label = label[p:].strip()  # remove the scan number
             pl, = ax.plot(ds.Q, ds.I, symbol, label=label, mfc='w', mec=color, ms=3, mew=1)
             legend_handlers[pl] = matplotlib.legend_handler.HandlerLine2D(numpoints=1)
         except Exception as exc:
             faults.append((i, ds, exc))
 
-    ax.legend(loc='lower left', fontsize=9, handler_map=legend_handlers)
+    # ax.legend(loc='lower left', fontsize=9, handler_map=legend_handlers)  # the old way
+    ax.legend(fontsize=8, handler_map=legend_handlers)
+    # fig.tight_layout()  # does not look good, crowds the title
     FigureCanvas(fig).print_figure(plotfile, bbox_inches='tight', facecolor=BISQUE_RGB)
     if len(faults) > 0:
         fault_text = "\n".join(["{}".format(f) for f in faults])
