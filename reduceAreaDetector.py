@@ -39,6 +39,18 @@ ESD_FACTOR          = 0.01      # estimate dr = ESD_FACTOR * r  if r.std() = 0 :
 # there are various possible layouts
 AD_HDF5_ADDRESS_MAP = {
     'local_name'            : '/entry/data/local_name',
+    'Dexela N2315' : {
+        'image'                 : '/entry/data/data',
+        'wavelength'            : '/entry/Metadata/wavelength',
+        'SDD'                   : '/entry/Metadata/SDD',
+        'x_image_center_pixels' : '/entry/instrument/detector/beam_center_x',
+        'y_image_center_pixels' : '/entry/instrument/detector/beam_center_y',
+        'x_pixel_size_mm'       : '/entry/instrument/detector/x_pixel_size',
+        'y_pixel_size_mm'       : '/entry/instrument/detector/y_pixel_size',
+        'I0_counts'             : '/entry/Metadata/I0_cts_gated',
+        'I0_gain'               : '/entry/Metadata/I0_gain',
+        # need to consider a detector-dependent mask
+    },
     'Pilatus 100K' : {
         'image'                 : '/entry/data/data',
         'wavelength'            : '/entry/Metadata/wavelength',
