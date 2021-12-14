@@ -24,6 +24,9 @@ path = os.path.join(path, '2016-02-27')
 testfiles.append(os.path.join(path, '02_27_AlCe_saxs', 'A_AlCe_3433.hdf'))
 testfiles.append(os.path.join(path, '02_27_AlCe_waxs', 'A_AlCe_2849.hdf'))
 
+testfiles = []
+testfiles.append("/share1/USAXS_data/2021-12/12_10_DexHeater/12_10_DexHeater_waxs/Ti64Dex_975C_99min_000399.hdf")
+
 argv = list(sys.argv)
 
 for hdf5_file in testfiles:
