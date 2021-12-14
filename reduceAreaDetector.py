@@ -346,15 +346,26 @@ class Image(object):
         detector_name = str(self.fp[detector_name_h5addr].value[0])
         self.hdf5_addr_map = h5addr = AD_HDF5_ADDRESS_MAP[detector_name]
         self.filename    = self.fp.filename
-        self.image       = numpy.array(self.fp[h5addr['image']])
-        self.wavelength  = self.fp[h5addr['wavelength']][0]
-        self.SDD         = self.fp[h5addr['SDD']][0]
-        self.x0          = self.fp[h5addr['x_image_center_pixels']][0]
-        self.y0          = self.fp[h5addr['y_image_center_pixels']][0]
-        self.xsize       = self.fp[h5addr['x_pixel_size_mm']][0]
-        self.ysize       = self.fp[h5addr['y_pixel_size_mm']][0]
-        self.I0          = self.fp[h5addr['I0_counts']][0]
-        self.I0_gain     = self.fp[h5addr['I0_gain']][0]
+
+        def read_keyed_dataset(key):
+            dataset = self.fp[h5addr[key]]
+            if dataset.shape == (1, ):  # historical representation of scalar value
+                value = dataset[0]
+            elif dataset.shape == ():  # scalar representation
+                value = dataset.value
+            else:  # array of some sort
+                value = numpy.array(dataset)
+            return value
+
+        self.image       = read_keyed_dataset('image')
+        self.wavelength  = read_keyed_dataset('wavelength')
+        self.SDD         = read_keyed_dataset('SDD')
+        self.x0          = read_keyed_dataset('x_image_center_pixels')
+        self.y0          = read_keyed_dataset('y_image_center_pixels')
+        self.xsize       = read_keyed_dataset('x_pixel_size_mm')
+        self.ysize       = read_keyed_dataset('y_pixel_size_mm')
+        self.I0          = read_keyed_dataset('I0_counts')
+        self.I0_gain     = read_keyed_dataset('I0_gain')
         # later, scale each image by metadata I0_cts_gated and I0_gain
         # TODO: get image mask specifications
         return
