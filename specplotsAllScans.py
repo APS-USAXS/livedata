@@ -73,7 +73,7 @@ def is_mtime_changed(fname):
     return changed
 
 
-def plotAllSpecFileScans(specFile):
+def plotAllSpecFileScans(specFile, scan_number_list=None, force_plot=False):
     '''make standard plots for all scans in the specFile'''
     if not os.path.exists(specFile):
         logger.debug("Does not exist: %s", specFile)
@@ -89,11 +89,14 @@ def plotAllSpecFileScans(specFile):
         mtime_pngdir = 0
     else:
         mtime_pngdir = getTimeFileModified(png_directory)
+
     # compare mtime of data file with mtime of PNG directory
-    if mtime_pngdir > mtime_specFile or not is_mtime_changed(specFile):
-        # do nothing if plot directory was last updated _after_ the specFile
-        # This assumes people don't modify the png_directory
-        return
+    if not force_plot:
+        if mtime_pngdir > mtime_specFile or not is_mtime_changed(specFile):
+            # do nothing if plot directory was last updated _after_ the specFile
+            # This assumes people don't modify the png_directory
+            return
+
     if png_directory != None:
         logger.info('updating plots in directory: ' + png_directory)
     else:
@@ -124,27 +127,28 @@ def plotAllSpecFileScans(specFile):
     HREF_FORMAT += "<img src=\"%s\" width=\"150\" height=\"75\" alt=\"%s\"/>"
     HREF_FORMAT += "</a>"
 
-    try:
-        # optimization: remake the last plot and make plots for any new scans
-        numbers = dict(new=[], old=[])
-        for scan_number in sd.scans:
-            scan = sd.getScan(scan_number)
-            if scan.epoch < mtime_pngdir:
-                key = "old"
-            else:
-                key = "new"
-            numbers[key].append(scan.scanNum)
-        scan_number_list = numbers["new"]  # make plots for new scans
-        if len(numbers["old"]) > 0:
-            scan_number_list.insert(0, numbers["old"][-1])  # remake last plot
-        del numbers
-    except ValueError as exc:
-        # 2018-11-12, prj:
-        # bypass a problem referencing non-integer scan numbers:
-        # see: https://github.com/APS-USAXS/ipython-usaxs/issues/76
-        scan_number_list = []
-        logger.warn("non-integer scan number in " + specFile)
-        logger.warn("traceback:\n" + str(exc))
+    if scan_number_list is None:
+        try:
+            # optimization: remake the last plot and make plots for any new scans
+            numbers = dict(new=[], old=[])
+            for scan_number in sd.scans:
+                scan = sd.getScan(scan_number)
+                if scan.epoch < mtime_pngdir:
+                    key = "old"
+                else:
+                    key = "new"
+                numbers[key].append(scan.scanNum)
+            scan_number_list = numbers["new"]  # make plots for new scans
+            if len(numbers["old"]) > 0:
+                scan_number_list.insert(0, numbers["old"][-1])  # remake last plot
+            del numbers
+        except ValueError as exc:
+            # 2018-11-12, prj:
+            # bypass a problem referencing non-integer scan numbers:
+            # see: https://github.com/APS-USAXS/ipython-usaxs/issues/76
+            scan_number_list = []
+            logger.warn("non-integer scan number in " + specFile)
+            logger.warn("traceback:\n" + str(exc))
 
     for scan_number in scan_number_list:
         scan = sd.getScan(scan_number)
@@ -161,9 +165,9 @@ def plotAllSpecFileScans(specFile):
             continue
         basePlotFile = "s%s.svg" % scan.scanNum
         fullPlotFile = os.path.join(png_directory, basePlotFile)
-        logger.debug("{} {} {}".format(specFile, scan.scanNum, fullPlotFile))
+        logger.debug("%s %s %s", specFile, scan.scanNum, fullPlotFile)
         # cmd = scan.scanCmd.strip().split()[0]
-        if needToMakePlot(fullPlotFile, mtime_specFile):
+        if force_plot or needToMakePlot(fullPlotFile, mtime_specFile):
             try:
                 logger.info('  creating SPEC data scan image: ' + basePlotFile)
                 specplot.makeScanImage(scan, fullPlotFile)
@@ -350,7 +354,7 @@ def build_index_html(baseSpecFile, specFile, plotList):
     return html
 
 
-def main():
+def main(scanlist=None, force_plot=False):
     if len(sys.argv) > 1:
         filelist = sys.argv[1:]                     # usual command-line use
     else:
@@ -364,7 +368,7 @@ def main():
     logger.info('file list: ' + ', '.join(filelist))
 
     for specFile in filelist:
-        plotAllSpecFileScans(specFile)
+        plotAllSpecFileScans(specFile, scan_number_list=scanlist, force_plot=force_plot)
     logger.info('<'*10 + ' finished')
 
 
