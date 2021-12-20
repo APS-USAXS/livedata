@@ -104,10 +104,10 @@ class AD_ScatteringImage(object):
         '''
         read image data from the HDF5 file, return as instance of :class:`Image`
         '''
-        fp = h5py.File(self.hdf5_file_name)
-        self.image = Image(fp)
-        self.image.read_image_data()
-        fp.close()
+        with h5py.File(self.hdf5_file_name) as fp:
+            self.image = Image(fp)
+            self.image.read_image_data()
+
         return self.image
 
     def has_reduced(self, key = 'full'):
@@ -224,22 +224,22 @@ class AD_ScatteringImage(object):
         '''
         fields = self.units.keys()
         reduced = {}
-        hdf = h5py.File(self.hdf5_file_name, 'r')
-        entry = hdf['/entry']
-        for key in entry.keys():
-            if key.startswith('areaDetector_reduced_'):
-                nxdata = entry[key]
-                nxname = key[len('areaDetector_reduced_'):]
-                d = {}
-                for dsname in fields:
-                    if dsname in nxdata:
-                        value = nxdata[dsname]
-                        if value.size == 1:
-                            d[dsname] = float(value[0])
-                        else:
-                            d[dsname] = numpy.array(value)
-                reduced[nxname] = d
-        hdf.close()
+        with h5py.File(self.hdf5_file_name, 'r') as hdf:
+            entry = hdf['/entry']
+            for key in entry.keys():
+                if key.startswith('areaDetector_reduced_'):
+                    nxdata = entry[key]
+                    nxname = key[len('areaDetector_reduced_'):]
+                    d = {}
+                    for dsname in fields:
+                        if dsname in nxdata:
+                            value = nxdata[dsname]
+                            if value.size == 1:
+                                d[dsname] = float(value[0])
+                            else:
+                                d[dsname] = numpy.array(value)
+                    reduced[nxname] = d
+
         self.reduced = reduced
         return reduced
 

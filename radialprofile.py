@@ -69,9 +69,18 @@ def azimuthalAverage(image, center=None, stddev=False, returnradii=False, return
         # Find out which radial bin each point in the map belongs to
         whichbin = np.digitize(r.flat,bins)
         # This method is still very slow; is there a trick to do this with histograms?
-        radial_prof = np.array([image.flat[mask.flat*(whichbin==b)].std() for b in xrange(1,nbins+1)])
+        radial_prof = np.array(
+            [
+                image.flat[mask.flat*(whichbin==b)].std()
+                for b in xrange(1,nbins+1)
+            ]
+        )
     else:
-        radial_prof = np.histogram(r, bins, weights=(image*weights*mask))[0] / np.histogram(r, bins, weights=(mask*weights))[0]
+        radial_prof = (
+            np.histogram(r, bins, weights=(image*weights*mask))[0]
+            /
+            np.histogram(r, bins, weights=(weights*mask))[0]
+        )
 
     if interpnan:
         radial_prof = np.interp(
@@ -79,7 +88,8 @@ def azimuthalAverage(image, center=None, stddev=False, returnradii=False, return
             bin_centers[radial_prof==radial_prof],  # FIXME: tests identical numbers
             radial_prof[radial_prof==radial_prof],  # FIXME: tests identical numbers
             left=left,
-            right=right)
+            right=right
+        )
 
     if steps:
         xarr = np.array(zip(bins[:-1],bins[1:])).ravel()

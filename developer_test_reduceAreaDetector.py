@@ -25,7 +25,12 @@ testfiles.append(os.path.join(path, '02_27_AlCe_saxs', 'A_AlCe_3433.hdf'))
 testfiles.append(os.path.join(path, '02_27_AlCe_waxs', 'A_AlCe_2849.hdf'))
 
 testfiles = []
-testfiles.append("/share1/USAXS_data/2021-12/12_10_DexHeater/12_10_DexHeater_waxs/Ti64Dex_975C_99min_000399.hdf")
+# testfiles.append("/share1/USAXS_data/2021-12/12_10_DexHeater/12_10_DexHeater_waxs/Ti64Dex_975C_99min_000399.hdf")
+testfiles.append(
+    "/share1/USAXS_data/2021-12/"
+    "12_20_TestDex/12_20_TestDex_waxs/"
+    "DexTest_000555.hdf"
+)
 
 argv = list(sys.argv)
 

@@ -373,22 +373,22 @@ class UsaxsFlyScan(object):
         '''
         fields = self.units.keys()
         reduced = {}
-        hdf = h5py.File(self.hdf5_file_name, 'r')
-        entry = hdf['/entry']
-        for key in entry.keys():
-            if key.startswith('flyScan_reduced_'):
-                nxdata = entry[key]
-                nxname = key[len('flyScan_reduced_'):]
-                d = {}
-                for dsname in fields:
-                    if dsname in nxdata:
-                        value = nxdata[dsname]
-                        if value.size == 1:
-                            d[dsname] = float(value[0])
-                        else:
-                            d[dsname] = numpy.array(value)
-                reduced[nxname] = d
-        hdf.close()
+        with h5py.File(self.hdf5_file_name, 'r') as hdf:
+            entry = hdf['/entry']
+            for key in entry.keys():
+                if key.startswith('flyScan_reduced_'):
+                    nxdata = entry[key]
+                    nxname = key[len('flyScan_reduced_'):]
+                    d = {}
+                    for dsname in fields:
+                        if dsname in nxdata:
+                            value = nxdata[dsname]
+                            if value.size == 1:
+                                d[dsname] = float(value[0])
+                            else:
+                                d[dsname] = numpy.array(value)
+                    reduced[nxname] = d
+
         self.reduced = reduced
         return reduced
 
@@ -432,28 +432,28 @@ class UsaxsFlyScan(object):
         nxname = 'flyScan_reduced_' + key
         hfile = hfile or self.hdf5_file_name
         ds = self.reduced[key]
-        hdf = h5py.File(hfile, 'a')
-        if 'default' not in hdf.attrs:
-            hdf.attrs['default'] = 'entry'
-        nxentry = eznx.openGroup(hdf, 'entry', 'NXentry')
-        if 'default' not in nxentry.attrs:
-            nxentry.attrs['default'] = nxname
-        nxdata = eznx.openGroup(nxentry,
-                                nxname,
-                                'NXdata',
-                                signal='R',
-                                axes='Q',
-                                Q_indices=0,
-                                timestamp=calc.iso8601_datetime(),
-                                )
-        for key in sorted(ds.keys()):
-            try:
-                _ds = eznx.write_dataset(nxdata, key, ds[key])
-                if key in self.units:
-                    eznx.addAttributes(_ds, units=self.units[key])
-            except RuntimeError as e:
-                pass        # TODO: reporting
-        hdf.close()
+        with h5py.File(hfile, 'a') as hdf:
+            if 'default' not in hdf.attrs:
+                hdf.attrs['default'] = 'entry'
+            nxentry = eznx.openGroup(hdf, 'entry', 'NXentry')
+            if 'default' not in nxentry.attrs:
+                nxentry.attrs['default'] = nxname
+            nxdata = eznx.openGroup(nxentry,
+                                    nxname,
+                                    'NXdata',
+                                    signal='R',
+                                    axes='Q',
+                                    Q_indices=0,
+                                    timestamp=calc.iso8601_datetime(),
+                                    )
+            for key in sorted(ds.keys()):
+                try:
+                    _ds = eznx.write_dataset(nxdata, key, ds[key])
+                    if key in self.units:
+                        eznx.addAttributes(_ds, units=self.units[key])
+                except RuntimeError as e:
+                    pass        # TODO: reporting
+
         return hfile
 
     def get_program_name(self, hdf):

@@ -56,23 +56,23 @@ def make_png(h5file, imgfile, h5path=HDF5_DATA_PATH, log_image=True,
     if not os.path.exists(h5file):
         raise IOError('file does not exist: ' + h5file)
 
-    hdf5 = h5py.File(h5file, 'r')
-    try:
-        ds = hdf5[h5path]
-    except:
-        msg = 'h5path not found in HDF5 file:'
-        msg += '\n  file: ' + h5file
-        msg += '\n  path: ' + h5path
-        raise IOError(msg)
+    with h5py.File(h5file, 'r') as hdf5:
+        try:
+            ds = hdf5[h5path]
+        except:
+            msg = 'h5path not found in HDF5 file:'
+            msg += '\n  file: ' + h5file
+            msg += '\n  path: ' + h5path
+            raise IOError(msg)
 
-    image_data = numpy.ma.masked_less_equal(ds.value, 0)
-    # replace masked data with min good value
-    image_data = image_data.filled(image_data.min())
+        image_data = numpy.ma.masked_less_equal(ds.value, 0)
+        # replace masked data with min good value
+        image_data = image_data.filled(image_data.min())
 
-    if log_image and image_data.max() != 0:
-        image_data = numpy.log(image_data)
-        image_data -= image_data.min()
-        image_data *= SCALING_FACTOR / image_data.max()
+        if log_image and image_data.max() != 0:
+            image_data = numpy.log(image_data)
+            image_data -= image_data.min()
+            image_data *= SCALING_FACTOR / image_data.max()
 
     plt.set_cmap(cmap)
     if MPL_FIG is None:
