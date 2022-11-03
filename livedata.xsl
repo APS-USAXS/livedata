@@ -125,66 +125,37 @@
                     		    </td>
                     		    <td align="center">
                     		        <a href="http://front-camera.xray.aps.anl.gov/">
-                    		            Front table
+                    		            Inboard top frame
                     		        </a>
                     		    </td>
                    		    <td align="center">
                     		        <a href="http://a-stage-camera.xray.aps.anl.gov/">
-                    		            A stage table
+                    		            Tripod
                     		        </a>
                     		    </td>
                    		    <td align="center">
                     		        <a href="http://usaxs-camera1.xray.aps.anl.gov/">
-                    		            Side wall
+                    		            NA
                     		        </a>
                     		    </td>
                    		    <td align="center">
                     		        <a href="http://usaxs-camera2.xray.aps.anl.gov/">
-                    		            Back table
+                    		            NA
                     		        </a>
                     		    </td>
                     		    <td align="center">
                     		        <a href="http://usaxs-camera3.xray.aps.anl.gov/">
-                    		            Back wall
+                    		            NA
                     		        </a>
                     		    </td>
 	               		    <td align="center">
                     		        <a href="http://usaxs-camera4.xray.aps.anl.gov/">
-                    		            Left side table
+                    		            Front table
                     		        </a>
                     		    </td>
                                 </tr>
                             </table>
-                            <table border="1" width="100%" rules="all" bgcolor="lightblue">
-                                <tr>
-                                    <td>webcams Beamline</td>
-                                    <!--
- 					Cryo system view
-					http://urania.xray.aps.anl.gov/home/homeS.html
-					Mono system view
-					http://melpomene.xray.aps.anl.gov/home/homeS.html
-					SOE
-					http://clio.xray.aps.anl.gov/home/homeS.html
-					need java, will run on Safari but not on Firefox on OSX
-                                    -->
-                    		    <td align="center">
-                    		        <a href="http://urania.xray.aps.anl.gov/home/homeS.html">
-                    		            Cryo system
-                    		        </a>
-                    		    </td>
-                    		    <td align="center">
-                    		        <a href="http://melpomene.xray.aps.anl.gov/home/homeS.html">
-                    		            Control area
-                    		        </a>
-                    		    </td>
-                    		    <td align="center">
-                    		        <a href="http://clio.xray.aps.anl.gov/home/homeS.html">
-                    		            SOE
-                    		        </a>
-                    		    </td>
-                                 </tr>
-                            </table>
-                    	</td>
+                     	</td>
                     </tr>
                 </table>
                 <table border="1" width="96%" rules="all">
