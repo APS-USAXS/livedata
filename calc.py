@@ -22,8 +22,10 @@ logger = logging.getLogger(__name__)
 TEST_FILE_FLYSCAN = os.path.join('testdata', 'S6_r1SOTy2_0235.h5')
 # TEST_FILE_UASCAN = os.path.join('testdata', '03_18_GlassyCarbon.dat')
 # TEST_UASCAN_SCAN_NUMBER = 522
-TEST_FILE_UASCAN = "/share1/USAXS_data/2021-09/09_18_test/09_18_test.dat"
-TEST_UASCAN_SCAN_NUMBER = 11
+# TEST_FILE_UASCAN = "/share1/USAXS_data/2021-09/09_18_test/09_18_test.dat"
+# TEST_UASCAN_SCAN_NUMBER = 11
+TEST_FILE_UASCAN = "/share1/USAXS_data/2022-11/11_03_24keVTest/11_03_24keVTest.dat"
+TEST_UASCAN_SCAN_NUMBER = 248
 TEST_FILE_OUTPUT = os.path.join('testdata', 'test_calc.h5')
 
 CUTOFF = 0.4    # when calculating the center, look at data above CUTOFF*R_max
@@ -324,3 +326,4 @@ def developer_main():
 
 if __name__ == '__main__':
     developer_main()
+print("\n", __name__)
