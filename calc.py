@@ -11,22 +11,26 @@ import logging
 import math
 import numpy
 import os
+import pathlib
 import spec2nexus.eznx
 import spec2nexus.spec
 
 
 logger = logging.getLogger(__name__)
 
-# TEST_FILE_FLYSCAN = os.path.join('testdata', 'S217_E7_600C_87min.h5')
-# TEST_FILE_FLYSCAN = os.path.join('testdata', 'Blank_0016.h5')
-TEST_FILE_FLYSCAN = os.path.join("testdata", "S6_r1SOTy2_0235.h5")
-# TEST_FILE_UASCAN = os.path.join('testdata', '03_18_GlassyCarbon.dat')
+USAXS_DATA = pathlib.Path("/share1/USAXS_data")
+TESTDATA = pathlib.Path(__file__).parent / "data"
+
+# TEST_FILE_FLYSCAN = TESTDATA / 'S217_E7_600C_87min.h5'
+TEST_FILE_FLYSCAN = TESTDATA / "Blank_0016.h5"
+# TEST_FILE_FLYSCAN = TESTDATA / "S6_r1SOTy2_0235.h5"
+# TEST_FILE_UASCAN = TESTDATA / '03_18_GlassyCarbon.dat'
 # TEST_UASCAN_SCAN_NUMBER = 522
-# TEST_FILE_UASCAN = "/share1/USAXS_data/2021-09/09_18_test/09_18_test.dat"
+# TEST_FILE_UASCAN = USAXS_DATA / "2021-09/09_18_test/09_18_test.dat"
 # TEST_UASCAN_SCAN_NUMBER = 11
-TEST_FILE_UASCAN = "/share1/USAXS_data/2022-11/11_03_24keVTest/11_03_24keVTest.dat"
+TEST_FILE_UASCAN = USAXS_DATA / "2022-11/11_03_24keVTest/11_03_24keVTest.dat"
 TEST_UASCAN_SCAN_NUMBER = 248
-TEST_FILE_OUTPUT = os.path.join("testdata", "test_calc.h5")
+TEST_FILE_OUTPUT = TESTDATA / "test_calc.h5"
 
 CUTOFF = 0.4  # when calculating the center, look at data above CUTOFF*R_max
 ZINGER_THRESHOLD = 2
@@ -193,7 +197,7 @@ def remove_masked_data(data, mask):
 
 def test_flyScan(filename):
     """test data reduction from a flyScan (in an HDF5 file)"""
-    if not os.path.exists(filename):
+    if not filename.exists():
         raise FileNotFound(filename)
 
     import reduceFlyData
@@ -207,7 +211,7 @@ def test_flyScan(filename):
 
 def test_uascan(filename):
     """test data reduction from an uascan (in a SPEC file)"""
-    if not os.path.exists(filename):
+    if not filename.exists():
         raise FileNotFound(filename)
 
     # open the SPEC data file
@@ -249,8 +253,8 @@ def reduce_uascan(sds):
     else:  # Bluesky created this data file
         # BS plan writes a NeXus file with the raw data.
         # rebuild the full HDF5 data file name
-        filename = os.path.join(sds.MD["hdf5_path"], sds.MD["hdf5_file"])
-        if not os.path.exists(filename):
+        filename = pathlib.Path(sds.MD["hdf5_path"]) / sds.MD["hdf5_file"]
+        if not filename.exists():
             raise FileNotFoundError("Could not find uascan data file: %s", filename)
 
         with h5py.File(filename, "r") as root:
@@ -323,19 +327,18 @@ def bin_xref(x, bins):
 
 
 def developer_main():
-    path = os.path.dirname(__file__)
-    hdf5FileName = os.path.abspath(os.path.join(path, TEST_FILE_FLYSCAN))
-    fs = test_flyScan(hdf5FileName)
+    hdf5FileName = TEST_FILE_FLYSCAN
+    # fs = test_flyScan(hdf5FileName)
 
-    specFileName = os.path.abspath(os.path.join(path, TEST_FILE_UASCAN))
-    ua = test_uascan(specFileName)
+    specFileName = TEST_FILE_UASCAN
+    ua = test_uascan(TEST_FILE_UASCAN)
 
     # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     # write results to a NeXus file
 
     nx = spec2nexus.eznx.makeFile(
-        os.path.abspath(os.path.join(path, TEST_FILE_OUTPUT)),
+        str(TEST_FILE_OUTPUT),
         signal="flyScan",
         timestamp=str(datetime.datetime.now()),
         writer="USAXS livedata.calc and spec2nexus.eznx",
@@ -343,13 +346,13 @@ def developer_main():
     )
 
     nxentry = spec2nexus.eznx.makeGroup(nx, "flyScan", "NXentry", signal="data")
-    nxentry.create_dataset("title", data=hdf5FileName)
+    nxentry.create_dataset("title", data=str(hdf5FileName))
     nxdata = spec2nexus.eznx.makeGroup(nxentry, "data", "NXdata", signal="R", axes="Q")
     for k, v in sorted(fs["full"].items()):
         spec2nexus.eznx.makeDataset(nxdata, k, v)
 
     nxentry = spec2nexus.eznx.makeGroup(nx, "uascan", "NXentry", signal="data")
-    nxentry.create_dataset("title", data=specFileName)
+    nxentry.create_dataset("title", data=str(specFileName))
     nxdata = spec2nexus.eznx.makeGroup(nxentry, "data", "NXdata", signal="R", axes="Q")
     for k, v in sorted(ua.items()):
         spec2nexus.eznx.makeDataset(nxdata, k, v)
