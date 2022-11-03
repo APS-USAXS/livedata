@@ -1,0 +1,23 @@
+name: livedata
+
+# micromamba create -f ./environment.yml
+
+channels:
+  - conda-forge
+  - defaults
+
+dependencies:
+  - python >=3.8, <3.11
+  - black
+  - databroker
+  - flake8
+  - h5py >=3
+  - hdf5plugin
+  - ipython
+  - lxml
+  - ophyd
+  - pandas
+  - pint
+  - pip
+  - pyRestTable
+  - spec2nexus
