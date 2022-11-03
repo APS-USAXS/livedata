@@ -3,7 +3,7 @@
 .pydevproject
 
 # Microsoft VisualStudio Code editor
-.vscode/
+.vscode*/
 
 # logging subdirectory
 .logs/
