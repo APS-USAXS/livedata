@@ -359,4 +359,3 @@ def developer_main():
 
 if __name__ == "__main__":
     developer_main()
-print("\n", __name__)
