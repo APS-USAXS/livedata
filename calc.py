@@ -10,7 +10,6 @@ import h5py
 import logging
 import math
 import numpy
-import os
 import pathlib
 import spec2nexus.eznx
 import spec2nexus.spec
