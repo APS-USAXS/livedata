@@ -347,8 +347,8 @@ def developer_main():
     nxentry = spec2nexus.eznx.makeGroup(nx, "flyScan", "NXentry", signal="data")
     nxentry.create_dataset("title", data=str(hdf5FileName))
     nxdata = spec2nexus.eznx.makeGroup(nxentry, "data", "NXdata", signal="R", axes="Q")
-    for k, v in sorted(fs["full"].items()):
-        spec2nexus.eznx.makeDataset(nxdata, k, v)
+    # for k, v in sorted(fs["full"].items()):
+    #     spec2nexus.eznx.makeDataset(nxdata, k, v)
 
     nxentry = spec2nexus.eznx.makeGroup(nx, "uascan", "NXentry", signal="data")
     nxentry.create_dataset("title", data=str(specFileName))
