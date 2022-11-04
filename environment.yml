@@ -19,5 +19,7 @@ dependencies:
   - pandas
   - pint
   - pip
+  - punx
   - pyRestTable
+  - pytest
   - spec2nexus
