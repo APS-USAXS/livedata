@@ -298,11 +298,12 @@ def reduce_uascan(sds):
 
 
 def iso8601_datetime():
-    """return current date & time as modified ISO8601=compliant string"""
-    t = datetime.datetime.now()
-    # standard ISO8601 uses 'T', blank space instead is now allowed
-    s = str(t).split(".")[0]
-    return s
+    """
+    Return current date & time as modified ISO8601=compliant string.
+
+    Standard ISO8601 uses 'T', blank space instead is now allowed.
+    """
+    return datetime.datetime.now().isoformat(sep=" ")
 
 
 def bin_xref(x, bins):
