@@ -20,17 +20,6 @@ logger = logging.getLogger(__name__)
 USAXS_DATA = pathlib.Path("/share1/USAXS_data")
 TESTDATA = pathlib.Path(__file__).parent / "data"
 
-# TEST_FILE_FLYSCAN = TESTDATA / 'S217_E7_600C_87min.h5'
-TEST_FILE_FLYSCAN = TESTDATA / "Blank_0016.h5"
-# TEST_FILE_FLYSCAN = TESTDATA / "S6_r1SOTy2_0235.h5"
-# TEST_FILE_UASCAN = TESTDATA / '03_18_GlassyCarbon.dat'
-# TEST_UASCAN_SCAN_NUMBER = 522
-# TEST_FILE_UASCAN = USAXS_DATA / "2021-09/09_18_test/09_18_test.dat"
-# TEST_UASCAN_SCAN_NUMBER = 11
-TEST_FILE_UASCAN = USAXS_DATA / "2022-11/11_03_24keVTest/11_03_24keVTest.dat"
-TEST_UASCAN_SCAN_NUMBER = 248
-TEST_FILE_OUTPUT = TESTDATA / "test_calc.h5"
-
 CUTOFF = 0.4  # when calculating the center, look at data above CUTOFF*R_max
 ZINGER_THRESHOLD = 2
 
@@ -194,32 +183,6 @@ def remove_masked_data(data, mask):
     return arr.compressed()
 
 
-def test_flyScan(filename):
-    """test data reduction from a flyScan (in an HDF5 file)"""
-    if not filename.exists():
-        raise FileNotFound(filename)
-
-    import reduceFlyData
-
-    fs = reduceFlyData.UsaxsFlyScan(filename)
-    # compute the R(Q) profile
-    fs.reduce()
-    usaxs = fs.reduced
-    return usaxs
-
-
-def test_uascan(filename):
-    """test data reduction from an uascan (in a SPEC file)"""
-    if not filename.exists():
-        raise FileNotFound(filename)
-
-    # open the SPEC data file
-    sdf_object = spec2nexus.spec.SpecDataFile(filename)
-    sds = sdf_object.getScan(TEST_UASCAN_SCAN_NUMBER)
-    sds.interpret()
-    return reduce_uascan(sds)
-
-
 def reduce_uascan(sds):
     """data reduction of an uascan (in a SPEC file)
 
@@ -241,14 +204,14 @@ def reduce_uascan(sds):
         # gain & dark are stored as 1-offset, pad here with 0-offset to simplify list handling
         gain = [
             0,
-        ] + map(lambda _: sds.metadata["UPD2gain" + str(_)], range(1, 6))
+        ] + list(map(lambda _: sds.metadata["UPD2gain" + str(_)], range(1, 6)))
         dark = [
             0,
-        ] + map(lambda _: sds.metadata["UPD2bkg" + str(_)], range(1, 6))
+        ] + list(map(lambda _: sds.metadata["UPD2bkg" + str(_)], range(1, 6)))
 
         # create numpy arrays to match the ar & pd data
-        pd_gain = map(lambda _: gain[_], pd_range)
-        pd_dark = map(lambda _: dark[_], pd_range)
+        pd_gain = list(map(lambda _: gain[_], pd_range))
+        pd_dark = list(map(lambda _: dark[_], pd_range))
     else:  # Bluesky created this data file
         # BS plan writes a NeXus file with the raw data.
         # rebuild the full HDF5 data file name
@@ -323,41 +286,3 @@ def bin_xref(x, bins):
     key_list = map(int, xref_dict.keys())
     xref = [xref_dict[str(key)] for key in sorted(key_list)]
     return numpy.array(xref)
-
-
-def developer_main():
-    hdf5FileName = TEST_FILE_FLYSCAN
-    # fs = test_flyScan(hdf5FileName)
-
-    specFileName = TEST_FILE_UASCAN
-    ua = test_uascan(TEST_FILE_UASCAN)
-
-    # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-    # write results to a NeXus file
-
-    nx = spec2nexus.eznx.makeFile(
-        str(TEST_FILE_OUTPUT),
-        signal="flyScan",
-        timestamp=str(datetime.datetime.now()),
-        writer="USAXS livedata.calc and spec2nexus.eznx",
-        purpose="testing common USAXS calculation code on different scan file types",
-    )
-
-    nxentry = spec2nexus.eznx.makeGroup(nx, "flyScan", "NXentry", signal="data")
-    nxentry.create_dataset("title", data=str(hdf5FileName))
-    nxdata = spec2nexus.eznx.makeGroup(nxentry, "data", "NXdata", signal="R", axes="Q")
-    # for k, v in sorted(fs["full"].items()):
-    #     spec2nexus.eznx.makeDataset(nxdata, k, v)
-
-    nxentry = spec2nexus.eznx.makeGroup(nx, "uascan", "NXentry", signal="data")
-    nxentry.create_dataset("title", data=str(specFileName))
-    nxdata = spec2nexus.eznx.makeGroup(nxentry, "data", "NXdata", signal="R", axes="Q")
-    for k, v in sorted(ua.items()):
-        spec2nexus.eznx.makeDataset(nxdata, k, v)
-
-    nx.close()
-
-
-if __name__ == "__main__":
-    developer_main()
