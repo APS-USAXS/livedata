@@ -28,14 +28,15 @@ def test_flyScan(filename):
     assert filename.exists()
 
     # TODO: refactor as test(s)
-    # import reduceFlyData
+    import reduceFlyData
 
-    # fs = reduceFlyData.UsaxsFlyScan(filename)
-    # # compute the R(Q) profile
-    # fs.reduce()
-    # usaxs = fs.reduced
-    # return usaxs
-    assert True
+    fs = reduceFlyData.UsaxsFlyScan(filename)
+    # compute the R(Q) profile
+    fs.reduce()
+    usaxs = fs.reduced
+    assert usaxs is not None
+    assert isinstance(usaxs, dict)
+    assert "full" in usaxs
 
 
 @pytest.mark.parametrize(
