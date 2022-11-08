@@ -38,9 +38,9 @@ MODENAME_XREF = {  # these are the strings the PV *should* return
     AR_MODE_TRAJECTORY: "TrajPts",
 }
 
-# raised when HDF5 file exists but length of raw data is zero
+
 class NoFlyScanData(IndexError):
-    pass
+    """HDF5 file exists but length of raw data is zero."""
 
 
 def decode_h5py_byte_string(value):

@@ -290,7 +290,7 @@ class AD_ScatteringImage(object):
         ds = self.reduced[key]
         try:
             hdf = h5py.File(hfile, "a")
-        except IOError as _exc:
+        except IOError:
             # FIXME: some h5py problem in <h5py>/_hl/files.py, line 101
             # this fails: fid = h5f.open(name, h5f.ACC_RDWR, fapl=fapl)
             # with IOError that is improperly caught on next and then:

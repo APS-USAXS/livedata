@@ -144,7 +144,7 @@ def updatePlotImage():
     makePlot = not os.path.exists(plotFile)  # no plot yet, let's make one!
     if os.path.exists(plotFile):
         plot_mtime = os.stat(plotFile).st_mtime
-        makePlot = spec_mtime > plot_mtime  #  plot only if new data
+        makePlot = spec_mtime > plot_mtime  # plot only if new data
 
     if makePlot:
         logger.debug("updating the plots and gathering scan data for XML file")
