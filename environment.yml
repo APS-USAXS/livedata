@@ -17,9 +17,12 @@ dependencies:
   - lxml
   - ophyd
   - pandas
+  - paramiko
   - pint
   - pip
   - punx
   - pyRestTable
   - pytest
+  - scipy
+  - scp
   - spec2nexus
