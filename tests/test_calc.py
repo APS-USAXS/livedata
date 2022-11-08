@@ -2,9 +2,10 @@ import pathlib
 import sys
 sys.path.append(str(pathlib.Path(__file__).parent.parent))
 
-import pytest
-from spec2nexus.spec import SpecDataFile
 from calc import reduce_uascan
+from spec2nexus.spec import SpecDataFile
+import h5py
+import pytest
 
 
 USAXS_DATA = pathlib.Path("/share1/USAXS_data")
@@ -27,10 +28,17 @@ def test_flyScan(filename):
         raise FileNotFoundError(filename)
     assert filename.exists()
 
-    # TODO: refactor as test(s)
     import reduceFlyData
 
     fs = reduceFlyData.UsaxsFlyScan(filename)
+    with h5py.File(filename, "r") as root:
+        amp_name = fs.get_USAXS_PD_amplifier_name(root)
+        assert amp_name == "DDPCA300"
+        assert isinstance(amp_name, str)
+        changes = fs.get_range_changes(root, amp_name)
+        arr_channel, arr_requested, arr_actual = changes
+        assert len(arr_channel) == len(arr_requested)
+        assert len(arr_channel) == len(arr_actual)
     # compute the R(Q) profile
     fs.reduce()
     usaxs = fs.reduced
