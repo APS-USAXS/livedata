@@ -1,16 +1,18 @@
 #!/usr/bin/env python
 
-'''
+"""
 Step-Size Algorithm for Bonse-Hart Ultra-Small-Angle Scattering Instruments
 
 :see: http://usaxs.xray.aps.anl.gov/docs/ustep/index.html
-'''
+"""
 
 import logging
+
 logger = logging.getLogger(__name__)
 
+
 class ustep(object):
-    '''
+    """
     find the series of positions for the USAXS
 
     :param float start: required first position of list
@@ -21,7 +23,7 @@ class ustep(object):
     :param float minStep: smallest allowed step size
     :param float factor: :math:`k`, multiplying factor (computed internally)
     :param [float] series: computed list of positions
-    '''
+    """
 
     def __init__(self, start, center, finish, numPts, exponent, minStep):
         self.start = start
@@ -35,12 +37,12 @@ class ustep(object):
         self.factor = self.find_factor()
 
     def find_factor(self):
-        '''
+        """
         Determine the factor that will make a series with the specified parameters.
 
         This method improves on find_factor_simplistic() by
         choosing next choice for factor from recent history.
-        '''
+        """
 
         def assess(factor):
             self.make_series(factor)
@@ -49,7 +51,7 @@ class ustep(object):
 
         span_target = abs(self.finish - self.start)
         span_precision = abs(self.minStep) * 0.2
-        factor = abs(self.finish-self.start) / (self.numPts -1)
+        factor = abs(self.finish - self.start) / (self.numPts - 1)
         span_diff = assess(factor)
         f = [factor, factor]
         d = [span_diff, span_diff]
@@ -57,7 +59,7 @@ class ustep(object):
         # first make certain that d[0] < 0 and d[1] > 0, expand f[0] and f[1]
         for _ in range(100):
             if d[0] * d[1] < 0:
-                break           # now, d[0] and d[1] have opposite sign
+                break  # now, d[0] and d[1] have opposite sign
             factor *= {True: 2, False: 0.5}[span_diff < 0]
             span_diff = assess(factor)
             key = {True: 1, False: 0}[span_diff > d[1]]
@@ -67,9 +69,11 @@ class ustep(object):
         # now: d[0] < 0 and d[1] > 0, squeeze f[0] & f[1] to converge
         for _ in range(100):
             if (d[1] - d[0]) > span_target:
-                factor = (f[0] + f[1])/2              # bracket by bisection when not close
+                factor = (f[0] + f[1]) / 2  # bracket by bisection when not close
             else:
-                factor = f[0] - d[0] * (f[1]-f[0])/(d[1]-d[0])    # linear interpolation when close
+                factor = f[0] - d[0] * (f[1] - f[0]) / (
+                    d[1] - d[0]
+                )  # linear interpolation when close
             span_diff = assess(factor)
             if abs(span_diff) <= span_precision:
                 break
@@ -80,7 +84,7 @@ class ustep(object):
         return factor
 
     def find_factor_simplistic(self):
-        '''
+        """
         Determine the factor that will make a series with the specified parameters.
 
         Choose the factor that will minimize :math:`| x_n - finish |` subject to:
@@ -94,11 +98,11 @@ class ustep(object):
 
         This search technique picks a new factor based on the fit of the present choice.
         It converges but not quickly.
-        '''
-        logger.debug('\t'.join('factor diff'.split()))
+        """
+        logger.debug("\t".join("factor diff".split()))
         span_target = abs(self.finish - self.start)
         span_precision = abs(self.minStep) * 0.2
-        factor = abs(self.finish-self.start) / (self.numPts -1)
+        factor = abs(self.finish - self.start) / (self.numPts - 1)
         fStep = factor
         larger = 3.0
         smaller = 0.5
@@ -106,7 +110,7 @@ class ustep(object):
             self.make_series(factor)
             span = abs(self.series[0] - self.series[-1])
             span_diff = span - span_target
-            logger.debug('\t'.join(map(str,[factor, span_diff])))
+            logger.debug("\t".join(map(str, [factor, span_diff])))
             if abs(span_diff) <= span_precision:
                 break
             if span_diff < 0:
@@ -117,20 +121,22 @@ class ustep(object):
         return factor
 
     def make_series(self, factor):
-        '''create self.series with the given factor'''
+        """create self.series with the given factor"""
         x = self.start
-        series = [x, ]
+        series = [
+            x,
+        ]
         for _ in range(self.numPts - 1):
             x += self.sign * self.uascanStepFunc(x, factor)
             series.append(x)
         self.series = series
 
     def uascanStepFunc(self, x, factor):
-        '''Calculate the next step size with the given parameters'''
+        """Calculate the next step size with the given parameters"""
         if abs(x - self.center) > 1e100:
             step = 1e100
         else:
-            step = factor * pow( abs(x - self.center), self.exponent ) + self.minStep
+            step = factor * pow(abs(x - self.center), self.exponent) + self.minStep
         return step
 
 
@@ -146,5 +152,5 @@ def main():
     print(f"{u.series=}")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
