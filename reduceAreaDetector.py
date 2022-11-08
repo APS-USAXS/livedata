@@ -313,7 +313,7 @@ class AD_ScatteringImage(object):
                 _ds = eznx.write_dataset(nxdata, key, ds[key])
                 if key in self.units:
                     eznx.addAttributes(_ds, units=self.units[key])
-            except RuntimeError as e:
+            except RuntimeError:
                 pass        # TODO: reporting
         hdf.close()
         return hfile

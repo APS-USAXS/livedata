@@ -18,7 +18,7 @@ def readPvlistXML(xmlFile):
     '''get the list of PVs to monitor from the XML file'''
     doc = openScanLogFile(xmlFile)
     xref = {}
-    if doc != None:
+    if doc is not None:
         db = []
         for element in doc.findall('EPICS_PV'):
             arr = {}

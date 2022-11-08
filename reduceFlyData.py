@@ -473,7 +473,7 @@ class UsaxsFlyScan(object):
                     _ds = eznx.write_dataset(nxdata, key, ds[key])
                     if key in self.units:
                         eznx.addAttributes(_ds, units=self.units[key])
-                except RuntimeError as e:
+                except RuntimeError:
                     pass        # TODO: reporting
 
         return hfile
@@ -664,7 +664,6 @@ class UsaxsFlyScan(object):
         base = '/entry/metadata/' + amplifier + '_gain'
         gain = list(map(lambda x: hdf[base+str(x)][0], range(5)))
         return gain
-
 
     def get_bkg(self, hdf, amplifier):
         '''

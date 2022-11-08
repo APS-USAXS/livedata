@@ -399,7 +399,7 @@ def format_as_mpl_data_one(scan):
     try:
         Q = map(float, scan['qVec'])
         I = map(float, scan['rVec'])
-    except TypeError as _e:
+    except TypeError:
         if scan is None: return None
         Q = scan['qVec']
         I = scan['rVec']
