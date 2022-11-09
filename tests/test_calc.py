@@ -39,12 +39,27 @@ def test_flyScan(filename):
         arr_channel, arr_requested, arr_actual = changes
         assert len(arr_channel) == len(arr_requested)
         assert len(arr_channel) == len(arr_actual)
+
     # compute the R(Q) profile
     fs.reduce()
     usaxs = fs.reduced
     assert usaxs is not None
     assert isinstance(usaxs, dict)
-    assert "full" in usaxs
+
+    full = usaxs.get("full")
+    assert full is not None
+    assert_usaxs_reduced_data(full)
+
+
+def assert_usaxs_reduced_data(reduced):
+    assert isinstance(reduced, dict)  # data is reduceable
+    for k in "Q R ar r r0  ar_0  ar_r_peak  r_peak".split():
+        assert k in reduced
+
+    # same lengths
+    n = len(reduced["Q"])
+    for k in "R ar r r0".split():
+        assert len(reduced[k]) == n
 
 
 @pytest.mark.parametrize(
@@ -72,14 +87,7 @@ def test_uascan(filename, scan_number):
     # TODO: anything to test now?
 
     uascan = reduce_uascan(sds)
-    assert isinstance(uascan, dict)  # data is reduceable
-    for k in "Q R ar r r0  ar_0  ar_r_peak  r_peak".split():
-        assert k in uascan
-
-    # same lengths
-    n = len(uascan["Q"])
-    for k in "R ar".split():
-        assert len(uascan[k]) == n
+    assert_usaxs_reduced_data(uascan)
 
 
 # TODO: refactor as test(s)
