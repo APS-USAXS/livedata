@@ -1,53 +1,45 @@
 #!/APSshare/anaconda/x86_64/bin/python
 
-"""
+'''
 watch the USAXS EPICS process variables and periodically write them to a file
 
 Start this with the shell command::
 
     /APSshare/anaconda/x86_64/bin/python ./pvwatch.py >>& log.txt
 
-"""
+'''
 
 
-import datetime  # date/time stamps
-import epics  # manages EPICS (PyEpics) connections for Python 2.6+
+import datetime         # date/time stamps
+import epics            # manages EPICS (PyEpics) connections for Python 2.6+
 import logging
 import numpy
 import os
-
-os.environ["HDF5_DISABLE_VERSION_CHECK"] = "2"
-import os.path  # testing if a file exists
-import shutil  # file copies
-import time  # provides sleep()
+os.environ['HDF5_DISABLE_VERSION_CHECK'] = '2'
+import os.path          # testing if a file exists
+import shutil           # file copies
+import time             # provides sleep()
 import traceback
 from xml.dom import minidom
 from xml.etree import ElementTree
 
-import localConfig  # definitions for 9-ID
+import localConfig      # definitions for 9-ID
 import scanplots
 import wwwServerTransfers
 
 
 LOGGER_FORMAT = "%(asctime)s.%(msecs)03d (%(levelname)s,%(process)d,%(name)s,%(lineno)d) %(message)s"
-logging.basicConfig(
-    level=logging.INFO,
-    format=LOGGER_FORMAT,
-    datefmt="%Y-%m-%d %H:%M:%S",
-)
+logging.basicConfig(level=logging.INFO, format=LOGGER_FORMAT, datefmt='%Y-%m-%d %H:%M:%S',)
 logger = logging.getLogger(__name__)
 
-
 def logMessage(msg):
-    """write a message with a timestamp and pid to the log file"""
+    '''write a message with a timestamp and pid to the log file'''
     logger.info(msg)
-
 
 try:
     # better reporting of SEGFAULT
     # http://faulthandler.readthedocs.org
     import faulthandler
-
     faulthandler.enable()
     logger.debug("faulthandler: module enabled")
 except ImportError:
@@ -55,32 +47,25 @@ except ImportError:
 
 
 GLOBAL_MONITOR_COUNTER = 0
-pvdb = {}  # EPICS data will go here, cache of last known good values
-xref = {}  # cross-reference between mnemonics and PV names: {mne:pvname}
+pvdb = {}   # EPICS data will go here, cache of last known good values
+xref = {}   # cross-reference between mnemonics and PV names: {mne:pvname}
 PVLIST_FILE = "pvlist.xml"
 MAINLOOP_COUNTER_TRIGGER = 10000  # print a log message periodically
 USAXS_DATA = None
 
 
-"""value for expected EPICS PV is None"""
+'''value for expected EPICS PV is None'''
+class NoneEpicsValue(Exception): pass
 
-
-class NoneEpicsValue(Exception):
-    pass
-
-
-"""pv not in pvdb"""
-
-
-class PvNotRegistered(Exception):
-    pass
+'''pv not in pvdb'''
+class PvNotRegistered(Exception): pass
 
 
 def getSpecFileName(pv):
-    """construct the name of the file, based on a PV"""
-    dir_pv = xref["spec_dir"]
-    userDir = pvdb[dir_pv]["value"]
-    rawName = pvdb[pv]["value"]
+    '''construct the name of the file, based on a PV'''
+    dir_pv = xref['spec_dir']
+    userDir = pvdb[dir_pv]['value']
+    rawName = pvdb[pv]['value']
     if userDir is None:
         raise NoneEpicsValue('"None" received for spec_dir PV: {}'.format(dir_pv))
     if rawName is None:
@@ -90,21 +75,24 @@ def getSpecFileName(pv):
 
 
 def updateSpecMacroFile():
-    """copy the current SPEC macro file to the WWW page space"""
+    '''copy the current SPEC macro file to the WWW page space'''
 
-    if len(pvdb[xref["spec_macro_file"]]["value"].strip()) == 0:
+    if len(pvdb[xref['spec_macro_file']]['value'].strip()) == 0:
         # SPEC file name PV is empty
         return
-    specFile = getSpecFileName(xref["spec_macro_file"])
+    specFile = getSpecFileName(xref['spec_macro_file'])
     if not os.path.exists(specFile):
         # Look in parent directory per 2020-09 changes
         otherFile = os.path.join(
             # os.path.dirname(os.path.dirname(specFile)),
             localConfig.LOCAL_WWW_LIVEDATA_DIR,
-            os.path.basename(specFile),
+            os.path.basename(specFile)
         )
         if not os.path.exists(otherFile):
-            logger.debug("Cannot find macro file: %s or %s", specFile, otherFile)
+            logger.debug(
+                "Cannot find macro file: %s or %s",
+                specFile,
+                otherFile)
             return
         specFile = otherFile
     if not os.path.isfile(specFile):
@@ -119,7 +107,7 @@ def updateSpecMacroFile():
         spec_mtime = os.stat(specFile).st_mtime
         www_mtime = os.stat(wwwFile).st_mtime
         if spec_mtime > www_mtime:
-            updateFile = True  # only if file is newer
+            updateFile = True   # only if file is newer
     else:
         updateFile = True
     if updateFile:
@@ -128,9 +116,9 @@ def updateSpecMacroFile():
 
 
 def updatePlotImage():
-    """make a new PNG file with the most recent USAXS scans"""
+    '''make a new PNG file with the most recent USAXS scans'''
 
-    specFile = getSpecFileName(xref["spec_data_file"])
+    specFile = getSpecFileName(xref['spec_data_file'])
     if not os.path.exists(specFile):
         logger.info(specFile + " does not exist")
         return
@@ -141,10 +129,10 @@ def updatePlotImage():
 
     plotFile = localConfig.LOCAL_PLOTFILE
     plotFile = os.path.join(localConfig.LOCAL_WWW_LIVEDATA_DIR, plotFile)
-    makePlot = not os.path.exists(plotFile)  # no plot yet, let's make one!
+    makePlot = not os.path.exists(plotFile)        # no plot yet, let's make one!
     if os.path.exists(plotFile):
         plot_mtime = os.stat(plotFile).st_mtime
-        makePlot = spec_mtime > plot_mtime  # plot only if new data
+        makePlot = spec_mtime > plot_mtime        #  plot only if new data
 
     if makePlot:
         logger.debug("updating the plots and gathering scan data for XML file")
@@ -152,16 +140,15 @@ def updatePlotImage():
 
 
 def writeFile(filename, contents):
-    """write contents to file"""
-    with open(filename, "w") as f:
+    '''write contents to file'''
+    with open(filename, 'w') as f:
         f.write(contents)
 
 
 def xslt_transformation(xslt_file, src_xml_file, result_xml_file):
-    """transform an XML file using an XSLT"""
+    '''transform an XML file using an XSLT'''
     # see: http://lxml.de/xpathxslt.html#xslt
-    from lxml import etree as lxml_etree  # in THIS routine, use lxml's etree
-
+    from lxml import etree as lxml_etree      # in THIS routine, use lxml's etree
     src_doc = lxml_etree.parse(src_xml_file)
     xslt_doc = lxml_etree.parse(xslt_file)
     transform = lxml_etree.XSLT(xslt_doc)
@@ -171,14 +158,14 @@ def xslt_transformation(xslt_file, src_xml_file, result_xml_file):
 
 
 def textArray(arr):
-    """convert an ndarray to a text array"""
+    '''convert an ndarray to a text array'''
     if isinstance(arr, numpy.ndarray):
         return [str(_) for _ in arr]
     return arr
 
 
 def buildReport():
-    """build the report"""
+    '''build the report'''
     t = datetime.datetime.now()
     yyyymmdd = t.strftime("%Y-%m-%d")
     hhmmss = t.strftime("%H:%M:%S")
@@ -191,17 +178,8 @@ def buildReport():
     node.text = yyyymmdd + " " + hhmmss
 
     sorted_id_list = sorted(xref)
-    fields = (
-        "name",
-        "id",
-        "description",
-        "timestamp",
-        "counter",
-        "units",
-        "value",
-        "raw_value",
-        "format",
-    )
+    fields = ("name", "id", "description", "timestamp",
+              "counter", "units", "value", "raw_value", "format")
 
     for mne in sorted_id_list:
         pv = xref[mne]
@@ -216,29 +194,27 @@ def buildReport():
             subnode.text = str(entry[item])
 
     global USAXS_DATA
-    if USAXS_DATA is not None and USAXS_DATA.get("usaxs", None) is not None:
+    if USAXS_DATA is not None and USAXS_DATA.get('usaxs', None) is not None:
         try:
-            specfile = USAXS_DATA["file"]
+            specfile = USAXS_DATA['file']
             node = ElementTree.SubElement(root, "usaxs_scans")
             node.set("file", specfile)
-            for scan in USAXS_DATA["usaxs"]:
-                scannode = ElementTree.SubElement(
-                    node, "scan"
-                )  # FIXME: ? scan or node ?
-            for item in ("scan", "key", "label"):
+            for scan in USAXS_DATA['usaxs']:
+                scannode = ElementTree.SubElement(node, "scan") # FIXME: ? scan or node ?
+            for item in ('scan', 'key', 'label'):
                 scannode.set(item, str(scan[item]))
-            scannode.set("specfile", specfile)
-            ElementTree.SubElement(scannode, "title").text = scan["title"]
+            scannode.set('specfile', specfile)
+            ElementTree.SubElement(scannode, "title").text = scan['title']
             # write the scan data to the XML file
             vec = ElementTree.SubElement(scannode, "Q")
-            vec.set("units", "1/A")
-            vec.text = " ".join(textArray(scan["qVec"]))
+            vec.set('units', '1/A')
+            vec.text = ' '.join(textArray(scan['qVec']))
             vec = ElementTree.SubElement(scannode, "R")
-            vec.set("units", "arbitrary")
-            vec.text = " ".join(textArray(scan["rVec"]))
+            vec.set('units', 'arbitrary')
+            vec.text = ' '.join(textArray(scan['rVec']))
         except Exception as e:
-            logger.info("caught Exception while writing USAXS scan data to XML file")
-            logger.info("  file: %s" % specfile)
+            logger.info('caught Exception while writing USAXS scan data to XML file')
+            logger.info('  file: %s' % specfile)
             logger.info(e)
 
     # final steps
@@ -248,38 +224,35 @@ def buildReport():
     doc = minidom.parseString(ElementTree.tostring(root))
     # <?xml-stylesheet type="text/xsl" href="raw-table.xsl" ?>
     # insert XML Processing Instruction text after first line of XML
-    pi = doc.createProcessingInstruction(
-        "xml-stylesheet", 'type="text/xsl" href="raw-table.xsl"'
-    )
+    pi = doc.createProcessingInstruction('xml-stylesheet',
+                                     'type="text/xsl" href="raw-table.xsl"')
     root = doc.firstChild
     doc.insertBefore(pi, root)
-    xmlText = doc.toxml()  # all on one line, looks bad, who cares?
-    # xmlText = doc.toprettyxml(indent = "  ") # toprettyxml() adds extra unwanted whitespace
+    xmlText = doc.toxml()       # all on one line, looks bad, who cares?
+    #xmlText = doc.toprettyxml(indent = "  ") # toprettyxml() adds extra unwanted whitespace
     return xmlText
 
 
 def report():
-    """write the values out to files"""
+    '''write the values out to files'''
     xmlText = buildReport()
 
     # WWW directory for livedata (absolute path)
     localDir = localConfig.LOCAL_WWW_LIVEDATA_DIR
 
-    # --- write the XML with the raw data from EPICS
+    #--- write the XML with the raw data from EPICS
     raw_xml = localConfig.XML_REPORT_FILE
     abs_raw_xml = os.path.join(localDir, raw_xml)
     writeFile(abs_raw_xml, xmlText)
 
     wwwServerTransfers.nfsCpToWebServer(abs_raw_xml, raw_xml)
 
-    # --- xslt transforms from XML to HTML
+    #--- xslt transforms from XML to HTML
 
     # make the index.html file
     index_html = localConfig.HTML_INDEX_FILE  # short name
     abs_index_html = os.path.join(localDir, index_html)  # absolute path
-    xslt_transformation(
-        localConfig.LIVEDATA_XSL_STYLESHEET, abs_raw_xml, abs_index_html
-    )
+    xslt_transformation(localConfig.LIVEDATA_XSL_STYLESHEET, abs_raw_xml, abs_index_html)
     wwwServerTransfers.nfsCpToWebServer(abs_index_html, index_html)  # copy to XSD
 
     # display the raw data (but pre-convert it in an html page)
@@ -299,91 +272,89 @@ def report():
     # make the usaxstv.html file
     usaxstv_html = localConfig.HTML_USAXSTV_FILE  # short name
     abs_usaxstv_html = os.path.join(localDir, usaxstv_html)  # absolute path
-    xslt_transformation(
-        localConfig.USAXSTV_XSL_STYLESHEET, abs_raw_xml, abs_usaxstv_html
-    )
+    xslt_transformation(localConfig.USAXSTV_XSL_STYLESHEET, abs_raw_xml, abs_usaxstv_html)
     wwwServerTransfers.nfsCpToWebServer(abs_usaxstv_html, usaxstv_html)  # copy to XSD
 
 
 def update_pvdb(pv, raw_value):
     if pv not in pvdb:
-        raise PvNotRegistered("!!!ERROR!!! %s was not found in pvdb!" % pv)
+        raise PvNotRegistered('!!!ERROR!!! %s was not found in pvdb!' % pv)
     entry = pvdb[pv]
-    # ch = entry['ch']
-    entry["timestamp"] = datetime.datetime.now()
-    entry["counter"] += 1
-    entry["raw_value"] = raw_value
-    entry["value"] = entry["format"] % raw_value
+    #ch = entry['ch']
+    entry['timestamp'] = datetime.datetime.now()
+    entry['counter'] += 1
+    entry['raw_value'] = raw_value
+    entry['value'] = entry['format'] % raw_value
 
 
 def EPICS_monitor_receiver(*args, **kws):
-    """Response to an EPICS (PyEpics) monitor on the channel"""
+    '''Response to an EPICS (PyEpics) monitor on the channel'''
     global GLOBAL_MONITOR_COUNTER
-    pv = kws["pvname"]
+    pv = kws['pvname']
     if pv not in pvdb:
-        raise PvNotRegistered("!!!ERROR!!! %s was not found in pvdb!" % pv)
+        raise PvNotRegistered('!!!ERROR!!! %s was not found in pvdb!' % pv)
     if pvdb[pv]["waveform_char"]:
-        v = kws["char_value"]
+        v = kws['char_value']
         logger.debug("CA monitor waveform string value: {} = {}".format(pv, v))
     else:
-        v = kws["value"]
-    update_pvdb(pv, v)  # cache the last known good value
+        v = kws['value']
+    update_pvdb(pv, v)   # cache the last known good value
     GLOBAL_MONITOR_COUNTER += 1
 
 
 def add_pv(mne, pv, desc, fmt, waveform_char=False):
-    """Connect to another EPICS (PyEpics) process variable"""
+    '''Connect to another EPICS (PyEpics) process variable'''
     if pv in pvdb:
-        raise Exception("%s already defined by id=%s" % (pv, pvdb[pv]["id"]))
+        raise Exception("%s already defined by id=%s" % (pv, pvdb[pv]['id']))
     ch = epics.PV(pv)
-    # ch.connect()
+    #ch.connect()
     entry = {
-        "name": pv,  # EPICS PV name
-        "id": mne,  # symbolic name used in the python code
-        "description": desc,  # text description for humans
-        "timestamp": None,  # client time last monitor was received
-        "counter": 0,  # number of monitor events received
-        "units": "",  # engineering units
-        "ch": ch,  # EPICS PV channel
-        "format": fmt,  # format for display
-        "value": None,  # formatted value
-        "raw_value": None,  # unformatted value
-        "waveform_char": waveform_char,  # PV is a waveform of CHAR
+        'name': pv,           # EPICS PV name
+        'id': mne,            # symbolic name used in the python code
+        'description': desc,  # text description for humans
+        'timestamp': None,    # client time last monitor was received
+        'counter': 0,         # number of monitor events received
+        'units': "",          # engineering units
+        'ch': ch,             # EPICS PV channel
+        'format': fmt,        # format for display
+        'value': None,        # formatted value
+        'raw_value': None,    # unformatted value
+        'waveform_char': waveform_char,     # PV is a waveform of CHAR
     }
     pvdb[pv] = entry
-    xref[mne] = pv  # mne is local mnemonic, define actual PV in pvlist.xml
+    xref[mne] = pv            # mne is local mnemonic, define actual PV in pvlist.xml
     ch.add_callback(EPICS_monitor_receiver)  # start callbacks now
     cv = ch.get_ctrlvars()
-    unit_renames = {  # handle some non SI unit names
+    unit_renames = {        # handle some non SI unit names
         # old      new
-        "millime": "mm",
-        "millira": "mr",
-        "degrees": "deg",
-        "Volts": "V",
-        "VDC": "V",
-        "eng": "",
+        'millime': 'mm',
+        'millira': 'mr',
+        'degrees': 'deg',
+        'Volts':   'V',
+        'VDC':     'V',
+        'eng':     '',
     }
-    if cv is not None and "units" in cv:
-        units = cv["units"]
+    if cv is not None and 'units' in cv:
+        units = cv['units']
         if units in unit_renames:
             units = unit_renames[units]
-        entry["units"] = units
+        entry['units'] = units
     if waveform_char:
         v = ch.get(as_string=True)
     else:
         v = ch.get()
-    update_pvdb(pv, v)  # initialize the cache
+    update_pvdb(pv, v)   # initialize the cache
 
 
 def initiate_PV_connections():
-    """create connections to all defined PVs"""
+    '''create connections to all defined PVs'''
     if not os.path.exists(PVLIST_FILE):
-        logger.info("could not find file: " + PVLIST_FILE)
+        logger.info('could not find file: ' + PVLIST_FILE)
         return
     try:
         tree = ElementTree.parse(PVLIST_FILE)
     except Exception:
-        logger.info("could not parse file: " + PVLIST_FILE)
+        logger.info('could not parse file: ' + PVLIST_FILE)
         return
 
     for key in tree.findall(".//EPICS_PV"):
@@ -396,15 +367,12 @@ def initiate_PV_connections():
             try:
                 add_pv(mne, pv, desc, fmt, waveform_char=waveform_char)
             except Exception:
-                msg = "%s: problem connecting: %s" % (
-                    PVLIST_FILE,
-                    ElementTree.tostring(key),
-                )
+                msg = "%s: problem connecting: %s" % (PVLIST_FILE, ElementTree.tostring(key))
                 logger.warn(msg)
 
 
 def main_event_loop_checks(mainLoopCount, nextReport, nextLog, delta_report, delta_log):
-    """check events for the main event loop"""
+    '''check events for the main event loop'''
     global GLOBAL_MONITOR_COUNTER
     global MAINLOOP_COUNTER_TRIGGER
     dt = datetime.datetime.now()
@@ -420,7 +388,7 @@ def main_event_loop_checks(mainLoopCount, nextReport, nextLog, delta_report, del
             # https://github.com/APS-USAXS/livedata/issues/6
             logger.debug(pvdb["9idcLAX:USAXS:sampleTitle"]["value"])
             t0 = time.time()
-            report()  # write contents of pvdb to a file
+            report()                                   # write contents of pvdb to a file
             logger.debug("report() completed in %.3f s" % (time.time() - t0))
         except Exception as exc:
             msg = "problem with {}(): traceback={}".format("report", exc)
@@ -428,14 +396,14 @@ def main_event_loop_checks(mainLoopCount, nextReport, nextLog, delta_report, del
             logger.warn(traceback.format_exc())
 
         try:
-            updateSpecMacroFile()  # copy the spec macro file
+            updateSpecMacroFile()                      # copy the spec macro file
         except Exception as exc:
             msg = "problem with {}(): traceback={}".format("updateSpecMacroFile", exc)
             logger.warn(msg)
             logger.warn(traceback.format_exc())
 
         try:
-            updatePlotImage()  # update the plot
+            updatePlotImage()                          # update the plot
         except Exception as exc:
             msg = "problem with {}(): traceback={}".format("updatePlotImage", exc)
             logger.warn(msg)
@@ -451,18 +419,18 @@ def main_event_loop_checks(mainLoopCount, nextReport, nextLog, delta_report, del
 
 
 def main():
-    """
+    '''
     run the main event loop
-    """
+    '''
     global GLOBAL_MONITOR_COUNTER
-    test_pv = "S:SRcurrentAI"
+    test_pv = 'S:SRcurrentAI'
     epics.caget(test_pv)
     ch = epics.PV(test_pv)
     epics.ca.poll()
     connected = ch.connect(timeout=5.0)
     if not connected:
-        logger.info("Did not connect PV: " + str(ch))
-        logger.info("program will exit")
+        logger.info('Did not connect PV: ' + str(ch))
+        logger.info('program will exit')
         return
 
     logger.info("starting pvwatch.py")
@@ -481,9 +449,8 @@ def main():
     mainLoopCount = 0
     while True:
         mainLoopCount = (mainLoopCount + 1) % MAINLOOP_COUNTER_TRIGGER
-        nextReport, nextLog = main_event_loop_checks(
-            mainLoopCount, nextReport, nextLog, delta_report, delta_log
-        )
+        nextReport, nextLog = main_event_loop_checks(mainLoopCount,
+                                       nextReport, nextLog, delta_report, delta_log)
         time.sleep(localConfig.SLEEP_INTERVAL_S)
 
     # # this exit handling will never be called
@@ -494,5 +461,5 @@ def main():
     # print "script is done"
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

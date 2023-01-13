@@ -1,6 +1,15 @@
+# test data
+data/test_calc.h5
+
+# Python 2
 *.pyc
+
+# APS IT
 .loglogin
+
+# Eclipse configuration
 .pydevproject
+.project
 
 # Microsoft VisualStudio Code editor
 .vscode*/
