@@ -1,0 +1,33 @@
+name: py2usaxs
+
+# use:
+#   date; micromamba create -y -n py2usaxs -f ./py2usaxs-env.yml; date
+#   # then activate with:
+#   eval "$(micromamba shell hook --shell=bash)"
+#   micromamba activate py2usaxs
+
+channels:
+  - conda-forge
+  - defaults
+  # - aps-anl-tag
+  # - apsu
+  # - sveseli
+
+dependencies:
+
+  # --- Python core packages
+  - python =2
+  - h5py
+  - lmfit
+  - lxml
+  - matplotlib
+  - paramiko
+  - pyepics
+  - scipy
+  - spec2nexus
+
+  - ipython
+  - jupyter
+
+  # - pip:
+  #   - happi
