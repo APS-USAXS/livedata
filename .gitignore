@@ -7,3 +7,7 @@
 
 # logging subdirectory
 .logs/
+
+# local developer code
+_dev_*.py
+_dev_*.ipynb

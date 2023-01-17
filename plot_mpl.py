@@ -49,7 +49,10 @@ def livedata_plot(datasets, plotfile, title=None):
     fig = matplotlib.figure.Figure(figsize=(7.5, 8), dpi=300)
     fig.clf()
 
-    ax = fig.add_subplot('111', axisbg=MINTCREAM_RGB)
+    try:
+        ax = fig.add_subplot('111', axisbg=MINTCREAM_RGB)
+    except AttributeError:
+        ax = fig.add_subplot('111', facecolor=MINTCREAM_RGB)
     ax.set_xscale('log')
     ax.set_yscale('log')
     ax.set_xlabel(r'$|\vec{Q}|, 1/\AA$')

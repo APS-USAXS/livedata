@@ -57,6 +57,7 @@ class SpecFileObject(object):
     def __init__(self, specfile):
         if os.path.exists(specfile):
             from spec2nexus.spec import SpecDataFile
+
             self.filename = specfile
             stat = os.stat(specfile)
             self.size = stat.st_size
@@ -381,9 +382,11 @@ def get_AreaDetector_Data(scan_obj):
 
 
 def get_USAXS_uascan_ScanData(scan, ar_center=None):
-    created_by_bluesky = scan.header.comments[0].startswith("Bluesky ")
-    if created_by_bluesky:
-        title = scan.MD["title"]
+    if not isinstance(scan, Scan):
+        raise TypeError("Expected instance of Scan() class, received %s", type(scan))
+
+    if scan.spec_scan.header.comments[0].startswith("Bluesky "):
+        title = scan.spec_scan.MD["title"]
     else:
         title = scan.spec_scan.comments[0]
 
@@ -445,7 +448,7 @@ def get_USAXS_data(cache):
             if mpl_ds is None: continue
             if len(mpl_ds.Q) > 0 and len(mpl_ds.I) > 0:
                 mpl_datasets.append(mpl_ds)
-        logger.debug("{} = {}".format(key, scanMacro))
+        logger.debug("%s = %s", key, scanMacro)
     return mpl_datasets
 
 

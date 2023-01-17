@@ -236,23 +236,22 @@ def reduce_uascan(sds):
             primary = entry["instrument/bluesky/streams/primary"]
 
             # Must copy from h5py into local data to keep once h5py file is closed.
-            # The .value property does this.
-            wavelength = entry["instrument/monochromator/wavelength"].value
-            ar = primary["a_stage_r/value"].value
+            wavelength = entry["instrument/monochromator/wavelength"][()]
+            ar = primary["a_stage_r/value"][()]
             pps = sds.MD.get("scaler_pulses_per_second", 1e-7)
-            seconds = pps * primary["seconds/value"].value  # convert from counts
-            pd = primary["PD_USAXS/value"].value
-            I0 = primary["I0_USAXS/value"].value
-            I0_amplifier_gain = primary["I0_autorange_controls_gain/value"].value
-            ar_center = baseline["terms_USAXS_center_AR/value_start"].value
+            seconds = pps * primary["seconds/value"][()]  # convert from counts
+            pd = primary["PD_USAXS/value"][()]
+            I0 = primary["I0_USAXS/value"][()]
+            I0_amplifier_gain = primary["I0_autorange_controls_gain/value"][()]
+            ar_center = baseline["terms_USAXS_center_AR/value_start"][()]
 
-            pd_gain = primary["upd_autorange_controls_gain/value"].value
+            pd_gain = primary["upd_autorange_controls_gain/value"][()]
 
-            pd_range = primary["upd_autorange_controls_reqrange/value"]
+            pd_range = primary["upd_autorange_controls_reqrange/value"][()]
             bkg = []
             for ch in range(5):
                 addr = "upd_autorange_controls_ranges_gain%d_background" % ch
-                bkg.append(baseline[addr+"/value_start"].value)
+                bkg.append(baseline[addr+"/value_start"][()])
             pd_dark = [bkg[i] for i in pd_range]
 
     # compute the R(Q) profile
