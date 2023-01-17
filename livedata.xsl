@@ -125,7 +125,7 @@
                     		    </td>
                     		    <td align="center">
                     		        <a href="http://front-camera.xray.aps.anl.gov/">
-                    		            Inboard top frame
+                    		            Back Outboard frame
                     		        </a>
                     		    </td>
                    		    <td align="center">
@@ -135,17 +135,17 @@
                     		    </td>
                    		    <td align="center">
                     		        <a href="http://usaxs-camera1.xray.aps.anl.gov/">
-                    		            NA
+                    		            Outboard wall
                     		        </a>
                     		    </td>
                    		    <td align="center">
                     		        <a href="http://usaxs-camera2.xray.aps.anl.gov/">
-                    		            NA
+                    		            Sample view Inb.
                     		        </a>
                     		    </td>
                     		    <td align="center">
                     		        <a href="http://usaxs-camera3.xray.aps.anl.gov/">
-                    		            NA
+                    		            Sample view outb. 
                     		        </a>
                     		    </td>
 	               		    <td align="center">
@@ -512,73 +512,42 @@
                     <tr style="background-color: grey; color: white;">
                         <td>stage</td>
                         <td>rot,deg</td>
-                        <td>encoder,deg</td>
                         <td>X,mm</td>
                         <td>Y,mm</td>
                         <td>Z,mm</td>
-                        <td>tilt,deg</td>
                     </tr>
                     <tr>
                         <td>m</td>
                         <td bgcolor="white"><xsl:value-of select="//pv[@id='mr']/value"/></td>
-                        <td bgcolor="white"><xsl:value-of select="//pv[@id='mr_enc']/value"/></td>
                         <td bgcolor="white"><xsl:value-of select="//pv[@id='mx']/value"/></td>
                         <td bgcolor="white"><xsl:value-of select="//pv[@id='my']/value"/></td>
-                        <td bgcolor="#dddddd"><!-- nothing --></td>
                         <td bgcolor="#dddddd"><!-- nothing --></td>
                     </tr>
 
                     <tr>
-                        <td>ms</td>
-                        <td bgcolor="white"><xsl:value-of select="//pv[@id='msr']/value"/></td>
-                        <td bgcolor="#dddddd"><!-- nothing --></td>
-                        <td bgcolor="white"><xsl:value-of select="//pv[@id='msx']/value"/></td>
-                        <td bgcolor="white"><xsl:value-of select="//pv[@id='msy']/value"/></td>
-                        <td bgcolor="#dddddd"><!-- nothing --></td>
-                        <td bgcolor="white"><xsl:value-of select="//pv[@id='mst']/value"/></td>
-                    </tr>
-                    <tr>
                         <td>s</td>
-                        <td bgcolor="#dddddd"><!-- nothing --></td>
                         <td bgcolor="#dddddd"><!-- nothing --></td>
                         <td bgcolor="white"><xsl:value-of select="//pv[@id='sx']/value"/></td>
                         <td bgcolor="white"><xsl:value-of select="//pv[@id='sy']/value"/></td>
                         <td bgcolor="#dddddd"><!-- nothing --></td>
-                        <td bgcolor="#dddddd"><!-- nothing --></td>
                     </tr>
-                    <tr>
-                        <td>as</td>
-                        <td bgcolor="white"><xsl:value-of select="//pv[@id='asr']/value"/></td>
-                        <td bgcolor="#dddddd"><!-- nothing --></td>
-                        <td bgcolor="white"><xsl:value-of select="//pv[@id='asx']/value"/></td>
-                        <td bgcolor="white"><xsl:value-of select="//pv[@id='asy']/value"/></td>
-                        <td bgcolor="#dddddd"><!-- nothing --></td>
-                        <td bgcolor="white"><xsl:value-of select="//pv[@id='ast']/value"/></td>
-                    </tr>
-
                     <tr>
                         <td>a</td>
                         <td bgcolor="white"><xsl:value-of select="//pv[@id='ar']/value"/></td>
-                        <td bgcolor="#dddddd"><!-- nothing --></td>
                         <td bgcolor="white"><xsl:value-of select="//pv[@id='ax']/value"/></td>
                         <td bgcolor="white"><xsl:value-of select="//pv[@id='ay']/value"/></td>
-                        <td bgcolor="white"><xsl:value-of select="//pv[@id='az']/value"/></td>
                         <td bgcolor="#dddddd"><!-- nothing --></td>
                     </tr>
                     <tr>
                         <td>d</td>
                         <td bgcolor="#dddddd"><!-- nothing --></td>
-                        <td bgcolor="#dddddd"><!-- nothing --></td>
                         <td bgcolor="white"><xsl:value-of select="//pv[@id='dx']/value"/></td>
                         <td bgcolor="white"><xsl:value-of select="//pv[@id='dy']/value"/></td>
-                        <td bgcolor="#dddddd"><!-- nothing --></td>
                         <td bgcolor="#dddddd"><!-- nothing --></td>
                     </tr>
                     <tr>
                         <td>DCM theta</td>
                         <td bgcolor="white"><xsl:value-of select="//pv[@id='DCM_theta']/value"/></td>
-                        <td bgcolor="#dddddd"><!-- nothing --></td>
-                        <td bgcolor="#dddddd"><!-- nothing --></td>
                         <td bgcolor="#dddddd"><!-- nothing --></td>
                         <td bgcolor="#dddddd"><!-- nothing --></td>
                         <td bgcolor="#dddddd"><!-- nothing --></td>
@@ -596,20 +565,30 @@
 		    -->
                     <tr>
                         <td>tcam</td>
-                        <td bgcolor="white"><xsl:value-of select="//pv[@id='tcam']/value"/></td>
                         <td bgcolor="#dddddd"><!-- nothing --></td>
-                        <td bgcolor="#dddddd"><!-- nothing --></td>
-                        <td bgcolor="#dddddd"><!-- nothing --></td>
+                        <td bgcolor="white"><xsl:value-of select="//pv[@id='Tcam']/value"/></td>
                         <td bgcolor="#dddddd"><!-- nothing --></td>
                         <td bgcolor="#dddddd"><!-- nothing --></td>
                     </tr>
                     <tr>
-                        <td>Pilatus</td>
+                        <td>SAXS</td>
+                        <td bgcolor="#dddddd"><!-- nothing --></td>
+                        <td bgcolor="white"><xsl:value-of select="//pv[@id='saxs_x']/value"/></td>
+                        <td bgcolor="white"><xsl:value-of select="//pv[@id='saxs_y']/value"/></td>
+                        <td bgcolor="white"><xsl:value-of select="//pv[@id='saxs_z']/value"/></td>
+                    </tr>
+                   <tr>
+                        <td>WAXS1</td>
+                        <td bgcolor="#dddddd"><!-- nothing --></td>
+                        <td bgcolor="white"><xsl:value-of select="//pv[@id='waxs1_x']/value"/></td>
                         <td bgcolor="#dddddd"><!-- nothing --></td>
                         <td bgcolor="#dddddd"><!-- nothing --></td>
-                        <td bgcolor="white"><xsl:value-of select="//pv[@id='pin_x']/value"/></td>
-                        <td bgcolor="white"><xsl:value-of select="//pv[@id='pin_y']/value"/></td>
-                        <td bgcolor="white"><xsl:value-of select="//pv[@id='pin_z']/value"/></td>
+                    </tr>
+                  <tr>
+                        <td>WAXS2</td>
+                        <td bgcolor="#dddddd"><!-- nothing --></td>
+                        <td bgcolor="white"><xsl:value-of select="//pv[@id='waxs2_x']/value"/></td>
+                        <td bgcolor="#dddddd"><!-- nothing --></td>
                         <td bgcolor="#dddddd"><!-- nothing --></td>
                     </tr>
                 </table>

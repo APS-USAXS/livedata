@@ -74,7 +74,10 @@
   <EPICS_PV PV="9idcLAX:m58:c0:m7.DMOV" description="motor done moving I0_stage" mne="I0_x_dmov"/>
   <EPICS_PV PV="9idcLAX:m58:c0:m7.RBV" description="motor I0_x position, mm" display_format="%.3f" mne="I0_x"/>
   <EPICS_PV PV="9idcLAX:m58:c0:m6.DMOV" description="motor done moving I0 position" mne="I0_y_dmov"/>
-  <EPICS_PV PV="9idcLAX:m58:c0:m6.RBV" description="motor I0_y position, degrees" display_format="%.3f" mne="I0_y"/>
+  <EPICS_PV PV="9idcLAX:m58:c0:m6.RBV" description="motor I0_y position, mm" display_format="%.3f" mne="I0_y"/>
+
+  <EPICS_PV PV="9idcLAX:m58:c0:m5.DMOV" description="motor done moving TCAM position" mne="Tcam_dmov"/>
+  <EPICS_PV PV="9idcLAX:m58:c0:m5.RBV" description="motor TCAM position, mm" display_format="%.3f" mne="Tcam"/>
 
   <EPICS_PV PV="9idcAERO:m8.DMOV" description="motor done moving SX" mne="sx_dmov"/>
   <EPICS_PV PV="9idcAERO:m8.RBV" description="motor SX, mm" display_format="%.3f" mne="sx"/>
@@ -173,7 +176,7 @@
   <EPICS_PV PV="9idcUSX:pf4:filterTi" description="filter Ti thickness in beam, mm" display_format="%.3f" mne="pf4_thickness_Ti"/>
   <EPICS_PV PV="9idcUSX:pf4:trans" description="filter transmission" display_format="%.4e" mne="pf4_trans"/>
   <EPICS_PV PV="9idcRIO:Galil2Bo0_CMD.VAL" description="USAXS CCD shutter" mne="CCD_shutter"/>
-  <EPICS_PV PV="9idcLAX:userTran3.A" description="USAXS Ti shutter" mne="Ti_shutter"/>
+  <EPICS_PV PV="9idcLAX:softGlue:FO18_BI" description="USAXS Ti shutter" mne="Ti_shutter"/>
 
   <EPICS_PV PV="9idcUSX:rmm02:reg01:bo08" description="shutter open, USAXS Ti filter" mne="invalid_Ti_shtr_open"/>
 
