@@ -11,3 +11,6 @@
 # local developer code
 _dev_*.py
 _dev_*.ipynb
+
+# WWW server test files
+test_*.txt
