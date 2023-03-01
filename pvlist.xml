@@ -133,7 +133,7 @@
   <EPICS_PV PV="9idcLAX:pi:c0:m4.DMOV" description="motor done moving ASRp" mne="ASRp_dmov"/>
   <EPICS_PV PV="9idcLAX:pi:c0:m4.RBV" description="motor ASRp, VDC" display_format="%.4f" mne="A2Rp_rbv"/>
 
-  <EPICS_PV PV="9idcLAX:mr:encoder" description="motor MR encoder, degrees" display_format="%.6f" mne="mr_enc"/>
+  <!-- EPICS_PV PV="9idcLAX:mr:encoder" description="motor MR encoder, degrees" display_format="%.6f" mne="mr_enc"/ -->
 
   <EPICS_PV PV="9idcLAX:SAXS:USAXSSAXSMode" description="Instrument mode" mne="instrument_mode"/>
   <EPICS_PV PV="9idcLAX:USAXS:macroFile" description="SPEC macro file" mne="spec_macro_file"/>
