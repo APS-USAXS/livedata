@@ -490,7 +490,7 @@ def main(n = None, cp=False):
             logger.info("{}".format(exc))
         if cp:
             www_plot = localConfig.LOCAL_PLOTFILE
-            wwwServerTransfers.nfsCpToWebServer(local_plot, www_plot)
+            wwwServerTransfers.copyToWebServer(local_plot, www_plot)
 
 
 def pr20(n = None, cp=False):

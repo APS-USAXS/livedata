@@ -26,7 +26,8 @@ logger = logging.getLogger(__name__)
 WWW_SERVER = 'joule.xray.aps.anl.gov'
 WWW_SERVER_USER = 'webusaxs'
 WWW_SERVER_ROOT = WWW_SERVER_USER + '@' + WWW_SERVER
-WWW_SERVER_NFS_ROOT = "/net/joule/export/joule/WEBUSAXS/"
+# WWW_SERVER_NFS_ROOT = "/net/joule/export/joule/WEBUSAXS/"
+WWW_SERVER_NFS_ROOT = "/home/joule/WEBUSAXS/"
 #LIVEDATA_DIR = "www/livedata"
 LIVEDATA_DIR = "www_live"
 SERVER_WWW_HOMEDIR = WWW_SERVER_ROOT + ":~"
@@ -46,6 +47,18 @@ RETRY_COUNT = 3
 
 
 class WwwServerScpException(Exception): pass
+
+
+def copyToWebServer(sourceFile, targetFile = "", demo = False):
+    """Copy source to target using SCP, NFS, buckets, cups and string, ..."""
+    try:
+        scpToWebServer(sourceFile, targetFile=targetFile, demo=demo)
+        method = "SCP"
+    except (IOError, OSError):
+        nfsCpToWebServer(sourceFile, targetFile=targetFile, demo=demo)
+        method = "NFS"
+        # logger.warning("SCP copy failed, trying NFS")
+    logger.debug("sourceFile=%s transferred by %s", sourceFile, method)
 
 
 def nfsCpToWebServer(sourceFile, targetFile = "", demo = False):
@@ -70,10 +83,12 @@ def nfsCpToWebServer(sourceFile, targetFile = "", demo = False):
 
     try:
         shutil.copyfile(sourceFile, destinationName)
-    except OSError as exc:
+    except (IOError, OSError) as exc:
         msg = "OSError - could not %s: (%s)" % (msg, str(exc))
         logger.debug(msg)
-        raise OSError(msg)
+        # logger.warning("sourceFile=%s", sourceFile)
+        # logger.warning("destinationName=%s", destinationName)
+        raise exc
 
 
 def scpToWebServer(sourceFile, targetFile = "", demo = False):
@@ -198,9 +213,31 @@ def createSSHClient(server, port=None, user=None, password=None):
 if __name__ == '__main__':
     scpToWebServer("wwwServerTransfers.py")
     scpToWebServer_Demonstrate("wwwServerTransfers.py")
+    test_file = "test_scp.txt"
     try:
-        scpToWebServer("wally.txt")
+        path = os.path.abspath(__file__ + "/..")
+        f = open(test_file, "w")
+        f.write("You found %s! (created: %s)\n" % (test_file, str(datetime.datetime.now())))
+        f.write("%s is a test file for '%s/%s'.\n" % (test_file, path, __file__))
+        f.write("%s is copied using NFS" % test_file)
+        f.close()
+        scpToWebServer(test_file)
+        print path + "/" + test_file
     except Exception:
         print sys.exc_info()[1]
-    scpToWebServer("wwwServerTransfers.py", "wally.txt")
-    scpToWebServer_Demonstrate("wwwServerTransfers.py", "wally.txt")
+    scpToWebServer("wwwServerTransfers.py", test_file)
+    scpToWebServer_Demonstrate("wwwServerTransfers.py", test_file)
+
+    test_file = "test_nfs.txt"
+    try:
+        path = os.path.abspath(__file__ + "/..")
+        f = open(test_file, "w")
+        f.write("You found %s! (created: %s)\n" % (test_file, str(datetime.datetime.now())))
+        f.write("%s is a test file for '%s/%s'.\n" % (test_file, path, __file__))
+        f.write("%s is copied using NFS" % test_file)
+        f.close()
+        nfsCpToWebServer(test_file)
+        print path + "/" + test_file
+    except Exception:
+        print sys.exc_info()[1]
+
