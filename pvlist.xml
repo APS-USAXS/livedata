@@ -96,12 +96,12 @@
   <EPICS_PV PV="9idcLAX:m58:c1:m8.DMOV" description="motor done moving uslith USAXS slit horizontal gap" mne="uslith_dmov"/>
   <EPICS_PV PV="9idcLAX:m58:c1:m8.RBV" description="motor uslith USAXS slit horizontal gap, mm" display_format="%.4f" mne="uslith"/>
 
-  <EPICS_PV PV="9idcAERO:m8.DMOV" description="motor done moving saxs_x" mne="saxs_x_dmov"/>
-  <EPICS_PV PV="9idcAERO:m8.RBV" description="motor saxs_x, mm" display_format="%.3f" mne="saxs_x"/>
-  <EPICS_PV PV="9idcAERO:m9.DMOV" description="motor done moving saxs_y" mne="saxs_y_dmov"/>
-  <EPICS_PV PV="9idcAERO:m9.RBV" description="motor saxs_y, mm" display_format="%.3f" mne="saxs_y"/>
-  <EPICS_PV PV="9idcAERO:m10.DMOV" description="motor done moving saxs_z" mne="saxs_z_dmov"/>
-  <EPICS_PV PV="9idcAERO:m10.RBV" description="motor saxs_z, mm" display_format="%.3f" mne="saxs_z"/>
+  <EPICS_PV PV="9idcAERO:m13.DMOV" description="motor done moving saxs_x" mne="saxs_x_dmov"/>
+  <EPICS_PV PV="9idcAERO:m13.RBV" description="motor saxs_x, mm" display_format="%.3f" mne="saxs_x"/>
+  <EPICS_PV PV="9idcAERO:m15.DMOV" description="motor done moving saxs_y" mne="saxs_y_dmov"/>
+  <EPICS_PV PV="9idcAERO:m15.RBV" description="motor saxs_y, mm" display_format="%.3f" mne="saxs_y"/>
+  <EPICS_PV PV="9idcAERO:m14.DMOV" description="motor done moving saxs_z" mne="saxs_z_dmov"/>
+  <EPICS_PV PV="9idcAERO:m14.RBV" description="motor saxs_z, mm" display_format="%.3f" mne="saxs_z"/>
 
   <EPICS_PV PV="9idcAERO:m3.DMOV" description="motor done moving waxs1_x" mne="waxs1_x_dmov"/>
   <EPICS_PV PV="9idcAERO:m3.RBV" description="motor waxs1_x, mm" display_format="%.3f" mne="waxs1_x"/>
