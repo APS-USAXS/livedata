@@ -110,13 +110,13 @@
                                 <tr>
                                     <td>webcams</td>
                                     <!--
-                axis server     164.54.143.40   axis-server.xray.aps.anl.gov
-                164.54.143.41
-                164.54.143.42
-                164.54.143.43
-                164.54.143.45
-                164.54.143.46
-                164.54.143.47
+                axis server     10.54.122.40   axis-server.xray.aps.anl.gov ???
+                10.54.122.41
+                10.54.122.42
+                10.54.122.43
+                10.54.122.45
+                10.54.122.46
+                10.54.122.47
                                       -->
                     		    <td align="center">
                     		        <a href="http://axis-server.xray.aps.anl.gov">
@@ -124,33 +124,38 @@
                     		        </a>
                     		    </td>
                     		    <td align="center">
-                    		        <a href="http://front-camera.xray.aps.anl.gov/">
-                    		            Back Outboard frame
+                    		        <a href="http://10.54.122.54/">
+                    		            Inboard above D stage
                     		        </a>
                     		    </td>
                    		    <td align="center">
-                    		        <a href="http://a-stage-camera.xray.aps.anl.gov/">
-                    		            Tripod
+                    		        <a href="http://10.54.122.53/">
+                    		            Outboard above WAXS
                     		        </a>
                     		    </td>
                    		    <td align="center">
-                    		        <a href="http://usaxs-camera1.xray.aps.anl.gov/">
-                    		            Outboard wall
+                    		        <a href="http://10.54.122.41/">
+                    		            Front hutch wall
                     		        </a>
                     		    </td>
                    		    <td align="center">
-                    		        <a href="http://usaxs-camera2.xray.aps.anl.gov/">
-                    		            Sample view Inb.
+                    		        <a href="http://10.54.122.52/">
+                    		            Outboard front table up
                     		        </a>
                     		    </td>
                     		    <td align="center">
-                    		        <a href="http://usaxs-camera3.xray.aps.anl.gov/">
-                    		            Sample view outb. 
+                    		        <a href="http://10.54.122.51/">
+                    		            Outboard front table mid 
                     		        </a>
                     		    </td>
 	               		    <td align="center">
-                    		        <a href="http://usaxs-camera4.xray.aps.anl.gov/">
-                    		            Front table
+                    		        <a href="http://10.54.122.47/">
+                    		            Beamline flags
+                    		        </a>
+                    		    </td>
+	               		    <td align="center">
+                    		        <a href="http://front-camera.xray.aps.anl.gov/">
+                    		            Inboard front table
                     		        </a>
                     		    </td>
                                 </tr>
