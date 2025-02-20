@@ -48,13 +48,6 @@
   <EPICS_PV PV="S12ID:USID:EnergyM.VAL"    mne="Und_E" description="ID E, keV"  display_format="%.4f"/>
   <EPICS_PV PV="12ida2:EnCalc" mne="DCM_E" description="DCM E, keV" display_format="%.4f"/>
 
-  <EPICS_PV PV="usxLAX:userCalcOut10.A" mne="calc10_A" description="DCM temperature now, C"/>
-  <EPICS_PV PV="usxLAX:userCalcOut10.B" mne="calc10_B" description="DCM temperature alarm value, C"/>
-  <EPICS_PV PV="usxLAX:userCalcOut10.CALC" mne="calc10_CALC" description="DCM temperature calculation"/>
-  <EPICS_PV PV="usxLAX:userCalcOut10.VAL" mne="calc10_VAL" description="DCM temperature alarm state"/>
-  <EPICS_PV PV="usxLAX:userStringCalc10.SVAL" mne="stringcalc10_SVAL" description="DCM temperature alarm pvMail message"/>
-  <EPICS_PV PV="usxLAX:bit20.VAL" mne="dcmTempTrigPV" description="DCM temperature alarm trigger PV"/>
-
   <EPICS_PV PV="usxLAX:alldone" description="LAX motors moving" mne="lax_alldone"/>
 
   <EPICS_PV PV="usxAERO:m6.DMOV" description="motor done moving AR" mne="ar_dmov"/>
@@ -149,10 +142,10 @@
   <EPICS_PV PV="usxLAX:timeStamp" description="USAXS macro timeStamp" mne="timeStamp"/>
   <EPICS_PV PV="usxLAX:userDir" description="SPEC data directory" mne="spec_dir" waveform_char="true"/>
   <EPICS_PV PV="usxLAX:USAXS:UPDsize" description="photodiode size" mne="UPDsize"/>
-  <EPICS_PV PV="usxLAX:userCalc10" description="I000 computed current, A" display_format="%.3e" mne="I000_amp_current"/>
-  <EPICS_PV PV="usxLAX:userCalc7" description="photodiode computed current, A" display_format="%.3e" mne="diode_amp_current"/>
-  <EPICS_PV PV="usxLAX:userCalc8" description="I0 computed current, A" display_format="%.3e" mne="I0_amp_current"/>
-  <EPICS_PV PV="usxLAX:userCalc9" description="I00 computed current, A" display_format="%.3e" mne="I00_amp_current"/>
+  <EPICS_PV PV="usxLAX:USAXS:I000" description="I000 computed current, A" display_format="%.3e" mne="I000_amp_current"/>
+  <EPICS_PV PV="usxLAX:USAXS:upd" description="photodiode computed current, A" display_format="%.3e" mne="diode_amp_current"/>
+  <EPICS_PV PV="usxLAX:USAXS:I0" description="I0 computed current, A" display_format="%.3e" mne="I0_amp_current"/>
+  <EPICS_PV PV="usxLAX:USAXS:I00" description="I00 computed current, A" display_format="%.3e" mne="I00_amp_current"/>
   <EPICS_PV PV="usxLAX:vsc:c0.CNT" description="scaler counting time, s" display_format="%.3f" mne="scaler_cnt"/>
   <EPICS_PV PV="usxLAX:vsc:c0.S2" description="scaler I0, counts" display_format="%d" mne="scaler_I0"/>
   <EPICS_PV PV="usxLAX:vsc:c0.S3" description="scaler I00, counts" display_format="%d" mne="scaler_I00"/>

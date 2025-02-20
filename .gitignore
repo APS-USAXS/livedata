@@ -14,3 +14,4 @@ _dev_*.ipynb
 
 # WWW server test files
 test_*.txt
+.DS_Store
