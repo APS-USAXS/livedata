@@ -339,7 +339,7 @@
 				       Target Temp: <xsl:value-of select="//pv[@id='linkamT96_limit']/value"/>C
 				    </td>
 				    <xsl:choose>
-                       <xsl:when test="//pv[@id='linkamT96_errors']/value eq 'No Error'">
+                       <xsl:when test="//pv[@id='linkamT96_errors']/value='No Error'">
 					    <td align="center" bgcolor="#22ff22">
 					    No controller errors </td>
 				       </xsl:when>
