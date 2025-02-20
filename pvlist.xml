@@ -165,13 +165,12 @@
   <EPICS_PV PV="usxLAX:pd01:seq02:lucurrent" description="photodiode last-update current, A" display_format="%.3e" mne="diode_current"/>
   <EPICS_PV PV="usxLAX:pd01:seq02:lurate" description="diode count rate (at last update), c/s" mne="diode_count_rate"/>
   <EPICS_PV PV="usxRIO:pf4:filterGlass" description="filter glass thickness in beam, mm" display_format="%.3f" mne="pf4_thickness_Gl"/>
-  <EPICS_PV PV="12idPyFilter:FL1:sortedIndex_RBVl" description="filter order" display_format="%.1f" mne="pf4_thickness_Al"/>
+  <EPICS_PV PV="12idPyFilter:FL1:sortedIndex_RBV" description="filter order" display_format="%.1f" mne="pf4_thickness_Al"/>
   <EPICS_PV PV="usxRIO:pf4:filterTi" description="filter Ti thickness in beam, mm" display_format="%.3f" mne="pf4_thickness_Ti"/>
   <EPICS_PV PV="12idPyFilter:FL1:transmission_RBV" description="filter transmission" display_format="%.4e" mne="pf4_trans"/>
   <EPICS_PV PV="usxRIO:Galil2Bo0_CMD.VAL" description="USAXS CCD shutter" mne="CCD_shutter"/>
   <EPICS_PV PV="usxLAX:softGlue:FO18_BI" description="USAXS Ti shutter" mne="Ti_shutter"/>
 
-  <EPICS_PV PV="usxRIO:Galil2Bo0_CMD.VAL" description="shutter open, USAXS Ti filter" mne="invalid_Ti_shtr_open"/>
 
   <EPICS_PV PV="usxRIO:Galil2Bo14.VAL" description="USAXS Ti shutter PF42 bit3" mne="Ti_pf42_b3"/>
   <EPICS_PV PV="usxRIO:Galil2Bo15.VAL" description="USAXS Ti shutter PF42 bit4" mne="Ti_pf42_b4"/>
