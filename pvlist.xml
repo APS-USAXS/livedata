@@ -34,18 +34,18 @@
   <!-- end Linkam CI94 status PVs -->
 
  <!-- Linkam T96 status PVs JIL 2018-10 -->
-  <EPICS_PV PV="usxLINKAM:tc1:temperature_RBV" description="Linkam T96 Temp., C"  mne="linkamT96_temp"/>
-  <EPICS_PV PV="usxLINKAM:tc1:heating" description="Linkam Heating" display_format="%s"  mne="linkamT96_status"/>
-  <EPICS_PV PV="usxLINKAM:tc1:rampRate_RBV" description="Linkam Rate, C/min"  mne="linkamT96_rate"/>
-  <EPICS_PV PV="usxLINKAM:tc1:rampLimit_RBV" description="Linkam Limit, C"  mne="linkamT96_limit"/>
-  <EPICS_PV PV="usxLINKAM:tc1:statusError_RBV" description="Linkam errors" mne="linkamT96_errors" />
-  <EPICS_PV PV="usxLINKAM:tc1:lnpStatus_RBV" description="Linkam LN2 Status, C/min"  mne="linkamT96_ln2Status"/>
-  <EPICS_PV PV="usxLINKAM:tc1:vacuumLimit_RBV" description="Linkam Pressure, mBar"  mne="linkamT96_Pressure"/>
-  <EPICS_PV PV="usxLINKAM:tc1:vacuumStatus_RBV" description="Linkam Vacuum Status"  mne="linkamT96_VaccumStatus"/>
+  <EPICS_PV PV="usxLINKAM:tc1:TEMP" description="Linkam T96 Temp., C"  mne="linkamT96_temp"/>
+  <EPICS_PV PV="usxLINKAM:tc1:STAT:HTR1:HEATING" description="Linkam Heating" display_format="%s"  mne="linkamT96_status"/>
+  <EPICS_PV PV="usxLINKAM:tc1:RAMPRATE" description="Linkam Rate, C/min"  mne="linkamT96_rate"/>
+  <EPICS_PV PV="usxLINKAM:tc1:SETPOINT" description="Linkam Limit, C"  mne="linkamT96_limit"/>
+  <EPICS_PV PV="usxLINKAM:tc1:CTRLLR:ERR" description="Linkam errors" mne="linkamT96_errors" />
+  <EPICS_PV PV="usxLINKAM:tc1:STAT:LNP:PUMPING" description="Linkam LN2 Status, C/min"  mne="linkamT96_ln2Status"/>
+  <EPICS_PV PV="usxLINKAM:tc1:VACUUM" description="Linkam Pressure, mBar"  mne="linkamT96_Pressure"/>
+  <EPICS_PV PV="usxLINKAM:tc1:STAT:VAC:CNTRL" description="Linkam Vacuum Status"  mne="linkamT96_VaccumStatus"/>
   <!-- end Linkam T96 status PVs -->
 
 
-  <EPICS_PV PV="S12ID:USID:EnergyM"    mne="Und_E" description="ID E, keV"  display_format="%.4f"/>
+  <EPICS_PV PV="S12ID:USID:EnergyM.VAL"    mne="Und_E" description="ID E, keV"  display_format="%.4f"/>
   <EPICS_PV PV="12ida2:EnCalc" mne="DCM_E" description="DCM E, keV" display_format="%.4f"/>
 
   <EPICS_PV PV="usxLAX:userCalcOut10.A" mne="calc10_A" description="DCM temperature now, C"/>
@@ -70,7 +70,7 @@
   <EPICS_PV PV="usxAERO:m4.RBV" description="motor AX, mm" display_format="%.3f" mne="ax"/>
   <EPICS_PV PV="usxAERO:m5.DMOV" description="motor done moving AY" mne="ay_dmov"/>
   <EPICS_PV PV="usxAERO:m5.RBV" description="motor AY, mm" display_format="%.3f" mne="ay"/>
- 
+
   <EPICS_PV PV="usxLAX:m58:c0:m7.DMOV" description="motor done moving I0_stage" mne="I0_x_dmov"/>
   <EPICS_PV PV="usxLAX:m58:c0:m7.RBV" description="motor I0_x position, mm" display_format="%.3f" mne="I0_x"/>
   <EPICS_PV PV="usxLAX:m58:c0:m6.DMOV" description="motor done moving I0 position" mne="I0_y_dmov"/>
@@ -140,14 +140,14 @@
   <EPICS_PV PV="usxLAX:USAXS:I" description="I, a.u." display_format="%.4e" mne="USAXS_I"/>
   <EPICS_PV PV="usxLAX:USAXS:Q" description="|Q|, 1/A" display_format="%.4e" mne="USAXS_Q"/>
   <EPICS_PV PV="usxLAX:USAXS:SAD" description="sample-analyzer distance, mm" display_format="%.1f" mne="SAD"/>
-  <EPICS_PV PV="usxLAX:USAXS:sampleTitle" description="SPEC sample title" mne="sampleTitle" waveform_char="true"/>
-  <EPICS_PV PV="usxLAX:USAXS:scanning" description="USAXS scanning" mne="USAXS_collecting"/>
+  <EPICS_PV PV="usxLAX:sampleTitle" description="SPEC sample title" mne="sampleTitle" waveform_char="true"/>
+  <EPICS_PV PV="usxLAX:dataColInProgress" description="Collecting data" mne="USAXS_collecting"/>
   <EPICS_PV PV="usxLAX:USAXS:SDD" description="sample-detector distance, mm" display_format="%.1f" mne="SDD"/>
-  <EPICS_PV PV="usxLAX:USAXS:specFile" description="SPEC data file" mne="spec_data_file" waveform_char="true"/>
-  <EPICS_PV PV="usxLAX:USAXS:specScan" description="SPEC scan number" mne="spec_scan"/>
-  <EPICS_PV PV="usxLAX:USAXS:state" description="SPEC what is happening?" mne="state"/>
-  <EPICS_PV PV="usxLAX:USAXS:timeStamp" description="USAXS macro timeStamp" mne="timeStamp"/>
-  <EPICS_PV PV="usxLAX:USAXS:userDir" description="SPEC data directory" mne="spec_dir" waveform_char="true"/>
+  <EPICS_PV PV="usxLAX:specFile" description="SPEC data file" mne="spec_data_file" waveform_char="true"/>
+  <EPICS_PV PV="usxLAX:specScan" description="SPEC scan number" mne="spec_scan"/>
+  <EPICS_PV PV="usxLAX:state" description="SPEC what is happening?" mne="state"/>
+  <EPICS_PV PV="usxLAX:timeStamp" description="USAXS macro timeStamp" mne="timeStamp"/>
+  <EPICS_PV PV="usxLAX:userDir" description="SPEC data directory" mne="spec_dir" waveform_char="true"/>
   <EPICS_PV PV="usxLAX:USAXS:UPDsize" description="photodiode size" mne="UPDsize"/>
   <EPICS_PV PV="usxLAX:userCalc10" description="I000 computed current, A" display_format="%.3e" mne="I000_amp_current"/>
   <EPICS_PV PV="usxLAX:userCalc7" description="photodiode computed current, A" display_format="%.3e" mne="diode_amp_current"/>
@@ -172,9 +172,9 @@
   <EPICS_PV PV="usxLAX:pd01:seq02:lucurrent" description="photodiode last-update current, A" display_format="%.3e" mne="diode_current"/>
   <EPICS_PV PV="usxLAX:pd01:seq02:lurate" description="diode count rate (at last update), c/s" mne="diode_count_rate"/>
   <EPICS_PV PV="usxRIO:pf4:filterGlass" description="filter glass thickness in beam, mm" display_format="%.3f" mne="pf4_thickness_Gl"/>
-  <EPICS_PV PV="usxRIO:pf4:filterAl" description="filter Al thickness in beam, mm" display_format="%.3f" mne="pf4_thickness_Al"/>
+  <EPICS_PV PV="12idPyFilter:FL1:sortedIndex_RBVl" description="filter order" display_format="%.1f" mne="pf4_thickness_Al"/>
   <EPICS_PV PV="usxRIO:pf4:filterTi" description="filter Ti thickness in beam, mm" display_format="%.3f" mne="pf4_thickness_Ti"/>
-  <EPICS_PV PV="usxRIO:pf4:trans" description="filter transmission" display_format="%.4e" mne="pf4_trans"/>
+  <EPICS_PV PV="12idPyFilter:FL1:transmission_RBV" description="filter transmission" display_format="%.4e" mne="pf4_trans"/>
   <EPICS_PV PV="usxRIO:Galil2Bo0_CMD.VAL" description="USAXS CCD shutter" mne="CCD_shutter"/>
   <EPICS_PV PV="usxLAX:softGlue:FO18_BI" description="USAXS Ti shutter" mne="Ti_shutter"/>
 
@@ -185,7 +185,7 @@
 
   <EPICS_PV PV="PA:12ID:STA_A_FES_OPEN_PL.VAL" description="12-ID white shutter opened" mne="white_shtr_opened"/>
   <EPICS_PV PV="PA:12ID:STA_C_SCS_OPEN_PL.VAL" description="12-ID-C mono shutter opened" mne="mono_shtr_opened"/>
-  <EPICS_PV PV="usxLAX:blCalc:userCalc1" description="12-ID-C beam is available" mne="beam_available"/>
+  <EPICS_PV PV="usxLAX:USAXS:BeamActive.VAL" description="12-ID-C beam is available" mne="beam_available"/>
   <EPICS_PV PV="S:SRcurrentAI" description="APS storage ring current, mA" display_format="%.2f" mne="SR_current"/>
 
 </pvwatch>

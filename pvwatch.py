@@ -386,7 +386,7 @@ def main_event_loop_checks(mainLoopCount, nextReport, nextLog, delta_report, del
 
         try:
             # https://github.com/APS-USAXS/livedata/issues/6
-            logger.debug(pvdb["usxLAX:USAXS:sampleTitle"]["value"])
+            logger.debug(pvdb["usxLAX:sampleTitle"]["value"])
             t0 = time.time()
             report()                                   # write contents of pvdb to a file
             logger.debug("report() completed in %.3f s" % (time.time() - t0))

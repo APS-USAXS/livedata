@@ -9,6 +9,7 @@
                 <meta http-equiv="Refresh" content="300"/>
                 <title>USAXS: status</title>
                 <style type="text/css">
+
                     body {
                         font: x-small Verdana, Arial, Helvetica, sans-serif;
                     }
@@ -74,8 +75,8 @@
                 </style>
             </head>
             <body>
-             <table border="0" width="96%" rules="none" bgcolor="darkblue">
 
+                <table border="0" width="96%" rules="none" bgcolor="darkblue">
                     <tr>
 			<td align="center" class="description">
  			    <font color="white">USAXS status</font>
@@ -161,11 +162,8 @@
                             </table>
                      	</td>
                     </tr>
-             </table>
-
-
-
-
+                </table>
+ 
                 <table border="1" width="96%" rules="all">
                     <tr>
                         <td>
