@@ -341,6 +341,7 @@
 				    <xsl:choose>
                        <xsl:when test="//pv[@id='linkamT96_errors']/value='No Error'">
 					    <td align="center" bgcolor="#22ff22">
+                        controller error: <xsl:value-of select="//pv[@id='linkamT96_errors']/value"/> 
 					    No controller errors </td>
 				       </xsl:when>
 				       <xsl:otherwise>
