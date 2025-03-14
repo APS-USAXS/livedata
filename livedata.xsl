@@ -416,11 +416,9 @@
 
                     </tr>
                 </table>
-                <table>
-                    <tr>
-]                        <td>
-                            <h4>detectors</h4>
-                            <table border="2">
+
+               <h4>detectors</h4>
+               <table border="2">
                                 <tr style="background-color: grey; color: white;">
                                     <td>detector</td>
                                     <td>counts</td>
@@ -457,8 +455,6 @@
                                     <td><xsl:value-of select="//pv[@id='diode_amp_gain']/value"/></td>
                                     <td><xsl:value-of select="//pv[@id='diode_current']/value"/></td>
 								</tr>
-						  </td>
-						</tr>
                     </table>
 
                 <h4>motors</h4>
