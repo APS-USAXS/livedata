@@ -275,6 +275,20 @@ def report():
     xslt_transformation(localConfig.USAXSTV_XSL_STYLESHEET, abs_raw_xml, abs_usaxstv_html)
     wwwServerTransfers.copyToWebServer(abs_usaxstv_html, usaxstv_html)  # copy to XSD
 
+    # copy usaxs.jpg file
+    usaxsjpg = localConfig.LOCAL_USAXSPLOTFILE  # short name
+    abs_usaxsjpg = os.path.join(localDir, usaxsjpg)  # absolute path
+    wwwServerTransfers.copyToWebServer(abs_usaxsjpg, usaxsjpg)  # copy to XSD
+    # copy saxs.jpg file
+    saxsjpg = localConfig.LOCAL_SAXSPLOTFILE  # short name
+    abs_saxsjpg = os.path.join(localDir, saxsjpg)  # absolute path
+    wwwServerTransfers.copyToWebServer(abs_saxsjpg, saxsjpg)  # copy to XSD
+    # copy waxs.jpg file
+    waxsjpg = localConfig.LOCAL_WAXSPLOTFILE  # short name
+    abs_waxsjpg = os.path.join(localDir, waxsjpg)  # absolute path
+    wwwServerTransfers.copyToWebServer(abs_waxsjpg, waxsjpg)  # copy to XSD
+
+
 
 def update_pvdb(pv, raw_value):
     if pv not in pvdb:

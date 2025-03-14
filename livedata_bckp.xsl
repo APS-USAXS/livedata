@@ -351,30 +351,9 @@
  				</table>
  			    </td>
  			</tr>    <!-- end Linkam T96 status-->      
-            </table>
 
-                 <!-- Graphs with data in table - note step scan is missing for now -->   
-                <table>
-                     <tr>
-                         <td>
-                            <h4>USAXS plot</h4>
-                            <a href="showplotusaxs.html"><img SRC="usaxs.jpg" alt="plot of USAXS data" WIDTH="400"/></a>
-					     </td>
-                         <td>
-                            <h4>SAXS plot</h4>
-                            <a href="showplotsaxs.html"><img SRC="saxs.jpg" alt="plot of SAXS data" WIDTH="400"/></a>
-                         </td>
-                         <td>
-                            <h4>WAXS plot</h4>
-                            <a href="showplotwaxs.html"><img SRC="waxs.jpg" alt="plot of WAXS data" WIDTH="400"/></a>
-                         </td>                   
-                         <td>
-                            <h4>Step scan USAXS plot</h4>
-                            <a href="showplotstepusaxs.html"><img SRC="stepusaxs.jpg" alt="plot of USAXS step scan data" WIDTH="400"/></a>
-                         </td>                   
-                   </tr>
                 </table>
-                
+
                 <br/>
                 <h4>slits</h4>
 
@@ -460,6 +439,23 @@
 						  </td>
 						</tr>
                     </table>
+                
+                <table>
+                     <tr>
+                         <td>
+                            <h4>USAXS plot</h4>
+                            <a href="showplotusaxs.html"><img SRC="usaxs.jpg" alt="plot of USAXS data" WIDTH="400"/></a>
+					     </td>
+                         <td>
+                            <h4>SAXS plot</h4>
+                            <a href="showplotsaxs.html"><img SRC="saxs.jpg" alt="plot of SAXS data" WIDTH="400"/></a>
+                         </td>
+                         <td>
+                            <h4>WAXS plot</h4>
+                            <a href="showplotwaxs.html"><img SRC="waxs.jpg" alt="plot of WAXS data" WIDTH="400"/></a>
+                         </td>                   
+                    </tr>
+                </table>
 
                 <h4>motors</h4>
                 <table border="2">

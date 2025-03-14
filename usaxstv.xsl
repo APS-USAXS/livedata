@@ -112,7 +112,7 @@
             </script>
         </xsl:when>
         <xsl:otherwise>
-			<img src="https://usaxslive.xray.aps.anl.gov/livedata.png" width="100%" />
+			<img src="https://usaxslive.xray.aps.anl.gov/usaxs.jpg" width="100%" />
         </xsl:otherwise>
     </xsl:choose>
 

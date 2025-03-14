@@ -34,6 +34,9 @@ MTIME_CACHE_FILE = os.path.join(LOCAL_SPECPLOTS_DIR, 'mtime_cache.txt')
 A_keV = 12.3984244
 FIXED_VF_GAIN = 1e5
 LOCAL_PLOTFILE = "livedata" + os.extsep + PLOT_FORMAT
+LOCAL_USAXSPLOTFILE = 'usaxs' + os.extsep + 'jpg'
+LOCAL_SAXSPLOTFILE = 'saxs' + os.extsep + 'jpg'
+LOCAL_WAXSPLOTFILE = 'waxs' + os.extsep + 'jpg'
 
 
 # pvwatch.py
