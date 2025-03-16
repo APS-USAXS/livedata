@@ -86,76 +86,69 @@
 			    <font color="white">HTML page refresh interval 0:05:00 (h:mm:ss)</font>
 			</td>
 		    </tr>
-                    <tr bgcolor="lightblue">
-                        <td align="center">
-                            <table border="1" width="100%" rules="all" bgcolor="lightblue">
-                                <tr>
-                                    <td>
-					content updated:
- 					<xsl:value-of select="/usaxs_pvs/datetime"/>
-				    </td>
-                                    <td align="center"><a href="raw-report.html">raw info</a> </td>
-                                    <td align="center"><a href="scanlog.xml">scan log</a></td>
-                                    <td align="center"><a href="specplots">SPEC plots</a></td>
-                                    <td align="center"><a href="usaxstv.html">iPad/TV view</a></td>
-                                    <td align="center"><a href="https://s9pva.xray.aps.anl.gov/cgi-bin/pvarch/show.py">PV watch</a></td>
-				</tr>
-                            </table>
-                        </td>
-                    </tr>
-                    <tr bgcolor="lightblue">
+
+                <tr bgcolor="lightblue">
+                    <td align="center">
+                        <table border="1" width="100%" rules="all" bgcolor="lightblue">
+                            <tr>
+                                <td>
+                                content updated:
+                                <xsl:value-of select="/usaxs_pvs/datetime"/>
+                                </td>
+                                <td align="center"><a href="raw-report.html">raw info</a> </td>
+                                <td align="center"><a href="usaxstv.html">iPad/TV view</a></td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+                <tr bgcolor="lightblue">
 		                <td>
                             <table border="1" width="100%" rules="all" bgcolor="lightblue">
                                 <tr>
                                     <td>webcams</td>
-                       <!--
-                axis server     10.54.122.40   axis-server.xray.aps.anl.gov ???
-                10.54.122.41
-                10.54.122.42
-                10.54.122.43
-                10.54.122.45
-                10.54.122.46
-                10.54.122.47
-                                      -->
-                    		    <td align="center">
-                    		        <a href="http://axis-server.xray.aps.anl.gov">
-                    		            Axis Server
-                    		        </a>
-                    		    </td>
+                                                    <!--
+                                                axis server     10.54.122.40   axis-server.xray.aps.anl.gov ???
+                                                10.54.122.41
+                                                10.54.122.42
+                                                10.54.122.43
+                                                10.54.122.45
+                                                10.54.122.46
+                                                10.54.122.47
+                                                     -->
                     		    <td align="center">
                     		        <a href="http://10.54.122.54/">
                     		            Inboard above D stage
                     		        </a>
                     		    </td>
-                   		    <td align="center">
-                    		        <a href="http://10.54.122.53/">
-                    		            Outboard above WAXS
-                    		        </a>
+                                <td align="center">
+                                        <a href="http://10.54.122.53/">
+                                            Outboard above WAXS
+                                        </a>
                     		    </td>
-                   		    <td align="center">
-                    		        <a href="http://10.54.122.41/">
-                    		            Front hutch wall
-                    		        </a>
+                                <td align="center">
+                                        <a href="http://10.54.122.41/">
+                                            Front hutch wall
+                                        </a>
                     		    </td>
-                   		    <td align="center">
-                    		        <a href="http://10.54.122.52/">
-                    		            Outboard front table up
-                    		        </a>
+                                <td align="center">
+                                        <a href="http://10.54.122.52/">
+                                            Outboard front table up
+                                        </a>
                     		    </td>
                     		    <td align="center">
                     		        <a href="http://10.54.122.51/">
                     		            Outboard front table mid 
                     		        </a>
                     		    </td>
-	               		    <td align="center">
-                    		        <a href="http://10.54.122.47/">
-                    		            Beamline flags
-                    		        </a>
+                                <td align="center">
+                                        <a href="http://10.54.122.47/">
+                                            Beamline flags
+                                        </a>
                     		    </td>
-	               		    <td align="center">
-                    		        <a href="http://front-camera.xray.aps.anl.gov/">
-                    		            Inboard front table
-                    		        </a>
+                                <td align="center">
+                                        <a href="http://front-camera.xray.aps.anl.gov/">
+                                            Inboard front table
+                                        </a>
                     		    </td>
                                 </tr>
                             </table>

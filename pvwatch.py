@@ -24,7 +24,7 @@ from xml.dom import minidom
 from xml.etree import ElementTree
 
 import localConfig      # definitions for 9-ID
-import scanplots
+#import scanplots
 import wwwServerTransfers
 
 
@@ -115,28 +115,28 @@ def updateSpecMacroFile():
         wwwServerTransfers.copyToWebServer(specFile, macroFile)
 
 
-def updatePlotImage():
-    '''make a new PNG file with the most recent USAXS scans'''
+# def updatePlotImage():
+#     '''make a new PNG file with the most recent USAXS scans'''
 
-    specFile = getSpecFileName(xref['spec_data_file'])
-    if not os.path.exists(specFile):
-        logger.info(specFile + " does not exist")
-        return
-    if not os.path.isfile(specFile):
-        logger.info(specFile + " is not a file")
-        return
-    spec_mtime = os.stat(specFile).st_mtime
+#     specFile = getSpecFileName(xref['spec_data_file'])
+#     if not os.path.exists(specFile):
+#         logger.info(specFile + " does not exist")
+#         return
+#     if not os.path.isfile(specFile):
+#         logger.info(specFile + " is not a file")
+#         return
+#     spec_mtime = os.stat(specFile).st_mtime
 
-    plotFile = localConfig.LOCAL_PLOTFILE
-    plotFile = os.path.join(localConfig.LOCAL_WWW_LIVEDATA_DIR, plotFile)
-    makePlot = not os.path.exists(plotFile)        # no plot yet, let's make one!
-    if os.path.exists(plotFile):
-        plot_mtime = os.stat(plotFile).st_mtime
-        makePlot = spec_mtime > plot_mtime        #  plot only if new data
+#     plotFile = localConfig.LOCAL_PLOTFILE
+#     plotFile = os.path.join(localConfig.LOCAL_WWW_LIVEDATA_DIR, plotFile)
+#     makePlot = not os.path.exists(plotFile)        # no plot yet, let's make one!
+#     if os.path.exists(plotFile):
+#         plot_mtime = os.stat(plotFile).st_mtime
+#         makePlot = spec_mtime > plot_mtime        #  plot only if new data
 
-    if makePlot:
-        logger.debug("updating the plots and gathering scan data for XML file")
-        scanplots.main(n=localConfig.NUM_SCANS_PLOTTED, cp=True)
+#     if makePlot:
+#         logger.debug("updating the plots and gathering scan data for XML file")
+#         scanplots.main(n=localConfig.NUM_SCANS_PLOTTED, cp=True)
 
 
 def writeFile(filename, contents):
@@ -244,7 +244,6 @@ def report():
     raw_xml = localConfig.XML_REPORT_FILE
     abs_raw_xml = os.path.join(localDir, raw_xml)
     writeFile(abs_raw_xml, xmlText)
-
     wwwServerTransfers.copyToWebServer(abs_raw_xml, raw_xml)
 
     #--- xslt transforms from XML to HTML
@@ -278,7 +277,11 @@ def report():
     # copy usaxs.jpg file
     usaxsjpg = localConfig.LOCAL_USAXSPLOTFILE  # short name
     abs_usaxsjpg = os.path.join(localDir, usaxsjpg)  # absolute path
-    wwwServerTransfers.copyToWebServer(abs_usaxsjpg, usaxsjpg)  # copy to XSD
+    wwwServerTransfers.copyToWebServer(abs_usaxsjpg, usaxsjpg)  # copy to XSD    
+    # copy usaxs.jpg file
+    usaxsstepjpg = localConfig.LOCAL_USAXSSTEPPLOTFILE  # short name
+    abs_usaxsstepjpg = os.path.join(localDir, usaxsstepjpg)  # absolute path
+    wwwServerTransfers.copyToWebServer(abs_usaxsstepjpg, usaxsstepjpg)  # copy to XSD
     # copy saxs.jpg file
     saxsjpg = localConfig.LOCAL_SAXSPLOTFILE  # short name
     abs_saxsjpg = os.path.join(localDir, saxsjpg)  # absolute path
@@ -409,19 +412,21 @@ def main_event_loop_checks(mainLoopCount, nextReport, nextLog, delta_report, del
             logger.warn(msg)
             logger.warn(traceback.format_exc())
 
-        try:
-            updateSpecMacroFile()                      # copy the spec macro file
-        except Exception as exc:
-            msg = "problem with {}(): traceback={}".format("updateSpecMacroFile", exc)
-            logger.warn(msg)
-            logger.warn(traceback.format_exc())
-
-        try:
-            updatePlotImage()                          # update the plot
-        except Exception as exc:
-            msg = "problem with {}(): traceback={}".format("updatePlotImage", exc)
-            logger.warn(msg)
-            logger.warn(traceback.format_exc())
+        #this does not work for BS which does not have command file, sometimes
+        # try:
+        #     updateSpecMacroFile()                      # copy the spec macro file
+        # except Exception as exc:
+        #     msg = "problem with {}(): traceback={}".format("updateSpecMacroFile", exc)
+        #     logger.warn(msg)
+        #     logger.warn(traceback.format_exc())
+        
+        #this is now done by Matilda separately
+        #try:
+        #    updatePlotImage()                          # update the plot
+        #except Exception as exc:
+            # msg = "problem with {}(): traceback={}".format("updatePlotImage", exc)
+            # logger.warn(msg)
+            # logger.warn(traceback.format_exc())
 
     if dt >= nextLog:
         nextLog = dt + delta_log
