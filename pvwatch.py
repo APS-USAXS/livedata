@@ -278,7 +278,7 @@ def report():
     usaxsjpg = localConfig.LOCAL_USAXSPLOTFILE  # short name
     abs_usaxsjpg = os.path.join(localDir, usaxsjpg)  # absolute path
     wwwServerTransfers.copyToWebServer(abs_usaxsjpg, usaxsjpg)  # copy to XSD    
-    # copy usaxs.jpg file
+    # copy stepusaxs.jpg file
     usaxsstepjpg = localConfig.LOCAL_USAXSSTEPPLOTFILE  # short name
     abs_usaxsstepjpg = os.path.join(localDir, usaxsstepjpg)  # absolute path
     wwwServerTransfers.copyToWebServer(abs_usaxsstepjpg, usaxsstepjpg)  # copy to XSD
